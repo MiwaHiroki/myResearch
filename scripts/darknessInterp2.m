@@ -21,7 +21,7 @@ view(80,45)
 
 %%
 % img_smallをinterp2で「疑似高解像度化」
-method = "cubic";
+method = "linear";
 
 x_q = 1:0.25:imgSize;
 y_q = (1:0.25:imgSize)';
@@ -40,12 +40,14 @@ view(80,45)
 
 %%
 
+% contour3を使った表示
+%{
 xx = (1:size((z),1))';
 yy = (1:size((z),2))';
 [XX,YY] = meshgrid(xx,yy);
 %figure;contour3(XX,YY,z_new,[0.5 0.5])
 figure;contour3(XX,YY,z,30)
-
+%}
 
 %%
 

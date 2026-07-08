@@ -5,12 +5,16 @@
 
 %%
 % 発表資料作成用
-set(0,'defaultTextInterpreter','latex');
-set(0,'defaultAxesTickLabelInterpreter','latex');
-set(0,'defaultLegendInterpreter','latex');
-set(0,'defaultColorbarTickLabelInterpreter','latex');
+% set(0,'defaultTextInterpreter','latex');
+% set(0,'defaultAxesTickLabelInterpreter','latex');
+% set(0,'defaultLegendInterpreter','latex');
+% set(0,'defaultColorbarTickLabelInterpreter','latex');
+
+setDefaultIntrpr();
 
 %%
+proj = currentProject();
+
 NUM_IMAGES = 8; % レコードを8回に分けて撮影しているので8枚
 
 filenames_new = strings(NUM_IMAGES,1);
@@ -27,15 +31,21 @@ TH_HIST = 150; % threshold of the peak height in the histogram
 D_THRESH = 0.6;
 
 % 保存用
-date = "0615";
-dir = "C:\Users\owner\Documents\HirokiMiwa\matlab@Miwa\peak detection\data\"+date+"\";
+date = "0708";
+tmpDir = proj.RootFolder+"\results\"+date;
+if isfolder(tmpDir)
+    dir = tmpDir;
+else
+    mkdir(tmpDir);
+    dir = tmpDir;
+end
+% dir = "C:\Users\owner\Documents\HirokiMiwa\matlab@Miwa\peak detection\data\"+date+"\";
+
 
 %%
 NUM_IMAGES = 8;
 NUM_SEGMENTS = 10; % 細長い画像を10等分する
 TOTAL_SEGMENTS = NUM_SEGMENTS * 8; % 全部で80枚の画像
-L_MASK = 20;
-D_THRESH = 0.6;
 
 for i=1:NUM_IMAGES
     filenames_old(i) = "DSC0" + num2str(i+112) + "_8x";
@@ -45,7 +55,7 @@ end
 i=1; % i=1~NUM_IMAGES
 j=1; % j=1~NUM_SEGMENTS
 
-img_new = imread("./pictures/1111/original/" + filenames_new(9-i) + ".png");
+img_new = imread(filenames_new(9-i) + ".png");
 img_gray = rgb2gray(img_new);
 
 [imgHeight,imgWidth] = size(img_gray);
