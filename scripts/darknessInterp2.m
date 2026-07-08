@@ -1,6 +1,7 @@
 clear;
 
-img_new = imread("./pictures/1111/original/DSC1111-00001-ori.png");
+% img_new = imread("./pictures/1111/original/DSC1111-00001-ori.png");
+img_new = imread("DSC1111-00001-ori.png");
 img_gray = rgb2gray(img_new);
 
 imgSize = 50;
