@@ -4,6 +4,9 @@
 # temporary
 /temp
 
+# inputs
+/data
+
 # outputs
 /figure
 /audioFiles
