@@ -16,6 +16,9 @@ setDefaultIntrpr();
 proj = currentProject();
 
 NUM_IMAGES = 8; % レコードを8回に分けて撮影しているので8枚
+NUM_SEGMENTS = 10; % 細長い画像を10等分する
+TOTAL_SEGMENTS = NUM_SEGMENTS * 8; % 全部で80枚の画像
+
 
 filenames_new = strings(NUM_IMAGES,1);
 filenames_old = strings(NUM_IMAGES,1);
@@ -43,14 +46,6 @@ end
 
 
 %%
-NUM_IMAGES = 8;
-NUM_SEGMENTS = 10; % 細長い画像を10等分する
-TOTAL_SEGMENTS = NUM_SEGMENTS * 8; % 全部で80枚の画像
-
-for i=1:NUM_IMAGES
-    filenames_old(i) = "DSC0" + num2str(i+112) + "_8x";
-    filenames_new(i) = "DSC1111-0000" + num2str(i) + "-ori";
-end
 
 i=1; % i=1~NUM_IMAGES
 j=1; % j=1~NUM_SEGMENTS
@@ -68,7 +63,7 @@ imgData = ImageData(img_omitMask, [i;j]);
 
 dValue = DarknessValue(imgData);
 dValue = ddiff(dValue, D_THRESH);
-diffTF = dValue.diffTF;
+diffTF = dValue.getDiffTF;
 
 % dValue.dMatをinterp2で内挿してdMat_interpを作成
 dMat = dValue.dMat;
