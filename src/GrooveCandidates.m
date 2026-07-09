@@ -7,7 +7,7 @@ classdef GrooveCandidates
         imgID (2,1) double
         width (1,1) double
         height (1,1) double
-        rsmplTF (1,1) logical
+        isResampled (1,1) logical
         rRatio (1,1) double
         pksCell (1,:) cell
     end
@@ -18,7 +18,7 @@ classdef GrooveCandidates
                 obj.imgID = dValue.imgID;
                 obj.width = dValue.width;
                 obj.height = dValue.height;
-                obj.rsmplTF = dValue.rsmplTF;
+                obj.isResampled = dValue.rsmplTF;
                 obj.rRatio = dValue.rRatio;
                 obj.pksCell = cell(1,obj.width);
             end
