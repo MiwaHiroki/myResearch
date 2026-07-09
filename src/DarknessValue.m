@@ -9,7 +9,7 @@ classdef DarknessValue
     end
 
     properties (SetAccess=protected)
-        rsmplTF (1,1) logical
+        isResampled (1,1) logical
         rRatio (1,1) double
         dMat (:,:) double
         diffTF (:,:) int8
@@ -23,7 +23,7 @@ classdef DarknessValue
                 obj.imgID = imgData.imgID;
                 obj.width = imgData.width;
                 obj.height = imgData.height;
-                obj.rsmplTF = false;
+                obj.isResampled = false;
                 obj.rRatio = 1;
                 obj.dMat = 1 - imgData.img/255;
                 obj.sIdxC = cell(1,obj.width);
@@ -38,7 +38,7 @@ classdef DarknessValue
             newObj.rRatio = p/q;
         end
 
-        function obj = ddiff(obj,D_th)
+        function obj = getDiff(obj,D_th)
             TF = (obj.dMat > D_th);
             obj.diffTF = diff(TF);
         end
@@ -49,7 +49,7 @@ classdef DarknessValue
             plot(idx,D_x);
             axis tight;
             titleName = "$D$ on $x$="+num2str(x);
-            if obj.rsmplTF
+            if obj.isResampled
                 titleName = titleName+"("+num2str(obj.rRatio)+ "x resampled)";
             end
             title(titleName);xlabel("$y$");ylabel("$D$");
@@ -57,7 +57,7 @@ classdef DarknessValue
             colormap(flip(gray));colorbar("eastoutside");clim([0 1]);
         end
 
-        function [startIdx,endIdx] = startEndIdx(obj,x)
+        function [startIdx,endIdx] = getStartEndIdx(obj,x)
             startIdx = find(obj.diffTF(:,x)==1)+1;
             endIdx = find(obj.diffTF(:,x)==-1);
 
@@ -69,7 +69,7 @@ classdef DarknessValue
             end
         end
 
-        function [obj,startIdx_btm,endIdx_btm,pksNum] = grooveBtmIdx(obj,x,startIdx,endIdx,W_TH)
+        function [obj,startIdx_btm,endIdx_btm,pksNum] = getGrooveBtmIdx(obj,x,startIdx,endIdx,W_TH)
             btmIdx = find((endIdx-startIdx)<W_TH); % 溝底に対応するstartIdxのIdxを調べる
             startIdx_btm = startIdx(btmIdx);
             endIdx_btm = endIdx(btmIdx);
