@@ -4,10 +4,13 @@
 
 %%
 % 発表資料作成用
-set(0,'defaultTextInterpreter','latex');
-set(0,'defaultAxesTickLabelInterpreter','latex');
-set(0,'defaultLegendInterpreter','latex');
-set(0,'defaultColorbarTickLabelInterpreter','latex');
+% set(0,'defaultTextInterpreter','latex');
+% set(0,'defaultAxesTickLabelInterpreter','latex');
+% set(0,'defaultLegendInterpreter','latex');
+% set(0,'defaultColorbarTickLabelInterpreter','latex');
+
+setDefaultIntrpr();
+
 %%
 NUM_IMAGES = 8; % レコードを8回に分けて撮影しているので8枚
 
@@ -24,9 +27,12 @@ TH_HIST = 150; % threshold of the peak height in the histogram
 
 D_THRESH = 0.6;
 
+proj = currentProject();
+
 % 保存用
 date = "0615";
-dir = "C:\Users\owner\Documents\HirokiMiwa\matlab@Miwa\peak detection\data\"+date+"\";
+dir = mkdirFromDate(proj.RootFolder,date);
+% dir = "C:\Users\owner\Documents\HirokiMiwa\matlab@Miwa\peak detection\data\"+date+"\";
 
 %%
 NUM_SEGMENTS = 10; % 細長い画像を10等分する
@@ -54,23 +60,23 @@ pts_localMax_full(TOTAL_SEGMENTS,1) = GrooveCandidates();
 
 % リサンプルしていないデータの解析
 % centroid method, local maximum method両方処理する
-for i=1:NUM_IMAGES
+for iImg=1:NUM_IMAGES
     % img_old = imread("./pictures/old/8x/" + filenameC_old(9-i) + ".png");
     % img_gray = rgb2gray(img_old);
-    img_new = imread("./pictures/1111/original/" + filenames_new(9-i) + ".png");
+    img_new = imread("./pictures/1111/original/" + filenames_new(9-iImg) + ".png");
     img_gray = rgb2gray(img_new);
     
     imgWidth = size(img_gray,2); % 1回でimgWidth(pixel)分のx座標を処理
     divImgWidth = round(imgWidth / NUM_SEGMENTS);
     xarray = [1:divImgWidth:imgWidth imgWidth+1]';
 
-    for j=1:NUM_SEGMENTS
-        n = (i-1)*NUM_SEGMENTS+j; % imgDataなどの設定時に使用
+    for jSegment=1:NUM_SEGMENTS
+        n = (iImg-1)*NUM_SEGMENTS+jSegment; % imgDataなどの設定時に使用
 
-        img_small = img_gray(:, xarray(j):xarray(j+1)-1);
+        img_small = img_gray(:, xarray(jSegment):xarray(jSegment+1)-1);
 
         [img_omitMask,~] = omitMask(img_small, L_MASK);
-        imgData = ImageData(img_omitMask, [i;j]);
+        imgData = ImageData(img_omitMask, [iImg;jSegment]);
 
         dValue = DarknessValue(imgData);
         dValue = ddiff(dValue, D_THRESH);
@@ -112,7 +118,7 @@ for i=1:NUM_IMAGES
         scatter(pks_cnt(:,1),pks_cnt(:,2),3,'c','filled');
         title("Peak Dots (centroid method)");
         % pks_cntの傾きを補正したpks_cnt_corを得る
-        [p1_cnt,p2_cnt,pks_cnt_cor] = fitGroove(j,fig,p2_cnt,W_PRL,H_PRL,pks_cnt);
+        [p1_cnt,p2_cnt,pks_cnt_cor] = fitGroove(jSegment,fig,p2_cnt,W_PRL,H_PRL,pks_cnt);
 
         BIN_WIDTH = 2; % BinWidth
         [counts,edges] = histcounts(pks_cnt_cor(:,2),'BinWidth',BIN_WIDTH);
@@ -160,7 +166,7 @@ for i=1:NUM_IMAGES
         scatter(pks_cnt(:,1),pks_cnt(:,2),3,'c','filled');
         title("Peak Dots (local maximum method)");
         % pks_maxの傾きを補正したpks_max_corを得る
-        [p1_max,p2_max,pks_max_cor] = fitGroove(j,fig,p2_max,W_PRL,H_PRL,pks_max);
+        [p1_max,p2_max,pks_max_cor] = fitGroove(jSegment,fig,p2_max,W_PRL,H_PRL,pks_max);
 
         % xlim([1 1000]);ylim([1 1000]);
         % exportgraphics(fig,"./data/0322/PkDotsCmethod.png","Resolution",600);
@@ -312,9 +318,9 @@ pts_r_centroid_full(TOTAL_SEGMENTS,1) = GrooveCandidates();
 pts_r_localMax_full(TOTAL_SEGMENTS,1) = GrooveCandidates();
 
 % リサンプルしたデータについて解析
-for i=1:8
-    for j=1:NUM_SEGMENTS
-        n = (i-1)*NUM_SEGMENTS+j; % imgDataなどの設定時に使用
+for iImg=1:8
+    for jSegment=1:NUM_SEGMENTS
+        n = (iImg-1)*NUM_SEGMENTS+jSegment; % imgDataなどの設定時に使用
         imgData = imgData_full(n);
 
         dValue = dValue_full(n);
@@ -389,7 +395,7 @@ for i=1:8
         scatter(pks_cnt(:,1),pks_cnt(:,2),3,'c','filled');
         title("Peak Dots (centroid method)");xlabel("$x$");ylabel("$y$");   
         % pks_cntの傾きを補正したpks_cnt_corを得る
-        [p1_cnt,p2_cnt,pks_cnt_cor] = fitGroove(j,fig,p2_cnt,W_PRL,H_PRL,pks_cnt);
+        [p1_cnt,p2_cnt,pks_cnt_cor] = fitGroove(jSegment,fig,p2_cnt,W_PRL,H_PRL,pks_cnt);
 
         BIN_WIDTH = 2; % BinWidth
         [counts,edges] = histcounts(pks_cnt_cor(:,2),'BinWidth',BIN_WIDTH);
@@ -438,7 +444,7 @@ for i=1:8
         scatter(pks_cnt(:,1),pks_cnt(:,2),3,'c','filled');
         title("Peak Dots (local maximum method)");xlabel("$x$");ylabel("$y$");   
         % pks_maxの傾きを補正したpks_max_corを得る
-        [p1_max,p2_max,pks_max_cor] = fitGroove(j,fig,p2_max,W_PRL,H_PRL,pks_max);
+        [p1_max,p2_max,pks_max_cor] = fitGroove(jSegment,fig,p2_max,W_PRL,H_PRL,pks_max);
 
         % xlim([1 1000]);ylim([1 1000]);
         % exportgraphics(fig,"./data/0322/PkDotsCmethod.png","Resolution",600);
@@ -565,10 +571,10 @@ saveas(fig,dir+"amplitude_of_centroid_and_localMax_methods(BOTH)","png");
 %% 
 % compare the "peak dots" of the four
 
-for i=1:NUM_IMAGES
+for iImg=1:NUM_IMAGES
 % for i=1:1
-    for j=1:NUM_SEGMENTS
-        n = (i-1)*NUM_SEGMENTS+j;
+    for jSegment=1:NUM_SEGMENTS
+        n = (iImg-1)*NUM_SEGMENTS+jSegment;
         imgData = imgData_full(n);
         pts_cnt = pts_centroid_full(n);
         pts_max = pts_localMax_full(n);
@@ -589,7 +595,7 @@ for i=1:NUM_IMAGES
         lgd = legend;
         lgd.ItemHitFcn = @togglevisibility;
 
-        filename = "GrvCandidatesOnImg(4patterns)_"+num2str(i)+"_"+num2str(j);
+        filename = "GrvCandidatesOnImg(4patterns)_"+num2str(iImg)+"_"+num2str(jSegment);
         saveas(fig,dir+"GrvCandidates/"+filename+".fig");
         saveas(fig,dir+"GrvCandidates/"+filename+".png");
         close(fig)

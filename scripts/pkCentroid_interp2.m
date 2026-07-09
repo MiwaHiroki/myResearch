@@ -35,13 +35,7 @@ D_THRESH = 0.6;
 
 % 保存用
 date = "0708";
-tmpDir = proj.RootFolder+"\results\"+date;
-if isfolder(tmpDir)
-    dir = tmpDir;
-else
-    mkdir(tmpDir);
-    dir = tmpDir;
-end
+dir = mkdirFromDate(proj.RootFolder,date);
 % dir = "C:\Users\owner\Documents\HirokiMiwa\matlab@Miwa\peak detection\data\"+date+"\";
 
 
