@@ -18,7 +18,7 @@ classdef GrooveCandidates
                 obj.imgID = dValue.imgID;
                 obj.width = dValue.width;
                 obj.height = dValue.height;
-                obj.isResampled = dValue.rsmplTF;
+                obj.isResampled = dValue.isResampled;
                 obj.rRatio = dValue.rRatio;
                 obj.pksCell = cell(1,obj.width);
             end

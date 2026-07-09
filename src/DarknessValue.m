@@ -9,7 +9,7 @@ classdef DarknessValue
     end
 
     properties (SetAccess=protected)
-        isResampled (1,1) logical
+        % isResampled (1,1) logical
         rRatio (1,1) double
         dMat (:,:) double
         diffTF (:,:) int8
@@ -23,7 +23,7 @@ classdef DarknessValue
                 obj.imgID = imgData.imgID;
                 obj.width = imgData.width;
                 obj.height = imgData.height;
-                obj.isResampled = false;
+                % obj.isResampled = false;
                 obj.rRatio = 1;
                 obj.dMat = 1 - imgData.img/255;
                 obj.sIdxC = cell(1,obj.width);
@@ -31,16 +31,20 @@ classdef DarknessValue
             end
         end
 
+        function TF = isResampled(obj)
+            if (obj.rRatio == 1)
+                TF=true;
+            else
+                TF=false;
+            end
+        end
+
+
         function newObj = dResample(obj,p,q)
             newObj = obj;
             newObj.dMat = resample(obj.dMat,p,q);
-            newObj.rsmplTF = true;
+            % newObj.isResampled = true;
             newObj.rRatio = p/q;
-        end
-
-        function obj = getDiff(obj,D_th)
-            TF = (obj.dMat > D_th);
-            obj.diffTF = diff(TF);
         end
 
         function plotD_x(obj,x)
@@ -49,12 +53,17 @@ classdef DarknessValue
             plot(idx,D_x);
             axis tight;
             titleName = "$D$ on $x$="+num2str(x);
-            if obj.isResampled
+            if isResampled(obj)
                 titleName = titleName+"("+num2str(obj.rRatio)+ "x resampled)";
             end
             title(titleName);xlabel("$y$");ylabel("$D$");
             ylim([0 1]);
             colormap(flip(gray));colorbar("eastoutside");clim([0 1]);
+        end
+
+        function obj = setDiffTF(obj,D_THRESH)
+            TF = (obj.dMat > D_THRESH);
+            obj.diffTF = diff(TF);
         end
 
         function [startIdx,endIdx] = getStartEndIdx(obj,x)

@@ -41,10 +41,10 @@ dir = mkdirFromDate(proj.RootFolder,date);
 
 %%
 
-i=1; % i=1~NUM_IMAGES
-j=1; % j=1~NUM_SEGMENTS
+iImg=1; % i=1~NUM_IMAGES
+iSegment=1; % j=1~NUM_SEGMENTS
 
-img_new = imread(filenames_new(9-i) + ".png");
+img_new = imread(filenames_new(9-iImg) + ".png");
 img_gray = rgb2gray(img_new);
 
 [imgHeight,imgWidth] = size(img_gray);
@@ -53,11 +53,10 @@ divImgWidth = round(imgWidth / NUM_SEGMENTS);
 xarray = [1:divImgWidth:imgWidth imgWidth+1]';
 
 [img_omitMask,newWidth] = omitMask(img_gray, L_MASK);
-imgData = ImageData(img_omitMask, [i;j]);
+imgData = ImageData(img_omitMask, [iImg;iSegment]);
 
 dValue = DarknessValue(imgData);
-dValue = ddiff(dValue, D_THRESH);
-diffTF = dValue.getDiffTF;
+dValue = setDiffTF(dValue,D_THRESH);
 
 % dValue.dMatをinterp2で内挿してdMat_interpを作成
 dMat = dValue.dMat;
@@ -80,9 +79,9 @@ W_TH = 5;
 w_TH = W_TH / step;
 
 for x=1:imgData.width
-    [startIdx, endIdx] = dValue.startEndIdx(x);
+    [startIdx, endIdx] = dValue.getStartEndIdx(x);
     [dValue,startIdx_btm,endIdx_btm,pksNum] = ...
-        dValue.grooveBtmIdx(x,startIdx,endIdx,W_TH);
+        dValue.getGrooveBtmIdx(x,startIdx,endIdx,W_TH);
     % startIdx_btm, endIdx_btm, pksNumは今後不要になる予定
 
     cnt_x = dValue.extractGrv_cnt(x);
