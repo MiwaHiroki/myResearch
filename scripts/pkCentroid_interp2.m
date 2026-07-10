@@ -41,7 +41,7 @@ saveDir = mkdirFromDate(proj.RootFolder,date);
 
 %%
 
-iImg=1; % i=1~NUM_IMAGES
+iImg=5; % i=1~NUM_IMAGES
 iSegment=1; % j=1~NUM_SEGMENTS
 
 img_new = imread(filenames_new(9-iImg) + ".png");
@@ -180,7 +180,7 @@ pts_cnt_intp.showCandidates();
 legend(["original","resampled","interpolated"]);
 lgd = legend; lgd.ItemHitFcn = @togglevisibility;
 
-saveas(gcf,saveDir+"PkDots(orig,rsmpl,intp).fig");
+saveas(gcf,saveDir+"PkDots(muteSection)(orig,rsmpl,intp).fig");
 
 %%
 MARKER_SIZE = 5;
@@ -354,7 +354,7 @@ xlabel("$x$");ylabel("$y$");
 legend(["original","resampled","interpolated"]);
 lgd = legend; lgd.ItemHitFcn = @togglevisibility;
 
-saveas(gcf,saveDir+"grooveCoords(orig,rsmpl,intp).fig");
+saveas(gcf,saveDir+"grooveCoords(muteSection)(orig,rsmpl,intp).fig");
 
 %%
 
