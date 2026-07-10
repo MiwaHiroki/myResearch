@@ -104,6 +104,7 @@ classdef DarknessValue
                 sigma_D = sum(D_x(idxs));
                 sigma_jxD = sum(idxs .* D_x(idxs));
                 cnt_x(k) = sigma_jxD/sigma_D;
+                % cnt_x(k) = 1 + (cnt_x(k)-1)/obj.rRatio;
             end
         end
 
@@ -122,7 +123,8 @@ classdef DarknessValue
                     max_x(k) = idxs;
                 else
                     [~,max_x(k)] = max(D_x(idxs));
-                    max_x(k) = max_x(k) + startIdx_btm(k) -1 ;
+                    max_x(k) = max_x(k) + startIdx_btm(k) - 1;
+                    % max_x(k) = 1 + (max_x(k)-1)/obj.rRatio;
                 end
             end
         end
