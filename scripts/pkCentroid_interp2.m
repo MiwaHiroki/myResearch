@@ -68,14 +68,13 @@ img_interp2 = interp2(xx,yy,origImg.img,x_q,y_q,method);
 intpImg = ImageData(img_interp2,[iImg,iSegment]);
 intpWidth = intpImg.width; intpHeight = intpImg.height;
 
-origD = DarknessValue(origImg);
-origD = setDiffTF(origD, D_THRESH);
+origD = DarknessValue(origImg,D_THRESH);
 
 p_rsmpl = 8; q_rsmpl = 1;
 rsmplD = dResample(origD,8,1);
 
-intpD = DarknessValue(intpImg);
-intpD = setDiffTF(intpD, D_THRESH);
+intpD = DarknessValue(intpImg,D_THRESH);
+
 
 
 % cells in which startIdx and endIdx are recorded.
@@ -104,6 +103,8 @@ pts_max_intp = GrooveCandidates(intpD);
 W_TH = 8;
 W_TH_INTERP = W_TH / step;
 
+
+
 for x=1:origWidth
     [startIdx, endIdx] = getStartEndIdx(origD, x);
     [origD,~,~,pksNum] = ...
@@ -113,9 +114,13 @@ for x=1:origWidth
     cnt_x = origD.extractGrv_cnt(x);
     max_x = origD.extractGrv_max(x);
 
-    pts_cnt.pksCell{x} = [x*ones(pksNum,1), cnt_x];
+    pks_cnt = [x*ones(pksNum,1), cnt_x];
+
+    pts_cnt.pksCell{x} = pks_cnt;
     pts_max.pksCell{x} = [x*ones(pksNum,1), max_x];
 
+    W_PRL = origImg.width; % 平行四辺形の高さ
+    H_PRL = 8; % 平行四辺形の底辺
 
     [startIdx, endIdx] = getStartEndIdx(rsmplD, x);
     [rsmplD,startIdx_btm,endIdx_btm,pksNum] = ...
@@ -126,6 +131,7 @@ for x=1:origWidth
 
     pts_cnt_r.pksCell{x} = [x*ones(pksNum,1), cnt_x];
     pts_max_r.pksCell{x} = [x*ones(pksNum,1), max_x];
+
 end
 
 sIdxs = vertcat(sIdxC{:});
@@ -135,7 +141,6 @@ pks_max = vertcat(pts_max.pksCell{:});
 
 pks_cnt_r = vertcat(pts_cnt_r.pksCell{:});
 pks_max_r = vertcat(pts_max_r.pksCell{:});
-
 
 for x=1:intpWidth
     [startIdx, endIdx] = intpD.getStartEndIdx(x);
@@ -148,7 +153,14 @@ for x=1:intpWidth
     tmpPoints = [x*ones(pksNum,1), cnt_x];
     tmpPoints = 1+(tmpPoints-1)*step;
     pts_cnt_intp.pksCell{x} = tmpPoints;
-    pts_max_intp.pksCell{x} = [x*ones(pksNum,1), max_x];
+
+    tmpPoints = [x*ones(pksNum,1), max_x];
+    tmpPoints = 1+(tmpPoints-1)*step;
+    pts_max_intp.pksCell{x} = tmpPoints;
+
+    W_PRL = intpImg.width; % 平行四辺形の高さ
+    H_PRL = 8; % 平行四辺形の底辺
+
 end
 
 sIdxs_intp = vertcat(sIdxC_intp{:});
@@ -156,18 +168,190 @@ eIdxs_intp = vertcat(eIdxC_intp{:});
 pks_cnt_intp = vertcat(pts_cnt_intp.pksCell{:});
 pks_max_intp = vertcat(pts_max_intp.pksCell{:});
 
+%%
+% 結果の確認
+figure;
+origImg.showImg();
+hold on;
+pts_cnt.showCandidates();
+pts_cnt_r.showCandidates();
+pts_cnt_intp.showCandidates();
 
+legend(["original","resampled","interpolated"]);
+lgd = legend; lgd.ItemHitFcn = @togglevisibility;
 
 %%
+MARKER_SIZE = 5;
+
+
+% original data
+p2_cnt = [0;0];
+
 fig = figure;
 % fig = createFigure([0 0 6 6]);
 % imshow(img_small,"InitialMagnification","fit");
 origImg.showImg();
 hold on;
-scatter(pks_cnt(:,1),pks_cnt(:,2),3,'filled');
-scatter(pks_cnt_r(:,1),pks_cnt_r(:,2),3,'filled');
-scatter(pks_cnt_intp(:,1),pks_cnt_intp(:,2),3,'filled');
-
+scatter(pks_cnt(:,1),pks_cnt(:,2),MARKER_SIZE,'c','filled');
 title("Peak Dots (centroid method)");
-legend(["not resampled","resampled","interpolated"]);
-lgd = legend; lgd.ItemHitFcn=@togglevisibility;
+% pks_cntの傾きを補正したpks_cnt_corを得る
+[p1_cnt,p2_cnt,pks_cnt_cor] = fitGroove(iSegment,fig,p2_cnt,W_PRL,H_PRL,pks_cnt);
+
+BIN_WIDTH = 2; % BinWidth
+[counts,edges] = histcounts(pks_cnt_cor(:,2),'BinWidth',BIN_WIDTH);
+centers = edges(1:end-1) + diff(edges)/2; % ピークの中心
+
+[~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST);
+
+[~,idx_hist] = min(abs(p1_cnt(2) - centers(histPkLocs)));
+groove1Center = centers(histPkLocs(idx_hist));
+
+TOL_DISTANCE = 4;
+% そのピークの中心からTOL_DISTANCE(pixel)以内にあるy座標
+y_min = groove1Center - TOL_DISTANCE;
+y_max = groove1Center + TOL_DISTANCE;
+
+% f=figure; barh(centers,counts);
+% set(gca,'YDir','reverse','xAxisLocation','top');box on
+% % xlim([0 1000]);ylim([0 1000]);xticks(0:200:1000);yticks(0:200:1000)
+% hold on;
+% yline(y_min);yline(y_max);
+% hold off;
+
+points = [(1:origD.width)',NaN(origD.width,1)];
+
+idxs = (pks_cnt_cor(:,2) >= y_min) & (pks_cnt_cor(:,2)<=y_max);
+points(pks_cnt_cor(idxs,1),2) = pks_cnt_cor(idxs,2);
+
+% 形状抽出に失敗した点を埋める
+% 波形表示時の各信号の長さを揃えるため
+points(:,2) = fillmissing(points(:,2),"linear");
+
+points_fit = points;
+
+p = polyfit(points(:,1),points(:,2),3);
+points_fit(:,2) = points(:,2) - polyval(p,points(:,1));
+points_fit(:,2) = points_fit(:,2) - mean(points_fit(:,2));
+
+points_orig = points_fit;
+
+
+% resampled data
+p2_cnt = [0;0];
+
+fig = figure;
+% fig = createFigure([0 0 6 6]);
+% imshow(img_small,"InitialMagnification","fit");
+origImg.showImg();
+hold on;
+scatter(pks_cnt_r(:,1),pks_cnt_r(:,2),MARKER_SIZE,'c','filled');
+title("Peak Dots (centroid method)");
+% pks_cntの傾きを補正したpks_cnt_corを得る
+[p1_cnt,p2_cnt,pks_cnt_cor] = fitGroove(iSegment,fig,p2_cnt,W_PRL,H_PRL,pks_cnt_r);
+
+BIN_WIDTH = 2; % BinWidth
+[counts,edges] = histcounts(pks_cnt_cor(:,2),'BinWidth',BIN_WIDTH);
+centers = edges(1:end-1) + diff(edges)/2; % ピークの中心
+
+[~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST);
+
+[~,idx_hist] = min(abs(p1_cnt(2) - centers(histPkLocs)));
+groove1Center = centers(histPkLocs(idx_hist));
+
+TOL_DISTANCE = 4;
+% そのピークの中心からTOL_DISTANCE(pixel)以内にあるy座標
+y_min = groove1Center - TOL_DISTANCE;
+y_max = groove1Center + TOL_DISTANCE;
+
+% f=figure; barh(centers,counts);
+% set(gca,'YDir','reverse','xAxisLocation','top');box on
+% % xlim([0 1000]);ylim([0 1000]);xticks(0:200:1000);yticks(0:200:1000)
+% hold on;
+% yline(y_min);yline(y_max);
+% hold off;
+
+points = [(1:origD.width)',NaN(origD.width,1)];
+
+idxs = (pks_cnt_cor(:,2) >= y_min) & (pks_cnt_cor(:,2)<=y_max);
+points(pks_cnt_cor(idxs,1),2) = pks_cnt_cor(idxs,2);
+
+% 形状抽出に失敗した点を埋める
+% 波形表示時の各信号の長さを揃えるため
+points(:,2) = fillmissing(points(:,2),"linear");
+
+points_fit = points;
+
+p = polyfit(points(:,1),points(:,2),3);
+points_fit(:,2) = points(:,2) - polyval(p,points(:,1));
+points_fit(:,2) = points_fit(:,2) - mean(points_fit(:,2));
+
+points_rsmpl = points_fit;
+
+
+% interpolated data
+p2_cnt = [0;0];
+
+fig = figure;
+% fig = createFigure([0 0 6 6]);
+% imshow(img_small,"InitialMagnification","fit");
+origImg.showImg();
+hold on;
+pts_cnt_intp.showCandidates();
+title("Peak Dots (centroid method)");
+[p1_cnt,p2_cnt,pks_cnt_cor] = fitGroove(iSegment,fig,p2_cnt,W_PRL,H_PRL,pks_cnt_intp);
+
+BIN_WIDTH = 2; % BinWidth
+[counts,edges] = histcounts(pks_cnt_cor(:,2),'BinWidth',BIN_WIDTH);
+centers = edges(1:end-1) + diff(edges)/2; % ピークの中心
+
+[~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST/step);
+
+[~,idx_hist] = min(abs(p1_cnt(2) - centers(histPkLocs)));
+groove1Center = centers(histPkLocs(idx_hist));
+
+TOL_DISTANCE = 4;
+% そのピークの中心からTOL_DISTANCE(pixel)以内にあるy座標
+y_min = groove1Center - TOL_DISTANCE;
+y_max = groove1Center + TOL_DISTANCE;
+
+% f=figure; barh(centers,counts);
+% set(gca,'YDir','reverse','xAxisLocation','top');box on
+% % xlim([0 1000]);ylim([0 1000]);xticks(0:200:1000);yticks(0:200:1000)
+% hold on;
+% yline(y_min);yline(y_max);
+% hold off;
+
+points = [(1:intpD.width)',NaN(intpD.width,1)];
+
+idxs = find((pks_cnt_cor(:,2) >= y_min) & (pks_cnt_cor(:,2)<=y_max));
+points(:,1) = pks_cnt_cor(idxs,1);
+points(:,2) = pks_cnt_cor(idxs,2);
+% idxs = (pks_cnt_cor(:,2) >= y_min) & (pks_cnt_cor(:,2)<=y_max);
+% points(pks_cnt_cor(idxs,1),2) = pks_cnt_cor(idxs,2);
+
+
+% 形状抽出に失敗した点を埋める
+% 波形表示時の各信号の長さを揃えるため
+% points(:,2) = fillmissing(points(:,2),"linear");
+
+points_fit = points;
+
+p = polyfit(points(:,1),points(:,2),3);
+points_fit(:,2) = points(:,2) - polyval(p,points(:,1));
+points_fit(:,2) = points_fit(:,2) - mean(points_fit(:,2));
+
+points_intp = points_fit;
+
+%%
+figure;hold on;
+plot(points_orig(:,1),points_orig(:,2));
+plot(points_rsmpl(:,1),points_rsmpl(:,2));
+plot(points_intp(:,1),points_intp(:,2));
+title("Groove Bottom Data");
+xlabel("$x$");ylabel("$y$");
+legend(["original","resampled","interpolated"]);
+lgd = legend; lgd.ItemHitFcn = @togglevisibility;
+
+%%
+
+

@@ -146,6 +146,8 @@ for iImg=1:NUM_IMAGES
         idxs = (pks_cnt_cor(:,2) >= y_min) & (pks_cnt_cor(:,2)<=y_max);
         points(pks_cnt_cor(idxs,1),2) = pks_cnt_cor(idxs,2);
 
+        % 形状抽出に失敗した点を埋める
+        % 波形表示時の各信号の長さを揃えるため
         points(:,2) = fillmissing(points(:,2),"linear");
 
         points_fit = points;
