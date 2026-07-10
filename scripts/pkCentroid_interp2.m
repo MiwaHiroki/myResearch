@@ -34,7 +34,7 @@ TH_HIST = 150; % threshold of the peak height in the histogram
 D_THRESH = 0.6;
 
 % 保存用
-date = "0708";
+date = "0710";
 saveDir = mkdirFromDate(proj.RootFolder,date);
 % dir = "C:\Users\owner\Documents\HirokiMiwa\matlab@Miwa\peak detection\data\"+date+"\";
 
@@ -179,6 +179,8 @@ pts_cnt_intp.showCandidates();
 
 legend(["original","resampled","interpolated"]);
 lgd = legend; lgd.ItemHitFcn = @togglevisibility;
+
+saveas(gcf,saveDir+"PkDots(orig,rsmpl,intp).fig");
 
 %%
 MARKER_SIZE = 5;
@@ -351,6 +353,8 @@ title("Groove Bottom Data");
 xlabel("$x$");ylabel("$y$");
 legend(["original","resampled","interpolated"]);
 lgd = legend; lgd.ItemHitFcn = @togglevisibility;
+
+saveas(gcf,saveDir+"grooveCoords(orig,rsmpl,intp).fig");
 
 %%
 
