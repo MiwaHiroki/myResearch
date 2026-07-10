@@ -38,15 +38,20 @@ close(gcf);
     vertices(:,1), vertices(:,2));
 selected_points = pks(in | on, :);
 
+if isempty(selected_points)
+    disp("error in fitGroove(): selected_points is empty");
+end
+
 n = 1; % polyfitの次数
 x = selected_points(:,1);
 y = selected_points(:,2);
 p = polyfit(x,y,n);
+% disp(p)
 
-x_ = (1:pks(end,1))';
+x_ = pks(:,1);
 y_fit = polyval(p,x_);
 
 pks_cor = pks;
-pks_cor(:,2) = pks_cor(:,2) - y_fit(pks_cor(:,1)) + p(1,end); 
+pks_cor(:,2) = pks_cor(:,2) - y_fit + p(1,end); 
 % ヒストグラムを作るために切片だけはそのままにしておく
 end

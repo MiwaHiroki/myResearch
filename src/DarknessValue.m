@@ -6,6 +6,7 @@ classdef DarknessValue
         imgID (2,1) double
         width (1,1) double
         height (1,1) double
+        D_THRESH (1,1) double
     end
 
     properties (SetAccess=protected)
@@ -18,7 +19,7 @@ classdef DarknessValue
     end
     
     methods
-        function obj = DarknessValue(imgData)
+        function obj = DarknessValue(imgData,D_THRESH)
             if nargin>0
                 obj.imgID = imgData.imgID;
                 obj.width = imgData.width;
@@ -28,6 +29,8 @@ classdef DarknessValue
                 obj.dMat = 1 - imgData.img/255;
                 obj.sIdxC = cell(1,obj.width);
                 obj.eIdxC = cell(1,obj.width);
+                obj.D_THRESH = D_THRESH;
+                obj = obj.setDiffTF(D_THRESH);
             end
         end
 
@@ -45,6 +48,7 @@ classdef DarknessValue
             newObj.dMat = resample(obj.dMat,p,q);
             % newObj.isResampled = true;
             newObj.rRatio = p/q;
+            newObj = newObj.setDiffTF(obj.D_THRESH);
         end
 
         function plotD_x(obj,x)
@@ -79,6 +83,7 @@ classdef DarknessValue
         end
 
         function [obj,startIdx_btm,endIdx_btm,pksNum] = getGrooveBtmIdx(obj,x,startIdx,endIdx,W_TH)
+            W_TH = W_TH * obj.rRatio;
             btmIdx = find((endIdx-startIdx)<W_TH); % 溝底に対応するstartIdxのIdxを調べる
             startIdx_btm = startIdx(btmIdx);
             endIdx_btm = endIdx(btmIdx);
@@ -104,7 +109,7 @@ classdef DarknessValue
                 sigma_D = sum(D_x(idxs));
                 sigma_jxD = sum(idxs .* D_x(idxs));
                 cnt_x(k) = sigma_jxD/sigma_D;
-                % cnt_x(k) = 1 + (cnt_x(k)-1)/obj.rRatio;
+                cnt_x(k) = 1 + (cnt_x(k)-1)/obj.rRatio;
             end
         end
 
@@ -124,7 +129,7 @@ classdef DarknessValue
                 else
                     [~,max_x(k)] = max(D_x(idxs));
                     max_x(k) = max_x(k) + startIdx_btm(k) - 1;
-                    % max_x(k) = 1 + (max_x(k)-1)/obj.rRatio;
+                    max_x(k) = 1 + (max_x(k)-1)/obj.rRatio;
                 end
             end
         end
