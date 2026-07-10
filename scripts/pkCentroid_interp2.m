@@ -47,60 +47,127 @@ iSegment=1; % j=1~NUM_SEGMENTS
 img_new = imread(filenames_new(9-iImg) + ".png");
 img_gray = rgb2gray(img_new);
 
-[imgHeight,imgWidth] = size(img_gray);
+[height,width] = size(img_gray);
 
-divImgWidth = round(imgWidth / NUM_SEGMENTS);
-xarray = [1:divImgWidth:imgWidth imgWidth+1]';
+divWidth = round(width / NUM_SEGMENTS);
+xarray = [1:divWidth:width width+1]';
+img_small = img_gray(:, xarray(iSegment):xarray(iSegment+1)-1);
 
-[img_omitMask,newWidth] = omitMask(img_gray, L_MASK);
-imgData = ImageData(img_omitMask, [iImg;iSegment]);
+[img_omitMask,newWidth] = omitMask(img_small, L_MASK);
+origImg = ImageData(img_omitMask, [iImg;iSegment]);
+origWidth = origImg.width; origHeight = origImg.height;
 
-dValue = DarknessValue(imgData);
-dValue = setDiffTF(dValue,D_THRESH);
+% interpolation
+[xx,yy] = meshgrid(1:origWidth, 1:origHeight);
 
-% dValue.dMatをinterp2で内挿してdMat_interpを作成
-dMat = dValue.dMat;
-[xx,yy] = meshgrid(1:newWidth,1:imgHeight);
+step = 0.25; % the distance between query points, rRatio will be 1/step
+[x_q,y_q] = meshgrid(1:step:origWidth, 1:step:origHeight);
 
-step = 0.25;
-[x_q,y_q] = meshgrid(1:step:newWidth,1:step:imgHeight);
+method = "linear"; % method for interpolation
+img_interp2 = interp2(xx,yy,origImg.img,x_q,y_q,method);
+intpImg = ImageData(img_interp2,[iImg,iSegment]);
+intpWidth = intpImg.width; intpHeight = intpImg.height;
 
-dMat_interp = interp2(xx,yy,dMat,x_q,y_q,"cubic");
+origD = DarknessValue(origImg);
+origD = setDiffTF(origD, D_THRESH);
+
+p_rsmpl = 8; q_rsmpl = 1;
+rsmplD = dResample(origD,8,1);
+
+intpD = DarknessValue(intpImg);
+intpD = setDiffTF(intpD, D_THRESH);
 
 
-% startIdx, endIdxのプロット用
-sIdxC = cell(1, imgData.width);
-eIdxC = cell(1, imgData.width);
+% cells in which startIdx and endIdx are recorded.
+% for original img
+sIdxC = cell(1, origWidth);
+eIdxC = cell(1, origWidth);
+% for resampled img
+sIdxC_rsmpl = cell(1,origWidth);
+eIdxC_rsmpl = cell(1,origWidth);
+% for interpolated img
+sIdxC_intp = cell(1,intpWidth);
+eIdxC_intp = cell(1,intpWidth);
 
-pts_centroid = GrooveCandidates(dValue);
-pts_localMax = GrooveCandidates(dValue);
+% objects in which groove candidates are recorded.
+% for original img
+pts_cnt = GrooveCandidates(origD);
+pts_max = GrooveCandidates(origD);
+% for resampled img
+pts_cnt_r = GrooveCandidates(rsmplD);
+pts_max_r = GrooveCandidates(rsmplD);
+% for interpolated img
+pts_cnt_intp = GrooveCandidates(intpD);
+pts_max_intp = GrooveCandidates(intpD);
 
-W_TH = 5;
-w_TH = W_TH / step;
 
-for x=1:imgData.width
-    [startIdx, endIdx] = dValue.getStartEndIdx(x);
-    [dValue,startIdx_btm,endIdx_btm,pksNum] = ...
-        dValue.getGrooveBtmIdx(x,startIdx,endIdx,W_TH);
+W_TH = 8;
+W_TH_INTERP = W_TH / step;
+
+for x=1:origWidth
+    [startIdx, endIdx] = getStartEndIdx(origD, x);
+    [origD,~,~,pksNum] = ...
+        getGrooveBtmIdx(origD,x,startIdx,endIdx,W_TH);
     % startIdx_btm, endIdx_btm, pksNumは今後不要になる予定
 
-    cnt_x = dValue.extractGrv_cnt(x);
-    max_x = dValue.extractGrv_max(x);
+    cnt_x = origD.extractGrv_cnt(x);
+    max_x = origD.extractGrv_max(x);
 
-    pts_centroid.pksCell{x} = [x*ones(pksNum,1), cnt_x];
-    pts_localMax.pksCell{x} = [x*ones(pksNum,1), max_x];
+    pts_cnt.pksCell{x} = [x*ones(pksNum,1), cnt_x];
+    pts_max.pksCell{x} = [x*ones(pksNum,1), max_x];
+
+
+    [startIdx, endIdx] = getStartEndIdx(rsmplD, x);
+    [rsmplD,startIdx_btm,endIdx_btm,pksNum] = ...
+        getGrooveBtmIdx(rsmplD, x, startIdx, endIdx, W_TH);
+
+    cnt_x = rsmplD.extractGrv_cnt(x);
+    max_x = rsmplD.extractGrv_max(x);
+
+    pts_cnt_r.pksCell{x} = [x*ones(pksNum,1), cnt_x];
+    pts_max_r.pksCell{x} = [x*ones(pksNum,1), max_x];
 end
 
 sIdxs = vertcat(sIdxC{:});
 eIdxs = vertcat(eIdxC{:});
-pks_cnt = vertcat(pts_centroid.pksCell{:});
-pks_max = vertcat(pts_localMax.pksCell{:});
+pks_cnt = vertcat(pts_cnt.pksCell{:});
+pks_max = vertcat(pts_max.pksCell{:});
 
+pks_cnt_r = vertcat(pts_cnt_r.pksCell{:});
+pks_max_r = vertcat(pts_max_r.pksCell{:});
+
+
+for x=1:intpWidth
+    [startIdx, endIdx] = intpD.getStartEndIdx(x);
+    [intpD, startIdx_btm, endIdx_btm, pksNum] = ...
+        getGrooveBtmIdx(intpD,x,startIdx,endIdx,W_TH_INTERP);
+
+    cnt_x = intpD.extractGrv_cnt(x);
+    max_x = intpD.extractGrv_max(x);
+
+    tmpPoints = [x*ones(pksNum,1), cnt_x];
+    tmpPoints = 1+(tmpPoints-1)*step;
+    pts_cnt_intp.pksCell{x} = tmpPoints;
+    pts_max_intp.pksCell{x} = [x*ones(pksNum,1), max_x];
+end
+
+sIdxs_intp = vertcat(sIdxC_intp{:});
+eIdxs_intp = vertcat(eIdxC_intp{:});
+pks_cnt_intp = vertcat(pts_cnt_intp.pksCell{:});
+pks_max_intp = vertcat(pts_max_intp.pksCell{:});
+
+
+
+%%
 fig = figure;
 % fig = createFigure([0 0 6 6]);
 % imshow(img_small,"InitialMagnification","fit");
-imgData.showImg();
+origImg.showImg();
 hold on;
-scatter(pks_cnt(:,1),pks_cnt(:,2),3,'c','filled');
-title("Peak Dots (centroid method)");
+scatter(pks_cnt(:,1),pks_cnt(:,2),3,'filled');
+scatter(pks_cnt_r(:,1),pks_cnt_r(:,2),3,'filled');
+scatter(pks_cnt_intp(:,1),pks_cnt_intp(:,2),3,'filled');
 
+title("Peak Dots (centroid method)");
+legend(["not resampled","resampled","interpolated"]);
+lgd = legend; lgd.ItemHitFcn=@togglevisibility;
