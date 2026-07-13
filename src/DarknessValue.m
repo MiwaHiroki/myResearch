@@ -66,6 +66,7 @@ classdef DarknessValue < handle
         end
 
         function obj = change_r_Ratio(obj,new_r_Ratio)
+            
         end
 
         function plotD_x(obj,x)
