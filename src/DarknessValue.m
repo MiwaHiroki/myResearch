@@ -1,5 +1,10 @@
-% 2026/06/10作成
-%
+% DarknessValue class
+% properties: imgID, width, height, D_THRESH, rRatio, dMat
+% methods: constructor,isResampled(obj),dResample(obj,p,q),plotD_x(obj,x),
+% setDiffTF(obj,D_THRESH),getStartEndIdx(obj,x),getGrooveBtmIdx(obj,x,startIdx,endIdx),
+% constructor: obj = DarknessValue(imgData,D_THRESH)
+
+% the methods which give groove bottom idxs should be moved to another class
 
 classdef DarknessValue
     properties (SetAccess=private)
