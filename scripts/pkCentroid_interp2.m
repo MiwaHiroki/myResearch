@@ -34,7 +34,7 @@ TH_HIST = 150; % threshold of the peak height in the histogram
 D_THRESH = 0.6;
 
 % 保存用
-date = "0710";
+date = "0713";
 saveDir = mkdirFromDate(proj.RootFolder,date);
 % dir = "C:\Users\owner\Documents\HirokiMiwa\matlab@Miwa\peak detection\data\"+date+"\";
 
@@ -63,7 +63,7 @@ origWidth = origImg.width; origHeight = origImg.height;
 step = 0.25; % the distance between query points, rRatio will be 1/step
 [x_q,y_q] = meshgrid(1:step:origWidth, 1:step:origHeight);
 
-INTERP_METHOD = "linear"; % method for interpolation
+INTERP_METHOD = "spline"; % method for interpolation
 img_interp2 = interp2(xx,yy,origImg.img,x_q,y_q,INTERP_METHOD);
 intpImg = ImageData(img_interp2,[iImg,iSegment]);
 intpWidth = intpImg.width; intpHeight = intpImg.height;
@@ -176,8 +176,9 @@ hold on;
 pts_cnt.showCandidates();
 pts_cnt_r.showCandidates();
 pts_cnt_intp.showCandidates();
+title("Peak Dots (mute section)")
 
-legend(["original","resampled","interpolated"+INTERP_METHOD]);
+legend(["original","resampled","interpolated ("+INTERP_METHOD+")"]);
 lgd = legend; lgd.ItemHitFcn = @togglevisibility;
 
 saveas(gcf,saveDir+"PkDots(muteSection)(orig,rsmpl,intp("+INTERP_METHOD+")).fig");
@@ -351,7 +352,7 @@ plot(points_rsmpl(:,1),points_rsmpl(:,2));
 plot(points_intp(:,1),points_intp(:,2));
 title("Groove Bottom Data");
 xlabel("$x$");ylabel("$y$");
-legend(["original","resampled","interpolated"]);
+legend(["original","resampled","interpolated ("+INTERP_METHOD+")"]);
 lgd = legend; lgd.ItemHitFcn = @togglevisibility;
 
 saveas(gcf,saveDir+"grooveCoords(muteSection)(orig,rsmpl,intp("+INTERP_METHOD+")).fig");
