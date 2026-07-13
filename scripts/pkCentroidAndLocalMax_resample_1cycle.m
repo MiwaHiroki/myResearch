@@ -605,14 +605,20 @@ for iImg=1:NUM_IMAGES
 end
 
 %%
-% movmeanを使った平滑化
+% 平滑化
 
 % リサンプルしたデータ、centroidメソッド
-amp = audio_r_cnt.signal;
-fs = audio_r_cnt.fs;
+% amp = audio_r_cnt.signal;
+% fs = audio_r_cnt.fs;
+
+% load audio (optional)
+[amp,fs] = audioread(proj.RootFolder+"\results\0615\audio_from_centroid_method_(resampled).wav");
+
 tidx = (0:length(amp)-1)'/fs;
 
-w_s = 3; % small window
+
+
+w_s = 5; % small window
 amp_mvMean_s = movmean(amp,w_s);
 
 w_m = 10; % medium window
@@ -632,56 +638,56 @@ legend(["original (0615)";"$w=$"+num2str(w_s);"$w=$"+num2str(w_m);"$w=$"+num2str
 lgd = legend; lgd.ItemHitFcn = @togglevisibility;
 
 %%
-audio_mvMean_s = AudioData("audio_mvMean_s",amp_mvMean_s,fs);
-audio_mvMean_m = AudioData("audio_mvMean_m",amp_mvMean_m,fs);
-audio_mvMean_l = AudioData("audio_mvMean_l",amp_mvMean_l,fs);
+mvMean_s = AudioData("audio mvMean (s)",amp_mvMean_s,fs);
+mvMean_m = AudioData("audio mvMean (m)",amp_mvMean_m,fs);
+mvMean_l = AudioData("audio mvMean (l)",amp_mvMean_l,fs);
 
-date = "0701";
-dir = "C:\Users\owner\Documents\HirokiMiwa\matlab@Miwa\peak detection\data\"+date+"\";
-
-fig = createFigure([0 0 6 4]);
-audio_mvMean_s.audioPlot();
-saveas(fig,dir+audio_mvMean_s.filename+"_amp","fig");saveas(fig,dir+audio_mvMean_s.filename+"_amp","png");close;
+date = "0710";
+dir = mkdirFromDate(proj.RootFolder,date);
 
 fig = createFigure([0 0 6 4]);
-audio_mvMean_s.FFTPlot();
-saveas(fig,dir+audio_mvMean_s.filename+"_fft","fig");saveas(fig,dir+audio_mvMean_s.filename+"_fft","png");close;
+mvMean_s.audioPlot();
+saveas(fig,dir+mvMean_s.filename+"_amp","fig");saveas(fig,dir+mvMean_s.filename+"_amp","png");close;
+
+fig = createFigure([0 0 6 4]);
+mvMean_s.FFTPlot();
+saveas(fig,dir+mvMean_s.filename+"_fft","fig");saveas(fig,dir+mvMean_s.filename+"_fft","png");close;
 
 fig = createFigure([0 0 6 6 ]);
-audio_mvMean_s.spectrogramPlot();
-saveas(fig,dir+audio_mvMean_s.filename+"_stft","fig");saveas(fig,dir+audio_mvMean_s.filename+"_stft","png");
+mvMean_s.spectrogramPlot();
+saveas(fig,dir+mvMean_s.filename+"_stft","fig");saveas(fig,dir+mvMean_s.filename+"_stft","png");
 
-audio_mvMean_s.saveAudio(dir);
+mvMean_s.saveAudio(dir);
 
-
-fig = createFigure([0 0 6 4]);
-audio_mvMean_m.audioPlot();
-saveas(fig,dir+audio_mvMean_m.filename+"_amp","fig");saveas(fig,dir+audio_mvMean_m.filename+"_amp","png");close;
 
 fig = createFigure([0 0 6 4]);
-audio_mvMean_m.FFTPlot();
-saveas(fig,dir+audio_mvMean_m.filename+"_fft","fig");saveas(fig,dir+audio_mvMean_m.filename+"_fft","png");close;
+mvMean_m.audioPlot();
+saveas(fig,dir+mvMean_m.filename+"_amp","fig");saveas(fig,dir+mvMean_m.filename+"_amp","png");close;
+
+fig = createFigure([0 0 6 4]);
+mvMean_m.FFTPlot();
+saveas(fig,dir+mvMean_m.filename+"_fft","fig");saveas(fig,dir+mvMean_m.filename+"_fft","png");close;
 
 fig = createFigure([0 0 6 6 ]);
-audio_mvMean_m.spectrogramPlot();
-saveas(fig,dir+audio_mvMean_m.filename+"_stft","fig");saveas(fig,dir+audio_mvMean_m.filename+"_stft","png");
+mvMean_m.spectrogramPlot();
+saveas(fig,dir+mvMean_m.filename+"_stft","fig");saveas(fig,dir+mvMean_m.filename+"_stft","png");
 
-audio_mvMean_m.saveAudio(dir);
+mvMean_m.saveAudio(dir);
 
-
-fig = createFigure([0 0 6 4]);
-audio_mvMean_l.audioPlot();
-saveas(fig,dir+audio_mvMean_l.filename+"_amp","fig");saveas(fig,dir+audio_mvMean_l.filename+"_amp","png");close;
 
 fig = createFigure([0 0 6 4]);
-audio_mvMean_l.FFTPlot();
-saveas(fig,dir+audio_mvMean_l.filename+"_fft","fig");saveas(fig,dir+audio_mvMean_l.filename+"_fft","png");close;
+mvMean_l.audioPlot();
+saveas(fig,dir+mvMean_l.filename+"_amp","fig");saveas(fig,dir+mvMean_l.filename+"_amp","png");close;
+
+fig = createFigure([0 0 6 4]);
+mvMean_l.FFTPlot();
+saveas(fig,dir+mvMean_l.filename+"_fft","fig");saveas(fig,dir+mvMean_l.filename+"_fft","png");close;
 
 fig = createFigure([0 0 6 6 ]);
-audio_mvMean_l.spectrogramPlot();
-saveas(fig,dir+audio_mvMean_l.filename+"_stft","fig");saveas(fig,dir+audio_mvMean_l.filename+"_stft","png");
+mvMean_l.spectrogramPlot();
+saveas(fig,dir+mvMean_l.filename+"_stft","fig");saveas(fig,dir+mvMean_l.filename+"_stft","png");
 
-audio_mvMean_l.saveAudio(dir);
+mvMean_l.saveAudio(dir);
 
 %%
 amp_mvMedian_s = movmedian(amp,w_s);
@@ -694,62 +700,112 @@ plot(tidx,amp_mvMedian_s);
 plot(tidx,amp_mvMedian_m);
 plot(tidx,amp_mvMedian_l);
 hold off;
-title("Amplitude of the audio (movmeian)");xlabel("t [s]");ylabel("amplitude");
+title("Amplitude of the audio (movmedian)");xlabel("t [s]");ylabel("amplitude");
 legend(["original (0615)";"$w=$"+num2str(w_s);"$w=$"+num2str(w_m);"$w=$"+num2str(w_l)]);
 lgd = legend; lgd.ItemHitFcn = @togglevisibility;
 
 %%
-audio_mvMedian_s = AudioData("audio_mvMedian_s",amp_mvMedian_s,fs);
-audio_mvMedian_m = AudioData("audio_mvMedian_m",amp_mvMedian_m,fs);
-audio_mvMedian_l = AudioData("audio_mvMedian_l",amp_mvMedian_l,fs);
+mvMedian_s = AudioData("audio mvMedian (s)",amp_mvMedian_s,fs);
+mvMedian_m = AudioData("audio mvMedian (m)",amp_mvMedian_m,fs);
+mvMedian_l = AudioData("audio mvMedian (l)",amp_mvMedian_l,fs);
 
-date = "0701";
-dir = "C:\Users\owner\Documents\HirokiMiwa\matlab@Miwa\peak detection\data\"+date+"\";
-
-fig = createFigure([0 0 6 4]);
-audio_mvMedian_s.audioPlot();
-saveas(fig,dir+audio_mvMedian_s.filename+"_amp","fig");saveas(fig,dir+audio_mvMedian_s.filename+"_amp","png");close;
+date = "0710";
+dir = mkdirFromDate(proj.RootFolder,date);
 
 fig = createFigure([0 0 6 4]);
-audio_mvMedian_s.FFTPlot();
-saveas(fig,dir+audio_mvMedian_s.filename+"_fft","fig");saveas(fig,dir+audio_mvMedian_s.filename+"_fft","png");close;
+mvMedian_s.audioPlot();
+saveas(fig,dir+mvMedian_s.filename+"_amp","fig");saveas(fig,dir+mvMedian_s.filename+"_amp","png");close;
+
+fig = createFigure([0 0 6 4]);
+mvMedian_s.FFTPlot();
+saveas(fig,dir+mvMedian_s.filename+"_fft","fig");saveas(fig,dir+mvMedian_s.filename+"_fft","png");close;
 
 fig = createFigure([0 0 6 6 ]);
-audio_mvMedian_s.spectrogramPlot();
-saveas(fig,dir+audio_mvMedian_s.filename+"_stft","fig");saveas(fig,dir+audio_mvMedian_s.filename+"_stft","png");
+mvMedian_s.spectrogramPlot();
+saveas(fig,dir+mvMedian_s.filename+"_stft","fig");saveas(fig,dir+mvMedian_s.filename+"_stft","png");
 
-audio_mvMedian_s.saveAudio(dir);
+mvMedian_s.saveAudio(dir);
 
-
-fig = createFigure([0 0 6 4]);
-audio_mvMedian_m.audioPlot();
-saveas(fig,dir+audio_mvMedian_m.filename+"_amp","fig");saveas(fig,dir+audio_mvMedian_m.filename+"_amp","png");close;
 
 fig = createFigure([0 0 6 4]);
-audio_mvMedian_m.FFTPlot();
-saveas(fig,dir+audio_mvMedian_m.filename+"_fft","fig");saveas(fig,dir+audio_mvMedian_m.filename+"_fft","png");close;
+mvMedian_m.audioPlot();
+saveas(fig,dir+mvMedian_m.filename+"_amp","fig");saveas(fig,dir+mvMedian_m.filename+"_amp","png");close;
+
+fig = createFigure([0 0 6 4]);
+mvMedian_m.FFTPlot();
+saveas(fig,dir+mvMedian_m.filename+"_fft","fig");saveas(fig,dir+mvMedian_m.filename+"_fft","png");close;
 
 fig = createFigure([0 0 6 6 ]);
-audio_mvMedian_m.spectrogramPlot();
-saveas(fig,dir+audio_mvMedian_m.filename+"_stft","fig");saveas(fig,dir+audio_mvMedian_m.filename+"_stft","png");
+mvMedian_m.spectrogramPlot();
+saveas(fig,dir+mvMedian_m.filename+"_stft","fig");saveas(fig,dir+mvMedian_m.filename+"_stft","png");
 
-audio_mvMedian_m.saveAudio(dir);
+mvMedian_m.saveAudio(dir);
 
-
-fig = createFigure([0 0 6 4]);
-audio_mvMedian_l.audioPlot();
-saveas(fig,dir+audio_mvMedian_l.filename+"_amp","fig");saveas(fig,dir+audio_mvMedian_l.filename+"_amp","png");close;
 
 fig = createFigure([0 0 6 4]);
-audio_mvMedian_l.FFTPlot();
-saveas(fig,dir+audio_mvMedian_l.filename+"_fft","fig");saveas(fig,dir+audio_mvMedian_l.filename+"_fft","png");close;
+mvMedian_l.audioPlot();
+saveas(fig,dir+mvMedian_l.filename+"_amp","fig");saveas(fig,dir+mvMedian_l.filename+"_amp","png");close;
+
+fig = createFigure([0 0 6 4]);
+mvMedian_l.FFTPlot();
+saveas(fig,dir+mvMedian_l.filename+"_fft","fig");saveas(fig,dir+mvMedian_l.filename+"_fft","png");close;
 
 fig = createFigure([0 0 6 6 ]);
-audio_mvMedian_l.spectrogramPlot();
-saveas(fig,dir+audio_mvMedian_l.filename+"_stft","fig");saveas(fig,dir+audio_mvMedian_l.filename+"_stft","png");
+mvMedian_l.spectrogramPlot();
+saveas(fig,dir+mvMedian_l.filename+"_stft","fig");saveas(fig,dir+mvMedian_l.filename+"_stft","png");
 
-audio_mvMedian_l.saveAudio(dir);
+mvMedian_l.saveAudio(dir);
 
 
 
+%%
+% compare the waveforms of stylus playback and the produced audio
+% forgot to save the AudioData objects in the previous section
+% so read the audio from .wav file and analyze them
+
+dir = "data/stylus playback/";
+[amp_stylus,fs_stylus] = audioread(dir+"StylusPlayback(wa)(highpass).wav");
+tidx_stylus = (0:length(amp_stylus)-1)'/fs_stylus;
+
+audio_stylus = AudioData("stylus playback(wa)",amp_stylus,fs_stylus);
+
+% compare the results from mvmean() and mvmedian()
+figure;hold on;
+plot(tidx,amp);axis tight;
+plot(tidx,amp_mvMean_s);
+plot(tidx,amp_mvMedian_s);
+hold off;
+title("Amplitude of the audio");xlabel("t [s]");ylabel("amplitude");
+legend(["original (0615)";"mvmean $w=$"+num2str(w_s);"mvmedian $w=$"+num2str(w_s)]);
+lgd = legend; lgd.ItemHitFcn = @togglevisibility;
+
+figure;hold on;
+plot(tidx,amp);axis tight;
+plot(tidx,amp_mvMean_m);
+plot(tidx,amp_mvMedian_m);
+hold off;
+title("Amplitude of the audio");xlabel("t [s]");ylabel("amplitude");
+legend(["original (0615)";"mvmean $w=$"+num2str(w_m);"mvmedian $w=$"+num2str(w_m)]);
+lgd = legend; lgd.ItemHitFcn = @togglevisibility;
+
+
+figure;hold on;
+plot(tidx,amp);axis tight;
+plot(tidx,amp_mvMean_l);
+plot(tidx,amp_mvMedian_l);
+hold off;
+title("Amplitude of the audio");xlabel("t [s]");ylabel("amplitude");
+legend(["original (0615)";"mvmean $w=$"+num2str(w_l);"mvmedian $w=$"+num2str(w_l)]);
+lgd = legend; lgd.ItemHitFcn = @togglevisibility;
+
+%%
+figure;hold on;
+plot(tidx_stylus,amp_stylus);
+plot(tidx,amp);
+plot(tidx,amp_mvMean_l);
+plot(tidx,amp_mvMedian_l);
+hold off;
+title("Amplitude of the audio");xlabel("t [s]");ylabel("amplitude");
+legend(["stylus playback";"original (0615)";"mvmean $w=$"+num2str(w_l);"mvmedian $w=$"+num2str(w_m)]);
+lgd = legend; lgd.ItemHitFcn = @togglevisibility;
 

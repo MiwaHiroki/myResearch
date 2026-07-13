@@ -2,14 +2,13 @@
 
 %%
 % 発表資料作成用
-set(0,'defaultTextInterpreter','latex');
-set(0,'defaultAxesTickLabelInterpreter','latex');
-set(0,'defaultLegendInterpreter','latex');
-set(0,'defaultColorbarTickLabelInterpreter','latex');
+setDefaultIntrpr();
 
 %%
+proj = currentProject();
+
 % フル尺
-[y_ori,fs_stylus] = audioread("audio files\Audio 1_01.wav");
+[y_ori,fs_stylus] = audioread(proj.RootFolder+"\data\stylus playback\Audio 1_01.wav");
 
 % 「畢竟するに、砂上の楼閣に」
 % [y,fs_stylus] = audioread("./audio files/Audio 1_01_01.wav");
@@ -25,17 +24,19 @@ set(0,'defaultColorbarTickLabelInterpreter','latex');
 tlim = [65,88];
 y_tri = y_ori(tlim(1)*fs_stylus:tlim(2)*fs_stylus);
 StylusPlayback = AudioData("StylusPlayback(1sentence)",y_tri,fs_stylus);
-StylusPlayback.saveAudio("./audio files/")
+StylusPlayback.saveAudio(proj.RootFolder+"\data\stylus playback\")
 
 %%
 % 「クレムリン宮殿は」の「wa」だけ解析、保存する
-dir = "./data/0623/";
+date = "0710";
+dir = mkdirFromDate(proj.RootFolder,date);
+
 tlim2 = [16.1,16.9];
 sampleLim = round(tlim2*fs_stylus);
 y_wa = y_tri(sampleLim(1):sampleLim(2));
 StylusPlayback_wa = AudioData("StylusPlayback(wa)",y_wa,fs_stylus);
 
-StylusPlayback_wa.saveAudio("./audio files/")
+StylusPlayback_wa.saveAudio(dir)
 
 fig = createFigure([0 0 6 4]);
 StylusPlayback_wa.audioPlot();
@@ -65,6 +66,8 @@ saveas(fig,dir+tmpName+"_fft.fig");saveas(fig,dir+tmpName+"_fft.png");
 fig = createFigure([0 0 6 6]);
 StylusPlayback_wa_highpass.spectrogramPlot();
 saveas(fig,dir+tmpName+"_stft.fig");saveas(fig,dir+tmpName+"_stft.png");
+
+StylusPlayback_wa_highpass.saveAudio(proj.RootFolder+"\data\stylus playback\");
 
 %%
 % 0615作成の音声データとの比較
