@@ -16,12 +16,14 @@ z = 1-double(img_small)/255;
 figure;h = surf(z);
 h.EdgeColor = 'none';
 colormap(flipud(gray))
+title("original image")
 xlabel('x');ylabel('y')
 view(80,45)
+% view(180,90);
 
 %%
 % img_smallをinterp2で「疑似高解像度化」
-method = "linear";
+method = "spline";
 
 x_q = 1:0.25:imgSize;
 y_q = (1:0.25:imgSize)';
@@ -30,8 +32,10 @@ z_interp = interp2(1:imgSize,1:imgSize,z,x_q,y_q,method);
 figure;h_new = surf(z_interp);
 h_new.EdgeColor = 'none';
 colormap(flipud(gray))
+title("interpolated image (method: "+method+")")
 xlabel('x');ylabel('y')
-view(80,45)
+% view(80,45)
+view(180,90)
 
 %%
 

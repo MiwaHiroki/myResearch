@@ -63,8 +63,8 @@ origWidth = origImg.width; origHeight = origImg.height;
 step = 0.25; % the distance between query points, rRatio will be 1/step
 [x_q,y_q] = meshgrid(1:step:origWidth, 1:step:origHeight);
 
-method = "linear"; % method for interpolation
-img_interp2 = interp2(xx,yy,origImg.img,x_q,y_q,method);
+INTERP_METHOD = "linear"; % method for interpolation
+img_interp2 = interp2(xx,yy,origImg.img,x_q,y_q,INTERP_METHOD);
 intpImg = ImageData(img_interp2,[iImg,iSegment]);
 intpWidth = intpImg.width; intpHeight = intpImg.height;
 
@@ -177,10 +177,10 @@ pts_cnt.showCandidates();
 pts_cnt_r.showCandidates();
 pts_cnt_intp.showCandidates();
 
-legend(["original","resampled","interpolated"]);
+legend(["original","resampled","interpolated"+INTERP_METHOD]);
 lgd = legend; lgd.ItemHitFcn = @togglevisibility;
 
-saveas(gcf,saveDir+"PkDots(muteSection)(orig,rsmpl,intp).fig");
+saveas(gcf,saveDir+"PkDots(muteSection)(orig,rsmpl,intp("+INTERP_METHOD+")).fig");
 
 %%
 MARKER_SIZE = 5;
@@ -354,7 +354,7 @@ xlabel("$x$");ylabel("$y$");
 legend(["original","resampled","interpolated"]);
 lgd = legend; lgd.ItemHitFcn = @togglevisibility;
 
-saveas(gcf,saveDir+"grooveCoords(muteSection)(orig,rsmpl,intp).fig");
+saveas(gcf,saveDir+"grooveCoords(muteSection)(orig,rsmpl,intp("+INTERP_METHOD+")).fig");
 
 %%
 
