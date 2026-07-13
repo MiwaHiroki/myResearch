@@ -1,39 +1,35 @@
 % DarknessValue class
 % properties: imgID, width, height, D_THRESH, rRatio, dMat
-% methods: constructor,isResampled(obj),dResample(obj,p,q),plotD_x(obj,x),
-% setDiffTF(obj,D_THRESH),getStartEndIdx(obj,x),getGrooveBtmIdx(obj,x,startIdx,endIdx),
+% methods: constructor,isResampled(obj),dResample(obj,p,q),plotD_x(obj,x),setDiffTF(obj,D_THRESH)
+% methods that should be moved to another class:
+% getStartEndIdx(obj,x),getGrooveBtmIdx(obj,x,startIdx,endIdx),extractGrv()
 % constructor: obj = DarknessValue(imgData,D_THRESH)
 
 % the methods which give groove bottom idxs should be moved to another class
 
-classdef DarknessValue
+classdef DarknessValue < handle
     properties (SetAccess=private)
         imgID (2,1) double
-        width (1,1) double
-        height (1,1) double
+        imgWidth (1,1) double
+        imgHeight (1,1) double
+        matRows (1,1) double
+        matCols (1,1) double
         D_THRESH (1,1) double
-    end
-
-    properties (SetAccess=protected)
-        % isResampled (1,1) logical
-        rRatio (1,1) double
+        rRatio struct
         dMat (:,:) double
         diffTF (:,:) int8
-        sIdxC (1,:) cell
-        eIdxC (1,:) cell
     end
-    
+
     methods
         function obj = DarknessValue(imgData,D_THRESH)
             if nargin>0
                 obj.imgID = imgData.imgID;
-                obj.width = imgData.width;
-                obj.height = imgData.height;
-                % obj.isResampled = false;
+                obj.imgWidth = imgData.width;
+                obj.imgHeight = imgData.height;
+                obj.matRows = obj.imgHeight;
+                obj.matCols = obj.imgWidth;
                 obj.rRatio = 1;
                 obj.dMat = 1 - imgData.img/255;
-                obj.sIdxC = cell(1,obj.width);
-                obj.eIdxC = cell(1,obj.width);
                 obj.D_THRESH = D_THRESH;
                 obj = obj.setDiffTF(D_THRESH);
             end
@@ -51,9 +47,25 @@ classdef DarknessValue
         function newObj = dResample(obj,p,q)
             newObj = obj;
             newObj.dMat = resample(obj.dMat,p,q);
-            % newObj.isResampled = true;
+            
             newObj.rRatio = p/q;
-            newObj = newObj.setDiffTF(obj.D_THRESH);
+            newObj = newObj.setDiffTF(newObj.D_THRESH);
+        end
+
+        function newObj = dInterp(obj,method,step)
+            % the distance between query points, rRatio will be 1/step
+
+            [xx,yy] = meshgrid(1:obj.imgWidth, 1:obj.imgHeight);
+
+            [x_q,y_q] = meshgrid(1:step:obj.imgWidth, 1:step:obj.imgHeight);
+
+            newObj = obj;
+            newObj.dMat = interp2(xx,yy,obj.dMat,x_q,y_q,method);
+            newObj.rRatio = [1/step, 1/step];
+            newObj.setDiffTF(newObj.D_THRESH)
+        end
+
+        function obj = change_r_Ratio(obj,new_r_Ratio)
         end
 
         function plotD_x(obj,x)
@@ -75,29 +87,29 @@ classdef DarknessValue
             obj.diffTF = diff(TF);
         end
 
-        function [startIdx,endIdx] = getStartEndIdx(obj,x)
-            startIdx = find(obj.diffTF(:,x)==1)+1;
-            endIdx = find(obj.diffTF(:,x)==-1);
-
-            if endIdx(1)<startIdx(1)
-                endIdx = endIdx(2:length(endIdx));
-            end
-            if endIdx(end)<startIdx(end)
-                startIdx = startIdx(1:length(startIdx)-1);
-            end
-        end
-
-        function [obj,startIdx_btm,endIdx_btm,pksNum] = getGrooveBtmIdx(obj,x,startIdx,endIdx,W_TH)
-            W_TH = W_TH * obj.rRatio;
-            btmIdx = find((endIdx-startIdx)<W_TH); % 溝底に対応するstartIdxのIdxを調べる
-            startIdx_btm = startIdx(btmIdx);
-            endIdx_btm = endIdx(btmIdx);
-
-            pksNum = length(btmIdx);
-
-            obj.sIdxC{1,x} = [x*ones(pksNum,1), startIdx_btm];
-            obj.eIdxC{1,x} = [x*ones(pksNum,1), endIdx_btm];
-        end
+        % function [startIdx,endIdx] = getStartEndIdx(obj,x)
+        %     startIdx = find(obj.diffTF(:,x)==1)+1;
+        %     endIdx = find(obj.diffTF(:,x)==-1);
+        % 
+        %     if endIdx(1)<startIdx(1)
+        %         endIdx = endIdx(2:length(endIdx));
+        %     end
+        %     if endIdx(end)<startIdx(end)
+        %         startIdx = startIdx(1:length(startIdx)-1);
+        %     end
+        % end
+        % 
+        % function [obj,startIdx_btm,endIdx_btm,pksNum] = getGrooveBtmIdx(obj,x,startIdx,endIdx,W_TH)
+        %     W_TH = W_TH * obj.rRatio;
+        %     btmIdx = find((endIdx-startIdx)<W_TH); % 溝底に対応するstartIdxのIdxを調べる
+        %     startIdx_btm = startIdx(btmIdx);
+        %     endIdx_btm = endIdx(btmIdx);
+        % 
+        %     pksNum = length(btmIdx);
+        % 
+        %     obj.sIdxC{1,x} = [x*ones(pksNum,1), startIdx_btm];
+        %     obj.eIdxC{1,x} = [x*ones(pksNum,1), endIdx_btm];
+        % end
 
         function cnt_x = extractGrv_cnt(obj,x)
             % centroid法によって音溝画像のx=xにおける溝候補点のy座標を返す
@@ -138,50 +150,5 @@ classdef DarknessValue
                 end
             end
         end
-
-        % 処理を任せすぎて使いにくいstartEndIdx()メソッド
-        % function [pksNums,sIdxs,eIdxs] = startEndIdx(obj,D_th,w_th)
-        %     % 引数のw_thはリサンプルする前で成り立つ値を入力する
-        %     % 溝底のstartIdx, endIdxを返す
-        %     TF = (obj.dMat > D_th);
-        %     diff_TF = diff(TF);
-        %
-        %     w_th_r = w_th * obj.rRatio; % 「山」の幅の最大値
-        %
-        %     startIdxC = cell(1,obj.width);
-        %     endIdxC = cell(1,obj.width);
-        %     pksNums = zeros(1,obj.width);
-        %
-        %     for x=1:obj.width
-        %         startIdx = find(diff_TF(:,x)==1)+1;
-        %         endIdx = find(diff_TF(:,x)==-1);
-        %
-        %         if endIdx(1)<startIdx(1)
-        %             endIdx = endIdx(2:length(endIdx));
-        %         end
-        %
-        %         if endIdx(end)<startIdx(end)
-        %             startIdx = startIdx(1:length(startIdx)-1);
-        %         end
-        %
-        %         btmIdx = find((endIdx-startIdx) < w_th_r); % 溝底に対応するstartIdxのIdxを調べる
-        %         startIdx_btm = startIdx(btmIdx);
-        %         endIdx_btm = endIdx(btmIdx);
-        %
-        %         pksNum = length(btmIdx);
-        %
-        %         startIdxC{1,x} = [x*ones(pksNum,1), startIdx_btm];
-        %         endIdxC{1,x} = [x*ones(pksNum,1), endIdx_btm];
-        %         pksNums(1,x) = pksNum;
-        %     end
-        %
-        %     sIdxs = vertcat(startIdxC{:});
-        %     eIdxs = vertcat(endIdxC{:});
-        %
-        %     sIdxs(:,2) = 1 + (sIdxs(:,2)-1)/obj.rRatio;
-        %     eIdxs(:,2) = 1 + (eIdxs(:,2)-1)/obj.rRatio;
-        %
-        % end
-
     end
 end
