@@ -1,21 +1,13 @@
 % 発表資料作成用
-setDefaultIntrpr();
+set(0,'defaultTextInterpreter','latex');
+set(0,'defaultAxesTickLabelInterpreter','latex');
+set(0,'defaultLegendInterpreter','latex');
+set(0,'defaultColorbarTickLabelInterpreter','latex');
 set(0,'defaultAxesFontSize',16)
 
 %%
-try
-    proj = currentProject;
-    rootFolder = proj.RootFolder;
-catch
-    scriptPath = fileparts(mfilename('fullpath'));
-    rootFolder = fileparts(scriptPath);
-end
-
-imgPath = fullfile(rootFolder, 'data', 'pictures', '1111', '8x', 'DSC1111-00002-8x.png');
-img = imread(imgPath);
-if size(img, 3) == 3
-    img = rgb2gray(img);
-end
+img = imread('./pictures/1111/DSC1111-00002-8x.png');
+% img_gray = rgb2gray(img);
 
 [xmax,ymax] = size(img);
 
@@ -24,11 +16,10 @@ heightIdx = 1001:1600;
 img_small = img(heightIdx,widthIdx);
 % figure;imshow(img_small);title("DSC1111-00002-8x");
 
-% 1. ImageData クラスを使用する
-imgData = ImageData(double(img_small), [1111; 2]);
+img_small = double(img_small);
 
 %画素値の大きなピーク
-% figure;findpeaks(imgData.img(:,500),'MinPeakDistance',10)
+% figure;findpeaks(img_small(:,500),'MinPeakDistance',10)
 
 
 %%
@@ -120,23 +111,17 @@ hold off
 % 輝度値が0の部分に内接する長方形を作成し
 % その内側を新しい画像(img_omitMask)として処理を行う
 
-th = 20; % 閾値
-img_omitMask = omitMask(imgData.img, th);
-% figure;imshow(img_omitMask)
+[height,width] = size(img_small);
 
-% マスク処理後の画像データに対しても ImageData クラスを使用する
-imgData_omit = ImageData(img_omitMask, [1111; 2]);
+th = 20; % 閾値
+img_omitMask = omitMask(img_small,th);
+% figure;imshow(img_omitMask)
 
 
 %%
-% 2. DarknessValue クラスを使用する
-dValue = DarknessValue(imgData_omit, 0.5);
+z = double(img_omitMask)*(-2/255)+1;
 
-% z = double(img_omitMask)*(-2/255)+1 と等価な計算を dValue.dMat を用いて行う
-z = 2 * dValue.dMat - 1;
-
-% 3. GrooveCandidates クラスを使用する
-candidates = GrooveCandidates(dValue);
+pksCell = cell(max(widthIdx)-min(widthIdx),1);
 
 thresh1 = 0.3;
 thresh2 = 0.6;
@@ -146,7 +131,7 @@ minp = 0.2; % MinPeakProminence
 maxp = 0.8; % MaxPeakProminence
 
 
-for i=1:imgData_omit.width
+for i=1:size(img_omitMask,2)
     [tmpPks,tmpLocs,w,p] = findpeaks(z(:,i),...
         'MinPeakProminence',minp);
 
@@ -157,64 +142,22 @@ for i=1:imgData_omit.width
     num = length(idx);
 
     tmpPksX = i*ones(num,1);
-    tmpPksY = tmpLocs(idx);
+    tmpPksY = tmpPksX;
 
-    % GrooveCandidates.pksCell に格納する
-    candidates.pksCell{i} = [tmpPksX tmpPksY];
+    tmpPksY(:,1) = tmpLocs(idx);
+
+    pksCell{i,1} = [tmpPksX tmpPksY];
 end
 
-pks = vertcat(candidates.pksCell{:});
+pks = vertcat(pksCell{:,1});
 
 %%
-% ImageData.showImg() メソッドを使用して画像を表示する
 figure;
-imgData_omit.showImg();
+imshow(uint8(img_omitMask));
+set(gca,'YDir','reverse')
 title('peak dots on a image')
+xlabel('X');ylabel('Y');
 hold on
 axis equal
 scatter(pks(:,1),pks(:,2),10,'filled','cyan');
 hold off
-
-
-%%
-% 4. AudioData クラスを使用する
-% 検出したピークのy座標から簡易的に音溝形状としての音声を生成し、描画や試聴を行う
-y_signal = zeros(imgData_omit.width, 1);
-for i = 1:imgData_omit.width
-    col_pks = candidates.pksCell{i};
-    if ~isempty(col_pks)
-        % 最初のピークのy座標を使用
-        y_signal(i) = col_pks(1, 2);
-    else
-        % ピークがない場合は直前の値で補完
-        if i > 1
-            y_signal(i) = y_signal(i-1);
-        else
-            y_signal(i) = 0;
-        end
-    end
-end
-
-% 直流成分の除去と正規化
-y_signal = y_signal - mean(y_signal);
-if max(abs(y_signal)) > 0
-    y_signal = y_signal / max(abs(y_signal));
-end
-
-% 信号が短い（1024サンプル未満）と stft でエラーになるため、10回繰り返して十分な長さにする
-y_signal_extended = repmat(y_signal, 10, 1);
-
-% サンプリング周波数 8000Hz で AudioData クラスを作成
-fs = 8000;
-audio = AudioData("Restored Audio from findpeaks2d", y_signal_extended, fs);
-
-% AudioData クラスの描画メソッドを使用する
-figure;
-audio.audioPlot();
-
-figure;
-audio.FFTPlot();
-
-figure;
-audio.spectrogramPlot();
-
