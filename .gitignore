@@ -11,3 +11,5 @@
 /results
 /audioFiles
 
+# AI 
+/.agents/*
