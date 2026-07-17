@@ -152,12 +152,50 @@ end
 pks = vertcat(pksCell{:,1});
 
 %%
+% figure;
+% imshow(uint8(img_omitMask));
+% set(gca,'YDir','reverse')
+% title('peak dots on a image')
+% xlabel('X');ylabel('Y');
 figure;
-imshow(uint8(img_omitMask));
-set(gca,'YDir','reverse')
-title('peak dots on a image')
-xlabel('X');ylabel('Y');
+imgData_omit.showImg();
 hold on
 axis equal
 scatter(pks(:,1),pks(:,2),10,'filled','cyan');
+addLabels('peak dots on a image', '$x$', '$y$');
 hold off
+
+function addLabels(t, xl, yl)
+    if nargin < 2
+        xl = '$x$';
+    end
+    if nargin < 3
+        yl = '$y$';
+    end
+    title(formatLatexTitle(t));
+    xlabel(xl);
+    ylabel(yl);
+end
+
+function formatted = formatLatexTitle(str)
+    % タイトル用：特殊文字をエスケープし、太字テキスト \textbf{...} で囲む
+    if isempty(str)
+        formatted = '';
+        return;
+    end
+    % バックスラッシュはエスケープコマンドの起点となるため、最初に処理
+    str = strrep(str, '\', '\\');
+    str = strrep(str, '_', '\_');
+    str = strrep(str, '^', '\^');
+    str = strrep(str, '&', '\&');
+    str = strrep(str, '%', '\%');
+    str = strrep(str, '#', '\#');
+    str = strrep(str, '{', '\{');
+    str = strrep(str, '}', '\}');
+    
+    formatted = ['\textbf{', str, '}'];
+end
+
+
+
+>>>>>>> test/create-md-file-with-AI
