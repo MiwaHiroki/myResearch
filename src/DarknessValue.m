@@ -65,9 +65,9 @@ classdef DarknessValue < handle
             newObj.setDiffTF(newObj.D_THRESH)
         end
 
-        function obj = change_r_Ratio(obj,new_r_Ratio)
-            
-        end
+        % function obj = change_r_Ratio(obj,new_r_Ratio)
+        % 
+        % end
 
         function plotD_x(obj,x)
             D_x = obj.dMat(:,x);
