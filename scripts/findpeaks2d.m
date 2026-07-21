@@ -195,7 +195,3 @@ function formatted = formatLatexTitle(str)
     
     formatted = ['\textbf{', str, '}'];
 end
-
-
-
->>>>>>> test/create-md-file-with-AI
