@@ -1,8 +1,5 @@
 % 発表資料作成用
-set(0,'defaultTextInterpreter','latex');
-set(0,'defaultAxesTickLabelInterpreter','latex');
-set(0,'defaultLegendInterpreter','latex');
-set(0,'defaultColorbarTickLabelInterpreter','latex');
+setDefaultIntrpr();
 set(0,'defaultAxesFontSize',16)
 
 %%
@@ -16,10 +13,10 @@ heightIdx = 1001:1600;
 img_small = img(heightIdx,widthIdx);
 % figure;imshow(img_small);title("DSC1111-00002-8x");
 
-img_small = double(img_small);
+imgData = ImageData(double(img_small), [1111; 2]);
 
 %画素値の大きなピーク
-% figure;findpeaks(img_small(:,500),'MinPeakDistance',10)
+% figure;findpeaks(imgData.img(:,500),'MinPeakDistance',10)
 
 
 %%
@@ -111,15 +108,18 @@ hold off
 % 輝度値が0の部分に内接する長方形を作成し
 % その内側を新しい画像(img_omitMask)として処理を行う
 
-[height,width] = size(img_small);
+height = imgData.height;
+width = imgData.width;
 
 th = 20; % 閾値
-img_omitMask = omitMask(img_small,th);
+img_omitMask = omitMask(imgData.img,th);
 % figure;imshow(img_omitMask)
 
+% マスク処理後の画像データに対しても ImageData クラスを使用する
+imgData_omit = ImageData(img_omitMask, [1111; 2]);
 
 %%
-z = double(img_omitMask)*(-2/255)+1;
+z = double(imgData_omit.img)*(-2/255)+1;
 
 pksCell = cell(max(widthIdx)-min(widthIdx),1);
 
@@ -131,7 +131,7 @@ minp = 0.2; % MinPeakProminence
 maxp = 0.8; % MaxPeakProminence
 
 
-for i=1:size(img_omitMask,2)
+for i=1:imgData_omit.width
     [tmpPks,tmpLocs,w,p] = findpeaks(z(:,i),...
         'MinPeakProminence',minp);
 
