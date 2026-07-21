@@ -15,7 +15,7 @@ classdef DarknessValue < handle
         matRows (1,1) double
         matCols (1,1) double
         D_THRESH (1,1) double
-        rRatio 
+        rRatio (2,1) double % rRatio(1)は縦方向、rRatio(2)は横方向のリサンプルレート
         dMat (:,:) double
         diffTF (:,:) int8
     end
@@ -28,7 +28,7 @@ classdef DarknessValue < handle
                 obj.imgHeight = imgData.height;
                 obj.matRows = obj.imgHeight;
                 obj.matCols = obj.imgWidth;
-                obj.rRatio = 1;
+                obj.rRatio = [1;1];
                 obj.dMat = 1 - imgData.img/255;
                 obj.D_THRESH = D_THRESH;
                 obj = obj.setDiffTF(D_THRESH);
@@ -36,7 +36,7 @@ classdef DarknessValue < handle
         end
 
         function TF = isResampled(obj)
-            if (obj.rRatio == 1)
+            if (norm(obj.rRatio) == 1)
                 TF=true;
             else
                 TF=false;
@@ -48,7 +48,7 @@ classdef DarknessValue < handle
             newObj = obj;
             newObj.dMat = resample(obj.dMat,p,q);
             
-            newObj.rRatio = p/q;
+            newObj.rRatio(1) = p/q; % 縦方向(=溝を横切る方向)のリサンプルレート
             newObj = newObj.setDiffTF(newObj.D_THRESH);
         end
 
@@ -61,7 +61,7 @@ classdef DarknessValue < handle
 
             newObj = obj;
             newObj.dMat = interp2(xx,yy,obj.dMat,x_q,y_q,method);
-            newObj.rRatio = [1/step, 1/step];
+            newObj.rRatio = [1/step; 1/step];
             newObj.setDiffTF(newObj.D_THRESH)
         end
 

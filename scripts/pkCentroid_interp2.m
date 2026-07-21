@@ -34,7 +34,7 @@ TH_HIST = 150; % threshold of the peak height in the histogram
 D_THRESH = 0.6;
 
 % 保存用
-date = "0713";
+date = "0721";
 saveDir = mkdirFromDate(proj.RootFolder,date);
 % dir = "C:\Users\owner\Documents\HirokiMiwa\matlab@Miwa\peak detection\data\"+date+"\";
 

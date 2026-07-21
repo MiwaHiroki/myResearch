@@ -65,13 +65,13 @@ for iImg=1:NUM_IMAGES
         intpImg = ImageData(img_intp2,[iImg,iSegment]);
         intpWidth = intpImg.width; intpHeight = intpImg.height;
 
-        origD = DarknessValue(origImg);
+        origD = DarknessValue(origImg,D_THRESH);
         origD = setDiffTF(origD, D_THRESH);
 
         P_RSMPL = 8; Q_RSMPL = 1;
         rsmplD = dResample(origD,P_RSMPL,Q_RSMPL);
 
-        intpD = DarknessValue(intpImg);
+        intpD = DarknessValue(intpImg,D_THRESH);
         intpD = setDiffTF(intpD, D_THRESH);
 
 
