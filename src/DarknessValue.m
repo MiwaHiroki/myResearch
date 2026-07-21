@@ -15,7 +15,7 @@ classdef DarknessValue < handle
         matRows (1,1) double
         matCols (1,1) double
         D_THRESH (1,1) double
-        rRatio struct
+        rRatio 
         dMat (:,:) double
         diffTF (:,:) int8
     end
