@@ -1,5 +1,5 @@
 % interp2を使って疑似的な高解像度化を行う
-% pkCentroid_interp2_1cycle.mをもとに作成
+% pkCentroid_interp2.mをもとに作成
 % 2026/07/10作成
 
 %%
@@ -41,6 +41,8 @@ dir = mkdirFromDate(proj.RootFolder,date);
 
 for iImg=1:NUM_IMAGES
     for iSegment=1:NUM_SEGMENTS
+        iImgSmall = (iImg-1)*NUM_SEGMENTS+iSegment;
+
         img_new = imread(filenames_new(9-iImg) + ".png");
         img_gray = rgb2gray(img_new);
 
@@ -112,6 +114,8 @@ for iImg=1:NUM_IMAGES
         pks_cnt_r = vertcat(pts_cnt_r.pksCell{:});
         pks_max_r = vertcat(pts_max_r.pksCell{:});
 
+        % fitGroove()を使って、溝1本分の形状データを抽出する
+
 
         for x=1:intpD.nCols
             [startIdx, endIdx] = intpD.getStartEndIdx(x);
@@ -132,6 +136,9 @@ for iImg=1:NUM_IMAGES
 
         pks_cnt_intp = vertcat(pts_cnt_intp.pksCell{:});
         pks_max_intp = vertcat(pts_max_intp.pksCell{:});
+
+
+        % fitGroove()を使って、溝1本分の形状データを抽出する
 
     end
 end
