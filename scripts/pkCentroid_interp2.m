@@ -78,7 +78,8 @@ dir = "C:\Users\owner\Documents\HirokiMiwa\matlab@Miwa\peak detection\data\"+dat
 i=1; % i=1~NUM_IMAGES
 j=1; % j=1~NUM_SEGMENTS
 
-img_new = imread("./pictures/1111/original/" + filenames_new(9-i) + ".png");
+% img_new = imread("./pictures/1111/original/" + filenames_new(9-i) + ".png");
+img_new = imread(filenames_new(9-iImg) + ".png");
 img_gray = rgb2gray(img_new);
 
 [imgHeight,imgWidth] = size(img_gray);
