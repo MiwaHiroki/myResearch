@@ -40,39 +40,6 @@ saveDir = mkdirFromDate(proj.RootFolder,date);
 
 
 %%
-% interp2を使って疑似的な高解像度化を行う
-% pkCentroidAndLocalMax_resample_1cycle.mをもとに作成
-% 2026/07/01作成
-% 形状抽出は重心法でやろうかな
-
-%%
-% 発表資料作成用
-set(0,'defaultTextInterpreter','latex');
-set(0,'defaultAxesTickLabelInterpreter','latex');
-set(0,'defaultLegendInterpreter','latex');
-set(0,'defaultColorbarTickLabelInterpreter','latex');
-
-%%
-NUM_IMAGES = 8; % レコードを8回に分けて撮影しているので8枚
-
-filenames_new = strings(NUM_IMAGES,1);
-filenames_old = strings(NUM_IMAGES,1);
-for i=1:NUM_IMAGES
-    filenames_old(i) = "DSC0" + num2str(i+112) + "_8x";
-    filenames_new(i) = "DSC1111-0000" + num2str(i) + "-ori";
-end
-
-
-L_MASK = 20; % Maskを取るためのluminanceのthreshold, 0付近に設定する
-TH_HIST = 150; % threshold of the peak height in the histogram
-
-D_THRESH = 0.6;
-
-% 保存用
-date = "0615";
-dir = "C:\Users\owner\Documents\HirokiMiwa\matlab@Miwa\peak detection\data\"+date+"\";
-
-%%
 
 % ここから"/peak detection/"から持ってきたコード-----------------------------
 i=1; % i=1~NUM_IMAGES
