@@ -1,45 +1,123 @@
-% 2026/05/10
+% pkCentroid_resample.m
+% 2026/05/10作成
 % pkCentroid.mをもとに作成
 % D_xをリサンプルし、startIdx, endIdxの真値からのずれを減らしたい。
 % 高解像度化を行っていない、./pictures/1111/original/~~の写真を使う。
 
 %%
 % 発表資料作成用
-set(0,'defaultTextInterpreter','latex');
-set(0,'defaultAxesTickLabelInterpreter','latex');
-set(0,'defaultLegendInterpreter','latex');
-set(0,'defaultColorbarTickLabelInterpreter','latex');
+setDefaultIntrpr();
 
 %%
-% img_old = imread("./pictures/old/8x/DSC0113_8x.png");
-% img_new = imread("./pictures/1111/original/DSC1111-00007-ori.png");
-img_new = imread("DSC1111-00007-ori.png");
+proj = currentProject();
 
-l = 10;
+NUM_IMAGES = 8; % レコードを8回に分けて撮影しているので8枚
+NUM_SEGMENTS = 10; % 細長い画像を10等分する
+TOTAL_SEGMENTS = NUM_SEGMENTS * 8; % 全部で80枚の画像
 
-oriImgWidth = size(img_new,2);
-divImgWidth = round(oriImgWidth / l);
-xstart = 1001;
-img_gray = rgb2gray(img_new);
-img_small = img_gray(:,xstart:xstart+divImgWidth-1);
-imgHeight = size(img_small,1);
 
-% figure;imshow(img_small);axis on;
+filenames_new = strings(NUM_IMAGES,1);
+filenames_old = strings(NUM_IMAGES,1);
+for i=1:NUM_IMAGES
+    filenames_old(i) = "DSC0" + num2str(i+112) + "_8x";
+    filenames_new(i) = "DSC1111-0000" + num2str(i) + "-ori";
+end
 
-z = 1 - double(img_small)/255;
-th = 0.6;
-z_th = z - th;
-z_th(z_th<0) = 0;
+
+L_MASK = 20; % Maskを取るためのluminanceのthreshold, 0付近に設定する
+TH_HIST = 150; % threshold of the peak height in the histogram
+
+D_THRESH = 0.6;
 
 % 保存用
-date = "0521";
-dir = "C:\Users\owner\Documents\HirokiMiwa\matlab@Miwa\peak detection\data\"+date;
+date = "0721";
+saveDir = mkdirFromDate(proj.RootFolder,date);
+% dir = "C:\Users\owner\Documents\HirokiMiwa\matlab@Miwa\peak detection\data\"+date+"\";
+
+%%
+
+iImg = 1;
+iSegment = 1;
+
+img_new = imread(filenames_new(9-iImg) + ".png");
+img_gray = rgb2gray(img_new);
+
+[height,width] = size(img_gray);
+
+divWidth = round(width / NUM_SEGMENTS);
+xarray = [1:divWidth:width width+1]';
+img_small = img_gray(:, xarray(iSegment):xarray(iSegment+1)-1);
+
+[img_omitMask,newWidth] = omitMask(img_small, L_MASK);
+origImg = ImageData(img_omitMask, [iImg;iSegment]);
+
+origD = DarknessValue(origImg);
+origD = origD.ddiff(D_THRESH);
+
+p_rsmpl = 8; q_rsmpl = 1;
+rsmplD = dResample(origD,8,1);
+rsmplD = rsmplD.ddiff(D_THRESH);
+
+% x = x_cにおけるD
+% origD at x=x_cとrsmplD at x=x_cを重ねて表示
+% あとでやる...たぶん
+
+
+% for original img
+pts_cnt = GrooveCandidates(origD);
+pts_max = GrooveCandidates(origD);
+% for resampled img
+pts_cnt_r = GrooveCandidates(rsmplD);
+pts_max_r = GrooveCandidates(rsmplD);
+
+for x=1:origImg.width
+    [startIdx, endIdx] = getStartEndIdx(origD, x);
+
+    W_TH = 8;
+    [origD,~,~,pksNum] = ...
+        getGrooveBtmIdx(origD,x,startIdx,endIdx,W_TH);
+    % startIdx_btm, endIdx_btm, pksNumは今後不要になる予定
+
+    cnt_x = origD.extractGrv_cnt(x);
+    max_x = origD.extractGrv_max(x);
+
+    pts_cnt.pksCell{x} = [x*ones(pksNum,1), cnt_x];
+    pts_max.pksCell{x} = [x*ones(pksNum,1), max_x];
+
+    
+    [startIdx, endIdx] = getStartEndIdx(rsmplD, x);
+    [rsmplD,startIdx_btm,endIdx_btm,pksNum] = ...
+        getGrooveBtmIdx(rsmplD, x, startIdx, endIdx, W_TH);
+
+    cnt_x = rsmplD.extractGrv_cnt(x);
+    max_x = rsmplD.extractGrv_max(x);
+
+    pts_cnt_r.pksCell{x} = [x*ones(pksNum,1), cnt_x];
+    pts_max_r.pksCell{x} = [x*ones(pksNum,1), max_x];
+
+end
+
+sIdxs = vertcat(origD.sIdxC{:});
+eIdxs = vertcat(origD.eIdxC{:});
+
+
+figure;
+origImg.showImg();
+hold on;
+pts_max.showCandidates();
+pts_cnt.showCandidates();
+pts_max_r.showCandidates();
+pts_cnt_r.showCandidates();
+title("Peak Dots from Original and Resampled Darkness")
+
+legend(["original (localMax)","original (centroid)","resampled (localMax)","resampled (centroid)"]);
+lgd = legend; lgd.ItemHitFcn = @togglevisibility;
 
 
 %%
 % xを固定して考える
 
-% %{
+%{
 x_c = 1; % constant
 
 D_x = z(:,x_c);
@@ -141,6 +219,9 @@ colormap(flip(gray));colorbar("eastoutside");clim([0 1]);
 %}
 
 %%
+
+% -----------------ここから下は昔のスクリプト---------------------------------
+
 % リサンプルしたデータに対してcentroid methodを使った結果
 
 pksCell = cell(1,divImgWidth);
@@ -623,7 +704,6 @@ xlabel("$x$");ylabel("$y$")
 w_prl = divImgWidth; % 平行四辺形の高さ
 h_prl = 8; % 平行四辺形の底辺
 
-% この2つはfor文に含めないように注意
 p2 = [0;0];
 th_hist = 125;
 
