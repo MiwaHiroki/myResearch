@@ -8,7 +8,7 @@ classdef GrooveCandidates
         width (1,1) double
         height (1,1) double
         rsmplTF (1,1) logical
-        rRatio (1,1) double
+        rRatio (2,1) double
         pksCell (1,:) cell
     end
 
@@ -16,8 +16,8 @@ classdef GrooveCandidates
         function obj = GrooveCandidates(dValue)
             if nargin>0
                 obj.imgID = dValue.imgID;
-                obj.width = dValue.width;
-                obj.height = dValue.height;
+                obj.width = dValue.imgWidth;
+                obj.height = dValue.imgHeight;
                 obj.rsmplTF = dValue.rsmplTF;
                 obj.rRatio = dValue.rRatio;
                 obj.pksCell = cell(1,obj.width);

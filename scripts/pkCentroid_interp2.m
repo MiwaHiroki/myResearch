@@ -44,7 +44,7 @@ iImg=5; % i=1~NUM_IMAGES
 iSegment=1; % j=1~NUM_SEGMENTS
 
 
-% ここから"/peak detection/"から持ってきたコード-----------------------------
+% ------------------ここから"/peak detection/"から持ってきたコード-------------------
 
 % img_new = imread("./pictures/1111/original/" + filenames_new(9-i) + ".png");
 img_new = imread(filenames_new(9-iImg) + ".png");
@@ -107,7 +107,7 @@ imgData.showImg();
 hold on;
 scatter(pks_cnt(:,1),pks_cnt(:,2),3,'c','filled');
 title("Peak Dots (centroid method)");
-% ここまで------------------------------------------------------------------
+% --------------------ここまで----------------------------------------------
 
 %%
 
@@ -127,39 +127,42 @@ origWidth = origImg.width; origHeight = origImg.height;
 origD = DarknessValue(origImg);
 origD = origD.ddiff(D_THRESH);
 
-% dValue.dMatをinterp2で内挿してdMat_interpを作成
-dMat = origD.dMat;
 
-% interpolation
-[xx,yy] = meshgrid(1:origWidth, 1:origHeight);
-
-step = 0.25; % the distance between query points, rRatio will be 1/step
-[x_q,y_q] = meshgrid(1:step:origWidth, 1:step:origHeight);
-
-INTERP_METHOD = "spline"; % method for interpolation
+% MUST AVOID THIS: INTERPOLATING IMAGE
 % img_interp2 = interp2(xx,yy,origImg.img,x_q,y_q,INTERP_METHOD);
 % intpImg = ImageData(img_interp2,[iImg,iSegment]);
 % intpWidth = intpImg.width; intpHeight = intpImg.height;
-dMat_interp = interp2(xx,yy,dMat,x_q,y_q,INTERP_METHOD);
-intpWidth = size(dMat_interp,2);
+
+% dMat_interp = interp2(xx,yy,dMat,x_q,y_q,INTERP_METHOD);
+% intpWidth = size(dMat_interp,2);
+
+
+% ------intpDの設定をここでしたい--------
+step = 0.25;
+INTERP_METHOD = "spline"; % method for interpolation
+intpD = dInterp(origD,step,INTERP_METHOD);
+intpD = intpD.ddiff(D_THRESH);
+% ------intpDの設定おわり--------
+
 
 
 p_rsmpl = 8; q_rsmpl = 1;
 rsmplD = dResample(origD,8,1);
+rsmplD = rsmplD.ddiff(D_THRESH);
 
 
 
 
 % cells in which startIdx and endIdx are recorded.
 % for original img
-sIdxC = cell(1, origWidth);
-eIdxC = cell(1, origWidth);
+sIdxC = cell(1, origD.nCols);
+eIdxC = cell(1, origD.nCols);
 % for resampled img
-sIdxC_rsmpl = cell(1,origWidth);
-eIdxC_rsmpl = cell(1,origWidth);
+sIdxC_rsmpl = cell(1, rsmplD.nCols);
+eIdxC_rsmpl = cell(1, rsmplD.nCols);
 % for interpolated img
-sIdxC_intp = cell(1,intpWidth);
-eIdxC_intp = cell(1,intpWidth);
+sIdxC_intp = cell(1, intpD.nCols);
+eIdxC_intp = cell(1, intpD.nCols);
 
 % objects in which groove candidates are recorded.
 % for original img
@@ -178,7 +181,7 @@ W_TH_INTERP = W_TH / step;
 
 
 
-for x=1:origWidth
+for x=1:origImg.width
     [startIdx, endIdx] = getStartEndIdx(origD, x);
     [origD,~,~,pksNum] = ...
         getGrooveBtmIdx(origD,x,startIdx,endIdx,W_TH);
@@ -215,24 +218,21 @@ pks_max = vertcat(pts_max.pksCell{:});
 pks_cnt_r = vertcat(pts_cnt_r.pksCell{:});
 pks_max_r = vertcat(pts_max_r.pksCell{:});
 
-for x=1:intpWidth
+for x=1:intpD.nCols
     [startIdx, endIdx] = intpD.getStartEndIdx(x);
     [intpD, startIdx_btm, endIdx_btm, pksNum] = ...
-        getGrooveBtmIdx(intpD,x,startIdx,endIdx,W_TH_INTERP);
+        getGrooveBtmIdx(intpD,x,startIdx,endIdx,W_TH);
 
     cnt_x = intpD.extractGrv_cnt(x);
     max_x = intpD.extractGrv_max(x);
 
     tmpPoints = [x*ones(pksNum,1), cnt_x];
-    tmpPoints = 1+(tmpPoints-1)*step;
+    tmpPoints(:,1) = 1+(tmpPoints(:,1) - 1)*step;
     pts_cnt_intp.pksCell{x} = tmpPoints;
 
     tmpPoints = [x*ones(pksNum,1), max_x];
-    tmpPoints = 1+(tmpPoints-1)*step;
+    tmpPoints(:,1) = 1+(tmpPoints(:,1) - 1)*step;
     pts_max_intp.pksCell{x} = tmpPoints;
-
-    W_PRL = intpImg.width; % 平行四辺形の高さ
-    H_PRL = 8; % 平行四辺形の底辺
 
 end
 
@@ -296,7 +296,7 @@ y_max = groove1Center + TOL_DISTANCE;
 % yline(y_min);yline(y_max);
 % hold off;
 
-points = [(1:origD.width)',NaN(origD.width,1)];
+points = [(1:origD.nCols)',NaN(origD.nCols,1)];
 
 idxs = (pks_cnt_cor(:,2) >= y_min) & (pks_cnt_cor(:,2)<=y_max);
 points(pks_cnt_cor(idxs,1),2) = pks_cnt_cor(idxs,2);
@@ -348,7 +348,7 @@ y_max = groove1Center + TOL_DISTANCE;
 % yline(y_min);yline(y_max);
 % hold off;
 
-points = [(1:origD.width)',NaN(origD.width,1)];
+points = [(1:origD.nCols)',NaN(origD.nCols,1)];
 
 idxs = (pks_cnt_cor(:,2) >= y_min) & (pks_cnt_cor(:,2)<=y_max);
 points(pks_cnt_cor(idxs,1),2) = pks_cnt_cor(idxs,2);
@@ -399,7 +399,7 @@ y_max = groove1Center + TOL_DISTANCE;
 % yline(y_min);yline(y_max);
 % hold off;
 
-points = [(1:intpD.width)',NaN(intpD.width,1)];
+points = [(1:intpD.nCols)',NaN(intpD.nCols,1)];
 
 idxs = find((pks_cnt_cor(:,2) >= y_min) & (pks_cnt_cor(:,2)<=y_max));
 points(:,1) = pks_cnt_cor(idxs,1);
