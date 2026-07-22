@@ -8,13 +8,13 @@
 % the methods which give groove bottom idxs should be moved to another class
 
 classdef DarknessValue
-    properties (SetAccess=private)
+    properties %(SetAccess=private)
         imgID (2,1) double
         width (1,1) double
         height (1,1) double
     end
 
-    properties (SetAccess=protected)
+    properties %(SetAccess=protected)
         rsmplTF (1,1) logical
         rRatio (1,1) double
         dMat (:,:) double
