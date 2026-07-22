@@ -33,7 +33,8 @@ p2 = zeros(1,2);
 for i=1:8
     % img_old = imread("./pictures/old/8x/" + filenameC_old(9-i) + ".png");
     % img_gray = rgb2gray(img_old);
-    img_new = imread("./pictures/1111/original/" + filenames_new(9-i) + ".png");
+    % img_new = imread("./pictures/1111/original/" + filenames_new(9-i) + ".png");
+    img_new = imread(filenames_new(9-i) + ".png");
     img_gray = rgb2gray(img_new);
     
     imgWidth = size(img_gray,2); % 1回でimgWidth(pixel)分のx座標を処理

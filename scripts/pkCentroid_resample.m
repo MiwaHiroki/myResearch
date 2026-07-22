@@ -12,7 +12,8 @@ set(0,'defaultColorbarTickLabelInterpreter','latex');
 
 %%
 % img_old = imread("./pictures/old/8x/DSC0113_8x.png");
-img_new = imread("./pictures/1111/original/DSC1111-00007-ori.png");
+% img_new = imread("./pictures/1111/original/DSC1111-00007-ori.png");
+img_new = imread("DSC1111-00007-ori.png");
 
 l = 10;
 
