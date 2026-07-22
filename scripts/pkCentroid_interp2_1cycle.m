@@ -1,5 +1,5 @@
 % interp2を使って疑似的な高解像度化を行う
-% pkCentroid_interp2_1cycle.mをもとに作成
+% pkCentroid_interp2.mをもとに作成
 % 2026/07/10作成
 
 %%
@@ -29,7 +29,7 @@ TH_HIST = 150; % threshold of the peak height in the histogram
 D_THRESH = 0.6;
 
 % 保存用
-date = "0710";
+date = "0721";
 dir = mkdirFromDate(proj.RootFolder,date);
 % dir = "C:\Users\owner\Documents\HirokiMiwa\matlab@Miwa\peak detection\data\"+date+"\";
 
@@ -41,6 +41,8 @@ dir = mkdirFromDate(proj.RootFolder,date);
 
 for iImg=1:NUM_IMAGES
     for iSegment=1:NUM_SEGMENTS
+        iImgSmall = (iImg-1)*NUM_SEGMENTS+iSegment;
+
         img_new = imread(filenames_new(9-iImg) + ".png");
         img_gray = rgb2gray(img_new);
 
@@ -54,25 +56,18 @@ for iImg=1:NUM_IMAGES
         origImg = ImageData(img_omitMask, [iImg;iSegment]);
         origWidth = origImg.width; origHeight = origImg.height;
 
-        % interpolation
-        [xx,yy] = meshgrid(1:origWidth, 1:origHeight);
+        origD = DarknessValue(origImg);
+        origD = origD.ddiff(D_THRESH);
 
-        QUERY_STEP = 0.25; % the distance between query points, rRatio will be 1/step
-        [x_q,y_q] = meshgrid(1:QUERY_STEP:origWidth, 1:QUERY_STEP:origHeight);
-
-        method = "linear"; % method for interpolation
-        img_intp2 = interp2(xx,yy,origImg.img,x_q,y_q,method);
-        intpImg = ImageData(img_intp2,[iImg,iSegment]);
-        intpWidth = intpImg.width; intpHeight = intpImg.height;
-
-        origD = DarknessValue(origImg,D_THRESH);
-        origD = setDiffTF(origD, D_THRESH);
 
         P_RSMPL = 8; Q_RSMPL = 1;
         rsmplD = dResample(origD,P_RSMPL,Q_RSMPL);
+        rsmplD = rsmplD.ddiff(D_THRESH);
 
-        intpD = DarknessValue(intpImg,D_THRESH);
-        intpD = setDiffTF(intpD, D_THRESH);
+        QUERY_STEP = 0.25;
+        INTERP_METHOD = "spline";
+        intpD = dInterp(origD,QUERY_STEP,INTERP_METHOD);
+        intpD = intpD.ddiff(D_THRESH);
 
 
         % objects in which groove candidates are recorded.
@@ -88,9 +83,8 @@ for iImg=1:NUM_IMAGES
 
 
         W_TH = 8;
-        W_TH_INTERP = W_TH / QUERY_STEP;
 
-        for x=1:origWidth
+        for x=1:origImg.width
             [startIdx, endIdx] = getStartEndIdx(origD, x);
             [origD,~,~,pksNum] = ...
                 getGrooveBtmIdx(origD,x,startIdx,endIdx,W_TH);
@@ -120,8 +114,10 @@ for iImg=1:NUM_IMAGES
         pks_cnt_r = vertcat(pts_cnt_r.pksCell{:});
         pks_max_r = vertcat(pts_max_r.pksCell{:});
 
+        % fitGroove()を使って、溝1本分の形状データを抽出する
 
-        for x=1:intpWidth
+
+        for x=1:intpD.nCols
             [startIdx, endIdx] = intpD.getStartEndIdx(x);
             [intpD, startIdx_btm, endIdx_btm, pksNum] = ...
                 getGrooveBtmIdx(intpD,x,startIdx,endIdx,W_TH_INTERP);
@@ -130,13 +126,19 @@ for iImg=1:NUM_IMAGES
             max_x = intpD.extractGrv_max(x);
 
             tmpPoints = [x*ones(pksNum,1), cnt_x];
-            tmpPoints = 1+(tmpPoints-1)*QUERY_STEP;
+            tmpPoints(:,1) = 1+(tmpPoints(:,1)-1) * QUERY_STEP;
             pts_cnt_intp.pksCell{x} = tmpPoints;
-            pts_max_intp.pksCell{x} = [x*ones(pksNum,1), max_x];
+
+            tmpPoints = [x*ones(pksNum,1), max_x];
+            tmpPoints(:,1) = 1+(tmpPoints(:,1)-1) * QUERY_STEP;
+            pts_max_intp.pksCell{x} = tmpPoints;
         end
 
         pks_cnt_intp = vertcat(pts_cnt_intp.pksCell{:});
         pks_max_intp = vertcat(pts_max_intp.pksCell{:});
+
+
+        % fitGroove()を使って、溝1本分の形状データを抽出する
 
     end
 end

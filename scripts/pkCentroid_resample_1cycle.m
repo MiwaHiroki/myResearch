@@ -1,124 +1,137 @@
 % 2026/06/02作成
 % pkCentroid_resample.mをもとに作成
 % 重心法で1周分の音声を作成するプログラム
-
 %%
-filenames_new = strings(8,1);
-filenames_old = strings(8,1);
-for i=1:8
+setDefaultIntrpr();
+proj = currentProject();
+
+NUM_IMAGES = 8; % レコードを8回に分けて撮影しているので8枚
+NUM_SEGMENTS = 10; % 細長い画像を10等分する
+TOTAL_SEGMENTS = NUM_SEGMENTS * NUM_IMAGES; % 全部で80枚の画像
+
+
+filenames_new = strings(NUM_IMAGES,1);
+filenames_old = strings(NUM_IMAGES,1);
+for i=1:NUM_IMAGES
     filenames_old(i) = "DSC0" + num2str(i+112) + "_8x";
     filenames_new(i) = "DSC1111-0000" + num2str(i) + "-ori";
 end
 
 
-L_mask = 20; % Maskを取るためのluminanceのthreshold, 0付近に設定する
-th_hist = 100; % threshold of the peak height in the histogram
+L_MASK = 20; % Maskを取るためのluminanceのthreshold, 0付近に設定する
+TH_HIST = 150; % threshold of the peak height in the histogram
 
-D_th = 0.6;
+D_THRESH = 0.6;
 
 % 保存用
-date = "0602";
-dir = "C:\Users\owner\Documents\HirokiMiwa\matlab@Miwa\peak detection\data\"+date;
+date = "0721";
+dir = mkdirFromDate(proj.RootFolder,date);
 
 %%
-l = 10; % 細長い画像を10等分する
 
-p_rsmpl = 8; q_rsmpl = 1;
-rRatio = p_rsmpl / q_rsmpl;
-
-xcoords = cell(8*l,1);
-ycoords = cell(8*l,1);
+% 1周分のデータのx,y座標
+xcoords = cell(TOTAL_SEGMENTS,1);
+ycoords = cell(TOTAL_SEGMENTS,1);
 p2 = zeros(1,2);
 
-for i=1:8
-    % img_old = imread("./pictures/old/8x/" + filenameC_old(9-i) + ".png");
+% for iImg=1:NUM_IMAGES
+for iImg=1:1
+    % img_old = imread("./pictures/old/8x/" + filenameC_old(9-iImg) + ".png");
     % img_gray = rgb2gray(img_old);
-    % img_new = imread("./pictures/1111/original/" + filenames_new(9-i) + ".png");
-    img_new = imread(filenames_new(9-i) + ".png");
+    % img_new = imread("./pictures/1111/original/" + filenames_new(9-iImg) + ".png");
+    img_new = imread(filenames_new(9-iImg) + ".png");
     img_gray = rgb2gray(img_new);
     
     imgWidth = size(img_gray,2); % 1回でimgWidth(pixel)分のx座標を処理
-    divImgWidth = round(imgWidth/l);
+    divImgWidth = round(imgWidth/NUM_SEGMENTS);
     xarray = [1:divImgWidth:imgWidth imgWidth+1]';
 
-    for j=1:l
-        img_small = img_gray(:, xarray(j):xarray(j+1)-1);
+    % for iSegment=1:NUM_SEGMENTS
+    for iSegment=1:1
+        iImgSmall = (iImg-1)*NUM_SEGMENTS+iSegment;
+        % iImgSmall: 1 ~ NUM_IMAGES * NUM_SEGMENTS
 
-        [img_omitMask,newWidth] = omitMask(img_small,L_mask);
-        % imgHeight = size(img_omitMask,1);
-        z = 1 - double(img_omitMask)/255;
+        img_small = img_gray(:, xarray(iSegment):xarray(iSegment+1)-1);
+
+        [img_omitMask,~] = omitMask(img_small,L_MASK);
+        origImg = ImageData(img_omitMask, [iImg;iSegment]);
+        origWidth = origImg.width;
+        origHeight = origImg.height;
+        
+        % z = 1 - double(img_omitMask)/255;
+        origD = DarknessValue(origImg);
+        origD = origD.ddiff(D_THRESH);
+
+        P_RSMPL = 8; Q_RSMPL = 1;
+        rsmplD = dResample(origD,P_RSMPL,Q_RSMPL);
+        rsmplD = rsmplD.ddiff(D_THRESH);
+
+        % objects in which groove candidates are recorded.
+        % for original img
+        pts_cnt = GrooveCandidates(origD);
+        pts_max = GrooveCandidates(origD);
+        % for resampled img
+        pts_cnt_r = GrooveCandidates(rsmplD);
+        pts_max_r = GrooveCandidates(rsmplD);
 
         % 溝底の座標
-        pksCell_r = cell(1,newWidth);
+        % pksCell_r = cell(1,newWidth);
+        % sIdxC_r = cell(1,newWidth);
+        % eIdxC_r = cell(1,newWidth);
 
-        % startIdx, endIdxのプロット用
-        sIdxC_r = cell(1,newWidth);
-        eIdxC_r = cell(1,newWidth);
+        W_TH = 8;
+        
+        for x=1:origImg.width
+            [startIdx, endIdx] = getStartEndIdx(origD,x);
+            [origD,~,~,pksNum] = ...
+                getGrooveBtmIdx(origD,x,startIdx,endIdx,W_TH);
 
-        for x=1:newWidth
-            D_x = z(:,x);
-            D_x_r = resample(D_x,p_rsmpl,q_rsmpl);
+            cnt_x = origD.extractGrv_cnt(x);
+            max_x = origD.extractGrv_max(x);
 
-            TF_D_x_r = (D_x_r>D_th);
-            diff_TF_r = diff(TF_D_x_r);
-            startIdx = find(diff_TF_r==1)+1;
-            endIdx = find(diff_TF_r==-1);
+            pts_cnt.pksCell{x} = [x*ones(pksNum,1), cnt_x];
+            pts_max.pksCell{x} = [x*ones(pksNum,1), max_x];
 
-            if endIdx(1)<startIdx(1)
-                endIdx = endIdx(2:length(endIdx));
-            end
+            [startIdx, endIdx] = getStartEndIdx(rsmplD, x);
+            [rsmplD,startIdx_btm,endIdx_btm,pksNum] = ...
+                getGrooveBtmIdx(rsmplD, x, startIdx, endIdx, W_TH);
 
-            if endIdx(end)<startIdx(end)
-                startIdx = startIdx(1:length(startIdx)-1);
-            end
+            cnt_x = rsmplD.extractGrv_cnt(x);
+            max_x = rsmplD.extractGrv_max(x);
 
-            w_th_r = 5*rRatio; % 「山」の幅の最大値
-            btmIdx = find((endIdx-startIdx)<w_th_r); % 溝底に対応するstartIdxのIdxを調べる
-            startIdx_btm = startIdx(btmIdx);
-            endIdx_btm = endIdx(btmIdx);
-
-            pksNum = length(btmIdx);
-            pk_i = zeros(pksNum,1); % x=iにおけるピーク
-
-            sIdxC_r{1,x} = [x*ones(pksNum,1), startIdx_btm];
-            eIdxC_r{1,x} = [x*ones(pksNum,1), endIdx_btm];
-
-            for k=1:pksNum % それぞれのピークの座標を求める
-                idxs = (startIdx_btm(k):endIdx_btm(k))'; % 計算範囲のy
-
-                sigma_D = sum(D_x_r(idxs));
-                sigma_jxD = sum(idxs .* D_x_r(idxs));
-
-                pk_i(k) = sigma_jxD/sigma_D;
-            end
-
-            pksCell_r{x} = [x*ones(pksNum,1), pk_i];
+            pts_cnt_r.pksCell{x} = [x*ones(pksNum,1), cnt_x];
+            pts_max_r.pksCell{x} = [x*ones(pksNum,1), max_x];
         end
 
-        sIdxs_r = vertcat(sIdxC_r{:});
-        eIdxs_r = vertcat(eIdxC_r{:});
-        pks_r = vertcat(pksCell_r{:});
+        % figGroove()の使用のために必要
+        pks_cnt = vertcat(pts_cnt.pksCell{:});
+        pks_max = vertcat(pts_max.pksCell{:});
 
-        sIdxs_r(:,2) = 1 + (sIdxs_r(:,2)-1)/rRatio;
-        eIdxs_r(:,2) = 1 + (eIdxs_r(:,2)-1)/rRatio;
-        pks_r(:,2) = 1 + (pks_r(:,2)-1)/rRatio;
+        pks_cnt_r = vertcat(pts_cnt_r.pksCell{:});
+        pks_max_r = vertcat(pts_max_r.pksCell{:});
 
-        w_prl = newWidth; % 平行四辺形の高さ
+        % sIdxs_r = vertcat(sIdxC_r{:});
+        % eIdxs_r = vertcat(eIdxC_r{:});
+        % pks_r = vertcat(pksCell_r{:});
+
+        % sIdxs_r(:,2) = 1 + (sIdxs_r(:,2)-1)/rRatio;
+        % eIdxs_r(:,2) = 1 + (eIdxs_r(:,2)-1)/rRatio;
+        % pks_r(:,2) = 1 + (pks_r(:,2)-1)/rRatio;
+
+        w_prl = origWidth; % 平行四辺形の高さ
         h_prl = 8; % 平行四辺形の底辺
 
         fig = figure;
-        imshow(img_omitMask);
+        origImg.showImg();
+        % imshow(img_omitMask);
         % fig = createFigure([0 0 6 6]);
         % imshow(img_small,"InitialMagnification","fit");
-        axis on;ax=gca;
-        set(ax,'YDir','reverse','TickDir','out')
-        set(ax,"XAxisLocation","top")
         hold on;
-        scatter(pks_r(:,1),pks_r(:,2),3,'c','filled');
-        title("Peak Dots (centroid method)");xlabel("$x$");ylabel("$y$");   
-
+        % scatter(pks_cnt_r(:,1),pks_cnt_r(:,2),3,'c','filled');
+        pts_cnt_r.showCandidates();
+        title("Peak Dots (centroid method)");%xlabel("$x$");ylabel("$y$");   
         % pksの傾きを補正したpks_corを得る
-        [p1,p2,pks_cor] = fitGroove(j,fig,p2,w_prl,h_prl,pks_r);
+        [p1,p2,pks_cor] = fitGroove(iSegment,fig,p2,w_prl,h_prl,pks_cnt_r);
 
         % xlim([1 1000]);ylim([1 1000]);
         % exportgraphics(fig,"./data/0322/PkDotsCmethod.png","Resolution",600);
@@ -127,7 +140,7 @@ for i=1:8
         [counts,edges] = histcounts(pks_cor(:,2),'BinWidth',binWidth);
         centers = edges(1:end-1) + diff(edges)/2; % ピークの中心
 
-        [~,histPkLocs] = findpeaks(counts,'MinPeakHeight',th_hist);
+        [~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST);
 
         [~,idx_hist] = min(abs(p1(2) - centers(histPkLocs)));
         groove1Center = centers(histPkLocs(idx_hist));
@@ -146,8 +159,8 @@ for i=1:8
         points_fit(:,2) = points(:,2) - polyval(p,points(:,1));
         points_fit(:,2) = points_fit(:,2) - mean(points_fit(:,2));
 
-        xcoords{(i-1)*l+j,1} = points(:,1);
-        ycoords{(i-1)*l+j,1} = points_fit(:,2);
+        xcoords{iImgSmall,1} = points(:,1);
+        ycoords{iImgSmall,1} = points_fit(:,2);
     end
 end
 

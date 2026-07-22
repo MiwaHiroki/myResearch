@@ -8,15 +8,18 @@
 % the methods which give groove bottom idxs should be moved to another class
 
 classdef DarknessValue
-    properties %(SetAccess=private)
+    properties (SetAccess=private)
         imgID (2,1) double
-        width (1,1) double
-        height (1,1) double
+        imgWidth (1,1) double
+        imgHeight (1,1) double
+        nRows (1,1) double % nRows of dMat
+        nCols (1,1) double % nCols of dMat
     end
 
-    properties %(SetAccess=protected)
+    properties (SetAccess=protected)
         rsmplTF (1,1) logical
-        rRatio (1,1) double
+        rRatio (2,1) double % rRatio(1): 溝を横切る方向=縦方向, rRatio(2): 溝に平行な方向=横方向
+            % rRatio SHOULD BE MORE DESCRIPTIVE
         dMat (:,:) double
         diffTF (:,:) int8
         sIdxC (1,:) cell
@@ -27,21 +30,41 @@ classdef DarknessValue
         function obj = DarknessValue(imgData)
             if nargin>0
                 obj.imgID = imgData.imgID;
-                obj.width = imgData.width;
-                obj.height = imgData.height;
+                obj.imgWidth = imgData.width;
+                obj.imgHeight = imgData.height;
                 obj.rsmplTF = false;
-                obj.rRatio = 1;
+                obj.rRatio = [1;1];
                 obj.dMat = 1 - imgData.img/255;
-                obj.sIdxC = cell(1,obj.width);
-                obj.eIdxC = cell(1,obj.width);
+                [obj.nRows, obj.nCols] = size(obj.dMat);
+                obj.sIdxC = cell(1,obj.imgWidth);
+                obj.eIdxC = cell(1,obj.imgWidth);
             end
         end
+
 
         function newObj = dResample(obj,p,q)
             newObj = obj;
             newObj.dMat = resample(obj.dMat,p,q);
+            [newObj.nRows, newObj.nCols] = size(newObj.dMat);
             newObj.rsmplTF = true;
-            newObj.rRatio = p/q;
+            newObj.rRatio(1) = p/q;
+        end
+
+
+        function newObj = dInterp(obj,step,method)
+            [xx,yy] = meshgrid(1:obj.imgWidth, 1:obj.imgHeight);
+
+            [x_q,y_q] = meshgrid(1:step:obj.imgWidth, 1:step:obj.imgHeight);
+
+            dMat_interp = interp2(xx,yy,obj.dMat,x_q,y_q,method);
+            % intpWidth = size(dMat_interp,2);
+
+            newObj = obj;
+            newObj.dMat = dMat_interp;
+            [newObj.nRows, newObj.nCols] = size(newObj.dMat);
+            newObj.rRatio = [1/step; 1/step];
+            newObj.sIdxC = cell(1,obj.nCols);
+            newObj.eIdxC = cell(1,obj.nCols);
         end
 
         function obj = ddiff(obj,D_th)
@@ -51,12 +74,12 @@ classdef DarknessValue
 
         function plotD_x(obj,x)
             D_x = obj.dMat(:,x);
-            idx = 1+(0:length(D_x)-1)'/obj.rRatio;
+            idx = 1+(0:length(D_x)-1)'/obj.rRatio(1);
             plot(idx,D_x);
             axis tight;
             titleName = "$D$ on $x$="+num2str(x);
             if obj.rsmplTF
-                titleName = titleName+"("+num2str(obj.rRatio)+ "x resampled)";
+                titleName = titleName+"("+num2str(obj.rRatio(1))+ "x resampled)";
             end
             title(titleName);xlabel("$y$");ylabel("$D$");
             ylim([0 1]);
@@ -76,7 +99,7 @@ classdef DarknessValue
         end
 
         function [obj,startIdx_btm,endIdx_btm,pksNum] = getGrooveBtmIdx(obj,x,startIdx,endIdx,W_TH)
-            btmIdx = find((endIdx-startIdx)<W_TH); % 溝底に対応するstartIdxのIdxを調べる
+            btmIdx = find((endIdx-startIdx) < W_TH*obj.rRatio(1)); % 溝底に対応するstartIdxのIdxを調べる
             startIdx_btm = startIdx(btmIdx);
             endIdx_btm = endIdx(btmIdx);
 
@@ -102,6 +125,8 @@ classdef DarknessValue
                 sigma_jxD = sum(idxs .* D_x(idxs));
                 cnt_x(k) = sigma_jxD/sigma_D;
             end
+
+            cnt_x = (cnt_x - 1) / obj.rRatio(1) + 1;
         end
 
         function max_x = extractGrv_max(obj,x)
@@ -122,6 +147,8 @@ classdef DarknessValue
                     max_x(k) = max_x(k) + startIdx_btm(k) -1 ;
                 end
             end
+
+            max_x = (max_x - 1) / obj.rRatio(1) + 1;
         end
 
         % 処理を任せすぎて使いにくいstartEndIdx()メソッド
