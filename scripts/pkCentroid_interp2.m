@@ -56,7 +56,7 @@ divImgWidth = round(imgWidth / NUM_SEGMENTS);
 xarray = [1:divImgWidth:imgWidth imgWidth+1]';
 
 [img_omitMask,newWidth] = omitMask(img_gray, L_MASK);
-imgData = ImageData(img_omitMask, [i;j]);
+imgData = ImageData(img_omitMask, [iImg;iSegment]);
 
 dValue = DarknessValue(imgData);
 dValue = ddiff(dValue, D_THRESH);
