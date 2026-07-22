@@ -5,10 +5,6 @@
 
 %%
 % 発表資料作成用
-% set(0,'defaultTextInterpreter','latex');
-% set(0,'defaultAxesTickLabelInterpreter','latex');
-% set(0,'defaultLegendInterpreter','latex');
-% set(0,'defaultColorbarTickLabelInterpreter','latex');
 
 setDefaultIntrpr();
 
@@ -177,7 +173,6 @@ pts_max_intp = GrooveCandidates(intpD);
 
 
 W_TH = 8;
-W_TH_INTERP = W_TH / step;
 
 
 
@@ -190,14 +185,10 @@ for x=1:origImg.width
     cnt_x = origD.extractGrv_cnt(x);
     max_x = origD.extractGrv_max(x);
 
-    pks_cnt = [x*ones(pksNum,1), cnt_x];
-
-    pts_cnt.pksCell{x} = pks_cnt;
+    pts_cnt.pksCell{x} = [x*ones(pksNum,1), cnt_x];
     pts_max.pksCell{x} = [x*ones(pksNum,1), max_x];
 
-    W_PRL = origImg.width; % 平行四辺形の高さ
-    H_PRL = 8; % 平行四辺形の底辺
-
+    
     [startIdx, endIdx] = getStartEndIdx(rsmplD, x);
     [rsmplD,startIdx_btm,endIdx_btm,pksNum] = ...
         getGrooveBtmIdx(rsmplD, x, startIdx, endIdx, W_TH);
