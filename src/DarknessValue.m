@@ -63,7 +63,7 @@ classdef DarknessValue
             colormap(flip(gray));colorbar("eastoutside");clim([0 1]);
         end
 
-        function [startIdx,endIdx] = startEndIdx(obj,x)
+        function [startIdx,endIdx] = getStartEndIdx(obj,x)
             startIdx = find(obj.diffTF(:,x)==1)+1;
             endIdx = find(obj.diffTF(:,x)==-1);
 
@@ -75,7 +75,7 @@ classdef DarknessValue
             end
         end
 
-        function [obj,startIdx_btm,endIdx_btm,pksNum] = grooveBtmIdx(obj,x,startIdx,endIdx,W_TH)
+        function [obj,startIdx_btm,endIdx_btm,pksNum] = getGrooveBtmIdx(obj,x,startIdx,endIdx,W_TH)
             btmIdx = find((endIdx-startIdx)<W_TH); % 溝底に対応するstartIdxのIdxを調べる
             startIdx_btm = startIdx(btmIdx);
             endIdx_btm = endIdx(btmIdx);

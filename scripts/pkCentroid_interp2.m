@@ -40,10 +40,11 @@ saveDir = mkdirFromDate(proj.RootFolder,date);
 
 
 %%
+iImg=5; % i=1~NUM_IMAGES
+iSegment=1; % j=1~NUM_SEGMENTS
+
 
 % ここから"/peak detection/"から持ってきたコード-----------------------------
-i=1; % i=1~NUM_IMAGES
-j=1; % j=1~NUM_SEGMENTS
 
 % img_new = imread("./pictures/1111/original/" + filenames_new(9-i) + ".png");
 img_new = imread(filenames_new(9-iImg) + ".png");
@@ -82,9 +83,9 @@ W_TH = 5;
 w_TH = W_TH / step;
 
 for x=1:imgData.width
-    [startIdx, endIdx] = dValue.startEndIdx(x);
+    [startIdx, endIdx] = dValue.getStartEndIdx(x);
     [dValue,startIdx_btm,endIdx_btm,pksNum] = ...
-        dValue.grooveBtmIdx(x,startIdx,endIdx,W_TH);
+        dValue.getGrooveBtmIdx(x,startIdx,endIdx,W_TH);
     % startIdx_btm, endIdx_btm, pksNumは今後不要になる予定
 
     cnt_x = dValue.extractGrv_cnt(x);
@@ -108,9 +109,7 @@ scatter(pks_cnt(:,1),pks_cnt(:,2),3,'c','filled');
 title("Peak Dots (centroid method)");
 % ここまで------------------------------------------------------------------
 
-%{
-iImg=5; % i=1~NUM_IMAGES
-iSegment=1; % j=1~NUM_SEGMENTS
+%%
 
 img_new = imread(filenames_new(9-iImg) + ".png");
 img_gray = rgb2gray(img_new);
@@ -125,10 +124,11 @@ img_small = img_gray(:, xarray(iSegment):xarray(iSegment+1)-1);
 origImg = ImageData(img_omitMask, [iImg;iSegment]);
 origWidth = origImg.width; origHeight = origImg.height;
 
-origD = DarknessValue(origImg,D_THRESH);
+origD = DarknessValue(origImg);
+origD = origD.ddiff(D_THRESH);
 
 % dValue.dMatをinterp2で内挿してdMat_interpを作成
-dMat = dValue.dMat;
+dMat = origD.dMat;
 
 % interpolation
 [xx,yy] = meshgrid(1:origWidth, 1:origHeight);
@@ -141,12 +141,12 @@ INTERP_METHOD = "spline"; % method for interpolation
 % intpImg = ImageData(img_interp2,[iImg,iSegment]);
 % intpWidth = intpImg.width; intpHeight = intpImg.height;
 dMat_interp = interp2(xx,yy,dMat,x_q,y_q,INTERP_METHOD);
+intpWidth = size(dMat_interp,2);
 
 
 p_rsmpl = 8; q_rsmpl = 1;
 rsmplD = dResample(origD,8,1);
 
-intpD = origD;
 
 
 
