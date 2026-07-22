@@ -1,7 +1,5 @@
 % ImageData class
-% DOES NOT derive from AudioData class
-% properties: imgID, img, width, height
-% methods: constructor(img,id), showImg(imgData)
+% DO NOT derive from AudioData class
 
 classdef ImageData
     properties
