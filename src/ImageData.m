@@ -21,14 +21,19 @@ classdef ImageData
 
         function showImg(varargin)
             if nargin==1
-                imshow(uint8(imgData.img));
-            elseif narigin==2
+                obj = varargin{1};
+                imshow(uint8(obj.img));
+            elseif nargin==2
                 if varargin{2}=="fit"
-                    imshow(uint8(imgData.img), "InitialMaginification","fit");
+                    obj = varargin{1};
+                    imshow(uint8(obj.img), "InitialMagnification","fit");
                 else
-                    disp("invalid arguments")
+                    error("invalid arguments")
                 end
             end
+            set(ax,'YDir','reverse','TickDir','out')
+            set(ax,"XAxisLocation","top")
+            xlabel("$x$");ylabel("$y$")
         end
     end
 end
