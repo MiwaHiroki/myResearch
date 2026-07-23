@@ -39,7 +39,7 @@ close(gcf);
 selected_points = pks(in | on, :);
 
 if isempty(selected_points)
-    disp("error in fitGroove(): selected_points is empty");
+    error("error in fitGroove(): selected_points is empty");
 end
 
 n = 1; % polyfitの次数

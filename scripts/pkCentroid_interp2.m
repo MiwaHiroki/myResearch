@@ -261,8 +261,8 @@ p2_cnt = [0;0];
 
 fig = figure;
 % fig = createFigure([0 0 6 6]);
-% imshow(img_small,"InitialMagnification","fit");
-origImg.showImg();
+% origImg.showImg();
+origImg.showImg("fit")
 hold on;
 scatter(pks_cnt(:,1),pks_cnt(:,2),MARKER_SIZE,'c','filled');
 title("Peak Dots (centroid method)");
