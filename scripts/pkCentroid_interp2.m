@@ -34,13 +34,15 @@ date = "0721";
 saveDir = mkdirFromDate(proj.RootFolder,date);
 % dir = "C:\Users\owner\Documents\HirokiMiwa\matlab@Miwa\peak detection\data\"+date+"\";
 
-
-%%
 iImg=5; % i=1~NUM_IMAGES
 iSegment=1; % j=1~NUM_SEGMENTS
 
 
-% ------------------ここから"/peak detection/"から持ってきたコード-------------------
+%%
+
+% ------------------ここからローカルの"peak detection/"から持ってきたコード-------------------
+% このセクションは実行しなくていい
+
 
 % img_new = imread("./pictures/1111/original/" + filenames_new(9-i) + ".png");
 img_new = imread(filenames_new(9-iImg) + ".png");
@@ -133,12 +135,11 @@ origD = origD.ddiff(D_THRESH);
 % intpWidth = size(dMat_interp,2);
 
 
-% ------intpDの設定をここでしたい--------
+% ------intpDの設定--------
 step = 0.25;
 INTERP_METHOD = "spline"; % method for interpolation
 intpD = dInterp(origD,step,INTERP_METHOD);
 intpD = intpD.ddiff(D_THRESH);
-% ------intpDの設定おわり--------
 
 
 
@@ -149,16 +150,16 @@ rsmplD = rsmplD.ddiff(D_THRESH);
 
 
 
-% cells in which startIdx and endIdx are recorded.
-% for original img
-sIdxC = cell(1, origD.nCols);
-eIdxC = cell(1, origD.nCols);
-% for resampled img
-sIdxC_rsmpl = cell(1, rsmplD.nCols);
-eIdxC_rsmpl = cell(1, rsmplD.nCols);
-% for interpolated img
-sIdxC_intp = cell(1, intpD.nCols);
-eIdxC_intp = cell(1, intpD.nCols);
+% % cells in which startIdx and endIdx are recorded.
+% % for original img
+% sIdxC = cell(1, origD.nCols);
+% eIdxC = cell(1, origD.nCols);
+% % for resampled img
+% sIdxC_rsmpl = cell(1, rsmplD.nCols);
+% eIdxC_rsmpl = cell(1, rsmplD.nCols);
+% % for interpolated img
+% sIdxC_intp = cell(1, intpD.nCols);
+% eIdxC_intp = cell(1, intpD.nCols);
 
 % objects in which groove candidates are recorded.
 % for original img
@@ -201,8 +202,8 @@ for x=1:origImg.width
 
 end
 
-sIdxs = vertcat(sIdxC{:});
-eIdxs = vertcat(eIdxC{:});
+sIdxs = vertcat(origD.sIdxC{:});
+eIdxs = vertcat(origD.eIdxC{:});
 pks_cnt = vertcat(pts_cnt.pksCell{:});
 pks_max = vertcat(pts_max.pksCell{:});
 
@@ -227,8 +228,8 @@ for x=1:intpD.nCols
 
 end
 
-sIdxs_intp = vertcat(sIdxC_intp{:});
-eIdxs_intp = vertcat(eIdxC_intp{:});
+sIdxs_intp = vertcat(intpD.sIdxC{:});
+eIdxs_intp = vertcat(intpD.eIdxC{:});
 pks_cnt_intp = vertcat(pts_cnt_intp.pksCell{:});
 pks_max_intp = vertcat(pts_max_intp.pksCell{:});
 
@@ -236,9 +237,11 @@ pks_max_intp = vertcat(pts_max_intp.pksCell{:});
 
 %%
 % 結果の確認
-figure;
-origImg.showImg();
-hold on;
+fig = createFigure([0 0 10 10]);
+% figure;
+% origImg.showImg();
+imshow(uint8(origImg.img), "InitialMagnification","fit");
+ax=gca;hold on;
 pts_cnt.showCandidates();
 pts_cnt_r.showCandidates();
 pts_cnt_intp.showCandidates();
