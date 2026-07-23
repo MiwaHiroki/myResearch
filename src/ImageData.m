@@ -19,13 +19,16 @@ classdef ImageData
             end
         end
 
-        function showImg(imgData)
-            imshow(uint8(imgData.img));
-            % imshow(imgData.img, "InitialMaginification","fit");
-            axis on;ax=gca;
-            set(ax,'YDir','reverse','TickDir','out')
-            set(ax,"XAxisLocation","top")
-            xlabel("$x$");ylabel("$y$")
+        function showImg(varargin)
+            if nargin==1
+                imshow(uint8(imgData.img));
+            elseif narigin==2
+                if varargin{2}=="fit"
+                    imshow(uint8(imgData.img), "InitialMaginification","fit");
+                else
+                    disp("invalid arguments")
+                end
+            end
         end
     end
 end
