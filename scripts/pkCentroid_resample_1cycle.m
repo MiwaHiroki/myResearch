@@ -161,15 +161,12 @@ for iImg=1:NUM_IMAGES
         y_max = groove1Center + tol;
 
 
-        % !!!pointsの欠損値の補間処理を追加する!!!
         points = [(1:origD.nCols)',NaN(origD.nCols,1)];
 
         idxs = (pks_cor(:,2) >= y_min) & (pks_cor(:,2)<=y_max);
         points(pks_cor(idxs,1),2) = pks_cor(idxs,2);
 
         points(:,2) = fillmissing(points(:,2),"linear");
-
-        % points = pks_cor(idxs,:);
 
         points_fit = points;
 
