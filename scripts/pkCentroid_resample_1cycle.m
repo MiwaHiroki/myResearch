@@ -48,8 +48,8 @@ for iImg=1:1
 
     % for jSegment=1:NUM_SEGMENTS
     for jSegment=1:1
-        iImgSmall = (iImg-1)*NUM_SEGMENTS+jSegment;
-        % iImgSmall: 1 ~ NUM_IMAGES * NUM_SEGMENTS
+        kImgSmall = (iImg-1)*NUM_SEGMENTS+jSegment;
+        % iImgSmall: 1 ~ TOTAL_SEGMENTS
 
         img_small = img_gray(:, xarray(jSegment):xarray(jSegment+1)-1);
 
@@ -159,8 +159,8 @@ for iImg=1:1
         points_fit(:,2) = points(:,2) - polyval(p,points(:,1));
         points_fit(:,2) = points_fit(:,2) - mean(points_fit(:,2));
 
-        xcoords{iImgSmall,1} = points(:,1);
-        ycoords{iImgSmall,1} = points_fit(:,2);
+        xcoords{kImgSmall,1} = points(:,1);
+        ycoords{kImgSmall,1} = points_fit(:,2);
     end
 end
 

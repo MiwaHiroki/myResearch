@@ -41,7 +41,7 @@ dir = mkdirFromDate(proj.RootFolder,date);
 
 for iImg=1:NUM_IMAGES
     for jSegment=1:NUM_SEGMENTS
-        iImgSmall = (iImg-1)*NUM_SEGMENTS+jSegment;
+        kImgSmall = (iImg-1)*NUM_SEGMENTS+jSegment;
 
         img_new = imread(filenames_new(9-iImg) + ".png");
         img_gray = rgb2gray(img_new);
