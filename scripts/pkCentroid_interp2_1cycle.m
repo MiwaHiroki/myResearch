@@ -68,9 +68,12 @@ for iImg=1:NUM_IMAGES
 
         [img_omitMask,newWidth] = omitMask(img_small, L_MASK);
         origImg = ImageData(img_omitMask, [iImg;jSegment]);
+        origWidth = origImg.width;
+        origHeight = origImg.height;
+        
 
-        % origD = DarknessValue(origImg);
-        % origD = origD.ddiff(D_THRESH);
+        origD = DarknessValue(origImg);
+        origD = origD.ddiff(D_THRESH);
 
 
         % P_RSMPL = 8; Q_RSMPL = 1;
@@ -154,6 +157,8 @@ for iImg=1:NUM_IMAGES
         pks_cnt_intp = vertcat(pts_cnt_intp.pksCell{:});
         pks_max_intp = vertcat(pts_max_intp.pksCell{:});
 
+        w_prl = origWidth; % 平行四辺形の高さ
+        h_prl = 8; % 平行四辺形の底辺
 
         % fitGroove()を使って、溝1本分の形状データを抽出する
         fig = figure;
@@ -162,6 +167,7 @@ for iImg=1:NUM_IMAGES
         % imshow(img_omitMask,"InitialMagnification","fit");
         hold on;
         pts_cnt_intp.showCandidates();
+        % scatter(pks_cnt_intp(:,1),pks_cnt_intp(:,2),5,'c','filled');
         [p1,p2,pks_cor] = fitGroove(jSegment,fig,p2,w_prl,h_prl,pks_cnt_intp);
 
         binWidth = 5; % BinWidth
@@ -208,6 +214,8 @@ end % for iImg = 1:NUM_IMAGES
 
 
 %%
+% original, resample, interpの比較
+%{
 mkSize = 5; % marker size
 fig = figure;
 % fig = createFigure([0 0 6 6]);
@@ -221,3 +229,7 @@ scatter(pks_cnt_intp(:,1),pks_cnt_intp(:,2),mkSize,'filled');
 title("Peak Dots (centroid method)");
 legend(["not resampled","resampled","interpolated"]);
 lgd = legend; lgd.ItemHitFcn=@togglevisibility;
+%}
+
+
+
