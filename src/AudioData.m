@@ -45,9 +45,19 @@ classdef AudioData
             % saveas(fig,dir+"FFT_"+append+".fig");
         end
 
-        function spectrogramPlot(audio)
-            % [s,f,t] = stft(audio.signal,audio.fs,"Window",hann(8192),"OverlapLength",8192/2,'FrequencyRange','onesided');
-            [s,f,t] = stft(audio.signal,audio.fs,"Window",hann(1024),"OverlapLength",1024/2,'FrequencyRange','onesided');
+        function spectrogramPlot(varargin)
+            if nargin == 1
+                audio = varargin{1};
+                winSize = 1024;
+            elseif nargin == 2
+                audio = varargin{1};
+                winSize = varargin{2};
+            else
+                error("invalid arguments")
+            end
+
+            [s,f,t] = stft(audio.signal,audio.fs,...
+                "Window",hann(winSize),"OverlapLength",winSize/2,'FrequencyRange','onesided');
             s = s * 2 / size(s,1);
 
             % figure;
