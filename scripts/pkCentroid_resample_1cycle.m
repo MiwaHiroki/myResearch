@@ -192,13 +192,23 @@ tidx = (1:num_samples)'/fs;
 
 y_comb_raw = y_comb_raw - mean(y_comb_raw);
 
-amplitude_raw = y_comb_raw / (tol/2);
+amp_raw = y_comb_raw / (tol/2);
 % y_raw_max = max(abs(y_comb_raw));
-% amplitude_raw = y_comb_raw / y_raw_max;
+% amp_raw = y_comb_raw / y_raw_max;
 
-figure;plot(tidx,amplitude_raw);
+figure;plot(tidx,amp_raw);
 title("amplitude (centroid method)");xlabel("Time [s]");ylabel("$y$");
 axis tight;ylim([-1 1]);
 
+rsmplAudio = AudioData("audio (centroid method)("+num2str(rsmplD.rRatio(1))+"x resampled)",amp_raw,fs);
 
+fig = figure;rsmplAudio.audioPlot();
+saveas(fig,dir+rsmplAudio.filename+"_amp","fig");saveas(fig,dir+rsmplAudio.filename+"_amp","png");close;
 
+fig = figure;rsmplAudio.FFTPlot();
+saveas(fig,dir+rsmplAudio.filename+"_fft","fig");saveas(fig,dir+rsmplAudio.filename+"_fft","png");close;
+
+fig = figure;rsmplAudio.spectrogramPlot(1024);
+saveas(fig,dir+rsmplAudio.filename+"_stft","fig");saveas(fig,dir+rsmplAudio.filename+"_stft","png");close;
+
+rsmplAudio.saveAudio(dir);

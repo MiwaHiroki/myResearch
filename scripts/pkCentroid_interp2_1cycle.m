@@ -255,7 +255,7 @@ y_mean0 = y_comb - mean(y_comb);
 
 amp_raw = y_mean0 / (tol/2);
 
-intpAudio = AudioData("audio (interp)",amp_raw,fs);
+intpAudio = AudioData("audio ("+num2str(1/QUERY_STEP)+"x interp)",amp_raw,fs);
 
 fig = figure;intpAudio.audioPlot();
 saveas(fig,dir+intpAudio.filename+"_amp","fig");saveas(fig,dir+intpAudio.filename+"_amp","png");close;
