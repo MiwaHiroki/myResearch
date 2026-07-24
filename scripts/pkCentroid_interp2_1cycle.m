@@ -243,4 +243,22 @@ lgd = legend; lgd.ItemHitFcn=@togglevisibility;
 
 %%
 
+y_comb = vertcat(ycoords{:});
+figure;plot(y_comb);axis tight;
+title("$y$ coordinates (Darkness interpolated)");xlabel("Sample");ylabel("$y$");
 
+num_samples = length(y_comb);
+fs = round(num_samples /(60/78));
+tidx = (1:num_samples)'/fs;
+
+y_mean0 = y_comb - mean(y_comb);
+
+amp_raw = y_mean0 / (tol/2);
+
+intpAudio = AudioData("audio (interp)",amp_raw,fs);
+
+figure;intpAudio.audioPlot();
+figure;intpAudio.FFTPlot();
+figure;intpAudio.spectrogramPlot();
+
+intpAudio.saveAudio(dir);
