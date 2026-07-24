@@ -29,6 +29,16 @@ dir = mkdirFromDate(proj.RootFolder,date);
 
 %%
 
+% 画像8*l枚分のImageData, DarknessValue, GrooveCandidatesクラスオブジェクト
+% local maximum method, centroid method両方
+allOrigImg(TOTAL_SEGMENTS,1) = ImageData();
+allOrigD(TOTAL_SEGMENTS,1) = DarknessValue();
+allPts_max_origD(TOTAL_SEGMENTS,1) = GrooveCandidates();
+allPts_cnt_origD(TOTAL_SEGMENTS,1) = GrooveCandidates();
+allPts_max_rsmplD(TOTAL_SEGMENTS,1) = GrooveCandidates();
+allPts_cnt_rsmplD(TOTAL_SEGMENTS,1) = GrooveCandidates();
+
+
 % 1周分のデータのx,y座標
 xcoords = cell(TOTAL_SEGMENTS,1);
 ycoords = cell(TOTAL_SEGMENTS,1);

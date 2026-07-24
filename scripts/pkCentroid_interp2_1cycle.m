@@ -36,6 +36,14 @@ dir = mkdirFromDate(proj.RootFolder,date);
 
 %%
 
+% 画像8*l枚分のImageData, DarknessValue, GrooveCandidatesクラスオブジェクト
+% 溝の形状抽出はすべてcentroid methodによる。
+allOrigImg(TOTAL_SEGMENTS,1) = ImageData();
+allOrigD(TOTAL_SEGMENTS,1) = DarknessValue();
+allPts_origD(TOTAL_SEGMENTS,1) = GrooveCandidates();
+allPts_intpD(TOTAL_SEGMENTS,1) = GrooveCandidates();
+
+
 % iImg=1; % i=1~NUM_IMAGES
 % iSegment=1; % j=1~NUM_SEGMENTS
 
