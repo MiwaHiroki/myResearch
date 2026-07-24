@@ -46,15 +46,15 @@ for iImg=1:1
     divImgWidth = round(imgWidth/NUM_SEGMENTS);
     xarray = [1:divImgWidth:imgWidth imgWidth+1]';
 
-    % for iSegment=1:NUM_SEGMENTS
-    for iSegment=1:1
-        iImgSmall = (iImg-1)*NUM_SEGMENTS+iSegment;
+    % for jSegment=1:NUM_SEGMENTS
+    for jSegment=1:1
+        iImgSmall = (iImg-1)*NUM_SEGMENTS+jSegment;
         % iImgSmall: 1 ~ NUM_IMAGES * NUM_SEGMENTS
 
-        img_small = img_gray(:, xarray(iSegment):xarray(iSegment+1)-1);
+        img_small = img_gray(:, xarray(jSegment):xarray(jSegment+1)-1);
 
         [img_omitMask,~] = omitMask(img_small,L_MASK);
-        origImg = ImageData(img_omitMask, [iImg;iSegment]);
+        origImg = ImageData(img_omitMask, [iImg;jSegment]);
         origWidth = origImg.width;
         origHeight = origImg.height;
         
@@ -131,7 +131,7 @@ for iImg=1:1
         pts_cnt_r.showCandidates();
         title("Peak Dots (centroid method)");%xlabel("$x$");ylabel("$y$");   
         % pksの傾きを補正したpks_corを得る
-        [p1,p2,pks_cor] = fitGroove(iSegment,fig,p2,w_prl,h_prl,pks_cnt_r);
+        [p1,p2,pks_cor] = fitGroove(jSegment,fig,p2,w_prl,h_prl,pks_cnt_r);
 
         % xlim([1 1000]);ylim([1 1000]);
         % exportgraphics(fig,"./data/0322/PkDotsCmethod.png","Resolution",600);

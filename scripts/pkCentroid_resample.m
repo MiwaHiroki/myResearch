@@ -37,7 +37,7 @@ saveDir = mkdirFromDate(proj.RootFolder,date);
 %%
 
 iImg = 1;
-iSegment = 1;
+jSegment = 1;
 
 img_new = imread(filenames_new(9-iImg) + ".png");
 img_gray = rgb2gray(img_new);
@@ -46,10 +46,10 @@ img_gray = rgb2gray(img_new);
 
 divWidth = round(width / NUM_SEGMENTS);
 xarray = [1:divWidth:width width+1]';
-img_small = img_gray(:, xarray(iSegment):xarray(iSegment+1)-1);
+img_small = img_gray(:, xarray(jSegment):xarray(jSegment+1)-1);
 
 [img_omitMask,newWidth] = omitMask(img_small, L_MASK);
-origImg = ImageData(img_omitMask, [iImg;iSegment]);
+origImg = ImageData(img_omitMask, [iImg;jSegment]);
 
 origD = DarknessValue(origImg);
 origD = origD.ddiff(D_THRESH);

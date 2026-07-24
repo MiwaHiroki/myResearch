@@ -35,7 +35,7 @@ saveDir = mkdirFromDate(proj.RootFolder,date);
 % dir = "C:\Users\owner\Documents\HirokiMiwa\matlab@Miwa\peak detection\data\"+date+"\";
 
 iImg=5; % i=1~NUM_IMAGES
-iSegment=1; % j=1~NUM_SEGMENTS
+jSegment=1; % j=1~NUM_SEGMENTS
 
 
 %%
@@ -54,7 +54,7 @@ divImgWidth = round(imgWidth / NUM_SEGMENTS);
 xarray = [1:divImgWidth:imgWidth imgWidth+1]';
 
 [img_omitMask,newWidth] = omitMask(img_gray, L_MASK);
-imgData = ImageData(img_omitMask, [iImg;iSegment]);
+imgData = ImageData(img_omitMask, [iImg;jSegment]);
 
 dValue = DarknessValue(imgData);
 dValue = ddiff(dValue, D_THRESH);
@@ -116,10 +116,10 @@ img_gray = rgb2gray(img_new);
 
 divWidth = round(width / NUM_SEGMENTS);
 xarray = [1:divWidth:width width+1]';
-img_small = img_gray(:, xarray(iSegment):xarray(iSegment+1)-1);
+img_small = img_gray(:, xarray(jSegment):xarray(jSegment+1)-1);
 
 [img_omitMask,newWidth] = omitMask(img_small, L_MASK);
-origImg = ImageData(img_omitMask, [iImg;iSegment]);
+origImg = ImageData(img_omitMask, [iImg;jSegment]);
 origWidth = origImg.width; origHeight = origImg.height;
 
 origD = DarknessValue(origImg);
@@ -128,7 +128,7 @@ origD = origD.ddiff(D_THRESH);
 
 % MUST AVOID THIS: INTERPOLATING IMAGE
 % img_interp2 = interp2(xx,yy,origImg.img,x_q,y_q,INTERP_METHOD);
-% intpImg = ImageData(img_interp2,[iImg,iSegment]);
+% intpImg = ImageData(img_interp2,[iImg,jSegment]);
 % intpWidth = intpImg.width; intpHeight = intpImg.height;
 
 % dMat_interp = interp2(xx,yy,dMat,x_q,y_q,INTERP_METHOD);
@@ -267,7 +267,7 @@ hold on;
 scatter(pks_cnt(:,1),pks_cnt(:,2),MARKER_SIZE,'c','filled');
 title("Peak Dots (centroid method)");
 % pks_cntの傾きを補正したpks_cnt_corを得る
-[p1_cnt,p2_cnt,pks_cnt_cor] = fitGroove(iSegment,fig,p2_cnt,W_PRL,H_PRL,pks_cnt);
+[p1_cnt,p2_cnt,pks_cnt_cor] = fitGroove(jSegment,fig,p2_cnt,W_PRL,H_PRL,pks_cnt);
 
 BIN_WIDTH = 2; % BinWidth
 [counts,edges] = histcounts(pks_cnt_cor(:,2),'BinWidth',BIN_WIDTH);
@@ -319,7 +319,7 @@ hold on;
 scatter(pks_cnt_r(:,1),pks_cnt_r(:,2),MARKER_SIZE,'c','filled');
 title("Peak Dots (centroid method)");
 % pks_cntの傾きを補正したpks_cnt_corを得る
-[p1_cnt,p2_cnt,pks_cnt_cor] = fitGroove(iSegment,fig,p2_cnt,W_PRL,H_PRL,pks_cnt_r);
+[p1_cnt,p2_cnt,pks_cnt_cor] = fitGroove(jSegment,fig,p2_cnt,W_PRL,H_PRL,pks_cnt_r);
 
 BIN_WIDTH = 2; % BinWidth
 [counts,edges] = histcounts(pks_cnt_cor(:,2),'BinWidth',BIN_WIDTH);
@@ -370,7 +370,7 @@ origImg.showImg();
 hold on;
 pts_cnt_intp.showCandidates();
 title("Peak Dots (centroid method)");
-[p1_cnt,p2_cnt,pks_cnt_cor] = fitGroove(iSegment,fig,p2_cnt,W_PRL,H_PRL,pks_cnt_intp);
+[p1_cnt,p2_cnt,pks_cnt_cor] = fitGroove(jSegment,fig,p2_cnt,W_PRL,H_PRL,pks_cnt_intp);
 
 BIN_WIDTH = 2; % BinWidth
 [counts,edges] = histcounts(pks_cnt_cor(:,2),'BinWidth',BIN_WIDTH);
