@@ -39,14 +39,18 @@ dir = mkdirFromDate(proj.RootFolder,date);
 % 画像8*l枚分のImageData, DarknessValue, GrooveCandidatesクラスオブジェクト
 % 溝の形状抽出はすべてcentroid methodによる。
 allImg(TOTAL_SEGMENTS,1) = ImageData();
-allOrigD(TOTAL_SEGMENTS,1) = DarknessValue();
 allIntpD(TOTAL_SEGMENTS,1) = DarknessValue();
-allPts_origD(TOTAL_SEGMENTS,1) = GrooveCandidates();
-allPts_intpD(TOTAL_SEGMENTS,1) = GrooveCandidates();
+allPts_max_intpD(TOTAL_SEGMENTS,1) = GrooveCandidates();
+allPts_cnt_intpD(TOTAL_SEGMENTS,1) = GrooveCandidates();
+% 以下はpkCentroid_resample_1cycle.mにゆずる。
+% allOrigD(TOTAL_SEGMENTS,1) = DarknessValue();
+% allPts_max_origD(TOTAL_SEGMENTS,1) = GrooveCandidates();
+% allPts_cnt_origD(TOTAL_SEGMENTS,1) = GrooveCandidates();
 
-
-% iImg=1; % i=1~NUM_IMAGES
-% iSegment=1; % j=1~NUM_SEGMENTS
+% 1周分のデータのx,y座標
+xcoords = cell(TOTAL_SEGMENTS,1);
+ycoords = cell(TOTAL_SEGMENTS,1);
+p2 = zeros(1,2);
 
 for iImg=1:NUM_IMAGES
     for jSegment=1:NUM_SEGMENTS
@@ -65,13 +69,13 @@ for iImg=1:NUM_IMAGES
         [img_omitMask,newWidth] = omitMask(img_small, L_MASK);
         origImg = ImageData(img_omitMask, [iImg;jSegment]);
 
-        origD = DarknessValue(origImg);
-        origD = origD.ddiff(D_THRESH);
+        % origD = DarknessValue(origImg);
+        % origD = origD.ddiff(D_THRESH);
 
 
-        P_RSMPL = 8; Q_RSMPL = 1;
-        rsmplD = dResample(origD,P_RSMPL,Q_RSMPL);
-        rsmplD = rsmplD.ddiff(D_THRESH);
+        % P_RSMPL = 8; Q_RSMPL = 1;
+        % rsmplD = dResample(origD,P_RSMPL,Q_RSMPL);
+        % rsmplD = rsmplD.ddiff(D_THRESH);
 
         QUERY_STEP = 0.25;
         INTERP_METHOD = "spline";
@@ -80,20 +84,22 @@ for iImg=1:NUM_IMAGES
 
         % objects in which groove candidates are recorded.
         % for original img
-        pts_cnt = GrooveCandidates(origD);
+        % pts_cnt = GrooveCandidates(origD);
         % pts_max = GrooveCandidates(origD);
 
         % for resampled img
-        pts_cnt_r = GrooveCandidates(rsmplD);
+        % pts_cnt_r = GrooveCandidates(rsmplD);
         % pts_max_r = GrooveCandidates(rsmplD);
 
         % for interpolated img
         pts_cnt_intp = GrooveCandidates(intpD);
-        % pts_max_intp = GrooveCandidates(intpD);
+        pts_max_intp = GrooveCandidates(intpD);
 
 
         W_TH = 8;
 
+        % origD, rsmplDから溝形状を抽出
+        %{
         for x=1:origImg.width
             [startIdx, endIdx] = getStartEndIdx(origD, x);
             [origD,~,~,pksNum] = ...
@@ -118,7 +124,6 @@ for iImg=1:NUM_IMAGES
             pts_max_r.pksCell{x} = [x*ones(pksNum,1), max_x];
         end
 
-
         pks_cnt = vertcat(pts_cnt.pksCell{:});
         pks_max = vertcat(pts_max.pksCell{:});
 
@@ -127,6 +132,7 @@ for iImg=1:NUM_IMAGES
 
         % fitGroove()を使って、溝1本分の形状データを抽出する
 
+        %}
 
         for x=1:intpD.nCols
             [startIdx, endIdx] = intpD.getStartEndIdx(x);
@@ -150,14 +156,52 @@ for iImg=1:NUM_IMAGES
 
 
         % fitGroove()を使って、溝1本分の形状データを抽出する
+        fig = figure;
+        origImg.showImg();
+        % fig = createFigure([0 0 6 6]);
+        % imshow(img_omitMask,"InitialMagnification","fit");
+        hold on;
+        pts_cnt_intp.showCandidates();
+        [p1,p2,pks_cor] = fitGroove(jSegment,fig,p2,w_prl,h_prl,pks_cnt_intp);
+
+        binWidth = 5; % BinWidth
+        [counts,edges] = histcounts(pks_cor(:,2),'BinWidth',binWidth);
+        centers = edges(1:end-1) + diff(edges)/2; % ピークの中心
+
+        [~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST);
+
+        [~,idx_hist] = min(abs(p1(2) - centers(histPkLocs)));
+        groove1Center = centers(histPkLocs(idx_hist));
+
+        tol = 3;
+        % そのピークの中心からtol(pixel)以内にあるy座標
+        y_min = groove1Center - tol;
+        y_max = groove1Center + tol;
+
+        idxs = (pks_cor(:,2) >= y_min) & (pks_cor(:,2)<=y_max);
+
+        % !!!pointsの欠損値の補間処理を追加する!!!
+        points = pks_cor(idxs,:);
+
+        points_fit = points;
+
+        p = polyfit(points(:,1),points(:,2),3);
+        points_fit(:,2) = points(:,2) - polyval(p,points(:,1));
+        points_fit(:,2) = points_fit(:,2) - mean(points_fit(:,2));
+
+        xcoords{kImgSmall,1} = points(:,1);
+        ycoords{kImgSmall,1} = points_fit(:,2);
+
 
 
         % データの保存
         allImg(kImgSmall) = origImg;
-        allOrigD(kImgSmall) = origD;
         allIntpD(kImgSmall) = intpD;
-        allPts_origD(kImgSmall) = pts_cnt;
-        allPts_intpD(kImgSmall) = pts_cnt_intp;
+        allPts_max_intpD(kImgSmall) = pts_max_intp;
+        allPts_cnt_intpD(kImgSmall) = pts_cnt_intp;
+        % allOrigD(kImgSmall) = origD;
+        % allPts_max_origD(kImgSmall) = pts_max;
+        % allPts_cnt_origD(kImgSmall) = pts_cnt;
 
     end % for jSegment=1:NUM_SEGMENTS
 end % for iImg = 1:NUM_IMAGES
