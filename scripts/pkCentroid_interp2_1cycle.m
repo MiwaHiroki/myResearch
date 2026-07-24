@@ -257,8 +257,13 @@ amp_raw = y_mean0 / (tol/2);
 
 intpAudio = AudioData("audio (interp)",amp_raw,fs);
 
-figure;intpAudio.audioPlot();
-figure;intpAudio.FFTPlot();
-figure;intpAudio.spectrogramPlot();
+fig = figure;intpAudio.audioPlot();
+saveas(fig,dir+intpAudio.filename+"_amp","fig");saveas(fig,dir+intpAudio.filename+"_amp","png");close;
+
+fig = figure;intpAudio.FFTPlot();
+saveas(fig,dir+intpAudio.filename+"_fft","fig");saveas(fig,dir+intpAudio.filename+"_fft","png");close;
+
+fig = figure;intpAudio.spectrogramPlot(4096);
+saveas(fig,dir+intpAudio.filename+"_stft","fig");saveas(fig,dir+intpAudio.filename+"_stft","png");close;
 
 intpAudio.saveAudio(dir);
