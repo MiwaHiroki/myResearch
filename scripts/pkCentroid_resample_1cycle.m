@@ -44,8 +44,8 @@ xcoords = cell(TOTAL_SEGMENTS,1);
 ycoords = cell(TOTAL_SEGMENTS,1);
 p2 = zeros(1,2);
 
-% for iImg=1:NUM_IMAGES
-for iImg=1:1
+for iImg=1:NUM_IMAGES
+% for iImg=1:1
     % img_old = imread("./pictures/old/8x/" + filenameC_old(9-iImg) + ".png");
     % img_gray = rgb2gray(img_old);
     % img_new = imread("./pictures/1111/original/" + filenames_new(9-iImg) + ".png");
@@ -56,8 +56,8 @@ for iImg=1:1
     divImgWidth = round(imgWidth/NUM_SEGMENTS);
     xarray = [1:divImgWidth:imgWidth imgWidth+1]';
 
-    % for jSegment=1:NUM_SEGMENTS
-    for jSegment=1:1
+    for jSegment=1:NUM_SEGMENTS
+    % for jSegment=1:1
         kImgSmall = (iImg-1)*NUM_SEGMENTS+jSegment;
         % iImgSmall: 1 ~ TOTAL_SEGMENTS
 
@@ -135,7 +135,7 @@ for iImg=1:1
         origImg.showImg();
         % imshow(img_omitMask);
         % fig = createFigure([0 0 6 6]);
-        % imshow(img_small,"InitialMagnification","fit");
+        % imshow(img_omitMask,"InitialMagnification","fit");
         hold on;
         % scatter(pks_cnt_r(:,1),pks_cnt_r(:,2),3,'c','filled');
         pts_cnt_r.showCandidates();
@@ -160,8 +160,16 @@ for iImg=1:1
         y_min = groove1Center - tol;
         y_max = groove1Center + tol;
 
+
+        % !!!pointsの欠損値の補間処理を追加する!!!
+        points = [(1:origD.nCols)',NaN(origD.nCols,1)];
+
         idxs = (pks_cor(:,2) >= y_min) & (pks_cor(:,2)<=y_max);
-        points = pks_cor(idxs,:);
+        points(pks_cor(idxs,1),2) = pks_cor(idxs,2);
+
+        points(:,2) = fillmissing(points(:,2),"linear");
+
+        % points = pks_cor(idxs,:);
 
         points_fit = points;
 
@@ -171,6 +179,7 @@ for iImg=1:1
 
         xcoords{kImgSmall,1} = points(:,1);
         ycoords{kImgSmall,1} = points_fit(:,2);
+        
     end % for jSegment=1:NUM_SEGMENTS
 end % for iImg = 1:NUM_IMAGES
 
