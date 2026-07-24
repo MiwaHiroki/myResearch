@@ -61,7 +61,7 @@ classdef GrooveCandidates
         
         function showCandidates(obj)
             pks = vertcat(obj.pksCell{:});
-            scatter(pks(:,1),pks(:,2),5,"filled");
+            scatter(pks(:,1),pks(:,2),5,"c","filled");
         end
 
     end
