@@ -42,6 +42,7 @@ dir = mkdirFromDate(proj.RootFolder,date);
 for iImg=1:NUM_IMAGES
     for jSegment=1:NUM_SEGMENTS
         kImgSmall = (iImg-1)*NUM_SEGMENTS+jSegment;
+        % 何番目のimgSmallか。kImgSmall = 1 ~ TOTAL_SEGMENTS
 
         img_new = imread(filenames_new(9-iImg) + ".png");
         img_gray = rgb2gray(img_new);
@@ -140,8 +141,8 @@ for iImg=1:NUM_IMAGES
 
         % fitGroove()を使って、溝1本分の形状データを抽出する
 
-    end
-end
+    end % for jSegment=1:NUM_SEGMENTS
+end % for iImg = 1:NUM_IMAGES
 
 
 %%

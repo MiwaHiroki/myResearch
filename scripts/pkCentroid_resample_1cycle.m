@@ -161,8 +161,8 @@ for iImg=1:1
 
         xcoords{kImgSmall,1} = points(:,1);
         ycoords{kImgSmall,1} = points_fit(:,2);
-    end
-end
+    end % for jSegment=1:NUM_SEGMENTS
+end % for iImg = 1:NUM_IMAGES
 
 %%
 y_comb_raw = vertcat(ycoords{:});
