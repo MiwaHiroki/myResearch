@@ -184,12 +184,22 @@ for iImg=1:NUM_IMAGES
         y_min = groove1Center - tol;
         y_max = groove1Center + tol;
 
+        % なんか配列の長さが合わなそうな初期化
+        % dInterp()の中身も同様なので実際は問題ない
+        points = [(1:QUERY_STEP:intpD.imgWidth)',NaN(intpD.nCols,1)];
+
         idxs = (pks_cor(:,2) >= y_min) & (pks_cor(:,2)<=y_max);
 
-        % !!!pointsの欠損値の補間処理を追加する!!!
-        points = pks_cor(idxs,:);
+        clusterdPoints = pks_cor(idxs,:);
+        points_x = clusterdPoints(:,1); %QUERY_STEP刻みのx座標。データの一部が欠損してる可能性
+        Lia = ismember(points(:,1),points_x);
+        % Lia: logical配列。「第一引数に第二引数の数値が見つかったかどうか」
+        points(Lia,2) = clusterdPoints(:,2);
+
+        points(:,2) = fillmissing(points(:,2),"linear");
 
         points_fit = points;
+
 
         p = polyfit(points(:,1),points(:,2),3);
         points_fit(:,2) = points(:,2) - polyval(p,points(:,1));
@@ -231,5 +241,6 @@ legend(["not resampled","resampled","interpolated"]);
 lgd = legend; lgd.ItemHitFcn=@togglevisibility;
 %}
 
+%%
 
 
