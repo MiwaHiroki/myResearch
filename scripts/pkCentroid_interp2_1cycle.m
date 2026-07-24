@@ -38,8 +38,9 @@ dir = mkdirFromDate(proj.RootFolder,date);
 
 % 画像8*l枚分のImageData, DarknessValue, GrooveCandidatesクラスオブジェクト
 % 溝の形状抽出はすべてcentroid methodによる。
-allOrigImg(TOTAL_SEGMENTS,1) = ImageData();
+allImg(TOTAL_SEGMENTS,1) = ImageData();
 allOrigD(TOTAL_SEGMENTS,1) = DarknessValue();
+allIntpD(TOTAL_SEGMENTS,1) = DarknessValue();
 allPts_origD(TOTAL_SEGMENTS,1) = GrooveCandidates();
 allPts_intpD(TOTAL_SEGMENTS,1) = GrooveCandidates();
 
@@ -63,7 +64,6 @@ for iImg=1:NUM_IMAGES
 
         [img_omitMask,newWidth] = omitMask(img_small, L_MASK);
         origImg = ImageData(img_omitMask, [iImg;jSegment]);
-        origWidth = origImg.width; origHeight = origImg.height;
 
         origD = DarknessValue(origImg);
         origD = origD.ddiff(D_THRESH);
@@ -78,17 +78,18 @@ for iImg=1:NUM_IMAGES
         intpD = dInterp(origD,QUERY_STEP,INTERP_METHOD);
         intpD = intpD.ddiff(D_THRESH);
 
-
         % objects in which groove candidates are recorded.
         % for original img
         pts_cnt = GrooveCandidates(origD);
-        pts_max = GrooveCandidates(origD);
+        % pts_max = GrooveCandidates(origD);
+
         % for resampled img
         pts_cnt_r = GrooveCandidates(rsmplD);
-        pts_max_r = GrooveCandidates(rsmplD);
+        % pts_max_r = GrooveCandidates(rsmplD);
+
         % for interpolated img
         pts_cnt_intp = GrooveCandidates(intpD);
-        pts_max_intp = GrooveCandidates(intpD);
+        % pts_max_intp = GrooveCandidates(intpD);
 
 
         W_TH = 8;
@@ -117,6 +118,7 @@ for iImg=1:NUM_IMAGES
             pts_max_r.pksCell{x} = [x*ones(pksNum,1), max_x];
         end
 
+
         pks_cnt = vertcat(pts_cnt.pksCell{:});
         pks_max = vertcat(pts_max.pksCell{:});
 
@@ -129,7 +131,7 @@ for iImg=1:NUM_IMAGES
         for x=1:intpD.nCols
             [startIdx, endIdx] = intpD.getStartEndIdx(x);
             [intpD, startIdx_btm, endIdx_btm, pksNum] = ...
-                getGrooveBtmIdx(intpD,x,startIdx,endIdx,W_TH_INTERP);
+                getGrooveBtmIdx(intpD,x,startIdx,endIdx,W_TH);
 
             cnt_x = intpD.extractGrv_cnt(x);
             max_x = intpD.extractGrv_max(x);
@@ -148,6 +150,14 @@ for iImg=1:NUM_IMAGES
 
 
         % fitGroove()を使って、溝1本分の形状データを抽出する
+
+
+        % データの保存
+        allImg(kImgSmall) = origImg;
+        allOrigD(kImgSmall) = origD;
+        allIntpD(kImgSmall) = intpD;
+        allPts_origD(kImgSmall) = pts_cnt;
+        allPts_intpD(kImgSmall) = pts_cnt_intp;
 
     end % for jSegment=1:NUM_SEGMENTS
 end % for iImg = 1:NUM_IMAGES
