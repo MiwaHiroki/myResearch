@@ -1,0 +1,68 @@
+% ImageData クラスの単体テスト
+classdef ImageDataTest < matlab.unittest.TestCase
+
+    properties
+        fig
+    end
+
+    methods (TestClassSetup)
+        function addToPath(testCase)
+            import matlab.unittest.fixtures.PathFixture
+            thisDir = fileparts(mfilename('fullpath'));
+            srcDir  = fullfile(thisDir, '..', '..', 'src');
+            testCase.applyFixture(PathFixture(srcDir));
+        end
+    end
+
+    methods (TestMethodSetup)
+        function openHiddenFigure(testCase)
+            testCase.fig = figure('Visible', 'off');
+            testCase.addTeardown(@() close(testCase.fig));
+        end
+    end
+
+    methods (Test)
+        function testDefaultConstructorIsEmpty(testCase)
+            obj = ImageData();
+            testCase.verifyEmpty(obj.img, "img は空であるべき");
+        end
+
+        function testConstructorStoresImageAndId(testCase)
+            img = reshape(1:15, 3, 5);   % 3行5列
+            id  = [7; 9];
+            obj = ImageData(img, id);
+
+            testCase.verifyEqual(obj.img, img);
+            testCase.verifyEqual(obj.imgID, id);
+        end
+
+        function testConstructorComputesHeightAndWidth(testCase)
+            img = reshape(1:15, 3, 5);   % height=3, width=5
+            obj = ImageData(img, [1; 1]);
+
+            testCase.verifyEqual(obj.height, 3, "height は行数と一致すべき");
+            testCase.verifyEqual(obj.width, 5, "width は列数と一致すべき");
+        end
+
+        function testShowImgDrawsImage(testCase)
+            img = 100 * ones(4, 6);
+            obj = ImageData(img, [1; 1]);
+            obj.showImg();
+            testCase.verifyNotEmpty(findobj(testCase.fig, 'Type', 'image'), ...
+                "showImg は image オブジェクトを描画すべき");
+        end
+
+        function testShowImgFitOption(testCase)
+            img = 100 * ones(4, 6);
+            obj = ImageData(img, [1; 1]);
+            obj.showImg("fit");
+            testCase.verifyNotEmpty(findobj(testCase.fig, 'Type', 'image'));
+        end
+
+        function testShowImgInvalidArgumentErrors(testCase)
+            img = 100 * ones(4, 6);
+            obj = ImageData(img, [1; 1]);
+            testCase.verifyError(@() obj.showImg("bogus"), ?MException);
+        end
+    end
+end
