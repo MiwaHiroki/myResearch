@@ -2,6 +2,11 @@
 
 setDefaultIntrpr();
 
+proj = currentProject;
+date = "0725";
+mkdirFromDate(proj.RootFolder,date);
+dir = "results/"+date+"/";
+
 %% 画像を読み込み、DarknessValueオブジェクトをセットアップする
 img = imread("DSC1111-00001-ori.png");
 img_gray = rgb2gray(img);
@@ -46,15 +51,18 @@ origdMat = origD.dMat;
 
 X = (1:pixels);Y = (1:pixels)';
 
-figure;p = waterfall(X,Y,origdMat',"Marker",".");
+fig=createFigure([0 0 8 6]);p = waterfall(X,Y,origdMat',"Marker",".");
 xlim([1,60]);
 ylim([1,10]);
-% zlim([0 1]);
+zlim([0.3 1]);
 clim([0 1]);
 p.MarkerSize = 5;
-colormap(flipud(gray));colorbar;
+colormap(flipud(gray));%colorbar;
+title("Darkness: Original (Unprocessed)");
+xlabel("Row Index");ylabel("Column Index");zlabel("$D$");
 % p.EdgeColor = "none";
 view(30,30)
+saveas(fig,"3d-darkness(original).png");saveas(fig,"3d-darkness(original).fig");
 
 %% (rsmplDについて)waterfallを使ってdMatを3次元で表示する
 
@@ -67,15 +75,19 @@ rsmpldMat = rsmplD.dMat;
 X_rsmpl = (1:nRows_rsmpl);
 Y_rsmpl = (1:nCols_rsmpl)';
 
-figure;p = waterfall(X_rsmpl,Y_rsmpl,rsmpldMat',"Marker",".");
+fig=createFigure([0 0 8 6]);p = waterfall(X_rsmpl,Y_rsmpl,rsmpldMat',"Marker",".");
 xlim([1,(60-1)*rsmplD.rRatio(1)+1]);
 ylim([1,(10-1)*rsmplD.rRatio(2)+1]);
-% zlim([0 1]);
+zlim([0.3 1]);
 clim([0 1]);
 p.MarkerSize = 5;
-colormap(flipud(gray));colorbar;
+colormap(flipud(gray));%colorbar;
+title("Darkness: After 1-D Resampling");
+xlabel("Row Index");ylabel("Column Index");zlabel("$D$");
 % p.EdgeColor = "none";
 view(30,30)
+
+saveas(fig,"3d-darkness(original).png");saveas(fig,"3d-darkness(original).fig");
 
 %% (intpDについて)waterfallを使ってdMatを3次元で表示する
 
@@ -89,18 +101,22 @@ intpdMat = intpD.dMat;
 X_intp = (1:nRows_intp);
 Y_intp = (1:nCols_intp)';
 
-figure;p = waterfall(X_intp,Y_intp,intpdMat',"Marker",".");
+fig=createFigure([0 0 8 6]);p = waterfall(X_intp,Y_intp,intpdMat',"Marker",".");
 xlim([1,(60-1)*intpD.rRatio(1)+1]);
 ylim([1,(10-1)*intpD.rRatio(2)+1]);
-% zlim([0 1]);
+zlim([0.3 1]);
 clim([0 1]);
 p.MarkerSize = 5;
-colormap(flipud(gray));colorbar;
+colormap(flipud(gray));%colorbar;
+title("Darkness: After 2-D Interpolation");
+xlabel("Row Index");ylabel("Column Index");zlabel("$D$");
 % p.EdgeColor = "none";
 view(30,30)
 
 
 %% ---------------以下不要-------------------- 
+
+%{
 % surfを使用する
 
 figure;h=surf(origdMat);
@@ -119,3 +135,5 @@ ylim([1,60]);
 % zlim([0 1]);
 clim([0 1]);
 colormap(flipud(gray));colorbar;
+
+%}
