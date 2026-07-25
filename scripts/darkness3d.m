@@ -62,7 +62,7 @@ title("Darkness: Original (Unprocessed)");
 xlabel("Row Index");ylabel("Column Index");zlabel("$D$");
 % p.EdgeColor = "none";
 view(30,30)
-saveas(fig,"3d-darkness(original).png");saveas(fig,"3d-darkness(original).fig");
+saveas(fig,dir+"3d-darkness(original).png");saveas(fig,dir+"3d-darkness(original).fig");
 
 %% (rsmplDについて)waterfallを使ってdMatを3次元で表示する
 
@@ -87,7 +87,7 @@ xlabel("Row Index");ylabel("Column Index");zlabel("$D$");
 % p.EdgeColor = "none";
 view(30,30)
 
-saveas(fig,"3d-darkness(original).png");saveas(fig,"3d-darkness(original).fig");
+saveas(fig,dir+"3d-darkness(rsmpl).png");saveas(fig,dir+"3d-darkness(rsmpl).fig");
 
 %% (intpDについて)waterfallを使ってdMatを3次元で表示する
 
@@ -112,7 +112,7 @@ title("Darkness: After 2-D Interpolation");
 xlabel("Row Index");ylabel("Column Index");zlabel("$D$");
 % p.EdgeColor = "none";
 view(30,30)
-
+saveas(fig,dir+"3d-darkness(intp).png");saveas(fig,dir+"3d-darkness(intp).fig");
 
 %% ---------------以下不要-------------------- 
 
