@@ -31,7 +31,7 @@ classdef ImageData
                     error("invalid arguments")
                 end
             end
-            ax = gca;
+            ax=gca;
             set(ax,'YDir','reverse','TickDir','out')
             set(ax,"XAxisLocation","top")
             xlabel("$x$");ylabel("$y$")
