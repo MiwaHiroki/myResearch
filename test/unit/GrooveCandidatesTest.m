@@ -60,5 +60,41 @@ classdef GrooveCandidatesTest < matlab.unittest.TestCase
             testCase.verifyNotEmpty(findobj(testCase.fig, 'Type', 'scatter'), ...
                 "showCandidates は scatter を描画すべき");
         end
+
+        function testShowCandidatesWithOneArg(testCase)
+            gc = GrooveCandidates(testCase.dValue);
+            gc.pksCell{1} = [1, 3];
+            gc.pksCell{2} = [2, 4];
+            gc.showCandidates();
+            s = findobj(testCase.fig, 'Type', 'scatter');
+            testCase.verifyEqual(s.SizeData, 5);
+            testCase.verifyEqual(s.CData, validatecolor("cyan"));
+            testCase.verifyEqual(s.Marker, 'o');
+            testCase.verifyEqual(s.MarkerFaceColor, 'flat');
+        end
+
+        function testShowCandidatesWithTwoArgs(testCase)
+            gc = GrooveCandidates(testCase.dValue);
+            gc.pksCell{1} = [1, 3];
+            gc.pksCell{2} = [2, 4];
+            gc.showCandidates("red");
+            s = findobj(testCase.fig, 'Type', 'scatter');
+            testCase.verifyEqual(s.SizeData, 5);
+            testCase.verifyEqual(s.CData, validatecolor("red"));
+            testCase.verifyEqual(s.Marker, 'o');
+            testCase.verifyEqual(s.MarkerFaceColor, 'flat');
+        end
+
+        function testShowCandidatesWithThreeArgs(testCase)
+            gc = GrooveCandidates(testCase.dValue);
+            gc.pksCell{1} = [1, 3];
+            gc.pksCell{2} = [2, 4];
+            gc.showCandidates("green", 12);
+            s = findobj(testCase.fig, 'Type', 'scatter');
+            testCase.verifyEqual(s.SizeData, 12);
+            testCase.verifyEqual(s.CData, validatecolor("green"));
+            testCase.verifyEqual(s.Marker, 'o');
+            testCase.verifyEqual(s.MarkerFaceColor, 'flat');
+        end
     end
 end
