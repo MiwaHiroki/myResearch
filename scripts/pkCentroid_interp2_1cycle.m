@@ -73,17 +73,17 @@ for iImg=1:NUM_IMAGES
         
 
         origD = DarknessValue(origImg);
-        origD = origD.ddiff(D_THRESH);
+        origD = origD.setDiffTF(D_THRESH);
 
 
         % P_RSMPL = 8; Q_RSMPL = 1;
         % rsmplD = dResample(origD,P_RSMPL,Q_RSMPL);
-        % rsmplD = rsmplD.ddiff(D_THRESH);
+        % rsmplD = rsmplD.setDiffTF(D_THRESH);
 
         QUERY_STEP = 0.25;
         INTERP_METHOD = "spline";
         intpD = dInterp(origD,QUERY_STEP,INTERP_METHOD);
-        intpD = intpD.ddiff(D_THRESH);
+        intpD = intpD.setDiffTF(D_THRESH);
 
         % objects in which groove candidates are recorded.
         % for original img

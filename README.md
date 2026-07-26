@@ -9,7 +9,7 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 1. 盤面画像（8分割撮影の8枚）を読み込み、各画像をさらに横方向に10分割して細長い画像（`img_small`）にする（計80セグメント）。
 2. `omitMask` で左右の無効領域（マスク）を除去する。
 3. `ImageData` → `DarknessValue` を作り、暗さ行列 `dMat = 1 - img/255` を得る。必要に応じて `dResample`（リサンプル）や `dInterp`（interp2内挿）で高解像度化する。
-4. `ddiff` でしきい値 `D_THRESH` を超える領域の立ち上がり／立ち下がりを求め、各xで溝底候補の区間（`getStartEndIdx`）と幅の狭い溝底区間（`getGrooveBtmIdx`）を特定する。
+4. `setDiffTF` でしきい値 `D_THRESH` を超える領域の立ち上がり／立ち下がりを求め、各xで溝底候補の区間（`getStartEndIdx`）と幅の狭い溝底区間（`getGrooveBtmIdx`）を特定する。
 5. `extractGrv_cnt`（重心法）／`extractGrv_max`（局所的最大値法）で溝底のy座標を求め、`GrooveCandidates` に格納する。
 6. `fitGroove` で手動指定した平行四辺形内の点群を直線近似し、溝の傾きを補正する。
 7. ヒストグラムのピークから追跡対象の溝1本を選び、その中心付近（`TOL_DISTANCE`／`tol`）の点だけを抽出、欠損を `fillmissing` で補間し、多項式でデトレンドする。
@@ -31,7 +31,7 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 - **`ImageData`**: 盤面画像（グレースケール行列）と幅・高さ・IDを保持。`showImg` で画像を表示。
 - **`DarknessValue`**: 暗さ行列 `dMat` と溝底抽出処理を担う中心的クラス。
   - `dResample(p,q)` / `dInterp(step,method)`: 解像度変換（リサンプル／内挿）
-  - `ddiff(D_th)`: しきい値超えの立ち上がり・立ち下がりを計算
+  - `setDiffTF(D_th)`: しきい値超えの立ち上がり・立ち下がりを計算
   - `getStartEndIdx(x)` / `getGrooveBtmIdx(...)`: 溝底候補区間の特定
   - `extractGrv_cnt(x)` / `extractGrv_max(x)`: 重心法／局所的最大値法で溝底のy座標を算出
 - **`GrooveCandidates`**: 検出した溝底候補点（`pksCell`）を保持し、`showCandidates` で散布図表示。

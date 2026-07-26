@@ -57,7 +57,7 @@ xarray = [1:divImgWidth:imgWidth imgWidth+1]';
 imgData = ImageData(img_omitMask, [iImg;jSegment]);
 
 dValue = DarknessValue(imgData);
-dValue = ddiff(dValue, D_THRESH);
+dValue = setDiffTF(dValue, D_THRESH);
 diffTF = dValue.diffTF;
 
 % dValue.dMatをinterp2で内挿してdMat_interpを作成
@@ -123,7 +123,7 @@ origImg = ImageData(img_omitMask, [iImg;jSegment]);
 origWidth = origImg.width; origHeight = origImg.height;
 
 origD = DarknessValue(origImg);
-origD = origD.ddiff(D_THRESH);
+origD = origD.setDiffTF(D_THRESH);
 
 
 % MUST AVOID THIS: INTERPOLATING IMAGE
@@ -139,13 +139,13 @@ origD = origD.ddiff(D_THRESH);
 step = 0.125;
 INTERP_METHOD = "spline"; % method for interpolation
 intpD = dInterp(origD,step,INTERP_METHOD);
-intpD = intpD.ddiff(D_THRESH);
+intpD = intpD.setDiffTF(D_THRESH);
 
 
 
 p_rsmpl = 8; q_rsmpl = 1;
 rsmplD = dResample(origD,8,1);
-rsmplD = rsmplD.ddiff(D_THRESH);
+rsmplD = rsmplD.setDiffTF(D_THRESH);
 
 
 

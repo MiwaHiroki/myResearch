@@ -22,7 +22,7 @@ imgData = ImageData(img_small,[1,1]);
 D_THRESH = 0.6;
 
 origD = DarknessValue(imgData);
-origD = origD.ddiff(D_THRESH);
+origD = origD.setDiffTF(D_THRESH);
 origdMat = origD.dMat;
 
 % pts_cnt = GrooveCandidates(origD);
@@ -69,7 +69,7 @@ saveas(fig,dir+"3d-darkness(original)_labelxy.png");saveas(fig,dir+"3d-darkness(
 
 p_rsmpl = 8; q_rsmpl = 1;
 rsmplD = dResample(origD,p_rsmpl,q_rsmpl);
-rsmplD = rsmplD.ddiff(D_THRESH);
+rsmplD = rsmplD.setDiffTF(D_THRESH);
 rsmpldMat = rsmplD.dMat;
 
 [nRows_rsmpl,nCols_rsmpl] = size(rsmpldMat);
@@ -95,7 +95,7 @@ saveas(fig,dir+"3d-darkness(rsmpl).png");saveas(fig,dir+"3d-darkness(rsmpl).fig"
 step = 0.25;
 INTERP_METHOD = "spline"; % method for interpolation
 intpD = dInterp(origD,step,INTERP_METHOD);
-intpD = intpD.ddiff(D_THRESH);
+intpD = intpD.setDiffTF(D_THRESH);
 intpdMat = intpD.dMat;
 
 [nRows_intp,nCols_intp] = size(intpdMat);

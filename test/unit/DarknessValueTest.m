@@ -85,21 +85,21 @@ classdef DarknessValueTest < matlab.unittest.TestCase
             testCase.verifyEqual(newObj.rRatio, [0.5; 0.5]);
         end
 
-        function testDdiff(testCase)
-            obj = testCase.dValue.ddiff(0.5);
+        function testSetDiffTF(testCase)
+            obj = testCase.dValue.setDiffTF(0.5);
             expected = int8(diff(testCase.dMat > 0.5));
             testCase.verifyEqual(obj.diffTF, expected);
         end
 
         function testGetStartEndIdx(testCase)
-            obj = testCase.dValue.ddiff(0.5);
+            obj = testCase.dValue.setDiffTF(0.5);
             [startIdx, endIdx] = obj.getStartEndIdx(1);
             testCase.verifyEqual(startIdx, 3);   % 暗領域は 3〜4 行目
             testCase.verifyEqual(endIdx, 4);
         end
 
         function testGetGrooveBtmIdx(testCase)
-            obj = testCase.dValue.ddiff(0.5);
+            obj = testCase.dValue.setDiffTF(0.5);
             [obj, sb, eb, pksNum] = obj.getGrooveBtmIdx(1, 3, 4, 5);
             testCase.verifyEqual(sb, 3);
             testCase.verifyEqual(eb, 4);
@@ -109,7 +109,7 @@ classdef DarknessValueTest < matlab.unittest.TestCase
         end
 
         function testExtractGrvCnt(testCase)
-            obj = testCase.dValue.ddiff(0.5);
+            obj = testCase.dValue.setDiffTF(0.5);
             obj = obj.getGrooveBtmIdx(1, 3, 4, 5);
             cnt = obj.extractGrv_cnt(1);
             % 重心 = (3*0.9 + 4*0.9) / (0.9 + 0.9) = 3.5
@@ -117,7 +117,7 @@ classdef DarknessValueTest < matlab.unittest.TestCase
         end
 
         function testExtractGrvMax(testCase)
-            obj = testCase.dValue.ddiff(0.5);
+            obj = testCase.dValue.setDiffTF(0.5);
             obj = obj.getGrooveBtmIdx(1, 3, 4, 5);
             mx = obj.extractGrv_max(1);
             % 3,4 行目とも 0.9 なので最初の最大値 = 3 行目

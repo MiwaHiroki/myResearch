@@ -67,7 +67,7 @@ classdef DarknessValue
             newObj.eIdxC = cell(1,obj.nCols);
         end
 
-        function obj = ddiff(obj,D_th)
+        function obj = setDiffTF(obj,D_th)
             TF = (obj.dMat > D_th);
             obj.diffTF = diff(TF);
         end

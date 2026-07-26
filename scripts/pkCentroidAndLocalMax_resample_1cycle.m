@@ -79,7 +79,7 @@ for iImg=1:NUM_IMAGES
         imgData = ImageData(img_omitMask, [iImg;jSegment]);
 
         dValue = DarknessValue(imgData);
-        dValue = ddiff(dValue, D_THRESH);
+        dValue = setDiffTF(dValue, D_THRESH);
         diffTF = dValue.diffTF;
 
         % startIdx, endIdxのプロット用
@@ -327,7 +327,7 @@ for iImg=1:8
 
         dValue = dValue_full(n);
         dValue_r = dResample(dValue,p_rsmpl,q_rsmpl);
-        dValue_r = ddiff(dValue_r,D_THRESH);
+        dValue_r = setDiffTF(dValue_r,D_THRESH);
 
         % startIdx, endIdxのプロット用
         sIdxC = cell(1,imgData.width);

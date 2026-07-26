@@ -70,11 +70,11 @@ for iImg=1:NUM_IMAGES
         
         % z = 1 - double(img_omitMask)/255;
         origD = DarknessValue(origImg);
-        origD = origD.ddiff(D_THRESH);
+        origD = origD.setDiffTF(D_THRESH);
 
         P_RSMPL = 8; Q_RSMPL = 1;
         rsmplD = dResample(origD,P_RSMPL,Q_RSMPL);
-        rsmplD = rsmplD.ddiff(D_THRESH);
+        rsmplD = rsmplD.setDiffTF(D_THRESH);
 
         % objects in which groove candidates are recorded.
         % for original img

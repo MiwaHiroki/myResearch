@@ -52,11 +52,11 @@ img_small = img_gray(:, xarray(jSegment):xarray(jSegment+1)-1);
 origImg = ImageData(img_omitMask, [iImg;jSegment]);
 
 origD = DarknessValue(origImg);
-origD = origD.ddiff(D_THRESH);
+origD = origD.setDiffTF(D_THRESH);
 
 p_rsmpl = 8; q_rsmpl = 1;
 rsmplD = dResample(origD,8,1);
-rsmplD = rsmplD.ddiff(D_THRESH);
+rsmplD = rsmplD.setDiffTF(D_THRESH);
 
 % x = x_cにおけるD
 % origD at x=x_cとrsmplD at x=x_cを重ねて表示
