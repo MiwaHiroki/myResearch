@@ -24,7 +24,9 @@ L_MASK = 20; % Maskを取るためのluminanceのthreshold, 0付近に設定す�
 D_THRESH = 0.6;
 
 iImg = 1; % i=1~NUM_IMAGES
-jSegment = 1; % j=1~NUM_SEGMENTS
+jSegment = 10; % j=1~NUM_SEGMENTS
+
+%iImg = 1;jSegment=10;とするとホコリがある
 
 %%
 % img_smallの切り出し
