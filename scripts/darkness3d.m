@@ -59,10 +59,11 @@ clim([0 1]);
 p.MarkerSize = 5;
 colormap(flipud(gray));%colorbar;
 title("Darkness: Original (Unprocessed)");
-xlabel("Row Index");ylabel("Column Index");zlabel("$D$");
+% xlabel("Row Index");ylabel("Column Index");zlabel("$D$");
+xlabel("$y$");ylabel("$x$");zlabel("$D$");
 % p.EdgeColor = "none";
 view(30,30)
-saveas(fig,dir+"3d-darkness(original).png");saveas(fig,dir+"3d-darkness(original).fig");
+saveas(fig,dir+"3d-darkness(original)_labelxy.png");saveas(fig,dir+"3d-darkness(original)_labelxy.fig");
 
 %% (rsmplDについて)waterfallを使ってdMatを3次元で表示する
 
