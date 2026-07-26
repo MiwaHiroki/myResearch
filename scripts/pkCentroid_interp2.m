@@ -34,7 +34,7 @@ date = "0721";
 saveDir = mkdirFromDate(proj.RootFolder,date);
 % dir = "C:\Users\owner\Documents\HirokiMiwa\matlab@Miwa\peak detection\data\"+date+"\";
 
-iImg=5; % i=1~NUM_IMAGES
+iImg=1; % i=1~NUM_IMAGES
 jSegment=1; % j=1~NUM_SEGMENTS
 
 
@@ -136,7 +136,7 @@ origD = origD.ddiff(D_THRESH);
 
 
 % ------intpDの設定--------
-step = 0.25;
+step = 0.125;
 INTERP_METHOD = "spline"; % method for interpolation
 intpD = dInterp(origD,step,INTERP_METHOD);
 intpD = intpD.ddiff(D_THRESH);
@@ -239,18 +239,24 @@ pks_max_intp = vertcat(pts_max_intp.pksCell{:});
 % 結果の確認
 fig = createFigure([0 0 10 10]);
 % figure;
-% origImg.showImg();
-imshow(uint8(origImg.img), "InitialMagnification","fit");
-ax=gca;hold on;
+origImg.showImg("fit");
+ax=gca;
+% imshow(uint8(origImg.img), "InitialMagnification","fit");
+hold on;
 pts_cnt.showCandidates();
 pts_cnt_r.showCandidates();
 pts_cnt_intp.showCandidates();
-title("Peak Dots (mute section)")
+% set(gca,'YDir','reverse','TickDir','out');
+% set(gca,"XAxisLocation","top");
+% xlabel("$x$");ylabel("$y$");
+title("Peak Dots (mute section)");
+% xticks(1:100:origImg.width);yticks(1:100:origImg.height);
+
 
 legend(["original","resampled","interpolated ("+INTERP_METHOD+")"]);
 lgd = legend; lgd.ItemHitFcn = @togglevisibility;
 
-saveas(gcf,saveDir+"PkDots(muteSection)(orig,rsmpl,intp("+INTERP_METHOD+")).fig");
+% saveas(gcf,saveDir+"PkDots(muteSection)(orig,rsmpl,intp("+INTERP_METHOD+")).fig");
 
 %%
 MARKER_SIZE = 5;
