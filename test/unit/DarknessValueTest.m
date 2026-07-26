@@ -48,7 +48,7 @@ classdef DarknessValueTest < matlab.unittest.TestCase
 
         function testConstructorDefaults(testCase)
             testCase.verifyFalse(testCase.dValue.rsmplTF);
-            testCase.verifyEqual(testCase.dValue.rRatio, [1; 1]);
+            testCase.verifyEqual(testCase.dValue.scaleFactor, struct('row',1,'col',1));
             testCase.verifySize(testCase.dValue.sIdxC, [1, 3]);
             testCase.verifySize(testCase.dValue.eIdxC, [1, 3]);
         end
@@ -64,7 +64,7 @@ classdef DarknessValueTest < matlab.unittest.TestCase
             newObj = testCase.dValue.dResample(2, 1);
 
             testCase.verifyTrue(newObj.rsmplTF);
-            testCase.verifyEqual(newObj.rRatio(1), 2);
+            testCase.verifyEqual(newObj.scaleFactor.row, 2);
             testCase.verifyEqual(newObj.nRows, size(newObj.dMat, 1));
             % 値クラスなので元オブジェクトは不変
             testCase.verifyFalse(testCase.dValue.rsmplTF);
@@ -74,7 +74,7 @@ classdef DarknessValueTest < matlab.unittest.TestCase
             newObj = testCase.dValue.dInterp(1, "linear");
             testCase.verifyEqual(size(newObj.dMat), [6, 3]);
             testCase.verifyEqual(newObj.dMat, testCase.dMat, 'AbsTol', 1e-10);
-            testCase.verifyEqual(newObj.rRatio, [1; 1]);
+            testCase.verifyEqual(newObj.scaleFactor, struct('row',1,'col',1));
         end
 
         function testDInterpDownsamplesForStepTwo(testCase)
@@ -82,7 +82,7 @@ classdef DarknessValueTest < matlab.unittest.TestCase
             % y_q = 1:2:6 -> 3 行, x_q = 1:2:3 -> 2 列
             testCase.verifyEqual(newObj.nRows, 3);
             testCase.verifyEqual(newObj.nCols, 2);
-            testCase.verifyEqual(newObj.rRatio, [0.5; 0.5]);
+            testCase.verifyEqual(newObj.scaleFactor, struct('row',0.5,'col',0.5));
         end
 
         function testSetDiffTF(testCase)

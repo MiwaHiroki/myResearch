@@ -37,7 +37,7 @@ classdef GrooveCandidatesTest < matlab.unittest.TestCase
             testCase.verifyEqual(gc.width, 3);
             testCase.verifyEqual(gc.height, 6);
             testCase.verifyFalse(gc.rsmplTF);
-            testCase.verifyEqual(gc.rRatio, [1; 1]);
+            testCase.verifyEqual(gc.scaleFactor, struct('row',1,'col',1));
         end
 
         function testConstructorInitializesEmptyPksCell(testCase)

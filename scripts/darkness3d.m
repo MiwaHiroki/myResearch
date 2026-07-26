@@ -77,8 +77,8 @@ X_rsmpl = (1:nRows_rsmpl);
 Y_rsmpl = (1:nCols_rsmpl)';
 
 fig=createFigure([0 0 8 6]);p = waterfall(X_rsmpl,Y_rsmpl,rsmpldMat',"Marker",".");
-xlim([1,(60-1)*rsmplD.rRatio(1)+1]);
-ylim([1,(10-1)*rsmplD.rRatio(2)+1]);
+xlim([1,(60-1)*rsmplD.scaleFactor.row+1]);
+ylim([1,(10-1)*rsmplD.scaleFactor.col+1]);
 zlim([0.3 1]);
 clim([0 1]);
 p.MarkerSize = 5;
@@ -103,8 +103,8 @@ X_intp = (1:nRows_intp);
 Y_intp = (1:nCols_intp)';
 
 fig=createFigure([0 0 8 6]);p = waterfall(X_intp,Y_intp,intpdMat',"Marker",".");
-xlim([1,(60-1)*intpD.rRatio(1)+1]);
-ylim([1,(10-1)*intpD.rRatio(2)+1]);
+xlim([1,(60-1)*intpD.scaleFactor.row+1]);
+ylim([1,(10-1)*intpD.scaleFactor.col+1]);
 zlim([0.3 1]);
 clim([0 1]);
 p.MarkerSize = 5;

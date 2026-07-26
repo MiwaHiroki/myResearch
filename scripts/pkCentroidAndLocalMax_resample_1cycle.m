@@ -347,7 +347,7 @@ for iImg=1:8
                 startIdx = startIdx(1:length(startIdx)-1);
             end
 
-            btmIdx = find((endIdx-startIdx) < W_TH*dValue_r.rRatio...
+            btmIdx = find((endIdx-startIdx) < W_TH*dValue_r.scaleFactor.row...
                 & (endIdx-startIdx) > 10); % 溝底に対応するstartIdxのIdxを調べる
             startIdx_btm = startIdx(btmIdx);
             endIdx_btm = endIdx(btmIdx);
@@ -369,13 +369,13 @@ for iImg=1:8
                 else
                     [~,max_x(k)] = max(D_x(idxs));
                     max_x(k) = max_x(k) + startIdx_btm(k) -1 ;
-                    max_x(k) = 1 + (max_x(k)-1)/dValue_r.rRatio;
+                    max_x(k) = 1 + (max_x(k)-1)/dValue_r.scaleFactor.row;
                 end
 
                 sigma_D = sum(D_x(idxs));
                 sigma_jxD = sum(idxs .* D_x(idxs));
                 cnt_x(k) = sigma_jxD/sigma_D;
-                cnt_x(k) = 1 + (cnt_x(k)-1)/dValue_r.rRatio;
+                cnt_x(k) = 1 + (cnt_x(k)-1)/dValue_r.scaleFactor.row;
             end
             pts_centroid.pksCell{x} = [x*ones(pksNum,1), cnt_x];
             pts_localMax.pksCell{x} = [x*ones(pksNum,1), max_x];

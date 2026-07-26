@@ -200,7 +200,7 @@ figure;plot(tidx,amp_raw);
 title("amplitude (centroid method)");xlabel("Time [s]");ylabel("$y$");
 axis tight;ylim([-1 1]);
 
-rsmplAudio = AudioData("audio (centroid method)("+num2str(rsmplD.rRatio(1))+"x resampled)",amp_raw,fs);
+rsmplAudio = AudioData("audio (centroid method)("+num2str(rsmplD.scaleFactor.row)+"x resampled)",amp_raw,fs);
 
 fig = figure;rsmplAudio.audioPlot();
 saveas(fig,dir+rsmplAudio.filename+"_amp","fig");saveas(fig,dir+rsmplAudio.filename+"_amp","png");close;

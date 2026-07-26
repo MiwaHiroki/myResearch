@@ -8,7 +8,7 @@ classdef GrooveCandidates
         width (1,1) double
         height (1,1) double
         rsmplTF (1,1) logical
-        rRatio (2,1) double
+        scaleFactor (1,1) struct
         pksCell (1,:) cell
     end
 
@@ -19,7 +19,7 @@ classdef GrooveCandidates
                 obj.width = dValue.imgWidth;
                 obj.height = dValue.imgHeight;
                 obj.rsmplTF = dValue.rsmplTF;
-                obj.rRatio = dValue.rRatio;
+                obj.scaleFactor = dValue.scaleFactor;
                 obj.pksCell = cell(1,obj.width);
             end
         end
