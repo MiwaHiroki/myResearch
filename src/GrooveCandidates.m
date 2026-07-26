@@ -62,7 +62,7 @@ classdef GrooveCandidates
         function showCandidates(obj,color,sz)
             pks = vertcat(obj.pksCell{:});
             if nargin==1
-                scatter(pks(:,1),pks(:,2),5,"cyan","filled");
+                scatter(pks(:,1),pks(:,2),5,"cyan","filled","o");
             elseif nargin==2
                 scatter(pks(:,1),pks(:,2),5,color,"o","filled");
             else
