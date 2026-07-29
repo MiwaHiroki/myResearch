@@ -10,7 +10,9 @@ saveDir = fullfile(proj.RootFolder,"results","figures","paper","202609asj");
 if ~isfolder(saveDir)
     mkdir(saveDir);
 end
-figName = "darknessProfile";
+% 出力ファイル名。LaTeXで扱えるよう英数字と-_のみを使う
+FIG_NAME_PROFILE = "fig2-1_darknessProfile";       % x=X_Cの断面
+FIG_NAME_IMAGE = "fig2-2_grooveBtmRangeOnImage";   % 画像上の区間始点・終点
 
 %% パラメータ
 IMG_FILE = "DSC1111-00001-ori.png";
@@ -96,7 +98,7 @@ ax.YLabel.FontSize = FONT_LABEL;
 tightenAxes(ax); % フォントサイズ確定後に呼ぶ
 
 %% 保存(x=X_Cでの断面)
-savePaperFigure(fig,saveDir,figName,FIG_W,FIG_H);
+savePaperFigure(fig,saveDir,FIG_NAME_PROFILE,FIG_W,FIG_H);
 
 %% 描画(画像上)
 fig = createFigure([0 0 FIG_W FIG_H]);
@@ -132,4 +134,4 @@ ax.YLabel.FontSize = FONT_LABEL;
 
 
 %% 保存
-savePaperFigure(fig,saveDir,figName,FIG_W,FIG_H);
+savePaperFigure(fig,saveDir,FIG_NAME_IMAGE,FIG_W,FIG_H);
