@@ -23,7 +23,7 @@ D_TH = 0.6; % 暗度の閾値
 W_TH = 8;   % 溝底とみなす区間幅の上限[px]
 
 % fig1-1で表示している範囲。矩形で示す
-Y_VIEW = [1 60]; % 溝を横切る方向
+Y_VIEW = [1 40]; % 溝を横切る方向
 X_VIEW = [1 10]; % 溝に平行な方向
 
 % 図のサイズ[cm]とフォントサイズ[pt]（原稿は10pt二段組、subfigureの幅=38mm）
@@ -67,6 +67,7 @@ hold(ax,"off");
 
 % 原稿ではキャプションを付けるので図中のタイトルは出さない
 set(ax,"YDir","reverse","TickDir","out");
+set(ax,"XAxisLocation","top")
 xlabel(ax,"$x$"); ylabel(ax,"$y$");
 % 38mm幅では既定の目盛りが詰まるので刻みを明示する
 xticks(ax,[50 100]); yticks(ax,[50 100]);
