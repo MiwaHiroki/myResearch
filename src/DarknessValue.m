@@ -75,15 +75,23 @@ classdef DarknessValue
         function p = plotD_x(obj,x,opts)
             % x=xにおけるDをy方向にプロットする
             % ShowTitle,ShowColorbarは原稿用の図で不要なときにfalseにする
+            % ShowLineMarkerは，必要なときはtrueにする
             arguments
                 obj
                 x (1,1) double
                 opts.ShowTitle (1,1) logical = true
                 opts.ShowColorbar (1,1) logical = true
+                opts.ShowLineMarker (1,1) logical = false
             end
             D_x = obj.dMat(:,x);
             idx = 1+(0:length(D_x)-1)'/obj.scaleFactor.row;
-            p = plot(idx,D_x);
+            
+            if opts.ShowLineMarker
+                p = plot(idx,D_x,"Marker",".","MarkerSize",5);
+            else
+                p = plot(idx,D_x);
+            end
+            
             axis tight;
             if opts.ShowTitle
                 titleName = "$D$ on $x$="+num2str(x);
