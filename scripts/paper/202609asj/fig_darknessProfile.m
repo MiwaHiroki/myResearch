@@ -131,3 +131,5 @@ ax.XLabel.FontSize = FONT_LABEL;
 ax.YLabel.FontSize = FONT_LABEL;
 
 
+%% 保存
+savePaperFigure(fig,saveDir,figName,FIG_W,FIG_H);
