@@ -6,6 +6,8 @@ function savePaperFigure(fig,saveDir,name,w,h,opts)
 % 出力の物理サイズはw x hとほぼ一致する
 % 実際の出力サイズをコマンドウィンドウに表示するので、目標寸法とずれていないか
 % 確認し、ずれていればw,hを調整する
+% (u)pLaTeX+dvipdfmxで挿入する場合は、extractbbでpdfから.xbbを作らないと
+% no BoundingBoxエラーになる（pdfLaTeX/LuaLaTeXなら不要）
 arguments
     fig
     saveDir (1,1) string
@@ -13,6 +15,13 @@ arguments
     w (1,1) double
     h (1,1) double
     opts.ContentType (1,1) string = "vector"
+end
+
+% 括弧などを含むファイル名はLaTeXの\includegraphicsやextractbbが扱えない
+if ~isempty(regexp(name,"[^A-Za-z0-9_\-]","once"))
+    error("savePaperFigure:invalidName", ...
+        "figure名 '%s' にLaTeXで扱えない文字が含まれています。" + ...
+        "英数字と-_のみを使ってください。",name);
 end
 
 RESOLUTION = 600; % png解像度[dpi]
