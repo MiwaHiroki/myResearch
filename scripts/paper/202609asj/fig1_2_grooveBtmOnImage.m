@@ -31,6 +31,8 @@ X_VIEW = [1 10]; % 溝に平行な方向
 FIG_W = 3.90; FIG_H = 3.60;
 FONT_TICK = 8; FONT_LABEL = 9;
 
+MARKER_SIZE = 3;
+
 %% 画像を読み込み、溝底点を検出する
 img_gray = rgb2gray(imread(IMG_FILE));
 img_small = img_gray(Y_OFFSET:Y_OFFSET+PIXELS-1, X_OFFSET:X_OFFSET+PIXELS-1);
@@ -59,7 +61,7 @@ imagesc(ax,imgData.img);
 colormap(ax,gray); clim(ax,[0 255]);
 axis(ax,"image");
 hold(ax,"on");
-scatter(ax,ptsX,ptsY,3,"cyan","filled","o");
+scatter(ax,ptsX,ptsY,MARKER_SIZE,"cyan","filled","o");
 % fig1-1で表示している範囲を矩形で示す
 rectangle(ax,"Position",[X_VIEW(1) Y_VIEW(1) diff(X_VIEW) diff(Y_VIEW)], ...
     "EdgeColor","red","LineWidth",1);
