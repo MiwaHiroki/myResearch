@@ -45,15 +45,13 @@ classdef AudioData
             % saveas(fig,dir+"FFT_"+append+".fig");
         end
 
-        function spectrogramPlot(varargin)
-            if nargin == 1
-                audio = varargin{1};
-                winSize = 1024;
-            elseif nargin == 2
-                audio = varargin{1};
-                winSize = varargin{2};
-            else
-                error("invalid arguments")
+        function spectrogramPlot(audio,winSize,opts)
+            % ShowTitle,ShowColorbarは原稿用の図で不要なときにfalseにする
+            arguments
+                audio
+                winSize (1,1) double = 1024
+                opts.ShowTitle (1,1) logical = true
+                opts.ShowColorbar (1,1) logical = true
             end
 
             [s,f,t] = stft(audio.signal,audio.fs,...
@@ -64,12 +62,17 @@ classdef AudioData
             ax=gca;
             mesh(t,f,20*log10(abs(s)));
             xlim([0 max(t)]);ylim([0 5e3]);clim([-120 0]);
-            title("Spectrogram of "+audio.name);
+            if opts.ShowTitle
+                title("Spectrogram of "+audio.name);
+            end
             xlabel("Time [s]");ylabel("Frequency [Hz]")
             view(0,90)
-            colormap jet; c=colorbar;
-            c.TickLabelInterpreter = "latex"; c.Label.String = "Magintude [dB]";
-            c.Label.Interpreter = "latex";
+            colormap jet;
+            if opts.ShowColorbar
+                c=colorbar;
+                c.TickLabelInterpreter = "latex"; c.Label.String = "Magintude [dB]";
+                c.Label.Interpreter = "latex";
+            end
             ax.YAxis.Exponent = 3;
             % exportgraphics(fig,dir+"Stft_"+append+".pdf","ContentType","image","Resolution",600)
             % exportgraphics(fig,dir+"Stft_"+append+".png","Resolution",600)

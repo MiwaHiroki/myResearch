@@ -1,6 +1,6 @@
 % DarknessValue class
 % properties: imgID, width, height, D_THRESH, scaleFactor, dMat
-% methods: constructor,isResampled(obj),dResample(obj,p,q),plotD_x(obj,x),setDiffTF(obj,D_THRESH)
+% methods: constructor,isResampled(obj),dResample(obj,p,q),plotD_x(obj,x,opts),setDiffTF(obj,D_THRESH)
 % methods that should be moved to another class:
 % getStartEndIdx(obj,x),getGrooveBtmIdx(obj,x,startIdx,endIdx),extractGrv()
 % constructor: obj = DarknessValue(imgData,D_THRESH)
@@ -72,18 +72,39 @@ classdef DarknessValue
             obj.diffTF = diff(TF);
         end
 
-        function plotD_x(obj,x)
+        function p = plotD_x(obj,x,opts)
+            % x=xにおけるDをy方向にプロットする
+            % ShowTitle,ShowColorbarは原稿用の図で不要なときにfalseにする
+            % ShowLineMarkerは，必要なときはtrueにする
+            arguments
+                obj
+                x (1,1) double
+                opts.ShowTitle (1,1) logical = true
+                opts.ShowColorbar (1,1) logical = true
+                opts.ShowLineMarker (1,1) logical = false
+            end
             D_x = obj.dMat(:,x);
             idx = 1+(0:length(D_x)-1)'/obj.scaleFactor.row;
-            plot(idx,D_x);
-            axis tight;
-            titleName = "$D$ on $x$="+num2str(x);
-            if obj.rsmplTF
-                titleName = titleName+"("+num2str(obj.scaleFactor.row)+ "x resampled)";
+            
+            if opts.ShowLineMarker
+                p = plot(idx,D_x,"Marker",".","MarkerSize",5);
+            else
+                p = plot(idx,D_x);
             end
-            title(titleName);xlabel("$y$");ylabel("$D$");
+            
+            axis tight;
+            if opts.ShowTitle
+                titleName = "$D$ on $x$="+num2str(x);
+                if obj.rsmplTF
+                    titleName = titleName+"("+num2str(obj.scaleFactor.row)+ "x resampled)";
+                end
+                title(titleName);
+            end
+            xlabel("$y$");ylabel("$D$");
             ylim([0 1]);
-            colormap(flip(gray));colorbar("eastoutside");clim([0 1]);
+            if opts.ShowColorbar
+                colormap(flip(gray));colorbar("eastoutside");clim([0 1]);
+            end
         end
 
         function [startIdx,endIdx] = getStartEndIdx(obj,x)
