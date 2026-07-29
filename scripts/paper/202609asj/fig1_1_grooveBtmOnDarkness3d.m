@@ -24,7 +24,7 @@ D_TH = 0.6; % 暗度の閾値
 W_TH = 8;   % 溝底とみなす区間幅の上限[px]
 
 % 表示する範囲。fig1-2の画像の一部にあたる
-Y_VIEW = [1 60]; % 溝を横切る方向
+Y_VIEW = [1 40]; % 溝を横切る方向
 X_VIEW = [1 10]; % 溝に平行な方向
 Z_VIEW = [0.3 1];
 AZ = 30; EL = 30; % 視点
@@ -69,7 +69,7 @@ Y = (1:origD.nCols)'; % = x
 p = waterfall(ax,X,Y,origD.dMat',"Marker",".");
 p.MarkerSize = 2;
 hold(ax,"on");
-scatter3(ax,ptsY,ptsX,ptsD,3,"red","filled","o");
+scatter3(ax,ptsY,ptsX,ptsD,5,"cyan","filled","o");
 hold(ax,"off");
 
 xlim(ax,Y_VIEW); ylim(ax,X_VIEW); zlim(ax,Z_VIEW); clim(ax,[0 1]);
