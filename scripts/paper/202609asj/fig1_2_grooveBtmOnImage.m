@@ -59,10 +59,10 @@ imagesc(ax,imgData.img);
 colormap(ax,gray); clim(ax,[0 255]);
 axis(ax,"image");
 hold(ax,"on");
-scatter(ax,ptsX,ptsY,1.5,"red","filled","o");
+scatter(ax,ptsX,ptsY,3,"cyan","filled","o");
 % fig1-1で表示している範囲を矩形で示す
 rectangle(ax,"Position",[X_VIEW(1) Y_VIEW(1) diff(X_VIEW) diff(Y_VIEW)], ...
-    "EdgeColor","cyan","LineWidth",0.5);
+    "EdgeColor","red","LineWidth",1);
 hold(ax,"off");
 
 % 原稿ではキャプションを付けるので図中のタイトルは出さない
