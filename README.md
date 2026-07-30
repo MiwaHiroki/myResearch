@@ -14,6 +14,7 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 6. `fitGroove` で手動指定した平行四辺形内の点群を直線近似し、溝の傾きを補正する。
 7. ヒストグラムのピークから追跡対象の溝1本を選び、その中心付近（`TOL_DISTANCE`／`tol`）の点だけを抽出、欠損を `fillmissing` で補間し、多項式でデトレンドする。
 8. 全セグメントの座標を連結し、回転数78rpmから標本化周波数を計算して `AudioData` を生成、波形・FFT・スペクトログラムを描画・保存し、wavに書き出す。
+9. `saveCycleResult` で実験条件と解析結果（`ImageData`／`GrooveCandidates`／`AudioData`／`y_comb` など）を `results/<日付>/` の `.mat` に保存する（詳細は「1周分の実験結果の保存」）。
 
 ## ディレクトリ構成
 
@@ -21,7 +22,7 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 - **`src/`**: クラス定義と共通関数
 - **`scripts/`**: 溝底抽出・音声生成の実行スクリプト群（旧版は `archive/`、針再生の評価は `evaluation/`）
 - **`data/`**: 入力データ（`pictures/` は盤面写真、`stylus playback/` は針再生の音源）
-- **`results/`**: 実行結果（日付ごとのフォルダに図・音声を保存）
+- **`results/`**: 実行結果（日付ごとのフォルダに図・音声・実験結果の`.mat`を保存）
 - **`test/`**: テストコード
 
 ## `src/` の主なクラス・関数
@@ -46,6 +47,11 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 - **`soundCheck`**: 波形・FFT・スペクトログラムをまとめて描画・保存
 - **`mkdirFromDate`**: `results/<日付>/` フォルダを作成しパスを返す
 - **`setDefaultIntrpr`**: 描画のインタプリタをLaTeXに設定
+- **`cycleConditions`**: 1周分の音声を作成したときの実験条件（定数・日付・保存先・高解像度化のパラメータ）をstructにまとめる。必須の定数が欠けていればエラーになる
+- **`cycleMethodResult`**: 溝底抽出手法1つ分の1周データ（`GrooveCandidates`配列・x/y座標・`y_comb`・`AudioData`）をstructにまとめる。要素数の整合性をここで検証する
+- **`saveCycleResult`**: 上記2つをまとめて `results/<日付>/cycleResult_<条件>_<日付>.mat` に保存する（詳細は下記「1周分の実験結果の保存」）
+- **`loadCycleResult`**: `saveCycleResult` で保存した結果を読み込む
+- **`cycleResultFileName`**: 結果.matのファイル名の命名規則を返す（保存側・読み込み側で共有）
 - **`togglevisibility`**: 凡例クリックでプロットの表示/非表示を切り替えるコールバック
 
 ## `scripts/` の主なスクリプト
@@ -57,6 +63,52 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 - **`pkCentroid_interp2.m`**: 画像1枚について、元データ・リサンプル・内挿の溝底検出結果を比較する検討用スクリプト。
 - **`darknessInterp2.m`**: 小領域画像を `interp2` で疑似高解像度化する動作確認用スクリプト。
 - **`evaluation/stylus/sound_from_stylus.m`**: 針で再生した音源を切り出し・フィルタ処理し、復元音声と比較・評価する。
+
+## 1周分の実験結果の保存
+
+`fitGroove` の手動操作を80セグメント分繰り返す必要があるため、1周分の解析は図を作るたびに再実行できない。そこで解析結果を `.mat` に保存し、図の作成スクリプトはそれを読むだけにする。
+
+- **1ファイル = 1つの高解像度化条件**（`origD` / `rsmplD` / `intpD`）。1ファイルの中に重心法・局所的最大値法の両方の結果を入れる（`allImg` を手法ごとに二重保存しないため）。
+- 保存される変数は `result`（struct）1つだけ。
+
+```matlab
+% 保存（1周分の解析の最後で実行）
+cond = cycleConditions( ...
+    Upsampling="intpD", Date=date, SaveDir=dir, ...
+    LMask=L_MASK, ThHist=TH_HIST, DThresh=D_THRESH, WTh=W_TH, ...
+    Tol=tol, BinWidth=binWidth, HPrl=h_prl, ...
+    QueryStep=QUERY_STEP, InterpMethod=INTERP_METHOD, ...
+    Filenames=filenames_new, ScriptName="pkCentroid_interp2_1cycle");
+
+res_cnt = cycleMethodResult("centroid", allPts_cnt_intpD, xcoords, ycoords, y_comb, intpAudio);
+
+matPath = saveCycleResult(cond, allImg, res_cnt);
+
+% 読み込み（図の作成スクリプト）
+matPath = fullfile(rootFolder, "results", "0730", cycleResultFileName("intpD","0730"));
+result  = loadCycleResult(matPath);
+figure; result.centroid.audio.spectrogramPlot(4096);
+```
+
+`result` の構成:
+
+| フィールド | 内容 |
+| --- | --- |
+| `conditions` | 実験条件（`cycleConditions` の出力。定数・日付・保存先・高解像度化のパラメータ・画像ファイル名） |
+| `meta` | 実行日時・スクリプト名・MATLAB版・gitコミット・ルートフォルダ |
+| `allImg` | (TOTAL_SEGMENTS x 1) `ImageData` |
+| `centroid` / `localMax` | `.pts` (N x 1 `GrooveCandidates`)、`.xcoords`、`.ycoords`（各 N x 1 cell）、`.y_comb`、`.audio` (1x1 `AudioData`) |
+| `dValueFile` | `DarknessValue` を保存した.matのファイル名（未保存なら `""`） |
+
+`DarknessValue` の `dMat` は `origD` で約140MB、`rsmplD`(8x) で約1GB、`intpD`(step 0.25) で約2GBになるため、**既定では保存しない**。1セグメント分の `dMat` は `ginput` 無しで作り直せるので、通常は図の作成に不要。必要な場合は別ファイル（`..._dValue.mat`）に分けて保存する。
+
+```matlab
+[matPath, dPath] = saveCycleResult(cond, allImg, res_cnt, ...
+    DarknessValues=allIntpD, SaveDarknessValues=true);
+result = loadCycleResult(matPath, LoadDarknessValues=true);   % result.allD に入る
+```
+
+既存の結果ファイルは既定では上書きせず `..._2.mat` のように連番を付けて保存する（`Overwrite=true` で上書き）。
 
 ## 基本的な使用方法
 
