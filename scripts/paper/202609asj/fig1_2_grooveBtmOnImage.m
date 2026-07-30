@@ -14,10 +14,10 @@ end
 figName = "fig1-2_grooveBtmOnImage";
 
 %% パラメータ
-IMG_FILE = "DSC1111-00001-ori.png";
+IMG_FILE = "DSC1111-00008-ori.png";
 PIXELS = 100;    % 切り出す画像の一辺
 Y_OFFSET = 101;  % 切り出し開始位置（行=y）
-X_OFFSET = 1001; % 切り出し開始位置（列=x）
+X_OFFSET = 81; % 切り出し開始位置（列=x）
 
 D_TH = 0.6; % 暗度の閾値
 W_TH = 8;   % 溝底とみなす区間幅の上限[px]
