@@ -15,16 +15,17 @@ FIG_NAME_PROFILE = "fig2-1_darknessProfile";       % x=X_Cの断面
 FIG_NAME_IMAGE = "fig2-2_grooveBtmRangeOnImage";   % 画像上の区間始点・終点
 
 %% パラメータ
-IMG_FILE = "DSC1111-00001-ori.png";
-PIXELS = 50;    % 切り出す画像の一辺
-Y_OFFSET = 101;  % 切り出し開始位置（行=y）
-X_OFFSET = 1001; % 切り出し開始位置（列=x）
+IMG_FILE = "DSC1111-00008-ori.png";
+PIXELS = 30;    % 切り出す画像の一辺
+Y_OFFSET = 136;  % 切り出し開始位置（行=y）
+X_OFFSET = 111; % 切り出し開始位置（列=x）
 
 D_TH = 0.6; % 暗度の閾値
 W_TH = 8;   % 溝底とみなす区間幅の上限[px]
 
-X_C = 50;        % 暗度分布を見る列
-Y_VIEW = [1 50]; % 表示するyの範囲
+X_C = 30;        % 暗度分布を見る列
+% Y_VIEW = [1 50]; % 表示するyの範囲
+Y_VIEW = [1 30];
 
 MARKER_SIZE = 3;
 
@@ -84,7 +85,7 @@ scatter(ax,eY,origD.dMat(eIdxBtm,X_C),8,"yellow","filled","o");
 hold(ax,"off");
 
 xlim(ax,Y_VIEW);
-lgd = legend(ax,["$D$","$D_\mathrm{th}$","start","end"],Location="southeast");
+lgd = legend(ax,["$D$","$D_\mathrm{th}$","start","end"],Location="southwest");
 lgd.FontSize = FONT_TICK;
 lgd.ItemTokenSize = [10 10]; % 凡例のマーカー部分を詰める
 legend(ax,"boxoff");
@@ -118,7 +119,8 @@ hold(ax,"off");
 set(ax,"YDir","reverse","TickDir","out");
 set(ax,"XAxisLocation","top");
 xlabel(ax,"$x$"); ylabel(ax,"$y$");
-xticks(ax,[25 50]); yticks(ax,[25 50]);
+% xticks(ax,[25 50]); yticks(ax,[25 50]); % X_VIEW=50のとき
+xticks(ax,[10 20 30]); yticks(ax,[10 20 30]); % X_VIEW=50のとき
 
 % lgd = legend(ax,["local maximum","centroid"],Orientation="horizontal");
 % lgd.Layout.Tile = "north";
