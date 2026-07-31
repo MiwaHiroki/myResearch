@@ -24,28 +24,29 @@ TH_HIST = 150; % threshold of the peak height in the histogram
 D_THRESH = 0.6;
 
 % 保存用
-date = "0724";
+date = "0731";
 dir = mkdirFromDate(proj.RootFolder,date);
 
 %%
 
 % 画像8*l枚分のImageData, DarknessValue, GrooveCandidatesクラスオブジェクト
 % local maximum method, centroid method両方
+% origDからも溝底候補点を求めるが、そこから音声は作っていないので保存しない
 allImg(TOTAL_SEGMENTS,1) = ImageData();
-allOrigD(TOTAL_SEGMENTS,1) = DarknessValue();
-allPts_max_origD(TOTAL_SEGMENTS,1) = GrooveCandidates();
-allPts_cnt_origD(TOTAL_SEGMENTS,1) = GrooveCandidates();
+allRsmplD(TOTAL_SEGMENTS,1) = DarknessValue();
 allPts_max_rsmplD(TOTAL_SEGMENTS,1) = GrooveCandidates();
 allPts_cnt_rsmplD(TOTAL_SEGMENTS,1) = GrooveCandidates();
 
 
 % 1周分のデータのx,y座標
 xcoords = cell(TOTAL_SEGMENTS,1);
-ycoords = cell(TOTAL_SEGMENTS,1);
-p2 = zeros(1,2);
+ycoords_max = cell(TOTAL_SEGMENTS,1);
+ycoords_cnt = cell(TOTAL_SEGMENTS,1);
+p2_max = zeros(1,2);
+p2_cnt = zeros(1,2);
 
 for iImg=1:NUM_IMAGES
-% for iImg=1:1
+% for iImg=1:1 % 動作テスト
     % img_old = imread("./pictures/old/8x/" + filenameC_old(9-iImg) + ".png");
     % img_gray = rgb2gray(img_old);
     % img_new = imread("./pictures/1111/original/" + filenames_new(9-iImg) + ".png");
@@ -57,7 +58,7 @@ for iImg=1:NUM_IMAGES
     xarray = [1:divImgWidth:imgWidth imgWidth+1]';
 
     for jSegment=1:NUM_SEGMENTS
-    % for jSegment=1:1
+    % for jSegment=1:1 % 動作テスト
         kImgSmall = (iImg-1)*NUM_SEGMENTS+jSegment;
         % iImgSmall: 1 ~ TOTAL_SEGMENTS
 
@@ -78,8 +79,8 @@ for iImg=1:NUM_IMAGES
 
         % objects in which groove candidates are recorded.
         % for original img
-        pts_cnt = GrooveCandidates(origD);
-        pts_max = GrooveCandidates(origD);
+        % pts_cnt = GrooveCandidates(origD);
+        % pts_max = GrooveCandidates(origD);
         % for resampled img
         pts_cnt_r = GrooveCandidates(rsmplD);
         pts_max_r = GrooveCandidates(rsmplD);
@@ -88,9 +89,27 @@ for iImg=1:NUM_IMAGES
         % pksCell_r = cell(1,newWidth);
         % sIdxC_r = cell(1,newWidth);
         % eIdxC_r = cell(1,newWidth);
-
-        W_TH = 8;
         
+        W_TH = 8;
+
+
+        for x=1:origImg.width
+            [startIdx, endIdx] = getStartEndIdx(rsmplD, x);
+            [rsmplD,~,~,pksNum] = ...
+                getGrooveBtmIdx(rsmplD,x,startIdx,endIdx,W_TH);
+            % startIdx_btm, endIdx_btm, pksNumは今後不要になる予定
+
+            cnt_x = rsmplD.extractGrv_cnt(x);
+            max_x = rsmplD.extractGrv_max(x);
+
+            pts_cnt_r.pksCell{x} = [x*ones(pksNum,1), cnt_x];
+            pts_max_r.pksCell{x} = [x*ones(pksNum,1), max_x];
+        end
+
+
+        
+        % origDに対する解析 --> pkCentroid_1cycle.mへ
+        %{
         for x=1:origImg.width
             [startIdx, endIdx] = getStartEndIdx(origD,x);
             [origD,~,~,pksNum] = ...
@@ -116,6 +135,7 @@ for iImg=1:NUM_IMAGES
         % figGroove()の使用のために必要
         pks_cnt = vertcat(pts_cnt.pksCell{:});
         pks_max = vertcat(pts_max.pksCell{:});
+        %}
 
         pks_cnt_r = vertcat(pts_cnt_r.pksCell{:});
         pks_max_r = vertcat(pts_max_r.pksCell{:});
@@ -131,6 +151,7 @@ for iImg=1:NUM_IMAGES
         w_prl = origWidth; % 平行四辺形の高さ
         h_prl = 8; % 平行四辺形の底辺
 
+        % centroid method
         fig = figure;
         origImg.showImg();
         % imshow(img_omitMask);
@@ -141,7 +162,7 @@ for iImg=1:NUM_IMAGES
         pts_cnt_r.showCandidates();
         title("Peak Dots (centroid method)");%xlabel("$x$");ylabel("$y$");   
         % pksの傾きを補正したpks_corを得る
-        [p1,p2,pks_cor] = fitGroove(jSegment,fig,p2,w_prl,h_prl,pks_cnt_r);
+        [p1_max,p2_max,pks_cor] = fitGroove(jSegment,fig,p2_max,w_prl,h_prl,pks_max_r);
 
         % xlim([1 1000]);ylim([1 1000]);
         % exportgraphics(fig,"./data/0322/PkDotsCmethod.png","Resolution",600);
@@ -152,7 +173,7 @@ for iImg=1:NUM_IMAGES
 
         [~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST);
 
-        [~,idx_hist] = min(abs(p1(2) - centers(histPkLocs)));
+        [~,idx_hist] = min(abs(p1_max(2) - centers(histPkLocs)));
         groove1Center = centers(histPkLocs(idx_hist));
 
         tol = 3;
@@ -175,40 +196,135 @@ for iImg=1:NUM_IMAGES
         points_fit(:,2) = points_fit(:,2) - mean(points_fit(:,2));
 
         xcoords{kImgSmall,1} = points(:,1);
-        ycoords{kImgSmall,1} = points_fit(:,2);
+        ycoords_max{kImgSmall,1} = points_fit(:,2);
+
+        % centroid method
+        fig = figure;
+        origImg.showImg();
+        % imshow(img_omitMask);
+        % fig = createFigure([0 0 6 6]);
+        % imshow(img_omitMask,"InitialMagnification","fit");
+        hold on;
+        % scatter(pks_cnt_r(:,1),pks_cnt_r(:,2),3,'c','filled');
+        pts_cnt_r.showCandidates();
+        title("Peak Dots (centroid method)");%xlabel("$x$");ylabel("$y$");   
+        % pksの傾きを補正したpks_corを得る
+        [p1_cnt,p2_cnt,pks_cor] = fitGroove(jSegment,fig,p2_cnt,w_prl,h_prl,pks_cnt_r);
+
+        % xlim([1 1000]);ylim([1 1000]);
+        % exportgraphics(fig,"./data/0322/PkDotsCmethod.png","Resolution",600);
+
+        binWidth = 5; % BinWidth
+        [counts,edges] = histcounts(pks_cor(:,2),'BinWidth',binWidth);
+        centers = edges(1:end-1) + diff(edges)/2; % ピークの中心
+
+        [~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST);
+
+        [~,idx_hist] = min(abs(p1_cnt(2) - centers(histPkLocs)));
+        groove1Center = centers(histPkLocs(idx_hist));
+
+        tol = 3;
+        % そのピークの中心からtol(pixel)以内にあるy座標
+        y_min = groove1Center - tol;
+        y_max = groove1Center + tol;
+
+
+        points = [(1:origD.nCols)',NaN(origD.nCols,1)];
+
+        idxs = (pks_cor(:,2) >= y_min) & (pks_cor(:,2)<=y_max);
+        points(pks_cor(idxs,1),2) = pks_cor(idxs,2);
+
+        points(:,2) = fillmissing(points(:,2),"linear");
+
+        points_fit = points;
+
+        p = polyfit(points(:,1),points(:,2),3);
+        points_fit(:,2) = points(:,2) - polyval(p,points(:,1));
+        points_fit(:,2) = points_fit(:,2) - mean(points_fit(:,2));
+
+        xcoords{kImgSmall,1} = points(:,1);
+        ycoords_cnt{kImgSmall,1} = points_fit(:,2);
+
+
+
+        allImg(kImgSmall) = origImg;
+        allRsmplD(kImgSmall) = rsmplD;
+        allPts_max_rsmplD(kImgSmall) = pts_max_r;
+        allPts_cnt_rsmplD(kImgSmall) = pts_cnt_r;
         
     end % for jSegment=1:NUM_SEGMENTS
 end % for iImg = 1:NUM_IMAGES
 
 %%
-y_comb_raw = vertcat(ycoords{:});
+y_comb_max = vertcat(ycoords_max{:}); % 平均を引く前の1周分のy座標（保存用）
+y_comb_cnt = vertcat(ycoords_cnt{:}); % 平均を引く前の1周分のy座標（保存用）
 
-figure;plot(y_comb_raw);axis tight;
-title("$y$ coordinates (centroid method)");xlabel("Sample");ylabel("$y$");
+figure;
+plot(y_comb_max);hold on;axis tight;
+plot(y_comb_cnt);
+title("$y$ coordinates (1-D resampling)");
+legend(["local max","centroid"])
+xlabel("$x$");ylabel("$y$");
 
-num_samples = length(y_comb_raw);
+num_samples = length(y_comb_max);
 fs = round(num_samples /(60/78));
 tidx = (1:num_samples)'/fs;
 
-y_comb_raw = y_comb_raw - mean(y_comb_raw);
 
-amp_raw = y_comb_raw / (tol/2);
-% y_raw_max = max(abs(y_comb_raw));
-% amp_raw = y_comb_raw / y_raw_max;
+y_mean0_max = y_comb_max;
+y_mean0_max = y_mean0_max - mean(y_mean0_max);
 
-figure;plot(tidx,amp_raw);
-title("amplitude (centroid method)");xlabel("Time [s]");ylabel("$y$");
+y_mean0_cnt = y_comb_max;
+y_mean0_cnt = y_mean0_cnt - mean(y_mean0_cnt);
+
+
+amp_max = y_mean0_max / (tol/2);
+amp_cnt = y_mean0_cnt / (tol/2);
+
+figure;plot(tidx,amp_max);
+title("amplitude (local maximum method)");xlabel("Time [s]");ylabel("$y$");
 axis tight;ylim([-1 1]);
 
-rsmplAudio = AudioData("audio (centroid method)("+num2str(rsmplD.scaleFactor.row)+"x resampled)",amp_raw,fs);
+rsmplMaxAudio = AudioData("audio (local maximum method)("+num2str(rsmplD.scaleFactor.row)+"x resampled)",amp_max,fs);
 
-fig = figure;rsmplAudio.audioPlot();
-saveas(fig,dir+rsmplAudio.filename+"_amp","fig");saveas(fig,dir+rsmplAudio.filename+"_amp","png");close;
+fig = figure;rsmplMaxAudio.audioPlot();
+saveas(fig,dir+rsmplMaxAudio.filename+"_amp","fig");saveas(fig,dir+rsmplMaxAudio.filename+"_amp","png");close;
 
-fig = figure;rsmplAudio.FFTPlot();
-saveas(fig,dir+rsmplAudio.filename+"_fft","fig");saveas(fig,dir+rsmplAudio.filename+"_fft","png");close;
+fig = figure;rsmplMaxAudio.FFTPlot();
+saveas(fig,dir+rsmplMaxAudio.filename+"_fft","fig");saveas(fig,dir+rsmplMaxAudio.filename+"_fft","png");close;
 
-fig = figure;rsmplAudio.spectrogramPlot(1024);
-saveas(fig,dir+rsmplAudio.filename+"_stft","fig");saveas(fig,dir+rsmplAudio.filename+"_stft","png");close;
+fig = figure;rsmplMaxAudio.spectrogramPlot(1024);
+saveas(fig,dir+rsmplMaxAudio.filename+"_stft","fig");saveas(fig,dir+rsmplMaxAudio.filename+"_stft","png");close;
 
-rsmplAudio.saveAudio(dir);
+rsmplMaxAudio.saveAudio(dir);
+
+
+rsmplCntAudio = AudioData("audio (centroid method)("+num2str(rsmplD.scaleFactor.row)+"x resampled)",amp_cnt,fs);
+
+fig = figure;rsmplCntAudio.audioPlot();
+saveas(fig,dir+rsmplCntAudio.filename+"_amp","fig");saveas(fig,dir+rsmplCntAudio.filename+"_amp","png");close;
+
+fig = figure;rsmplCntAudio.FFTPlot();
+saveas(fig,dir+rsmplCntAudio.filename+"_fft","fig");saveas(fig,dir+rsmplCntAudio.filename+"_fft","png");close;
+
+fig = figure;rsmplCntAudio.spectrogramPlot(1024);
+saveas(fig,dir+rsmplCntAudio.filename+"_stft","fig");saveas(fig,dir+rsmplCntAudio.filename+"_stft","png");close;
+
+rsmplCntAudio.saveAudio(dir);
+
+
+%%
+% 実験結果の保存
+% 図の作成スクリプトは loadCycleResult でこの.matを読むだけにする
+cond = cycleConditions( ...
+    Upsampling="rsmplD", Date=date, SaveDir=dir, ...
+    NumImages=NUM_IMAGES, NumSegments=NUM_SEGMENTS, ...
+    LMask=L_MASK, ThHist=TH_HIST, DThresh=D_THRESH, WTh=W_TH, ...
+    Tol=tol, BinWidth=binWidth, HPrl=h_prl, ...
+    PRsmpl=P_RSMPL, QRsmpl=Q_RSMPL, ...
+    Filenames=filenames_new, ScriptName="pkCentroid_resample_1cycle");
+
+res_cnt = cycleMethodResult("centroid", allPts_cnt_rsmplD, xcoords, ycoords_max, y_comb_max, rsmplMaxAudio);
+res_max = cycleMethodResult("localMax", allPts_max_rsmplD, xcoords, ycoords_cnt, y_comb_cnt, rsmplCntAudio);
+
+matPath = saveCycleResult(cond, allImg, [res_cnt res_max]);
