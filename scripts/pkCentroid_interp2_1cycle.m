@@ -267,3 +267,19 @@ fig = figure;intpAudio.spectrogramPlot(4096);
 saveas(fig,dir+intpAudio.filename+"_stft","fig");saveas(fig,dir+intpAudio.filename+"_stft","png");close;
 
 intpAudio.saveAudio(dir);
+
+%%
+% 実験結果の保存
+% 図の作成スクリプトは loadCycleResult でこの.matを読むだけにする
+cond = cycleConditions( ...
+    Upsampling="intpD", Date=date, SaveDir=dir, ...
+    NumImages=NUM_IMAGES, NumSegments=NUM_SEGMENTS, ...
+    LMask=L_MASK, ThHist=TH_HIST, DThresh=D_THRESH, WTh=W_TH, ...
+    Tol=tol, BinWidth=binWidth, HPrl=h_prl, ...
+    QueryStep=QUERY_STEP, InterpMethod=INTERP_METHOD, ...
+    Filenames=filenames_new, ScriptName="pkCentroid_interp2_1cycle");
+
+res_cnt = cycleMethodResult("centroid", allPts_cnt_intpD, xcoords, ycoords, y_comb, intpAudio);
+res_max = cycleMethodResult("localMax", allPts_max_intpD); % 音声は作っていないので点群のみ
+
+matPath = saveCycleResult(cond, allImg, [res_cnt res_max]);
