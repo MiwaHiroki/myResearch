@@ -80,7 +80,7 @@ function cond = cycleConditions(opts)
                 'queryStep', opts.QueryStep, ...
                 'interpMethod', opts.InterpMethod, ...
                 'scaleFactor', 1/opts.QueryStep);
-    end
+    end % end of switch opts.Upsampling
 
     cond = struct();
     cond.upsampling     = upsampling;
@@ -102,7 +102,7 @@ function cond = cycleConditions(opts)
     cond.segmentXRanges = opts.SegmentXRanges;
     cond.scriptName     = opts.ScriptName;
     cond.note           = opts.Note;
-end
+end % end of function
 
 
 function checkGiven(opts, names, context)
