@@ -2,26 +2,43 @@
 % 1周分の溝データをつくる
 
 %%
-% 発表資料作成用
-set(0,'defaultTextInterpreter','latex');
-set(0,'defaultAxesTickLabelInterpreter','latex');
-set(0,'defaultLegendInterpreter','latex');
-set(0,'defaultColorbarTickLabelInterpreter','latex');
+setDefaultIntrpr();
+proj = currentProject();
+
+NUM_IMAGES = 8; % レコードを8回に分けて撮影しているので8枚
+NUM_SEGMENTS = 10; % 細長い画像を10等分する
+TOTAL_SEGMENTS = NUM_SEGMENTS * NUM_IMAGES; % 全部で80枚の画像
+
+
+filenames_new = strings(NUM_IMAGES,1);
+filenames_old = strings(NUM_IMAGES,1);
+for i=1:NUM_IMAGES
+    filenames_old(i) = "DSC0" + num2str(i+112) + "_8x";
+    filenames_new(i) = "DSC1111-0000" + num2str(i) + "-ori";
+end
+
+
+L_MASK = 20; % Maskを取るためのluminanceのthreshold, 0付近に設定する
+TH_HIST = 150; % threshold of the peak height in the histogram
+
+D_THRESH = 0.6;
+
+% 保存用
+date = "0731";
+dir = mkdirFromDate(proj.RootFolder,date);
 
 %%
-filenameC_new8 = cell(8,1);
-filenameC_old = cell(8,1);
-for y=1:8
-    filenameC_old{y} = "DSC0" + num2str(y+112) + "_8x";
-    filenameC_new8{y} = "DSC1111-0000" + num2str(y) + "-8x";
-end
+
+iImg=1; % i=1~NUM_IMAGES
+jSegment=1; % j=1~NUM_SEGMENTS
+
 
 imgWidth = 3000; % 1回でimgWidth(pixel)分のx座標を処理
 xarray = [1:imgWidth:30000 30001];
 l = length(xarray)-1;
 
-L_mask = 20; % Maskを取るためのluminanceのthreshold, 0付近に設定する
-th_hist = 1000; % threshold of the peak height in the histogram
+
+TH_HIST = 1000; % threshold of the peak height in the histogram
 
 D_th = 0.6;
 
@@ -45,13 +62,13 @@ ycoords = cell(8*l,1);
 for i=1:8
     % img_old = imread("./pictures/old/8x/" + filenameC_old{9-i} + ".png");
     % img_gray = rgb2gray(img_old);
-    img_new = imread("./pictures/1111/" + filenameC_new8{9-i} + ".png");
+    img_new = imread("./pictures/1111/" + filenames_new(9-i) + ".png");
     img_gray = rgb2gray(img_new);
 
     for j=1:l
         img_small = img_gray(:, xarray(j):xarray(j+1)-1);
 
-        [img_omitMask,newWidth] = omitMask(img_small,L_mask);
+        [img_omitMask,newWidth] = omitMask(img_small,L_MASK);
         imgHeight = size(img_omitMask,1);
         z = 1 - double(img_omitMask)/255;
 
@@ -145,7 +162,7 @@ for i=1:8
         [counts,edges] = histcounts(pks_cor(:,2),'BinWidth',binWidth);
         centers = edges(1:end-1) + diff(edges)/2; % ピークの中心
 
-        [~,histPkLocs] = findpeaks(counts,'MinPeakHeight',th_hist);
+        [~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST);
 
         [~,idx_hist] = min(abs(p1(2) - centers(histPkLocs)));
         groove1Center = centers(histPkLocs(idx_hist));
