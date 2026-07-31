@@ -172,8 +172,13 @@ for i=1:8
         y_min = groove1Center - tol;
         y_max = groove1Center + tol;
 
+
+        points = [(1:origD.nCols)',NaN(origD.nCols,1)];
+        
         idxs = (pks_cor(:,2) >= y_min) & (pks_cor(:,2)<=y_max);
-        points = pks_cor(idxs,:);
+        points(pks_cor(idxs,1),2) = pks_cor(idxs,2);
+
+        points(:,2) = fillmissing(points(:,2),"linear");
 
         points_fit = points;
 
