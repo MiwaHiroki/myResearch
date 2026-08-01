@@ -15,15 +15,15 @@ end
 figName = "fig3_grooveBtmMethodsOnImage";
 
 %% パラメータ
-IMG_FILE = "DSC1111-00001-ori.png";
-PIXELS = 50;    % 切り出す画像の一辺
-Y_OFFSET = 101;  % 切り出し開始位置（行=y）
-X_OFFSET = 1001; % 切り出し開始位置（列=x）
+IMG_FILE = "DSC1111-00008-ori.png";
+PIXELS = 30;    % 切り出す画像の一辺
+Y_OFFSET = 136;  % 切り出し開始位置（行=y）
+X_OFFSET = 111; % 切り出し開始位置（列=x）
 
 D_TH = 0.6; % 暗度の閾値
 W_TH = 8;   % 溝底とみなす区間幅の上限[px]
 
-MARKER_SIZE = 3;
+MARKER_SIZE = 10;
 
 % 図のサイズ[cm]とフォントサイズ[pt]（原稿は10pt二段組、1段幅=79mm）
 % 画像が正方形なので縦に長くなる。小さくしたい場合はFIG_W,FIG_Hを同じ比で縮める
@@ -67,10 +67,10 @@ imagesc(ax,imgData.img);
 colormap(ax,gray); clim(ax,[0 255]);
 axis(ax,"image");
 hold(ax,"on");
-scatter(pkDots_max(:,1),pkDots_max(:,2),5,"cyan","filled","o","MarkerFaceAlpha",0.5);
-scatter(pkDots_cnt(:,1),pkDots_cnt(:,2),5,"magenta","filled","o","MarkerFaceAlpha",0.5);
-% pts_max.showCandidates("red",MARKER_SIZE);
-    % pts_cnt.showCandidates("cyan",MARKER_SIZE);
+% scatter(pkDots_max(:,1),pkDots_max(:,2),5,"cyan","filled","o","MarkerFaceAlpha",0.5);
+% scatter(pkDots_cnt(:,1),pkDots_cnt(:,2),5,"magenta","filled","o","MarkerFaceAlpha",0.5);
+pts_max.showCandidates("red",MARKER_SIZE);
+pts_cnt.showCandidates("cyan",MARKER_SIZE);
 hold(ax,"off");
 
 % 原稿ではキャプションを付けるので図中のタイトルは出さない
