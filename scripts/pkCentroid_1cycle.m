@@ -26,7 +26,8 @@ D_THRESH = 0.6;
 
 % 保存用
 date = "0731";
-dir = mkdirFromDate(proj.RootFolder,date);
+dir = mkdirFromDate(proj.RootFolder,date);          % 図・音声の出力先
+expDir = experimentDir(proj.RootFolder,date);       % 実験結果.matの保存先
 % dir = "C:\Users\owner\Documents\HirokiMiwa\matlab@Miwa\peak detection\data\"+date+"\";
 
 %%
@@ -261,7 +262,8 @@ origCntAudio.saveAudio(dir);
         % "LMask","ThHist","DThresh","WTh","Tol","BinWidth","HPrl"];
 
 cond = cycleConditions(...
-    Upsampling="origD",Date=date,SaveDir=dir,BinWidth=binWidth,DThresh=D_THRESH,...
+    Upsampling="origD",Date=date,SaveDir=dir,ExperimentDir=expDir,...
+    BinWidth=binWidth,DThresh=D_THRESH,...
     Filenames=filenames_new,HPrl=h_prl,LMask=L_MASK,NumImages=NUM_IMAGES,...
     NumSegments=NUM_SEGMENTS,Tol=tol,ThHist=TH_HIST,WTh=W_TH,...
     ScriptName="pkCentroid_1cycle");

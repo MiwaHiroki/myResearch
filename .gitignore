@@ -11,6 +11,10 @@
 /results
 /audioFiles
 
+# experiment results (.mat)
+# fitGroove の手動操作なしには作り直せないので、消さずに別途バックアップすること
+/experiments
+
 # AI 
 /.agents/*
 /.claude/*

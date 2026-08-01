@@ -14,7 +14,7 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 6. `fitGroove` で手動指定した平行四辺形内の点群を直線近似し、溝の傾きを補正する。
 7. ヒストグラムのピークから追跡対象の溝1本を選び、その中心付近（`TOL_DISTANCE`／`tol`）の点だけを抽出、欠損を `fillmissing` で補間し、多項式でデトレンドする。
 8. 全セグメントの座標を連結し、回転数78rpmから標本化周波数を計算して `AudioData` を生成、波形・FFT・スペクトログラムを描画・保存し、wavに書き出す。
-9. `saveCycleResult` で実験条件と解析結果（`ImageData`／`GrooveCandidates`／`AudioData`／`y_comb` など）を `results/<日付>/` の `.mat` に保存する（詳細は「1周分の実験結果の保存」）。
+9. `saveCycleResult` で実験条件と解析結果（`ImageData`／`GrooveCandidates`／`AudioData`／`y_comb` など）を `experiments/<日付>/` の `.mat` に保存する（詳細は「1周分の実験結果の保存」）。
 
 ## ディレクトリ構成
 
@@ -22,8 +22,11 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 - **`src/`**: クラス定義と共通関数
 - **`scripts/`**: 溝底抽出・音声生成の実行スクリプト群（旧版は `archive/`、針再生の評価は `evaluation/`）
 - **`data/`**: 入力データ（`pictures/` は盤面写真、`stylus playback/` は針再生の音源）
-- **`results/`**: 実行結果（日付ごとのフォルダに図・音声・実験結果の`.mat`を保存）
+- **`experiments/`**: 1周分の解析結果の`.mat`（日付ごと。旧版・失敗した試行は `archive/`）
+- **`results/`**: 図・音声の出力先（日付ごと。原稿用の図は `figures/paper/<会議名>/`）
 - **`test/`**: テストコード
+
+`experiments/` と `results/` は寿命が違うので分けている。`results/` の図・音声は `experiments/` の`.mat`から何度でも作り直せるが、`.mat` 自体は `fitGroove` の手動操作を80セグメント分やり直さないと作れない。**バックアップの対象は `data/` と `experiments/` の2つ**で、`results/` は消してよい。どちらもgit管理外。
 
 ## `src/` の主なクラス・関数
 
@@ -45,13 +48,15 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 - **`fitGroove` / `fitGroove_multiPeaks`**: 平行四辺形内の点群を直線／多項式近似し溝の傾きを補正（`_multiPeaks` は1溝で複数検出された点を平均してから処理）
 - **`createFigure`**: サイズ指定でfigureを作成
 - **`soundCheck`**: 波形・FFT・スペクトログラムをまとめて描画・保存
-- **`mkdirFromDate`**: `results/<日付>/` フォルダを作成しパスを返す
+- **`mkdirFromDate`**: 図・音声の出力先 `results/<日付>/` を作成しパスを返す
+- **`experimentDir`**: 実験結果`.mat`の保存先 `experiments/<日付>/` を作成しパスを返す（`Create=false` でパスを組むだけ）
 - **`setDefaultIntrpr`**: 描画のインタプリタをLaTeXに設定
 - **`cycleConditions`**: 1周分の音声を作成したときの実験条件（定数・日付・保存先・高解像度化のパラメータ）をstructにまとめる。必須の定数が欠けていればエラーになる
 - **`cycleMethodResult`**: 溝底抽出手法1つ分の1周データ（`GrooveCandidates`配列・x/y座標・`y_comb`・`AudioData`）をstructにまとめる。要素数の整合性をここで検証する
-- **`saveCycleResult`**: 上記2つをまとめて `results/<日付>/cycleResult_<条件>_<日付>.mat` に保存する（詳細は下記「1周分の実験結果の保存」）
+- **`saveCycleResult`**: 上記2つをまとめて `experiments/<日付>/cycleResult_<条件>_<日付>.mat` に保存する（詳細は下記「1周分の実験結果の保存」）
 - **`loadCycleResult`**: `saveCycleResult` で保存した結果を読み込む
 - **`cycleResultFileName`**: 結果.matのファイル名の命名規則を返す（保存側・読み込み側で共有）
+- **`cycleResultPath`**: 結果.matのフルパスを返す（読み込み側用。`experiments/<日付>/` を見て、無ければ移行前の `results/<日付>/` も探す）
 - **`togglevisibility`**: 凡例クリックでプロットの表示/非表示を切り替えるコールバック
 
 ## `scripts/` の主なスクリプト
@@ -68,13 +73,17 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 
 `fitGroove` の手動操作を80セグメント分繰り返す必要があるため、1周分の解析は図を作るたびに再実行できない。そこで解析結果を `.mat` に保存し、図の作成スクリプトはそれを読むだけにする。
 
+- 保存先は `experiments/<日付>/`。図・音声の出力先（`results/<日付>/`）とは分ける。
 - **1ファイル = 1つの高解像度化条件**（`origD` / `rsmplD` / `intpD`）。1ファイルの中に重心法・局所的最大値法の両方の結果を入れる（`allImg` を手法ごとに二重保存しないため）。
 - 保存される変数は `result`（struct）1つだけ。
 
 ```matlab
 % 保存（1周分の解析の最後で実行）
+dir    = mkdirFromDate(rootFolder, date);    % 図・音声の出力先
+expDir = experimentDir(rootFolder, date);    % 実験結果.matの保存先
+
 cond = cycleConditions( ...
-    Upsampling="intpD", Date=date, SaveDir=dir, ...
+    Upsampling="intpD", Date=date, SaveDir=dir, ExperimentDir=expDir, ...
     LMask=L_MASK, ThHist=TH_HIST, DThresh=D_THRESH, WTh=W_TH, ...
     Tol=tol, BinWidth=binWidth, HPrl=h_prl, ...
     QueryStep=QUERY_STEP, InterpMethod=INTERP_METHOD, ...
@@ -85,10 +94,12 @@ res_cnt = cycleMethodResult("centroid", allPts_cnt_intpD, xcoords, ycoords, y_co
 matPath = saveCycleResult(cond, allImg, res_cnt);
 
 % 読み込み（図の作成スクリプト）
-matPath = fullfile(rootFolder, "results", "0730", cycleResultFileName("intpD","0730"));
+matPath = cycleResultPath(rootFolder, "intpD", "0731");
 result  = loadCycleResult(matPath);
 figure; result.centroid.audio.spectrogramPlot(4096);
 ```
+
+`ExperimentDir` を省略すると `SaveDir` に保存される（移行前の動作）。読み込み側の `cycleResultPath` は `experiments/<日付>/` を先に見て、無ければ `results/<日付>/` も探すので、古い場所に残っている結果もそのまま読める。
 
 `result` の構成:
 
@@ -119,4 +130,4 @@ result = loadCycleResult(matPath, LoadDarknessValues=true);   % result.allD に�
    rootFolder = proj.RootFolder;
    ```
 3. `scripts/` 内の目的に合ったスクリプト（例: `pkCentroid_interp2_1cycle.m`）を実行します。処理途中で `fitGroove` により溝中心をマウス（`ginput`）で指定する操作が必要です。
-4. 生成された図・音声は `results/<日付>/` に保存されます。
+4. 生成された図・音声は `results/<日付>/` に、1周分の解析結果の`.mat`は `experiments/<日付>/` に保存されます。

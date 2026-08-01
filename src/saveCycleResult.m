@@ -1,5 +1,5 @@
 function [matPath, dValuePath] = saveCycleResult(conditions, allImg, methodResults, opts)
-% saveCycleResult  1周分の音声を作成した実験結果を results/<日付>/ の.matに保存する。
+% saveCycleResult  1周分の音声を作成した実験結果を experiments/<日付>/ の.matに保存する。
 %
 % origD / rsmplD / intpD のそれぞれについて別ファイルに保存する。
 % 1ファイルには重心法・局所的最大値法の両方の結果を入れられる（allImg を
@@ -29,7 +29,10 @@ function [matPath, dValuePath] = saveCycleResult(conditions, allImg, methodResul
 %                        dMat は origD で約140MB、rsmplD(8x) で約1GB、
 %                        intpD(step 0.25) で約2GB になるため既定では保存しない。
 %                        1セグメント分の dMat は ginput 無しで作り直せる。
-%   SaveDir            - 保存先フォルダ（既定: conditions.saveDir）
+%   SaveDir            - 保存先フォルダ。既定は conditions.experimentDir
+%                        （experiments/<日付>/）。conditions に
+%                        ExperimentDir を渡していない場合は conditions.saveDir
+%                        （results/<日付>/）に保存する
 %   FileName           - ファイル名（既定: cycleResultFileName による自動生成）
 %   Overwrite          - true なら既存ファイルを上書きする。false（既定）なら
 %                        "..._2.mat" のように連番を付けて別名で保存する。
@@ -111,10 +114,14 @@ function [matPath, dValuePath] = saveCycleResult(conditions, allImg, methodResul
     end
 
     % --- 保存先の決定 ---
-    if opts.SaveDir == ""
-        saveDir = conditions.saveDir;
-    else
+    % 実験結果.matは図・音声とは寿命が違うので experiments/<日付>/ に置く。
+    % ExperimentDir を持たない古い conditions は従来どおり saveDir に保存する。
+    if opts.SaveDir ~= ""
         saveDir = opts.SaveDir;
+    elseif isfield(conditions, "experimentDir") && conditions.experimentDir ~= ""
+        saveDir = conditions.experimentDir;
+    else
+        saveDir = conditions.saveDir;
     end
     if ~isfolder(saveDir)
         mkdir(saveDir);

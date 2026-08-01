@@ -6,7 +6,7 @@ function cond = cycleConditions(opts)
 %
 % 使い方（すべて name-value 引数）:
 %   cond = cycleConditions( ...
-%       Upsampling="intpD", Date=date, SaveDir=dir, ...
+%       Upsampling="intpD", Date=date, SaveDir=dir, ExperimentDir=expDir, ...
 %       LMask=L_MASK, ThHist=TH_HIST, DThresh=D_THRESH, WTh=W_TH, ...
 %       Tol=tol, BinWidth=binWidth, HPrl=h_prl, ...
 %       QueryStep=QUERY_STEP, InterpMethod=INTERP_METHOD, ...
@@ -21,12 +21,16 @@ function cond = cycleConditions(opts)
 %   Upsampling, Date, SaveDir, LMask, ThHist, DThresh, WTh, Tol, BinWidth, HPrl
 %
 % 省略可能な引数（既定値）:
-%   NumImages (8), NumSegments (10), PolyDegree (3), Rpm (78),
-%   Filenames (空), SegmentXRanges (空), ScriptName (""), Note ("")
+%   ExperimentDir (""), NumImages (8), NumSegments (10), PolyDegree (3),
+%   Rpm (78), Filenames (空), SegmentXRanges (空), ScriptName (""), Note ("")
+%
+% SaveDir は図・音声の出力先（results/<日付>/）、ExperimentDir は実験結果.matの
+% 保存先（experiments/<日付>/）。ExperimentDir を渡すと saveCycleResult は
+% そちらに保存する。省略した場合は SaveDir に保存する（移行前の動作）。
 %
 % 出力 cond のフィールド:
 %   upsampling  .kind と高解像度化のパラメータ、.scaleFactor（縦方向の拡大率）
-%   date, saveDir, numImages, numSegments, totalSegments
+%   date, saveDir, experimentDir, numImages, numSegments, totalSegments
 %   lMask, thHist, dThresh, wTh, tol, binWidth, hPrl, polyDegree, rpm
 %   filenames, segmentXRanges, scriptName, note
 %
@@ -36,6 +40,7 @@ function cond = cycleConditions(opts)
         opts.Upsampling (1,1) string {mustBeMember(opts.Upsampling,["origD","rsmplD","intpD"])}
         opts.Date (1,1) string
         opts.SaveDir (1,1) string
+        opts.ExperimentDir (1,1) string = ""
         opts.LMask (1,1) double
         opts.ThHist (1,1) double
         opts.DThresh (1,1) double
@@ -86,6 +91,7 @@ function cond = cycleConditions(opts)
     cond.upsampling     = upsampling;
     cond.date           = opts.Date;
     cond.saveDir        = opts.SaveDir;
+    cond.experimentDir  = opts.ExperimentDir;
     cond.numImages      = opts.NumImages;
     cond.numSegments    = opts.NumSegments;
     cond.totalSegments  = opts.NumImages * opts.NumSegments;

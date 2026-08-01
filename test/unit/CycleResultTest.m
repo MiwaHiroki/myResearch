@@ -1,5 +1,9 @@
 % 1周分の実験結果の保存・読み込み（cycleConditions, cycleMethodResult,
-% cycleResultFileName, saveCycleResult, loadCycleResult）の単体テスト
+% cycleResultFileName, cycleResultPath, experimentDir, saveCycleResult,
+% loadCycleResult）の単体テスト
+%
+% saveDir はテスト用の一時フォルダで、experiments/ 側を試すテストでは
+% プロジェクトのルートフォルダに見立てて使う。
 classdef CycleResultTest < matlab.unittest.TestCase
 
     properties (Constant)
@@ -265,6 +269,95 @@ classdef CycleResultTest < matlab.unittest.TestCase
                 "saveCycleResult:sizeMismatch");
         end
 
+        function testExperimentDirCreatesOnlyWhenAsked(testCase)
+            root = testCase.saveDir;
+            expected = fullfile(root, "experiments", testCase.DATE);
+
+            % 読み込み側でパスを組むだけのときは空フォルダを作らない
+            testCase.verifyEqual( ...
+                experimentDir(root, testCase.DATE, Create=false), expected);
+            testCase.verifyFalse(isfolder(expected));
+
+            testCase.verifyEqual(experimentDir(root, testCase.DATE), expected);
+            testCase.verifyTrue(isfolder(expected));
+        end
+
+        function testSaveGoesToExperimentDirNotSaveDir(testCase)
+            % SaveDir は図・音声の出力先。結果.matは ExperimentDir 側に置く
+            expDir = experimentDir(testCase.saveDir, testCase.DATE);
+            cond2 = cycleConditions( ...
+                Upsampling="origD", Date=testCase.DATE, ...
+                SaveDir=testCase.saveDir, ExperimentDir=expDir, ...
+                NumImages=2, NumSegments=2, ...
+                LMask=20, ThHist=150, DThresh=0.6, WTh=8, ...
+                Tol=3, BinWidth=5, HPrl=8, ScriptName="CycleResultTest");
+
+            matPath = saveCycleResult(cond2, testCase.allImg, testCase.resCnt);
+
+            testCase.verifyEqual(matPath, fullfile(expDir, ...
+                cycleResultFileName("origD", testCase.DATE)));
+            testCase.verifyEmpty(dir(fullfile(testCase.saveDir, "*.mat")));
+        end
+
+        function testSaveFallsBackToSaveDirWithoutExperimentDir(testCase)
+            % ExperimentDir を渡していない conditions は従来どおり SaveDir に保存する
+            matPath = saveCycleResult(testCase.cond, testCase.allImg, testCase.resCnt);
+            testCase.verifyEqual(matPath, fullfile(testCase.saveDir, ...
+                cycleResultFileName("intpD", testCase.DATE)));
+        end
+
+        function testCycleResultPathPrefersExperimentsOverResults(testCase)
+            root = testCase.saveDir;
+            matName = cycleResultFileName("origD", testCase.DATE);
+
+            % 移行前の置き場にしか無ければ results/ 側を返す
+            legacyDir = fullfile(root, "results", testCase.DATE);
+            mkdir(legacyDir);
+            legacyPath = fullfile(legacyDir, matName);
+            touchFile(legacyPath);
+
+            testCase.verifyEqual( ...
+                cycleResultPath(root, "origD", testCase.DATE), legacyPath);
+
+            % experiments/ にも置いたらそちらが優先される
+            newPath = fullfile(experimentDir(root, testCase.DATE), matName);
+            touchFile(newPath);
+
+            testCase.verifyEqual( ...
+                cycleResultPath(root, "origD", testCase.DATE), newPath);
+        end
+
+        function testCycleResultPathDefaultsToExperiments(testCase)
+            % どこにも無ければ experiments/ 側のパスを返す（エラーメッセージが
+            % 新しい置き場を指すように）
+            root = testCase.saveDir;
+            [matPath, dValuePath] = cycleResultPath(root, "intpD", testCase.DATE);
+
+            [matName, dName] = cycleResultFileName("intpD", testCase.DATE);
+            expDir = fullfile(root, "experiments", testCase.DATE);
+            testCase.verifyEqual(matPath, fullfile(expDir, matName));
+            testCase.verifyEqual(dValuePath, fullfile(expDir, dName));
+        end
+
+        function testSaveAndLoadRoundTripThroughCycleResultPath(testCase)
+            % 保存側と読み込み側が同じ場所を指しているか
+            root = testCase.saveDir;
+            cond2 = cycleConditions( ...
+                Upsampling="rsmplD", Date=testCase.DATE, ...
+                SaveDir=root, ExperimentDir=experimentDir(root, testCase.DATE), ...
+                NumImages=2, NumSegments=2, ...
+                LMask=20, ThHist=150, DThresh=0.6, WTh=8, ...
+                Tol=3, BinWidth=5, HPrl=8, PRsmpl=8, QRsmpl=1, ...
+                ScriptName="CycleResultTest");
+
+            saved = saveCycleResult(cond2, testCase.allImg, testCase.resCnt);
+            found = cycleResultPath(root, "rsmplD", testCase.DATE);
+            testCase.verifyEqual(found, saved);
+
+            result = loadCycleResult(found);
+            testCase.verifyEqual(result.conditions.upsampling.kind, "rsmplD");
+        end
+
         function testLoadMissingFileGivesClearError(testCase)
             testCase.verifyError( ...
                 @() loadCycleResult(fullfile(testCase.saveDir, "nope.mat")), ...
@@ -272,4 +365,11 @@ classdef CycleResultTest < matlab.unittest.TestCase
         end
 
     end
+end
+
+
+function touchFile(filePath)
+% 中身を読まない探索のテスト用に空ファイルを作る
+    fid = fopen(filePath, "w");
+    fclose(fid);
 end

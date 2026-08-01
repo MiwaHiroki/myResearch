@@ -9,9 +9,11 @@ function [matName, dValueName] = cycleResultFileName(upsampling, date)
 %   % matName = "cycleResult_intpD_0730.mat"
 %   % dName   = "cycleResult_intpD_0730_dValue.mat"
 %
-%   matPath = fullfile(mkdirFromDate(rootFolder,"0730"), matName);
+%   matPath = fullfile(experimentDir(rootFolder,"0730"), matName);
 %
-% 関連: saveCycleResult, loadCycleResult
+% 読み込み側はフォルダも含めて解決する cycleResultPath を使うほうが簡単。
+%
+% 関連: saveCycleResult, loadCycleResult, cycleResultPath, experimentDir
 
     arguments
         upsampling (1,1) string {mustBeMember(upsampling,["origD","rsmplD","intpD"])}

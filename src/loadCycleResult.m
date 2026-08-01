@@ -6,8 +6,7 @@ function result = loadCycleResult(matPath, opts)
 %
 % 使い方:
 %   proj = currentProject();
-%   matPath = fullfile(proj.RootFolder, "results", "0730", ...
-%       cycleResultFileName("intpD","0730"));
+%   matPath = cycleResultPath(proj.RootFolder, "intpD", "0731");
 %   result = loadCycleResult(matPath);
 %
 %   figure; result.centroid.audio.spectrogramPlot(4096);
@@ -27,7 +26,7 @@ function result = loadCycleResult(matPath, opts)
 % 出力:
 %   result - saveCycleResult が保存した result（構成は saveCycleResult のヘルプ参照）
 %
-% 関連: saveCycleResult, cycleResultFileName
+% 関連: saveCycleResult, cycleResultPath, cycleResultFileName
 
     arguments
         matPath (1,1) string
