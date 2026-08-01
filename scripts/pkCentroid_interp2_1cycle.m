@@ -29,7 +29,7 @@ TH_HIST = 150; % threshold of the peak height in the histogram
 D_THRESH = 0.6;
 
 % 保存用
-date = "0724";
+date = "0731";
 dir = mkdirFromDate(proj.RootFolder,date);
 % dir = "C:\Users\owner\Documents\HirokiMiwa\matlab@Miwa\peak detection\data\"+date+"\";
 
@@ -49,8 +49,10 @@ allPts_cnt_intpD(TOTAL_SEGMENTS,1) = GrooveCandidates();
 
 % 1周分のデータのx,y座標
 xcoords = cell(TOTAL_SEGMENTS,1);
-ycoords = cell(TOTAL_SEGMENTS,1);
-p2 = zeros(1,2);
+ycoords_max = cell(TOTAL_SEGMENTS,1);
+ycoords_cnt = cell(TOTAL_SEGMENTS,1);
+p2_max = zeros(1,2);
+p2_cnt = zeros(1,2);
 
 for iImg=1:NUM_IMAGES
     for jSegment=1:NUM_SEGMENTS
@@ -80,7 +82,7 @@ for iImg=1:NUM_IMAGES
         % rsmplD = dResample(origD,P_RSMPL,Q_RSMPL);
         % rsmplD = rsmplD.setDiffTF(D_THRESH);
 
-        QUERY_STEP = 0.25;
+        QUERY_STEP = 0.125;
         INTERP_METHOD = "spline";
         intpD = dInterp(origD,QUERY_STEP,INTERP_METHOD);
         intpD = intpD.setDiffTF(D_THRESH);
@@ -160,6 +162,7 @@ for iImg=1:NUM_IMAGES
         w_prl = origWidth; % 平行四辺形の高さ
         h_prl = 8; % 平行四辺形の底辺
 
+        % centroid method
         % fitGroove()を使って、溝1本分の形状データを抽出する
         fig = figure;
         origImg.showImg();
@@ -168,7 +171,7 @@ for iImg=1:NUM_IMAGES
         hold on;
         pts_cnt_intp.showCandidates();
         % scatter(pks_cnt_intp(:,1),pks_cnt_intp(:,2),5,'c','filled');
-        [p1,p2,pks_cor] = fitGroove(jSegment,fig,p2,w_prl,h_prl,pks_cnt_intp);
+        [p1_max,p2_max,pks_cor] = fitGroove(jSegment,fig,p2_max,w_prl,h_prl,pks_max_intp);
 
         binWidth = 5; % BinWidth
         [counts,edges] = histcounts(pks_cor(:,2),'BinWidth',binWidth);
@@ -176,7 +179,7 @@ for iImg=1:NUM_IMAGES
 
         [~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST);
 
-        [~,idx_hist] = min(abs(p1(2) - centers(histPkLocs)));
+        [~,idx_hist] = min(abs(p1_max(2) - centers(histPkLocs)));
         groove1Center = centers(histPkLocs(idx_hist));
 
         tol = 3;
@@ -206,7 +209,57 @@ for iImg=1:NUM_IMAGES
         points_fit(:,2) = points_fit(:,2) - mean(points_fit(:,2));
 
         xcoords{kImgSmall,1} = points(:,1);
-        ycoords{kImgSmall,1} = points_fit(:,2);
+        ycoords_max{kImgSmall,1} = points_fit(:,2);
+
+
+        % centroid method
+        % fitGroove()を使って、溝1本分の形状データを抽出する
+        fig = figure;
+        origImg.showImg();
+        % fig = createFigure([0 0 6 6]);
+        % imshow(img_omitMask,"InitialMagnification","fit");
+        hold on;
+        pts_cnt_intp.showCandidates();
+        % scatter(pks_cnt_intp(:,1),pks_cnt_intp(:,2),5,'c','filled');
+        [p1_cnt,p2_cnt,pks_cor] = fitGroove(jSegment,fig,p2_cnt,w_prl,h_prl,pks_cnt_intp);
+
+        binWidth = 5; % BinWidth
+        [counts,edges] = histcounts(pks_cor(:,2),'BinWidth',binWidth);
+        centers = edges(1:end-1) + diff(edges)/2; % ピークの中心
+
+        [~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST);
+
+        [~,idx_hist] = min(abs(p1_cnt(2) - centers(histPkLocs)));
+        groove1Center = centers(histPkLocs(idx_hist));
+
+        tol = 3;
+        % そのピークの中心からtol(pixel)以内にあるy座標
+        y_min = groove1Center - tol;
+        y_max = groove1Center + tol;
+
+        % なんか配列の長さが合わなそうな初期化
+        % dInterp()の中身も同様なので実際は問題ない
+        points = [(1:QUERY_STEP:intpD.imgWidth)',NaN(intpD.nCols,1)];
+
+        idxs = (pks_cor(:,2) >= y_min) & (pks_cor(:,2)<=y_max);
+
+        clusterdPoints = pks_cor(idxs,:);
+        points_x = clusterdPoints(:,1); %QUERY_STEP刻みのx座標。データの一部が欠損してる可能性
+        Lia = ismember(points(:,1),points_x);
+        % Lia: logical配列。「第一引数に第二引数の数値が見つかったかどうか」
+        points(Lia,2) = clusterdPoints(:,2);
+
+        points(:,2) = fillmissing(points(:,2),"linear");
+
+        points_fit = points;
+
+
+        p = polyfit(points(:,1),points(:,2),3);
+        points_fit(:,2) = points(:,2) - polyval(p,points(:,1));
+        points_fit(:,2) = points_fit(:,2) - mean(points_fit(:,2));
+
+        xcoords{kImgSmall,1} = points(:,1);
+        ycoords_cnt{kImgSmall,1} = points_fit(:,2);
 
 
 
@@ -243,30 +296,47 @@ lgd = legend; lgd.ItemHitFcn=@togglevisibility;
 
 %%
 
-y_comb = vertcat(ycoords{:});
-figure;plot(y_comb);axis tight;
-title("$y$ coordinates (Darkness interpolated)");xlabel("Sample");ylabel("$y$");
+y_comb_max = vertcat(ycoords_max{:});
+y_comb_cnt = vertcat(ycoords_cnt{:});
+% figure;plot(y_comb_max);axis tight;
+% title("$y$ coordinates (Darkness interpolated)");xlabel("Sample");ylabel("$y$");
 
-num_samples = length(y_comb);
+num_samples = length(y_comb_max);
 fs = round(num_samples /(60/78));
 tidx = (1:num_samples)'/fs;
 
-y_mean0 = y_comb - mean(y_comb);
+y_mean0_max = y_comb_max - mean(y_comb_max);
+y_mean0_cnt = y_comb_cnt - mean(y_comb_cnt);
 
-amp_raw = y_mean0 / (tol/2);
+amp_max = y_mean0_max / (tol/2);
+amp_cnt = y_mean0_cnt / (tol/2);
 
-intpAudio = AudioData("audio ("+num2str(1/QUERY_STEP)+"x interp)",amp_raw,fs);
+intpMaxAudio = AudioData("audio ("+num2str(1/QUERY_STEP)+"x interp)",amp_max,fs);
+intpCntAudio = AudioData("audio ("+num2str(1/QUERY_STEP)+"x interp)",amp_cnt,fs);
 
-fig = figure;intpAudio.audioPlot();
-saveas(fig,dir+intpAudio.filename+"_amp","fig");saveas(fig,dir+intpAudio.filename+"_amp","png");close;
+fig = figure;intpMaxAudio.audioPlot();
+saveas(fig,dir+intpMaxAudio.filename+"_amp","fig");saveas(fig,dir+intpMaxAudio.filename+"_amp","png");close;
 
-fig = figure;intpAudio.FFTPlot();
-saveas(fig,dir+intpAudio.filename+"_fft","fig");saveas(fig,dir+intpAudio.filename+"_fft","png");close;
+fig = figure;intpMaxAudio.FFTPlot();
+saveas(fig,dir+intpMaxAudio.filename+"_fft","fig");saveas(fig,dir+intpMaxAudio.filename+"_fft","png");close;
 
-fig = figure;intpAudio.spectrogramPlot(4096);
-saveas(fig,dir+intpAudio.filename+"_stft","fig");saveas(fig,dir+intpAudio.filename+"_stft","png");close;
+fig = figure;intpMaxAudio.spectrogramPlot(8192);
+saveas(fig,dir+intpMaxAudio.filename+"_stft","fig");saveas(fig,dir+intpMaxAudio.filename+"_stft","png");close;
 
-intpAudio.saveAudio(dir);
+intpMaxAudio.saveAudio(dir);
+
+
+fig = figure;intpCntAudio.audioPlot();
+saveas(fig,dir+intpCntAudio.filename+"_amp","fig");saveas(fig,dir+intpCntAudio.filename+"_amp","png");close;
+
+fig = figure;intpCntAudio.FFTPlot();
+saveas(fig,dir+intpCntAudio.filename+"_fft","fig");saveas(fig,dir+intpCntAudio.filename+"_fft","png");close;
+
+fig = figure;intpCntAudio.spectrogramPlot(8192);
+saveas(fig,dir+intpCntAudio.filename+"_stft","fig");saveas(fig,dir+intpCntAudio.filename+"_stft","png");close;
+
+intpMaxAudio.saveAudio(dir);
+
 
 %%
 % 実験結果の保存
@@ -279,7 +349,7 @@ cond = cycleConditions( ...
     QueryStep=QUERY_STEP, InterpMethod=INTERP_METHOD, ...
     Filenames=filenames_new, ScriptName="pkCentroid_interp2_1cycle");
 
-res_cnt = cycleMethodResult("centroid", allPts_cnt_intpD, xcoords, ycoords, y_comb, intpAudio);
-res_max = cycleMethodResult("localMax", allPts_max_intpD); % 音声は作っていないので点群のみ
+res_cnt = cycleMethodResult("centroid", allPts_cnt_intpD, xcoords, ycoords_max, y_comb_max, intpMaxAudio);
+res_max = cycleMethodResult("localMax", allPts_max_intpD, xcoords, ycoords_cnt, y_comb_cnt, intpCntAudio);
 
 matPath = saveCycleResult(cond, allImg, [res_cnt res_max]);
