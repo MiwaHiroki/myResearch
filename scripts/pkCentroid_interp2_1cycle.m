@@ -156,8 +156,8 @@ for iImg=1:NUM_IMAGES
             pts_max_intp.pksCell{x} = tmpPoints;
         end
 
-        pks_cnt_intp = vertcat(pts_cnt_intp.pksCell{:});
         pks_max_intp = vertcat(pts_max_intp.pksCell{:});
+        pks_cnt_intp = vertcat(pts_cnt_intp.pksCell{:});
 
         w_prl = origWidth; % 平行四辺形の高さ
         h_prl = 8; % 平行四辺形の底辺
