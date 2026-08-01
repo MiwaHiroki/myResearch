@@ -42,11 +42,12 @@ INTERP_METHOD = "spline"; % 2次元補間の方法
 % 別の溝にしたいときは±27ずつずらす（端に寄りすぎない溝を選ぶこと）
 Y_GROOVE = 205;
 
-X_VIEW = [1 100]; % 表示するxの範囲[px]
+% X_VIEW = [1 100]; % 表示するxの範囲[px]
+X_VIEW = [1,50];
 
-% 図のサイズ[cm]とフォントサイズ[pt]（原稿は10pt二段組、1段幅=79mm）
-% FIG_W = 8.00; FIG_H = 8.03; % 正方形の時
-FIG_W = 8.00; FIG_H = 6;
+% 図のサイズ[cm]とフォントサイズ[pt]
+% fig_grooveShapeMethodComparisonと横に並べて1段=79mmに収めるので、正方形で38mm
+FIG_W = 3.92; FIG_H = 3.95;
 FONT_TICK = 8; FONT_LABEL = 9;
 
 %% 画像を読み込んでimg_smallを切り出す
@@ -70,7 +71,8 @@ rsmplD = dResample(origD,P_RSMPL,Q_RSMPL);
 intpD = dInterp(origD,STEP,INTERP_METHOD);
 
 dCell = {origD, rsmplD, intpD};
-lgdNames = ["no upsampling","resample","interpolation ("+INTERP_METHOD+")"];
+% 38mm幅では"interpolation (spline)"は凡例からはみ出すので補間方法は書かない
+lgdNames = ["no upsampling","resample","interpolation"];
 
 %% 溝1本の形状を抽出する
 grvX = cell(numel(dCell),1);
@@ -125,8 +127,12 @@ end
 hold(ax,"off");
 
 % 原稿ではキャプションを付けるので図中のタイトルは出さない
-xlim(ax,X_VIEW); % ylimは自動
+xlim(ax,X_VIEW);
+% ylim(ax, [203 207]);% ylimは自動?
 xlabel(ax,"$x$"); ylabel(ax,"$y$");
+% boxがoffだと右と上に軸線が無く、exportgraphicsがデータや凡例の右端で
+% 切るため出力幅が安定しない。枠を付けて切り取り位置を確定させる
+box(ax,"on");
 
 % 凡例はTightInsetに含まれないのでaxesの内側に置く
 lgd = legend(ax,lgdNames,Location="best");
