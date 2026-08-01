@@ -151,7 +151,7 @@ for iImg=1:NUM_IMAGES
         w_prl = origWidth; % 平行四辺形の高さ
         h_prl = 8; % 平行四辺形の底辺
 
-        % centroid method
+        % local maximum method
         fig = figure;
         origImg.showImg();
         % imshow(img_omitMask);
@@ -274,7 +274,7 @@ tidx = (1:num_samples)'/fs;
 y_mean0_max = y_comb_max;
 y_mean0_max = y_mean0_max - mean(y_mean0_max);
 
-y_mean0_cnt = y_comb_max;
+y_mean0_cnt = y_comb_cnt;
 y_mean0_cnt = y_mean0_cnt - mean(y_mean0_cnt);
 
 
@@ -324,7 +324,7 @@ cond = cycleConditions( ...
     PRsmpl=P_RSMPL, QRsmpl=Q_RSMPL, ...
     Filenames=filenames_new, ScriptName="pkCentroid_resample_1cycle");
 
-res_cnt = cycleMethodResult("centroid", allPts_cnt_rsmplD, xcoords, ycoords_max, y_comb_max, rsmplMaxAudio);
-res_max = cycleMethodResult("localMax", allPts_max_rsmplD, xcoords, ycoords_cnt, y_comb_cnt, rsmplCntAudio);
+res_max = cycleMethodResult("localMax", allPts_max_rsmplD, xcoords, ycoords_max, y_comb_max, rsmplMaxAudio);
+res_cnt = cycleMethodResult("centroid", allPts_cnt_rsmplD, xcoords, ycoords_cnt, y_comb_cnt, rsmplCntAudio);
 
-matPath = saveCycleResult(cond, allImg, [res_cnt res_max]);
+matPath = saveCycleResult(cond, allImg, [res_max res_cnt]);

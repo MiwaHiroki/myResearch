@@ -162,14 +162,14 @@ for iImg=1:NUM_IMAGES
         w_prl = origWidth; % 平行四辺形の高さ
         h_prl = 8; % 平行四辺形の底辺
 
-        % centroid method
+        % local maximum method
         % fitGroove()を使って、溝1本分の形状データを抽出する
         fig = figure;
         origImg.showImg();
         % fig = createFigure([0 0 6 6]);
         % imshow(img_omitMask,"InitialMagnification","fit");
         hold on;
-        pts_cnt_intp.showCandidates();
+        pts_max_intp.showCandidates();
         % scatter(pks_cnt_intp(:,1),pks_cnt_intp(:,2),5,'c','filled');
         [p1_max,p2_max,pks_cor] = fitGroove(jSegment,fig,p2_max,w_prl,h_prl,pks_max_intp);
 
@@ -311,8 +311,8 @@ y_mean0_cnt = y_comb_cnt - mean(y_comb_cnt);
 amp_max = y_mean0_max / (tol/2);
 amp_cnt = y_mean0_cnt / (tol/2);
 
-intpMaxAudio = AudioData("audio ("+num2str(1/QUERY_STEP)+"x interp)",amp_max,fs);
-intpCntAudio = AudioData("audio ("+num2str(1/QUERY_STEP)+"x interp)",amp_cnt,fs);
+intpMaxAudio = AudioData("audio ("+num2str(1/QUERY_STEP)+"x interp)(local max)",amp_max,fs);
+intpCntAudio = AudioData("audio ("+num2str(1/QUERY_STEP)+"x interp)(centroid)",amp_cnt,fs);
 
 fig = figure;intpMaxAudio.audioPlot();
 saveas(fig,dir+intpMaxAudio.filename+"_amp","fig");saveas(fig,dir+intpMaxAudio.filename+"_amp","png");close;
@@ -335,7 +335,7 @@ saveas(fig,dir+intpCntAudio.filename+"_fft","fig");saveas(fig,dir+intpCntAudio.f
 fig = figure;intpCntAudio.spectrogramPlot(8192);
 saveas(fig,dir+intpCntAudio.filename+"_stft","fig");saveas(fig,dir+intpCntAudio.filename+"_stft","png");close;
 
-intpMaxAudio.saveAudio(dir);
+intpCntAudio.saveAudio(dir);
 
 
 %%
@@ -349,7 +349,7 @@ cond = cycleConditions( ...
     QueryStep=QUERY_STEP, InterpMethod=INTERP_METHOD, ...
     Filenames=filenames_new, ScriptName="pkCentroid_interp2_1cycle");
 
-res_cnt = cycleMethodResult("centroid", allPts_cnt_intpD, xcoords, ycoords_max, y_comb_max, intpMaxAudio);
-res_max = cycleMethodResult("localMax", allPts_max_intpD, xcoords, ycoords_cnt, y_comb_cnt, intpCntAudio);
+res_max = cycleMethodResult("localMax", allPts_max_intpD, xcoords, ycoords_max, y_comb_max, intpMaxAudio);
+res_cnt = cycleMethodResult("centroid", allPts_cnt_intpD, xcoords, ycoords_cnt, y_comb_cnt, intpCntAudio);
 
-matPath = saveCycleResult(cond, allImg, [res_cnt res_max]);
+matPath = saveCycleResult(cond, allImg, [res_max res_cnt]);
