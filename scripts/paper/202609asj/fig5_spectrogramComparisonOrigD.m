@@ -16,7 +16,7 @@ end
 figName = "fig5_spectrogramComparison";
 
 %% パラメータ
-% 読み込む結果.mat（results/<日付>/cycleResult_<条件>_<日付>.mat）
+% 読み込む結果.mat（experiments/<日付>/cycleResult_<条件>_<日付>.mat）
 DATE = "0731";
 UPSAMPLING = "origD";
 
@@ -31,8 +31,7 @@ FIG_W = 7.9; FIG_H = 5;
 FONT_TICK = 8; FONT_LABEL = 9;
 
 %% 音声データを読み込む
-matPath = fullfile(proj.RootFolder,"results",DATE, ...
-    cycleResultFileName(UPSAMPLING,DATE));
+matPath = cycleResultPath(proj.RootFolder,UPSAMPLING,DATE);
 result = loadCycleResult(matPath);
 
 for methodName = ["localMax","centroid"]

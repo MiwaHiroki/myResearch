@@ -19,7 +19,7 @@ end
 figName = "fig6_spectrogramUpsampling";
 
 %% パラメータ
-% 読み込む結果.mat（results/<日付>/cycleResult_<条件>_<日付>.mat）
+% 読み込む結果.mat（experiments/<日付>/cycleResult_<条件>_<日付>.mat）
 DATE = "0731";
 UPSAMPLINGS = ["rsmplD","intpD"]; % 左がrsmplD、右がintpD
 METHOD = "centroid";              % 溝底抽出の手法は固定して高解像度化だけを比べる
@@ -41,8 +41,7 @@ FONT_TICK = 8; FONT_LABEL = 9;
 audioCell = cell(1,numel(UPSAMPLINGS));
 
 for k = 1:numel(UPSAMPLINGS)
-    matPath = fullfile(proj.RootFolder,"results",DATE, ...
-        cycleResultFileName(UPSAMPLINGS(k),DATE));
+    matPath = cycleResultPath(proj.RootFolder,UPSAMPLINGS(k),DATE);
     result = loadCycleResult(matPath);
 
     if ~isfield(result,METHOD) || isempty(result.(METHOD).audio)
