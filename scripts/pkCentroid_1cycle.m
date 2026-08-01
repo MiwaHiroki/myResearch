@@ -213,14 +213,14 @@ fs = round(num_samples /(60/78));
 tidx = (1:num_samples)'/fs;
 
 
-y_mean0_max = y_comb_cnt;
+y_mean0_max = y_comb_max;
 y_mean0_max = y_mean0_max - mean(y_mean0_max);
 
 y_mean0_cnt = y_comb_cnt;
 y_mean0_cnt = y_mean0_cnt - mean(y_mean0_cnt);
 
 amp_max = y_mean0_max / (tol/2);
-amp_cnt = y_mean0_max / (tol/2);
+amp_cnt = y_mean0_cnt / (tol/2);
 % y_raw_max = max(abs(y_comb_raw));
 % amp_raw = y_comb_raw / y_raw_max;
 
