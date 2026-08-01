@@ -1,13 +1,10 @@
 % fig5_spectrogramComparison.m
-% 音響学会2026年9月 原稿用のFigure 5（2枚で1段=79mm）
-% origD(アップサンプリングなし)から局所的最大値法・重心法で作成した音声の
-% スペクトログラムを、それぞれ別のfigureとして保存する
-% カラーバーは右に置く重心法の図にのみ付ける（clim は2枚とも同じ）
+% 音響学会2026年9月 原稿用のFigure 5（1段幅=79mm）
+% origD(高解像度化なし)から局所的最大値法・重心法で作成した音声のスペクトログラムを
+% tiledlayoutで横に並べて1つのfigureにする
+% 軸ラベルとカラーバーは2枚で共通にする（カラーバーはfigureの右端）
 %
-% 音声はAudioDataオブジェクトとして.matファイルから読み込む
-% .matが未作成の場合は、1周分の音声を作成して以下の変数名で保存しておくこと
-%   VAR_MAX: 局所的最大値法のAudioData
-%   VAR_CNT: 重心法のAudioData
+% 音声はsaveCycleResultで保存した1周分の結果.matから読み込む
 
 setDefaultIntrpr();
 
@@ -16,78 +13,95 @@ saveDir = fullfile(proj.RootFolder,"results","figures","paper","202609asj");
 if ~isfolder(saveDir)
     mkdir(saveDir);
 end
+figName = "fig5_spectrogramComparison";
 
 %% パラメータ
-% 音声データの.matファイル（実際の保存先に合わせて変更する）
-MAT_FILE = fullfile(proj.RootFolder,"results","audio","audio_orig.mat");
-VAR_MAX = "audio_max"; % 局所的最大値法のAudioData
-VAR_CNT = "audio_cnt"; % 重心法のAudioData
+% 読み込む結果.mat（results/<日付>/cycleResult_<条件>_<日付>.mat）
+DATE = "0731";
+UPSAMPLING = "origD";
 
-WIN_SIZE = 8192; % stftの窓長。fsが大きいので長めにとる
+WIN_SIZE = 1024;   % stftの窓長
 F_VIEW = [0 5e3];  % 表示する周波数の範囲[Hz]
 C_VIEW = [-120 0]; % 表示するレベルの範囲[dB]
+C_STEP = 30;       % カラーバーの目盛り間隔[dB]
+T_STEP = 0.2;      % 時間軸の目盛り間隔[s]。1枚あたり35mm程度なので広めにとる
 
-% 図のサイズ[cm]とフォントサイズ[pt]（1段=79mmを2枚で分ける）
-% 右の図はカラーバーのぶんだけ広くとり、プロット面の大きさを左右でそろえる
-FIG_W_MAX = 3.4; % 局所的最大値法（カラーバーなし）
-FIG_W_CNT = 4.4; % 重心法（カラーバーあり）
-FIG_H = 3.4;
+% 図のサイズ[cm]とフォントサイズ[pt]（原稿は10pt二段組、1段幅=79mm）
+FIG_W = 7.9; FIG_H = 6;
 FONT_TICK = 8; FONT_LABEL = 9;
 
 %% 音声データを読み込む
-if ~isfile(MAT_FILE)
-    error("音声データの.matが見つかりません: %s\n" + ...
-        "1周分の音声を作成し、%s と %s という変数名で保存してから実行してください。", ...
-        MAT_FILE,VAR_MAX,VAR_CNT);
-end
+matPath = fullfile(proj.RootFolder,"results",DATE, ...
+    cycleResultFileName(UPSAMPLING,DATE));
+result = loadCycleResult(matPath);
 
-S = load(MAT_FILE);
-for varName = [VAR_MAX VAR_CNT]
-    if ~isfield(S,varName)
-        error("%s に変数 %s がありません。",MAT_FILE,varName);
+for methodName = ["localMax","centroid"]
+    if ~isfield(result,methodName) || isempty(result.(methodName).audio)
+        error("fig5:noAudio", ...
+            "%s に %s の音声が入っていません。", matPath, methodName);
     end
 end
 
-audioCell = {S.(VAR_MAX), S.(VAR_CNT)};
-figNames = ["fig5-1_spectrogramLocalMax", "fig5-2_spectrogramCentroid"];
-figWidths = [FIG_W_MAX, FIG_W_CNT];
-showColorbar = [false, true];
+% 左が局所的最大値法、右が重心法
+audioCell = {result.localMax.audio, result.centroid.audio};
 
 %% 描画
 % カラーバーはTightInsetに含まれないので、tiledlayoutのPadding="tight"に
-% 余白を任せる（カラーバーをレイアウトに置くと、そのぶんの余白が確保される）
+% 余白を任せる（カラーバーをレイアウトのタイルに置くと、そのぶんの余白が確保される）
+fig = createFigure([0 0 FIG_W FIG_H]);
+% TileSpacingを"tight"にすると2枚が密着して1枚の画像に見えるので"compact"にする
+t = tiledlayout(fig,1,2,"TileSpacing","compact","Padding","tight");
+
+axList = gobjects(1,numel(audioCell));
+
 for k = 1:numel(audioCell)
-    fig = createFigure([0 0 figWidths(k) FIG_H]);
-    t = tiledlayout(fig,1,1,"TileSpacing","tight","Padding","tight");
-    ax = nexttile(t);
+    ax = nexttile(t); % spectrogramPlotはgcaに描くのでnexttileを先に呼ぶ
 
     % 原稿ではキャプションを付けるので図中のタイトルは出さない
-    audioCell{k}.spectrogramPlot(WIN_SIZE, ...
-        ShowTitle=false,ShowColorbar=showColorbar(k));
+    % カラーバーは2枚共通のものを後からレイアウトに付ける
+    audioCell{k}.spectrogramPlot(WIN_SIZE,ShowTitle=false,ShowColorbar=false);
 
+    % 右端はデータのあるところまでに詰める。左端は0のままにしないと
+    % xticksの0が範囲外になって表示されない（窓長1024なら空白は0.012s）
+    tData = findobj(ax,"Type","surface").XData;
+    xlim(ax,[0 max(tData(:))]);
     ylim(ax,F_VIEW); clim(ax,C_VIEW);
 
-    % 38mm幅では"Frequency [Hz]"と10^3の指数表示が場所を取るのでkHz表記にする
-    ax.YAxis.Exponent = 0;
-    yticks(ax,0:1e3:F_VIEW(2));
-    yticklabels(ax,string((0:1e3:F_VIEW(2))/1e3));
-    xlabel(ax,"$t$ [s]"); ylabel(ax,"$f$ [kHz]");
+    % yticklabelsを明示すると"x10^3"が出なくなるので、目盛りの位置だけ指定して
+    % ラベルはExponent=3による自動整形に任せる
+    ax.YAxis.Exponent = 3;
+    yticks(ax,F_VIEW(1):1e3:F_VIEW(2));
+    xticks(ax,0:T_STEP:max(xlim(ax)));
+    ax.TickLabelInterpreter = "latex";
+    box(ax,"on"); % 2枚の境目が分かるように枠を付ける
 
-    if showColorbar(k)
-        c = ax.Colorbar;
-        c.Layout.Tile = "east";
-        c.Label.String = ""; % 縦に長いラベルは入らないのでキャプションで説明する
-        c.Ticks = C_VIEW(1):60:C_VIEW(2);
-        c.FontSize = FONT_TICK;
-    end
+    % 軸ラベルはtiledlayoutで2枚共通にするので、個別のものは消す
+    xlabel(ax,""); ylabel(ax,"");
 
-    % フォントサイズ（原稿に等倍で貼る前提）
     ax.FontSize = FONT_TICK;
-    ax.LabelFontSizeMultiplier = 1; % 既定の1.1倍を無効にして明示指定を効かせる
-    ax.XLabel.FontSize = FONT_LABEL;
-    ax.YLabel.FontSize = FONT_LABEL;
-
-    % スペクトログラムはベクタにすると重いのでpdfもラスタで書き出す
-    savePaperFigure(fig,saveDir,figNames(k),figWidths(k),FIG_H, ...
-        ContentType="image");
+    axList(k) = ax;
 end
+
+% 2枚共通の軸ラベル
+% tiledlayoutのラベルはsetDefaultIntrprの既定が効かないのでInterpreterを明示する
+t.XLabel.String = "Time [s]";
+t.YLabel.String = "Frequency [Hz]";
+t.XLabel.Interpreter = "latex";
+t.YLabel.Interpreter = "latex";
+t.XLabel.FontSize = FONT_LABEL;
+t.YLabel.FontSize = FONT_LABEL;
+
+% 2枚共通のカラーバー。figureの右端に置く
+c = colorbar(axList(end));
+c.Layout.Tile = "east";
+c.Ticks = C_VIEW(1):C_STEP:C_VIEW(2);
+c.FontSize = FONT_TICK;
+c.TickLabelInterpreter = "latex";
+
+c.Label.String = "Magnitude [dB]";
+c.Label.Interpreter = "latex";
+c.Label.FontSize = FONT_LABEL;
+
+%% 保存
+% スペクトログラムはベクタにすると重いのでpdfもラスタで書き出す
+savePaperFigure(fig,saveDir,figName,FIG_W,FIG_H,ContentType="image");
