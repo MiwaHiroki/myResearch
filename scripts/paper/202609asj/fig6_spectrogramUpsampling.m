@@ -1,5 +1,5 @@
 % fig6_spectrogramUpsampling.m
-% 音響学会2026年9月 原稿用のFigure 6（1段幅=79mm）
+% 音響学会2026年9月 原稿用のFigure 6?（1段幅=79mm）
 % 従来法と、rsmplD(1次元リサンプル)・intpD(2次元補間)から重心法で作成した音声の
 % スペクトログラムを、tiledlayoutで横に3枚並べて1つのfigureにする
 % 左から 従来法 / rsmplD / intpD
@@ -12,7 +12,14 @@
 % rsmplD/intpDの音声はsaveCycleResultで保存した1周分の結果.matから読み込む
 % fig5はorigDの1ファイルから2手法を読むが、こちらは条件ごとに別ファイルなので
 % 2つの.matを読む
+
 % 従来法は1周分の結果.matが無くAudioDataだけなので、別の.matから読み込む
+% =======================================
+% ユーザーによる追記: 従来法の結果は，cycleResultのフォーマットで記録された
+% result (1x1 struct)である。
+% S = load(CONV_MAT);としたとき，AudioDataはS.result.localMax.audioに記録されている。
+% =======================================
+
 
 setDefaultIntrpr();
 
@@ -32,7 +39,7 @@ METHOD = "centroid";              % 溝底抽出の手法は固定して高解�
 CONV_DATE = "0802";
 % 従来法の音声。AudioDataを1つ入れた.matを想定している
 % =======================================
-% ユーザーによる追記: 実際は，cycleResultのフォーマットで記録された
+% ユーザーによる追記: 従来法の結果は，cycleResultのフォーマットで記録された
 % result (1x1 struct)である。
 % S = load(CONV_MAT);としたとき，AudioDataはS.result.localMax.audioに記録されている。
 % =======================================
