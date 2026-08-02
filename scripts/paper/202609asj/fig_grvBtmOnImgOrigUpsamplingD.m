@@ -34,7 +34,8 @@ P_RSMPL = 8; Q_RSMPL = 1;
 
 % 図のサイズ[cm]とフォントサイズ[pt]（原稿は10pt二段組、1段幅=79mm）
 % FIG_W = 8.01; FIG_H = 8.96; % 正方形の画像1枚のときの設定
-FIG_W = 8.01; FIG_H = 6;
+% FIG_W = 8.01; FIG_H = 6; % めいっぱい一段使うときの設定
+FIG_W = 6; FIG_H = 4.5;
 FONT_TICK = 8; FONT_LABEL = 9;
 
 
@@ -177,6 +178,6 @@ end
 
 
 %% 保存
-savePaperFigure(fig,saveDir,figName,FIG_W,FIG_H);
+savePaperFigure(fig,saveDir,figName+"_W6",FIG_W,FIG_H);
 % savePaperFigure(fig,saveDir,figName+"_30x30",FIG_W,FIG_H);
 % savePaperFigure(fig,saveDir,figName+"_2_30x30",FIG_W,FIG_H);
