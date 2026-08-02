@@ -9,8 +9,8 @@
 % rsmplD/intpDの音声はsaveCycleResultで保存した1周分の結果.matから読み込む
 % 従来法は1周分の結果.matが無くAudioDataだけなので、別の.matから読み込む
 % =======================================
-% ユーザーによる追記: 従来法の結果は，cycleResultのフォーマットで記録された
-% result (1x1 struct)である。
+% ユーザーによる追記: 従来法の結果は，saveCycleResultによって保存された
+% 1x1 structである。
 % S = load(CONV_MAT);としたとき，AudioDataはS.result.localMax.audioに記録されている。
 % =======================================
 
@@ -32,11 +32,7 @@ METHOD = "centroid";              % 溝底抽出の手法は固定して高解�
 
 CONV_DATE = "0802";
 % 従来法の音声。AudioDataを1つ入れた.matを想定している
-% =======================================
-% ユーザーによる追記: 従来法の結果は，cycleResultのフォーマットで記録された
-% result (1x1 struct)である。
-% S = load(CONV_MAT);としたとき，AudioDataはS.result.localMax.audioに記録されている。
-% =======================================
+% ユーザーによる追記: 従来法の音声についてはスクリプト冒頭を参照のこと
 CONV_MAT = fullfile(proj.RootFolder,"experiments",CONV_DATE, ...
     "cycleResult_origD_"+CONV_DATE+".mat");
 CONV_VAR = "audio"; % .mat内のAudioDataの変数名, ただしS.result.localMaxのフィールド
