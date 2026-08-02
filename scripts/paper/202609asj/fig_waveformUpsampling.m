@@ -39,10 +39,6 @@ CONV_VAR = "audio"; % .mat内のAudioDataの変数名, ただしS.result.localMa
 CONV_VAR_YCOORDS = "ycoords";
 CONV_NAME = "conventional"; % 表示・ログ用の名前
 
-% intpDはx方向も補間するのでfsがrsmplDの8倍になる。窓長をサンプル数で揃えると
-% 窓が覆う時間と周波数分解能がずれるので、fsに比例させて時間長を揃える
-WIN_SIZE_REF = 1024; % 一番左の図のfsに対する窓長[サンプル]
-
 Y_VIEW = [-1 1]; % 表示するAmplitudeの範囲
 T_STEP = 0.2;      % 時間軸の目盛り間隔[s]
 
@@ -135,7 +131,7 @@ end
 % 3枚共通の軸ラベル
 % tiledlayoutのラベルはsetDefaultIntrprの既定が効かないのでInterpreterを明示する
 t.XLabel.String = "Time [s]";
-t.YLabel.String = "Amplitude [Hz]";
+t.YLabel.String = "Amplitude";
 t.XLabel.Interpreter = "latex";
 t.YLabel.Interpreter = "latex";
 t.XLabel.FontSize = FONT_LABEL;
