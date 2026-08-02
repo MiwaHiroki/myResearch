@@ -31,10 +31,15 @@ METHOD = "centroid";              % 溝底抽出の手法は固定して高解�
 
 CONV_DATE = "0802";
 % 従来法の音声。AudioDataを1つ入れた.matを想定している
-% 実際の保存先・変数名に合わせて書き換える
+% =======================================
+% ユーザーによる追記: 実際は，cycleResultのフォーマットで記録された
+% result (1x1 struct)である。
+% S = load(CONV_MAT);としたとき，AudioDataはS.result.localMax.audioに記録されている。
+% =======================================
 CONV_MAT = fullfile(proj.RootFolder,"experiments",CONV_DATE, ...
     "cycleResult_origD_"+CONV_DATE+".mat");
-CONV_VAR = "localmax.audio"; % .mat内のAudioDataの変数名
+CONV_VAR = "audio"; % .mat内のAudioDataの変数名, ただしS.result.localMaxのフィールド
+CONV_VAR_YCOORDS = "ycoords";
 CONV_NAME = "conventional"; % 表示・ログ用の名前
 
 % intpDはx方向も補間するのでfsがrsmplDの8倍になる。窓長をサンプル数で揃えると
@@ -64,17 +69,20 @@ if ~isfile(CONV_MAT)
         CONV_MAT, CONV_VAR);
 end
 
-S = load(CONV_MAT);
-if ~isfield(S.result.(CONV_VAR))
+% S = load(CONV_MAT);
+if ~isfield(S.result.localMax,(CONV_VAR_YCOORDS))
     error("fig6:noConventionalVar", ...
         "%s に変数 %s がありません。", CONV_MAT, CONV_VAR);
 end
-if ~isa(S.(CONV_VAR),"AudioData")
+if ~isa(S.result.localMax.(CONV_VAR),"AudioData")
     error("fig6:notAudioData", ...
         "%s の %s はAudioDataではありません（%s）。", ...
         CONV_MAT, CONV_VAR, class(S.(CONV_VAR)));
 end
-audioCell{1} = S.(CONV_VAR);
+audioCell{1} = S.result.localMax.(CONV_VAR);
+
+% メモリが確保しきれないとき
+% clear S;
 
 % rsmplD, intpD
 for k = 1:numel(UPSAMPLINGS)
