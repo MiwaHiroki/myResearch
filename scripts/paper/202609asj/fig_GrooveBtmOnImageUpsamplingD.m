@@ -4,6 +4,11 @@
 % から得た溝底点を重ねて比較する
 % すべて重心法を使う
 
+% =====================メモ=====================
+% 2通りまでの結果しか表示しないならPIXELS=30とすればよい
+% 3通り以上の結果を表示する場合，PIXELS=10とした方がいい
+% 別スクリプトでfigureを作る-->fig_grvBtmOnImgOrigUpsamplingD.mへ
+
 setDefaultIntrpr();
 
 proj = currentProject();
@@ -19,7 +24,12 @@ PIXELS = 30;    % 切り出す画像の一辺
 Y_OFFSET = 136;  % 切り出し開始位置（行=y）
 X_OFFSET = 111; % 切り出し開始位置（列=x）
 
-D_TH = 0.6; % 暗度の閾値
+% PIXELS = 10;    % 切り出す画像の一辺
+% Y_OFFSET = 146;  % 切り出し開始位置（行=y）
+% X_OFFSET = 111; % 切り出し開始位置（列=x）
+
+
+D_TH = 0.61; % 暗度の閾値
 % W_TH = 8;   % 溝底とみなす区間幅の上限[px] なぜかこっちだとうまくいかない
 W_TH = 5;   % 溝底とみなす区間幅の上限[px]
 
@@ -52,27 +62,37 @@ rsmplD = rsmplD.setDiffTF(D_TH);
 intpD = dInterp(origD, QUERY_STEP, INTERP_METHOD);
 intpD = intpD.setDiffTF(D_TH);
 
-pts_cnt_orig = GrooveCandidates(origD); % 重心法
+pts_max_orig = GrooveCandidates(origD); % 局所的最大値法
+pts_max_rsmpl = GrooveCandidates(origD); % 局所的最大値法
+
+% 重心法
+pts_cnt_orig = GrooveCandidates(origD);
 pts_cnt_rsmpl = GrooveCandidates(rsmplD);
 pts_cnt_intp = GrooveCandidates(intpD);
 
 for x = 1:imgData.width
     [startIdx,endIdx] = getStartEndIdx(origD,x);
     [origD,~,~,pksNum] = getGrooveBtmIdx(origD,x,startIdx,endIdx,W_TH);
+    pts_max_orig.pksCell{x} = [x*ones(pksNum,1), origD.extractGrv_max(x)];
     pts_cnt_orig.pksCell{x} = [x*ones(pksNum,1), origD.extractGrv_cnt(x)];
 
     [startIdx,endIdx] = getStartEndIdx(rsmplD,x);
     [rsmplD,~,~,pksNum] = getGrooveBtmIdx(rsmplD,x,startIdx,endIdx,W_TH);
+    pts_max_rsmpl.pksCell{x} = [x*ones(pksNum,1), rsmplD.extractGrv_max(x)];
     pts_cnt_rsmpl.pksCell{x} = [x*ones(pksNum,1), rsmplD.extractGrv_cnt(x)];
-    
+
     [startIdx,endIdx] = getStartEndIdx(intpD,x);
     [intpD,sIdxBtm,eIdxBtm,pksNum] = getGrooveBtmIdx(intpD,x,startIdx,endIdx,W_TH);
     pts_cnt_intp.pksCell{x} = [x*ones(pksNum,1), intpD.extractGrv_cnt(x)];
 
 end
 
-pkDots_orig = vertcat(pts_cnt_orig.pksCell{:});
-pkDots_rsmpl = vertcat(pts_cnt_rsmpl.pksCell{:});
+pkDots_max_orig = vertcat(pts_max_orig.pksCell{:});
+pkDots_cnt_orig = vertcat(pts_cnt_orig.pksCell{:});
+
+pkDots_max_rsmpl = vertcat(pts_max_rsmpl.pksCell{:});
+pkDots_cnt_rsmpl = vertcat(pts_cnt_rsmpl.pksCell{:});
+
 pkDots_intp = vertcat(pts_cnt_intp.pksCell{:});
 
 %% 描画
@@ -87,11 +107,20 @@ imagesc(ax,imgData.img);
 colormap(ax,gray); clim(ax,[0 255]);
 axis(ax,"image");
 hold(ax,"on");
-% scatter(pkDots_max(:,1),pkDots_max(:,2),5,"cyan","filled","o","MarkerFaceAlpha",0.5);
-% scatter(pkDots_cnt(:,1),pkDots_cnt(:,2),5,"magenta","filled","o","MarkerFaceAlpha",0.5);
-pts_cnt_orig.showCandidates("magenta",MARKER_SIZE);
-pts_cnt_rsmpl.showCandidates("cyan",MARKER_SIZE);
-% pts_cnt_intp.showCandidates("cyan",MARKER_SIZE);
+
+% パターン1: orig(max), orig(cnt), rsmpl(cnt)
+scatter(pkDots_max_orig(:,1),pkDots_max_orig(:,2),MARKER_SIZE,"magenta",Marker="*")
+scatter(pkDots_cnt_orig(:,1),pkDots_cnt_orig(:,2),MARKER_SIZE,"yellow",Marker="*");
+% scatter(pkDots_max_rsmpl(:,1),pkDots_max_rsmpl(:,2),MARKER_SIZE,"green",Marker="*");
+scatter(pkDots_cnt_rsmpl(:,1),pkDots_cnt_rsmpl(:,2),MARKER_SIZE,"cyan",Marker="*");
+
+% パターン2: orig(cnt), rsmpl(cnt)
+% pts_cnt_orig.showCandidates("magenta",MARKER_SIZE);
+% pts_cnt_rsmpl.showCandidates("cyan",MARKER_SIZE);
+
+% 使わない
+% pts_cnt_intp.showCandidates("yellow",MARKER_SIZE);
+
 hold(ax,"off");
 
 % xlim(ax,[X_OFFSET,X_OFFSET+PIXELS-1]);
@@ -104,7 +133,9 @@ xlabel(ax,"$x$"); ylabel(ax,"$y$");
 
 % lgd = legend(ax,["local maximum","centroid"],Orientation="horizontal");
 % lgd = legend(ax,["original","resampled","interpolated"]);
-lgd = legend(ax,["original","resampled"]);
+lgd = legend(ax,["original (local max)","original (centroid)","resampled (centroid)"]); % パターン1
+% lgd = legend(ax,["original","resampled"]); % パターン2
+
 % lgd.Layout.Tile = "north";
 lgd.FontSize = FONT_TICK;
 % lgd.ItemTokenSize = [10 10]; % 凡例のマーカー部分を詰める
@@ -117,4 +148,6 @@ ax.XLabel.FontSize = FONT_LABEL;
 ax.YLabel.FontSize = FONT_LABEL;
 
 %% 保存
-savePaperFigure(fig,saveDir,figName,FIG_W,FIG_H);
+% savePaperFigure(fig,saveDir,figName,FIG_W,FIG_H);
+savePaperFigure(fig,saveDir,figName+"_30x30",FIG_W,FIG_H);
+% savePaperFigure(fig,saveDir,figName+"_2_30x30",FIG_W,FIG_H);
