@@ -70,7 +70,7 @@ end
 % カラーバーはTightInsetに含まれないので、tiledlayoutのPadding="tight"に
 % 余白を任せる（カラーバーをレイアウトのタイルに置くと、そのぶんの余白が確保される）
 fig = createFigure([0 0 FIG_W FIG_H]);
-% TileSpacingを"tight"にすると2枚が密着して1枚の画像に見えるので"compact"にする
+% TileSpacingを"tight"にすると2枚が密着して見にくいので"compact"にする
 t = tiledlayout(fig,1,2,"TileSpacing","compact","Padding","tight");
 
 axList = gobjects(1,numel(audioCell));
