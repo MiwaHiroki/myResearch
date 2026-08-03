@@ -1,4 +1,4 @@
-% pkLocalMax_1cycle.m
+% phothshop_localMax_1cycle.m
 % 202609asjにおいて，従来法(2026/03に発表したデータ)との比較が必要。
 % photoshopで8xに高解像度化を行ったデータに対して，局所的最大値法で音声を作成する
 % 
