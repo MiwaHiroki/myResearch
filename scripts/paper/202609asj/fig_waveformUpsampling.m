@@ -9,8 +9,8 @@
 % rsmplD/intpDの音声はsaveCycleResultで保存した1周分の結果.matから読み込む
 % 従来法は1周分の結果.matが無くAudioDataだけなので、別の.matから読み込む
 % =======================================
-% ユーザーによる追記: 従来法の結果は，saveCycleResultによって保存された
-% 1x1 structである。
+% ユーザーによる追記: 従来法の結果は，cycleResultのフォーマットで記録された
+% result (1x1 struct)である。
 % S = load(CONV_MAT);としたとき，AudioDataはS.result.localMax.audioに記録されている。
 % =======================================
 
@@ -35,8 +35,8 @@ CONV_DATE = "0802";
 % ユーザーによる追記: 従来法の音声についてはスクリプト冒頭を参照のこと
 CONV_MAT = fullfile(proj.RootFolder,"experiments",CONV_DATE, ...
     "cycleResult_origD_"+CONV_DATE+".mat");
-CONV_VAR = "audio"; % .mat内のAudioDataの変数名, ただしS.result.localMaxのフィールド
-CONV_VAR_YCOORDS = "ycoords";
+CONV_VAR = "audio"; % .mat内のAudioDataの変数名, ただしS.result.(CONV_METHOD)のフィールド
+CONV_METHOD = "centroid";
 CONV_NAME = "conventional"; % 表示・ログ用の名前
 
 Y_VIEW = [-1 1]; % 表示するAmplitudeの範囲
@@ -61,16 +61,16 @@ if ~isfile(CONV_MAT)
 end
 
 % S = load(CONV_MAT);
-if ~isfield(S.result.localMax,(CONV_VAR_YCOORDS))
+if ~isfield(S.result.(CONV_METHOD),(CONV_VAR_YCOORDS))
     error("fig:noConventionalVar", ...
         "%s に変数 %s がありません。", CONV_MAT, CONV_VAR);
 end
-if ~isa(S.result.localMax.(CONV_VAR),"AudioData")
+if ~isa(S.result.(CONV_METHOD).(CONV_VAR),"AudioData")
     error("fig:notAudioData", ...
         "%s の %s はAudioDataではありません（%s）。", ...
         CONV_MAT, CONV_VAR, class(S.(CONV_VAR)));
 end
-audioCell{1} = S.result.localMax.(CONV_VAR);
+audioCell{1} = S.result.(CONV_METHOD).(CONV_VAR);
 
 % メモリが確保しきれないとき
 % clear S;
@@ -115,7 +115,7 @@ for k = 1:numel(audioCell)
     xlim(ax,[0 max(tData(:))]);
     ylim(ax,Y_VIEW);
 
-    xticks(ax,0:T_STEP:max(xlim(ax)));
+    xticks(ax,0:T_STEP:max(xlim(ax))); % yticksは自動
     ax.TickLabelInterpreter = "latex";
     box(ax,"on"); % 隣どうしの境目が分かるように枠を付ける
 

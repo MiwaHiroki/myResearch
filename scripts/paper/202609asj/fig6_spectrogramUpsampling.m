@@ -46,8 +46,15 @@ CONV_DATE = "0802";
 % =======================================
 % CONV_MAT = fullfile(proj.RootFolder,"experiments",CONV_DATE, ...
 %     "cycleResult_origD_"+CONV_DATE+".mat");
+
+% 2026/08/03追記
+% 従来法に対しても重心法を使用することとした。
+% データはexperiments/0802/cycleResult_origD_0802.matである
+% 局所的最大値法のデータを消してしまった...
+% 意外と結果が変わらない。びっくり
+
 CONV_MAT = fullfile(proj.RootFolder,"experiments",CONV_DATE, ...
-    "cycleResult_origD_"+CONV_DATE+"_2"+".mat");
+    "cycleResult_origD_"+CONV_DATE+".mat");
 CONV_METHOD = "centroid";
 CONV_VAR = "audio"; % .mat内のAudioDataの変数名, ただしS.result.localMaxのフィールド
 CONV_NAME = "conventional"; % 表示・ログ用の名前
@@ -181,3 +188,69 @@ c.Label.FontSize = FONT_LABEL;
 %% 保存
 % スペクトログラムはベクタにすると重いのでpdfもラスタで書き出す
 savePaperFigure(fig,saveDir,figName,FIG_W,FIG_H,ContentType="image");
+
+%% スペクトログラムのylimを20kHzまでにする
+% あまりにも5kHz
+
+fig = createFigure([0 0 FIG_W FIG_H]);
+% TileSpacingを"tight"にすると隣どうしが密着して見にくいので"compact"にする
+t = tiledlayout(fig,1,numel(audioCell),"TileSpacing","compact","Padding","tight");
+
+axList = gobjects(1,numel(audioCell));
+
+for k = 1:numel(audioCell)
+    ax = nexttile(t); % spectrogramPlotはgcaに描くのでnexttileを先に呼ぶ
+    audio = audioCell{k};
+    [s,fidx,tidx] = stft(audio.signal,audio.fs,...
+            "Window",hann(winSizes(k)),"OverlapLength",winSizes(k)/2,'FrequencyRange','onesided');
+    s = s * 2 / size(s,1);
+
+    mesh(tidx,fidx,20*log10(abs(s)));
+    view(0,90);
+    colormap jet;
+    
+    % 右端はデータのあるところまでに詰める。左端は0のままにしないと
+    % xticksの0が範囲外になって表示されない
+    tData = findobj(ax,"Type","surface").XData;
+    xlim(ax,[0 max(tData(:))]);
+    ylim(ax,[0 2e4]); clim(ax,C_VIEW);
+
+    % yticklabelsを明示すると"x10^3"が出なくなるので、目盛りの位置だけ指定して
+    % ラベルはExponent=3による自動整形に任せる
+    ax.YAxis.Exponent = 3;
+    % yticks(ax,F_VIEW(1):1e3:F_VIEW(2));
+    xticks(ax,0:T_STEP:max(xlim(ax)));
+    ax.TickLabelInterpreter = "latex";
+    box(ax,"on"); % 隣どうしの境目が分かるように枠を付ける
+
+    % 軸ラベルはtiledlayoutで3枚共通にするので、個別のものは消す
+    xlabel(ax,""); ylabel(ax,"");
+
+    ax.FontSize = FONT_TICK;
+    axList(k) = ax;
+end
+
+% 3枚共通の軸ラベル
+% tiledlayoutのラベルはsetDefaultIntrprの既定が効かないのでInterpreterを明示する
+t.XLabel.String = "Time [s]";
+t.YLabel.String = "Frequency [Hz]";
+t.XLabel.Interpreter = "latex";
+t.YLabel.Interpreter = "latex";
+t.XLabel.FontSize = FONT_LABEL;
+t.YLabel.FontSize = FONT_LABEL;
+
+% 3枚共通のカラーバー。figureの右端に置く
+c = colorbar(axList(end));
+c.Layout.Tile = "east";
+c.Ticks = C_VIEW(1):C_STEP:C_VIEW(2);
+c.FontSize = FONT_TICK;
+c.TickLabelInterpreter = "latex";
+
+c.Label.String = "Magnitude [dB]";
+c.Label.Interpreter = "latex";
+c.Label.FontSize = FONT_LABEL;
+
+%% 保存
+% スペクトログラムはベクタにすると重いのでpdfもラスタで書き出す
+savePaperFigure(fig,saveDir,figName+"-2kHz",FIG_W,FIG_H,ContentType="image");
+
