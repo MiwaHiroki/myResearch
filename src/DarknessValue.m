@@ -16,7 +16,7 @@ classdef DarknessValue
         nCols (1,1) double % nCols of dMat
     end
 
-    properties (SetAccess=protected)
+    properties %(SetAccess=protected)
         rsmplTF (1,1) logical
         scaleFactor (1,1) struct
         % scaleFactor.row: 溝を横切る方向=縦方向の拡大率, scaleFactor.col: 溝に平行な方向=横方向の拡大率
