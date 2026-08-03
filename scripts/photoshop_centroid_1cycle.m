@@ -62,55 +62,70 @@ for iImg=1:NUM_IMAGES
 
         origD = DarknessValue(origImg);
         origD = origD.setDiffTF(D_THRESH);
+        % origD.scaleFactor.row = 8; origD.scaleFactor.col = 8;
+
         dMat = origD.dMat;
 
         % objects in which groove candidates are recorded.
         pts_cnt = GrooveCandidates(origD);
 
-        % W_MAX = 8*8;
-        % for x=1:origImg.width
-        %     [startIdx, endIdx] = getStartEndIdx(origD, x);
-        %     [origD,~,~,pksNum] = ...
-        %         getGrooveBtmIdx(origD,x,startIdx,endIdx,W_MAX);
-        %     % startIdx_btm, endIdx_btm, pksNumは今後不要になる予定
-        % 
-        %     max_x = origD.extractGrv_max(x);
-        %     pts_max.pksCell{x} = [x*ones(pksNum,1), max_x];
-        % end
+        W_MAX = 65;
+        W_MIN = 8; % 「山」の最小の幅。小さすぎる山は無視する
+        % W_MAX = 8;
+        for x=1:origImg.width
+            [startIdx, endIdx] = getStartEndIdx(origD, x);
+            % [origD,startIdx_btm,endIdx_btm,pksNum] = ...
+            %     getGrooveBtmIdx(origD,x,startIdx,endIdx,W_MAX);
 
-        pksCell = cell(newWidth,1);
-        for k=1:newWidth % 各x座標についてピークを見つけ、pksCellに格納
-            minh = 0.5;maxh = 0.75; % Min & MaxPeakHeight
-            mind = 50; % MinPeakDistance
-            minp = 0.2; % MinPeakProminence
-            th_prd = 10; % threshold of the product
-            % product = peakWidth * peakProminence
+            btmIdx = find(((endIdx-startIdx) < W_MAX*origD.scaleFactor.row) &...
+                (endIdx-startIdx) > W_MIN*origD.scaleFactor.row);
 
-            % [tmpPks,tmpLocs,w,p] = findpeaks(z(:,k),...
-            %     'MinPeakDistance',mind,...
-            %     'MinPeakProminence',minp);
+            startIdx_btm = startIdx(btmIdx);
+            endIdx_btm = endIdx(btmIdx);
 
-            [tmpPks,tmpLocs,w,p] = findpeaks(dMat(:,k),...
-                'MinPeakHeight',minh,...
-                'MinPeakDistance',mind,...
-                'MinPeakWidth',10);
-            % idx=find(tmpPks<maxh);
+            pksNum = length(btmIdx);
 
-            product = w.*p;
-            idx = find(product < th_prd);
+            origD.sIdxC{1,x} = [x*ones(pksNum,1), startIdx_btm];
+            origD.eIdxC{1,x} = [x*ones(pksNum,1), endIdx_btm];
 
-            num = length(idx);
+            cnt_x = origD.extractGrv_cnt(x);
 
-            tmpPksX = k * ones(num,1);
-            tmpPksY = zeros(num,1);
-            tmpPksY(:,1) = tmpLocs(idx);
-
-            pksCell{k,1} = [tmpPksX tmpPksY];
-
+            pts_cnt.pksCell{x} = [x*ones(pksNum,1), cnt_x];
         end
 
-        % pkDots_max = vertcat(pts_max.pksCell{:});
-        pkDots_cnt = vertcat(pksCell{:});
+        % pksCell = cell(newWidth,1);
+        % for k=1:newWidth % 各x座標についてピークを見つけ、pksCellに格納
+        %     minh = 0.5;maxh = 0.75; % Min & MaxPeakHeight
+        %     mind = 50; % MinPeakDistance
+        %     minp = 0.2; % MinPeakProminence
+        %     th_prd = 10; % threshold of the product
+        %     % product = peakWidth * peakProminence
+        % 
+        %     % [tmpPks,tmpLocs,w,p] = findpeaks(z(:,k),...
+        %     %     'MinPeakDistance',mind,...
+        %     %     'MinPeakProminence',minp);
+        % 
+        %     [tmpPks,tmpLocs,w,p] = findpeaks(dMat(:,k),...
+        %         'MinPeakHeight',minh,...
+        %         'MinPeakDistance',mind,...
+        %         'MinPeakWidth',10);
+        %     % idx=find(tmpPks<maxh);
+        % 
+        %     product = w.*p;
+        %     idx = find(product < th_prd);
+        % 
+        %     num = length(idx);
+        % 
+        %     tmpPksX = k * ones(num,1);
+        %     tmpPksY = zeros(num,1);
+        %     tmpPksY(:,1) = tmpLocs(idx);
+        % 
+        %     pksCell{k,1} = [tmpPksX tmpPksY];
+        % 
+        % end
+
+        pkDots_cnt = vertcat(pts_cnt.pksCell{:});
+        % pkDots_cnt = vertcat(pksCell{:});
 
         w_prl = origWidth; % 平行四辺形の高さ
         h_prl = 60; % 平行四辺形の底辺
@@ -218,8 +233,8 @@ cond = cycleConditions(...
     Upsampling="origD",Date=date,SaveDir=dir,ExperimentDir=expDir,...
     BinWidth=binWidth,DThresh=D_THRESH,...
     Filenames=filenames,HPrl=h_prl,LMask=L_MASK,NumImages=NUM_IMAGES,...
-    NumSegments=NUM_SEGMENTS,Tol=tol,ThHist=TH_HIST,WTh=8*8,...
-    ScriptName="photoshop_centroid_1cycle",Note="DID NOT use WTh but findpeaks()");
+    NumSegments=NUM_SEGMENTS,Tol=tol,ThHist=TH_HIST,WTh=W_MAX,...
+    ScriptName="photoshop_centroid_1cycle",Note="used W_MIN="+num2str(W_MIN));
 
 res_cnt = cycleMethodResult("centroid", allPts_cnt_8xD,xcoords,ycoords,y_comb_cnt,origCntAudio);
 
