@@ -32,7 +32,7 @@ expDir = experimentDir(proj.RootFolder,date);       % 実験結果.matの保存�
 
 %%
 allImg(TOTAL_SEGMENTS,1) = ImageData();
-allOrigD(TOTAL_SEGMENTS,1) = DarknessValue();
+allOrigD(TOTAL_SEGMENTS,1) = DarknessMap();
 allPts_max_origD(TOTAL_SEGMENTS,1) = GrooveCandidates();
 allPts_cnt_origD(TOTAL_SEGMENTS,1) = GrooveCandidates();
 
@@ -64,7 +64,7 @@ for iImg=1:NUM_IMAGES
         origHeight = origImg.height;
         
 
-        origD = DarknessValue(origImg);
+        origD = DarknessMap(origImg);
         origD = origD.setDiffTF(D_THRESH);
 
 
@@ -73,19 +73,20 @@ for iImg=1:NUM_IMAGES
         pts_cnt = GrooveCandidates(origD);
         pts_max = GrooveCandidates(origD);
 
-        W_TH = 8;
-        
+        WIDTH_THRESH = 8;
+
+        extractor = GrooveExtractor(origD);
         for x=1:origImg.width
-            [startIdx, endIdx] = getStartEndIdx(origD, x);
-            [origD,~,~,pksNum] = ...
-                getGrooveBtmIdx(origD,x,startIdx,endIdx,W_TH);
-            % startIdx_btm, endIdx_btm, pksNumは今後不要になる予定
+            [firstIdx, lastIdx] = extractor.findThresholdIntervals(origD, x);
+            [extractor,~,~,numPeaks] = ...
+                extractor.findGrooveBottomIntervals(origD,x,firstIdx,lastIdx,WIDTH_THRESH);
+            % btmFirstIdx, btmLastIdx, numPeaksは今後不要になる予定
 
-            cnt_x = origD.extractGrv_cnt(x);
-            max_x = origD.extractGrv_max(x);
+            centroidY = extractor.extractByCentroid(origD,x);
+            maxY = extractor.extractByLocalMax(origD,x);
 
-            pts_cnt.pksCell{x} = [x*ones(pksNum,1), cnt_x];
-            pts_max.pksCell{x} = [x*ones(pksNum,1), max_x];
+            pts_cnt.pksCell{x} = [x*ones(numPeaks,1), centroidY];
+            pts_max.pksCell{x} = [x*ones(numPeaks,1), maxY];
         end
 
         pks_cnt = vertcat(pts_cnt.pksCell{:});
@@ -265,7 +266,7 @@ cond = cycleConditions(...
     Upsampling="origD",Date=date,SaveDir=dir,ExperimentDir=expDir,...
     BinWidth=binWidth,DThresh=D_THRESH,...
     Filenames=filenames_new,HPrl=h_prl,LMask=L_MASK,NumImages=NUM_IMAGES,...
-    NumSegments=NUM_SEGMENTS,Tol=tol,ThHist=TH_HIST,WTh=W_TH,...
+    NumSegments=NUM_SEGMENTS,Tol=tol,ThHist=TH_HIST,WTh=WIDTH_THRESH,...
     ScriptName="pkCentroid_1cycle");
 
 res_max = cycleMethodResult("localMax", allPts_max_origD,xcoords,ycoords_max,y_comb_max,origMaxAudio);

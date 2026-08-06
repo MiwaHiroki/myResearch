@@ -40,13 +40,13 @@ MARKER_SIZE = 4;
 FIG_W = 5.3; FIG_H = 4.6;
 FONT_TICK = 8; FONT_LABEL = 9;
 
-%% 画像を読み込み、3条件のDarknessValueを作る
+%% 画像を読み込み、3条件のDarknessMapを作る
 img_gray = rgb2gray(imread(IMG_FILE));
 img_small = img_gray(Y_OFFSET:Y_OFFSET+PIXELS-1, X_OFFSET:X_OFFSET+PIXELS-1);
 
 imgData = ImageData(img_small,[1;1]);
 
-origD = DarknessValue(imgData);
+origD = DarknessMap(imgData);
 rsmplD = dResample(origD,P_RSMPL,Q_RSMPL);
 intpD = dInterp(origD,STEP,INTERP_METHOD);
 

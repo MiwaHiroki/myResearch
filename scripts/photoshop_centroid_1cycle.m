@@ -31,7 +31,7 @@ expDir = experimentDir(proj.RootFolder,date);       % 実験結果.matの保存�
 
 %%
 allImg(TOTAL_SEGMENTS,1) = ImageData();
-allOrigD(TOTAL_SEGMENTS,1) = DarknessValue();
+allOrigD(TOTAL_SEGMENTS,1) = DarknessMap();
 allPts_cnt_8xD(TOTAL_SEGMENTS,1) = GrooveCandidates();
 
 % 1周分のデータのx,y座標
@@ -60,7 +60,7 @@ for iImg=1:NUM_IMAGES
         origHeight = origImg.height;
         
 
-        origD = DarknessValue(origImg);
+        origD = DarknessMap(origImg);
         origD = origD.setDiffTF(D_THRESH);
         % origD.scaleFactor.row = 8; origD.scaleFactor.col = 8;
 
@@ -72,25 +72,28 @@ for iImg=1:NUM_IMAGES
         W_MAX = 65;
         W_MIN = 8; % 「山」の最小の幅。小さすぎる山は無視する
         % W_MAX = 8;
+        extractor = GrooveExtractor(origD);
         for x=1:origImg.width
-            [startIdx, endIdx] = getStartEndIdx(origD, x);
-            % [origD,startIdx_btm,endIdx_btm,pksNum] = ...
-            %     getGrooveBtmIdx(origD,x,startIdx,endIdx,W_MAX);
+            [firstIdx, lastIdx] = extractor.findThresholdIntervals(origD, x);
+            % 標準のfindGrooveBottomIntervals（上限閾値のみ）ではなく、
+            % 上限W_MAXと下限W_MINの両方でフィルタする独自ロジック
+            % [extractor,btmFirstIdx,btmLastIdx,numPeaks] = ...
+            %     extractor.findGrooveBottomIntervals(origD,x,firstIdx,lastIdx,W_MAX);
 
-            btmIdx = find(((endIdx-startIdx) < W_MAX*origD.scaleFactor.row) &...
-                (endIdx-startIdx) > W_MIN*origD.scaleFactor.row);
+            btmIntervalIdx = find(((lastIdx-firstIdx) < W_MAX*origD.scaleFactor.row) &...
+                (lastIdx-firstIdx) > W_MIN*origD.scaleFactor.row);
 
-            startIdx_btm = startIdx(btmIdx);
-            endIdx_btm = endIdx(btmIdx);
+            btmFirstIdx = firstIdx(btmIntervalIdx);
+            btmLastIdx = lastIdx(btmIntervalIdx);
 
-            pksNum = length(btmIdx);
+            numPeaks = length(btmIntervalIdx);
 
-            origD.sIdxC{1,x} = [x*ones(pksNum,1), startIdx_btm];
-            origD.eIdxC{1,x} = [x*ones(pksNum,1), endIdx_btm];
+            extractor.startIdxCells{1,x} = [x*ones(numPeaks,1), btmFirstIdx];
+            extractor.endIdxCells{1,x} = [x*ones(numPeaks,1), btmLastIdx];
 
-            cnt_x = origD.extractGrv_cnt(x);
+            centroidY = extractor.extractByCentroid(origD,x);
 
-            pts_cnt.pksCell{x} = [x*ones(pksNum,1), cnt_x];
+            pts_cnt.pksCell{x} = [x*ones(numPeaks,1), centroidY];
         end
 
         % pksCell = cell(newWidth,1);

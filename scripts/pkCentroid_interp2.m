@@ -56,7 +56,7 @@ xarray = [1:divImgWidth:imgWidth imgWidth+1]';
 [img_omitMask,newWidth] = omitMask(img_gray, L_MASK);
 imgData = ImageData(img_omitMask, [iImg;jSegment]);
 
-dValue = DarknessValue(imgData);
+dValue = DarknessMap(imgData);
 dValue = setDiffTF(dValue, D_THRESH);
 diffTF = dValue.diffTF;
 
@@ -77,20 +77,21 @@ eIdxC = cell(1, imgData.width);
 pts_centroid = GrooveCandidates(dValue);
 pts_localMax = GrooveCandidates(dValue);
 
-W_TH = 5;
-w_TH = W_TH / step;
+WIDTH_THRESH = 5;
+w_TH = WIDTH_THRESH / step;
 
+extractor = GrooveExtractor(dValue);
 for x=1:imgData.width
-    [startIdx, endIdx] = dValue.getStartEndIdx(x);
-    [dValue,startIdx_btm,endIdx_btm,pksNum] = ...
-        dValue.getGrooveBtmIdx(x,startIdx,endIdx,W_TH);
-    % startIdx_btm, endIdx_btm, pksNumは今後不要になる予定
+    [firstIdx, lastIdx] = extractor.findThresholdIntervals(dValue, x);
+    [extractor,btmFirstIdx,btmLastIdx,numPeaks] = ...
+        extractor.findGrooveBottomIntervals(dValue,x,firstIdx,lastIdx,WIDTH_THRESH);
+    % btmFirstIdx, btmLastIdx, numPeaksは今後不要になる予定
 
-    cnt_x = dValue.extractGrv_cnt(x);
-    max_x = dValue.extractGrv_max(x);
+    centroidY = extractor.extractByCentroid(dValue,x);
+    maxY = extractor.extractByLocalMax(dValue,x);
 
-    pts_centroid.pksCell{x} = [x*ones(pksNum,1), cnt_x];
-    pts_localMax.pksCell{x} = [x*ones(pksNum,1), max_x];
+    pts_centroid.pksCell{x} = [x*ones(numPeaks,1), centroidY];
+    pts_localMax.pksCell{x} = [x*ones(numPeaks,1), maxY];
 end
 
 sIdxs = vertcat(sIdxC{:});
@@ -122,7 +123,7 @@ img_small = img_gray(:, xarray(jSegment):xarray(jSegment+1)-1);
 origImg = ImageData(img_omitMask, [iImg;jSegment]);
 origWidth = origImg.width; origHeight = origImg.height;
 
-origD = DarknessValue(origImg);
+origD = DarknessMap(origImg);
 origD = origD.setDiffTF(D_THRESH);
 
 
@@ -173,63 +174,64 @@ pts_cnt_intp = GrooveCandidates(intpD);
 pts_max_intp = GrooveCandidates(intpD);
 
 
-W_TH = 8;
+WIDTH_THRESH = 8;
 
-
-
+origExtractor = GrooveExtractor(origD);
+rsmplExtractor = GrooveExtractor(rsmplD);
 for x=1:origImg.width
-    [startIdx, endIdx] = getStartEndIdx(origD, x);
-    [origD,~,~,pksNum] = ...
-        getGrooveBtmIdx(origD,x,startIdx,endIdx,W_TH);
-    % startIdx_btm, endIdx_btm, pksNumは今後不要になる予定
+    [firstIdx, lastIdx] = origExtractor.findThresholdIntervals(origD, x);
+    [origExtractor,~,~,numPeaks] = ...
+        origExtractor.findGrooveBottomIntervals(origD,x,firstIdx,lastIdx,WIDTH_THRESH);
+    % btmFirstIdx, btmLastIdx, numPeaksは今後不要になる予定
 
-    cnt_x = origD.extractGrv_cnt(x);
-    max_x = origD.extractGrv_max(x);
+    centroidY = origExtractor.extractByCentroid(origD,x);
+    maxY = origExtractor.extractByLocalMax(origD,x);
 
-    pts_cnt.pksCell{x} = [x*ones(pksNum,1), cnt_x];
-    pts_max.pksCell{x} = [x*ones(pksNum,1), max_x];
+    pts_cnt.pksCell{x} = [x*ones(numPeaks,1), centroidY];
+    pts_max.pksCell{x} = [x*ones(numPeaks,1), maxY];
 
-    
-    [startIdx, endIdx] = getStartEndIdx(rsmplD, x);
-    [rsmplD,startIdx_btm,endIdx_btm,pksNum] = ...
-        getGrooveBtmIdx(rsmplD, x, startIdx, endIdx, W_TH);
 
-    cnt_x = rsmplD.extractGrv_cnt(x);
-    max_x = rsmplD.extractGrv_max(x);
+    [firstIdx, lastIdx] = rsmplExtractor.findThresholdIntervals(rsmplD, x);
+    [rsmplExtractor,btmFirstIdx,btmLastIdx,numPeaks] = ...
+        rsmplExtractor.findGrooveBottomIntervals(rsmplD, x, firstIdx, lastIdx, WIDTH_THRESH);
 
-    pts_cnt_r.pksCell{x} = [x*ones(pksNum,1), cnt_x];
-    pts_max_r.pksCell{x} = [x*ones(pksNum,1), max_x];
+    centroidY = rsmplExtractor.extractByCentroid(rsmplD,x);
+    maxY = rsmplExtractor.extractByLocalMax(rsmplD,x);
+
+    pts_cnt_r.pksCell{x} = [x*ones(numPeaks,1), centroidY];
+    pts_max_r.pksCell{x} = [x*ones(numPeaks,1), maxY];
 
 end
 
-sIdxs = vertcat(origD.sIdxC{:});
-eIdxs = vertcat(origD.eIdxC{:});
+sIdxs = vertcat(origExtractor.startIdxCells{:});
+eIdxs = vertcat(origExtractor.endIdxCells{:});
 pks_cnt = vertcat(pts_cnt.pksCell{:});
 pks_max = vertcat(pts_max.pksCell{:});
 
 pks_cnt_r = vertcat(pts_cnt_r.pksCell{:});
 pks_max_r = vertcat(pts_max_r.pksCell{:});
 
+intpExtractor = GrooveExtractor(intpD);
 for x=1:intpD.nCols
-    [startIdx, endIdx] = intpD.getStartEndIdx(x);
-    [intpD, startIdx_btm, endIdx_btm, pksNum] = ...
-        getGrooveBtmIdx(intpD,x,startIdx,endIdx,W_TH);
+    [firstIdx, lastIdx] = intpExtractor.findThresholdIntervals(intpD, x);
+    [intpExtractor, btmFirstIdx, btmLastIdx, numPeaks] = ...
+        intpExtractor.findGrooveBottomIntervals(intpD,x,firstIdx,lastIdx,WIDTH_THRESH);
 
-    cnt_x = intpD.extractGrv_cnt(x);
-    max_x = intpD.extractGrv_max(x);
+    centroidY = intpExtractor.extractByCentroid(intpD,x);
+    maxY = intpExtractor.extractByLocalMax(intpD,x);
 
-    tmpPoints = [x*ones(pksNum,1), cnt_x];
+    tmpPoints = [x*ones(numPeaks,1), centroidY];
     tmpPoints(:,1) = 1+(tmpPoints(:,1) - 1)*step;
     pts_cnt_intp.pksCell{x} = tmpPoints;
 
-    tmpPoints = [x*ones(pksNum,1), max_x];
+    tmpPoints = [x*ones(numPeaks,1), maxY];
     tmpPoints(:,1) = 1+(tmpPoints(:,1) - 1)*step;
     pts_max_intp.pksCell{x} = tmpPoints;
 
 end
 
-sIdxs_intp = vertcat(intpD.sIdxC{:});
-eIdxs_intp = vertcat(intpD.eIdxC{:});
+sIdxs_intp = vertcat(intpExtractor.startIdxCells{:});
+eIdxs_intp = vertcat(intpExtractor.endIdxCells{:});
 pks_cnt_intp = vertcat(pts_cnt_intp.pksCell{:});
 pks_max_intp = vertcat(pts_max_intp.pksCell{:});
 

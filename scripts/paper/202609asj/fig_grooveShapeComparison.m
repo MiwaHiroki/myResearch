@@ -63,10 +63,10 @@ img_small = img_gray(:, xarray(I_SEGMENT):xarray(I_SEGMENT+1)-1);
 img_omitMask = omitMask(img_small,L_MASK);
 imgData = ImageData(img_omitMask,[I_IMG;I_SEGMENT]);
 
-%% 3条件のDarknessValueを作る
+%% 3条件のDarknessMapを作る
 % 高解像度化はimg_small全体に対して行う（表示範囲で切ってから補間すると
 % 端に補間の誤差が出るため）
-origD = DarknessValue(imgData);
+origD = DarknessMap(imgData);
 rsmplD = dResample(origD,P_RSMPL,Q_RSMPL);
 intpD = dInterp(origD,STEP,INTERP_METHOD);
 
@@ -88,16 +88,17 @@ for k = 1:numel(dCell)
 
     y = NaN(numel(colIdx),1);
 
+    extractor = GrooveExtractor(d);
     for i = 1:numel(colIdx)
         x = colIdx(i);
-        [startIdx,endIdx] = getStartEndIdx(d,x);
-        [d,~,~,pksNum] = getGrooveBtmIdx(d,x,startIdx,endIdx,W_TH);
-        if pksNum == 0
+        [firstIdx,lastIdx] = extractor.findThresholdIntervals(d,x);
+        [extractor,~,~,numPeaks] = extractor.findGrooveBottomIntervals(d,x,firstIdx,lastIdx,W_TH);
+        if numPeaks == 0
             continue % この列では溝底が見つからなかった
         end
 
-        % extractGrv_cntは元画像のy座標を返すのでそのまま比較できる
-        cand = d.extractGrv_cnt(x);
+        % extractByCentroidは元画像のy座標を返すのでそのまま比較できる
+        cand = extractor.extractByCentroid(d,x);
         [dist,iNear] = min(abs(cand - Y_GROOVE));
         if dist <= TOL_DISTANCE
             y(i) = cand(iNear);

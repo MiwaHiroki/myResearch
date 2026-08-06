@@ -51,7 +51,7 @@ img_small = img_gray(:, xarray(jSegment):xarray(jSegment+1)-1);
 [img_omitMask,newWidth] = omitMask(img_small, L_MASK);
 origImg = ImageData(img_omitMask, [iImg;jSegment]);
 
-origD = DarknessValue(origImg);
+origD = DarknessMap(origImg);
 origD = origD.setDiffTF(D_THRESH);
 
 p_rsmpl = 8; q_rsmpl = 1;
@@ -70,35 +70,37 @@ pts_max = GrooveCandidates(origD);
 pts_cnt_r = GrooveCandidates(rsmplD);
 pts_max_r = GrooveCandidates(rsmplD);
 
+origExtractor = GrooveExtractor(origD);
+rsmplExtractor = GrooveExtractor(rsmplD);
 for x=1:origImg.width
-    [startIdx, endIdx] = getStartEndIdx(origD, x);
+    [firstIdx, lastIdx] = origExtractor.findThresholdIntervals(origD, x);
 
-    W_TH = 8;
-    [origD,~,~,pksNum] = ...
-        getGrooveBtmIdx(origD,x,startIdx,endIdx,W_TH);
-    % startIdx_btm, endIdx_btm, pksNumは今後不要になる予定
+    WIDTH_THRESH = 8;
+    [origExtractor,~,~,numPeaks] = ...
+        origExtractor.findGrooveBottomIntervals(origD,x,firstIdx,lastIdx,WIDTH_THRESH);
+    % btmFirstIdx, btmLastIdx, numPeaksは今後不要になる予定
 
-    cnt_x = origD.extractGrv_cnt(x);
-    max_x = origD.extractGrv_max(x);
+    centroidY = origExtractor.extractByCentroid(origD,x);
+    maxY = origExtractor.extractByLocalMax(origD,x);
 
-    pts_cnt.pksCell{x} = [x*ones(pksNum,1), cnt_x];
-    pts_max.pksCell{x} = [x*ones(pksNum,1), max_x];
+    pts_cnt.pksCell{x} = [x*ones(numPeaks,1), centroidY];
+    pts_max.pksCell{x} = [x*ones(numPeaks,1), maxY];
 
-    
-    [startIdx, endIdx] = getStartEndIdx(rsmplD, x);
-    [rsmplD,startIdx_btm,endIdx_btm,pksNum] = ...
-        getGrooveBtmIdx(rsmplD, x, startIdx, endIdx, W_TH);
 
-    cnt_x = rsmplD.extractGrv_cnt(x);
-    max_x = rsmplD.extractGrv_max(x);
+    [firstIdx, lastIdx] = rsmplExtractor.findThresholdIntervals(rsmplD, x);
+    [rsmplExtractor,btmFirstIdx,btmLastIdx,numPeaks] = ...
+        rsmplExtractor.findGrooveBottomIntervals(rsmplD, x, firstIdx, lastIdx, WIDTH_THRESH);
 
-    pts_cnt_r.pksCell{x} = [x*ones(pksNum,1), cnt_x];
-    pts_max_r.pksCell{x} = [x*ones(pksNum,1), max_x];
+    centroidY = rsmplExtractor.extractByCentroid(rsmplD,x);
+    maxY = rsmplExtractor.extractByLocalMax(rsmplD,x);
+
+    pts_cnt_r.pksCell{x} = [x*ones(numPeaks,1), centroidY];
+    pts_max_r.pksCell{x} = [x*ones(numPeaks,1), maxY];
 
 end
 
-sIdxs = vertcat(origD.sIdxC{:});
-eIdxs = vertcat(origD.eIdxC{:});
+sIdxs = vertcat(origExtractor.startIdxCells{:});
+eIdxs = vertcat(origExtractor.endIdxCells{:});
 
 
 figure;

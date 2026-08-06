@@ -39,14 +39,15 @@ img_small = img_gray(Y_OFFSET:Y_OFFSET+PIXELS-1, X_OFFSET:X_OFFSET+PIXELS-1);
 
 imgData = ImageData(img_small,[1;1]);
 
-origD = DarknessValue(imgData);
+origD = DarknessMap(imgData);
 origD = origD.setDiffTF(D_TH);
 
 pts = GrooveCandidates(origD);
+extractor = GrooveExtractor(origD);
 for x = 1:imgData.width
-    [startIdx,endIdx] = getStartEndIdx(origD,x);
-    [origD,~,~,pksNum] = getGrooveBtmIdx(origD,x,startIdx,endIdx,W_TH);
-    pts.pksCell{x} = [x*ones(pksNum,1), origD.extractGrv_cnt(x)];
+    [firstIdx,lastIdx] = extractor.findThresholdIntervals(origD,x);
+    [extractor,~,~,numPeaks] = extractor.findGrooveBottomIntervals(origD,x,firstIdx,lastIdx,W_TH);
+    pts.pksCell{x} = [x*ones(numPeaks,1), extractor.extractByCentroid(origD,x)];
 end
 
 ptsXY = vertcat(pts.pksCell{:});

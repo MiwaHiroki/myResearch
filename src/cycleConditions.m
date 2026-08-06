@@ -13,7 +13,7 @@ function cond = cycleConditions(opts)
 %       Filenames=filenames_new, ScriptName="pkCentroid_interp2_1cycle");
 %
 % Upsampling:
-%   "origD"  高解像度化なし（DarknessValue をそのまま使う）
+%   "origD"  高解像度化なし（DarknessMap をそのまま使う）
 %   "rsmplD" dResample による高解像度化。PRsmpl, QRsmpl が必須
 %   "intpD"  dInterp による内挿。QueryStep, InterpMethod が必須
 %

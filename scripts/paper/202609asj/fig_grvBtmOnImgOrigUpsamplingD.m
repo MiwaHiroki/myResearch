@@ -62,7 +62,7 @@ for i=1:2
     imgData = ImageData(img_small,[1;1]);
     imgCell{i} = imgData;
 
-    origD = DarknessValue(imgData);
+    origD = DarknessMap(imgData);
     origD = origD.setDiffTF(D_TH);
     origDCell{i} = origD;
 
@@ -76,15 +76,17 @@ for i=1:2
     pts_cnt_orig = GrooveCandidates(origD);
     pts_cnt_rsmpl = GrooveCandidates(rsmplD);
 
+    origExtractor = GrooveExtractor(origD);
+    rsmplExtractor = GrooveExtractor(rsmplD);
     for x = 1:imgData.width
-        [startIdx,endIdx] = getStartEndIdx(origD,x);
-        [origD,~,~,pksNum] = getGrooveBtmIdx(origD,x,startIdx,endIdx,W_TH);
-        pts_max_orig.pksCell{x} = [x*ones(pksNum,1), origD.extractGrv_max(x)];
-        pts_cnt_orig.pksCell{x} = [x*ones(pksNum,1), origD.extractGrv_cnt(x)];
+        [firstIdx,lastIdx] = origExtractor.findThresholdIntervals(origD,x);
+        [origExtractor,~,~,numPeaks] = origExtractor.findGrooveBottomIntervals(origD,x,firstIdx,lastIdx,W_TH);
+        pts_max_orig.pksCell{x} = [x*ones(numPeaks,1), origExtractor.extractByLocalMax(origD,x)];
+        pts_cnt_orig.pksCell{x} = [x*ones(numPeaks,1), origExtractor.extractByCentroid(origD,x)];
 
-        [startIdx,endIdx] = getStartEndIdx(rsmplD,x);
-        [rsmplD,~,~,pksNum] = getGrooveBtmIdx(rsmplD,x,startIdx,endIdx,W_TH);
-        pts_cnt_rsmpl.pksCell{x} = [x*ones(pksNum,1), rsmplD.extractGrv_cnt(x)];
+        [firstIdx,lastIdx] = rsmplExtractor.findThresholdIntervals(rsmplD,x);
+        [rsmplExtractor,~,~,numPeaks] = rsmplExtractor.findGrooveBottomIntervals(rsmplD,x,firstIdx,lastIdx,W_TH);
+        pts_cnt_rsmpl.pksCell{x} = [x*ones(numPeaks,1), rsmplExtractor.extractByCentroid(rsmplD,x)];
     end
 
     ptsMaxOrigCell{i}  = pts_max_orig;

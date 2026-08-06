@@ -30,11 +30,11 @@ expDir = experimentDir(proj.RootFolder,date);       % 実験結果.matの保存�
 
 %%
 
-% 画像8*l枚分のImageData, DarknessValue, GrooveCandidatesクラスオブジェクト
+% 画像8*l枚分のImageData, DarknessMap, GrooveCandidatesクラスオブジェクト
 % local maximum method, centroid method両方
 % origDからも溝底候補点を求めるが、そこから音声は作っていないので保存しない
 allImg(TOTAL_SEGMENTS,1) = ImageData();
-allRsmplD(TOTAL_SEGMENTS,1) = DarknessValue();
+allRsmplD(TOTAL_SEGMENTS,1) = DarknessMap();
 allPts_max_rsmplD(TOTAL_SEGMENTS,1) = GrooveCandidates();
 allPts_cnt_rsmplD(TOTAL_SEGMENTS,1) = GrooveCandidates();
 
@@ -71,7 +71,7 @@ for iImg=1:NUM_IMAGES
         origHeight = origImg.height;
         
         % z = 1 - double(img_omitMask)/255;
-        origD = DarknessValue(origImg);
+        origD = DarknessMap(origImg);
         origD = origD.setDiffTF(D_THRESH);
 
         P_RSMPL = 8; Q_RSMPL = 1;
@@ -91,20 +91,20 @@ for iImg=1:NUM_IMAGES
         % sIdxC_r = cell(1,newWidth);
         % eIdxC_r = cell(1,newWidth);
         
-        W_TH = 8;
+        WIDTH_THRESH = 8;
 
-
+        rsmplExtractor = GrooveExtractor(rsmplD);
         for x=1:origImg.width
-            [startIdx, endIdx] = getStartEndIdx(rsmplD, x);
-            [rsmplD,~,~,pksNum] = ...
-                getGrooveBtmIdx(rsmplD,x,startIdx,endIdx,W_TH);
-            % startIdx_btm, endIdx_btm, pksNumは今後不要になる予定
+            [firstIdx, lastIdx] = rsmplExtractor.findThresholdIntervals(rsmplD, x);
+            [rsmplExtractor,~,~,numPeaks] = ...
+                rsmplExtractor.findGrooveBottomIntervals(rsmplD,x,firstIdx,lastIdx,WIDTH_THRESH);
+            % btmFirstIdx, btmLastIdx, numPeaksは今後不要になる予定
 
-            cnt_x = rsmplD.extractGrv_cnt(x);
-            max_x = rsmplD.extractGrv_max(x);
+            centroidY = rsmplExtractor.extractByCentroid(rsmplD,x);
+            maxY = rsmplExtractor.extractByLocalMax(rsmplD,x);
 
-            pts_cnt_r.pksCell{x} = [x*ones(pksNum,1), cnt_x];
-            pts_max_r.pksCell{x} = [x*ones(pksNum,1), max_x];
+            pts_cnt_r.pksCell{x} = [x*ones(numPeaks,1), centroidY];
+            pts_max_r.pksCell{x} = [x*ones(numPeaks,1), maxY];
         end
 
 
@@ -320,7 +320,7 @@ rsmplCntAudio.saveAudio(dir);
 cond = cycleConditions( ...
     Upsampling="rsmplD", Date=date, SaveDir=dir, ExperimentDir=expDir, ...
     NumImages=NUM_IMAGES, NumSegments=NUM_SEGMENTS, ...
-    LMask=L_MASK, ThHist=TH_HIST, DThresh=D_THRESH, WTh=W_TH, ...
+    LMask=L_MASK, ThHist=TH_HIST, DThresh=D_THRESH, WTh=WIDTH_THRESH, ...
     Tol=tol, BinWidth=binWidth, HPrl=h_prl, ...
     PRsmpl=P_RSMPL, QRsmpl=Q_RSMPL, ...
     Filenames=filenames_new, ScriptName="pkCentroid_resample_1cycle");

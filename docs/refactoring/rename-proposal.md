@@ -7,6 +7,8 @@ Claude が判断した**優先度の高い順**に並べている（P1 が最優
 
 > 本ドキュメントは提案であり、コードはまだ変更していない。各項目を確認のうえ、採否を判断してほしい。
 
+> **2026-08-04 実施済み**: P1（1-1 `DarknessValue`→`DarknessMap`改名、1-2 `GrooveExtractor`への抽出処理分離）を実施した。分離時のメソッド名は本提案のP1-2/P5の案（`findThresholdIntervals`/`findGrooveBottomIntervals`/`extractByCentroid`/`extractByLocalMax`、`startIdxCells`/`endIdxCells`）を採用している。P2〜P5のうちP1以外（プロパティ名統一・`GrooveCandidates`改名・残りのメソッド名統一）は未着手。詳細はCLAUDE.mdのArchitecture notesを参照。
+
 ---
 
 ## 現状のAPIサマリ（提案の前提）

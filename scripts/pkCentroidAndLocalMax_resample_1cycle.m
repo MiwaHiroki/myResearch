@@ -51,9 +51,9 @@ p2_max = zeros(1,2);
 
 W_TH = 5; % 「山」の幅の最大値（リサンプルする前の画素数）
 
-% 画像8*l枚分のImageData, DarknessValue, GrooveCandidatesクラスオブジェクト
+% 画像8*l枚分のImageData, DarknessMap, GrooveCandidatesクラスオブジェクト
 imgData_full(TOTAL_SEGMENTS,1) = ImageData();
-dValue_full(TOTAL_SEGMENTS,1) = DarknessValue();
+dValue_full(TOTAL_SEGMENTS,1) = DarknessMap();
 pts_centroid_full(TOTAL_SEGMENTS,1) = GrooveCandidates();
 pts_localMax_full(TOTAL_SEGMENTS,1) = GrooveCandidates();
 
@@ -78,7 +78,7 @@ for iImg=1:NUM_IMAGES
         [img_omitMask,~] = omitMask(img_small, L_MASK);
         imgData = ImageData(img_omitMask, [iImg;jSegment]);
 
-        dValue = DarknessValue(imgData);
+        dValue = DarknessMap(imgData);
         dValue = setDiffTF(dValue, D_THRESH);
         diffTF = dValue.diffTF;
 
@@ -314,8 +314,8 @@ p2_max = zeros(1,2);
 p_rsmpl = 8;
 q_rsmpl = 1;
 
-% 画像8*l枚分のImageData, DarknessValue, GrooveCandidates
-dValue_r_full(TOTAL_SEGMENTS,1) = DarknessValue();
+% 画像8*l枚分のImageData, DarknessMap, GrooveCandidates
+dValue_r_full(TOTAL_SEGMENTS,1) = DarknessMap();
 pts_r_centroid_full(TOTAL_SEGMENTS,1) = GrooveCandidates();
 pts_r_localMax_full(TOTAL_SEGMENTS,1) = GrooveCandidates();
 

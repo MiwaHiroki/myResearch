@@ -8,9 +8,9 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 
 1. 盤面画像（8分割撮影の8枚）を読み込み、各画像をさらに横方向に10分割して細長い画像（`img_small`）にする（計80セグメント）。
 2. `omitMask` で左右の無効領域（マスク）を除去する。
-3. `ImageData` → `DarknessValue` を作り、暗さ行列 `dMat = 1 - img/255` を得る。必要に応じて `dResample`（リサンプル）や `dInterp`（interp2内挿）で高解像度化する。
-4. `setDiffTF` でしきい値 `D_THRESH` を超える領域の立ち上がり／立ち下がりを求め、各xで溝底候補の区間（`getStartEndIdx`）と幅の狭い溝底区間（`getGrooveBtmIdx`）を特定する。
-5. `extractGrv_cnt`（重心法）／`extractGrv_max`（局所的最大値法）で溝底のy座標を求め、`GrooveCandidates` に格納する。
+3. `ImageData` → `DarknessMap` を作り、暗さ行列 `dMat = 1 - img/255` を得る。必要に応じて `dResample`（リサンプル）や `dInterp`（interp2内挿）で高解像度化する。
+4. `DarknessMap` の `setDiffTF` でしきい値 `D_THRESH` を超える領域の立ち上がり／立ち下がりを求め、`GrooveExtractor` で各xの溝底候補の区間（`findThresholdIntervals`）と幅の狭い溝底区間（`findGrooveBottomIntervals`）を特定する。
+5. `GrooveExtractor` の `extractByCentroid`（重心法）／`extractByLocalMax`（局所的最大値法）で溝底のy座標を求め、`GrooveCandidates` に格納する。
 6. `fitGroove` で手動指定した平行四辺形内の点群を直線近似し、溝の傾きを補正する。
 7. ヒストグラムのピークから追跡対象の溝1本を選び、その中心付近（`TOL_DISTANCE`／`tol`）の点だけを抽出、欠損を `fillmissing` で補間し、多項式でデトレンドする。
 8. 全セグメントの座標を連結し、回転数78rpmから標本化周波数を計算して `AudioData` を生成、波形・FFT・スペクトログラムを描画・保存し、wavに書き出す。
@@ -33,11 +33,13 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 ### クラス
 
 - **`ImageData`**: 盤面画像（グレースケール行列）と幅・高さ・IDを保持。`showImg` で画像を表示。
-- **`DarknessValue`**: 暗さ行列 `dMat` と溝底抽出処理を担う中心的クラス。
+- **`DarknessMap`**: 暗さ行列 `dMat` の保持・変換・表示を担うクラス。
   - `dResample(p,q)` / `dInterp(step,method)`: 解像度変換（リサンプル／内挿）
-  - `setDiffTF(D_th)`: しきい値超えの立ち上がり・立ち下がりを計算
-  - `getStartEndIdx(x)` / `getGrooveBtmIdx(...)`: 溝底候補区間の特定
-  - `extractGrv_cnt(x)` / `extractGrv_max(x)`: 重心法／局所的最大値法で溝底のy座標を算出
+  - `setDiffTF(D_THRESH)`: しきい値超えの立ち上がり・立ち下がりを計算
+  - `plotD_x(x)`: 列xの暗さ分布をプロット
+- **`GrooveExtractor`**: `DarknessMap` から溝底候補点を抽出するクラス。`dMat`（最大約2GB）を複製しないよう、各メソッドは対象の `DarknessMap` インスタンスを引数として都度受け取る。
+  - `findThresholdIntervals(map,x)` / `findGrooveBottomIntervals(map,x,firstIdx,lastIdx,WIDTH_THRESH)`: 溝底候補区間の特定（区間は `startIdxCells`/`endIdxCells` に保持）
+  - `extractByCentroid(map,x)` / `extractByLocalMax(map,x)`: 重心法／局所的最大値法で溝底のy座標を算出
 - **`GrooveCandidates`**: 検出した溝底候補点（`pksCell`）を保持し、`showCandidates` で散布図表示。
 - **`AudioData`**: 復元音声を保持し、波形（`audioPlot`）・FFT（`FFTPlot`）・スペクトログラム（`spectrogramPlot`）の描画、wav保存（`saveAudio`）、再生（`playAudio`）を行う。
 - **`MediaData`**: メディアデータ用の抽象基底クラス（現状 `AudioData` は継承していない）。
@@ -109,9 +111,9 @@ figure; result.centroid.audio.spectrogramPlot(4096);
 | `meta` | 実行日時・スクリプト名・MATLAB版・gitコミット・ルートフォルダ |
 | `allImg` | (TOTAL_SEGMENTS x 1) `ImageData` |
 | `centroid` / `localMax` | `.pts` (N x 1 `GrooveCandidates`)、`.xcoords`、`.ycoords`（各 N x 1 cell）、`.y_comb`、`.audio` (1x1 `AudioData`) |
-| `dValueFile` | `DarknessValue` を保存した.matのファイル名（未保存なら `""`） |
+| `dValueFile` | `DarknessMap` を保存した.matのファイル名（未保存なら `""`） |
 
-`DarknessValue` の `dMat` は `origD` で約140MB、`rsmplD`(8x) で約1GB、`intpD`(step 0.25) で約2GBになるため、**既定では保存しない**。1セグメント分の `dMat` は `ginput` 無しで作り直せるので、通常は図の作成に不要。必要な場合は別ファイル（`..._dValue.mat`）に分けて保存する。
+`DarknessMap` の `dMat` は `origD` で約140MB、`rsmplD`(8x) で約1GB、`intpD`(step 0.25) で約2GBになるため、**既定では保存しない**。1セグメント分の `dMat` は `ginput` 無しで作り直せるので、通常は図の作成に不要。必要な場合は別ファイル（`..._dValue.mat`）に分けて保存する。
 
 ```matlab
 [matPath, dPath] = saveCycleResult(cond, allImg, res_cnt, ...

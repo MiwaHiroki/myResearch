@@ -21,7 +21,7 @@ classdef GrooveCandidatesTest < matlab.unittest.TestCase
             dMat = repmat(dcol, 1, 3);     % 6x3
             img  = 255 * (1 - dMat);
             imgData = ImageData(img, [3; 4]);
-            testCase.dValue = DarknessValue(imgData);
+            testCase.dValue = DarknessMap(imgData);
         end
 
         function openHiddenFigure(testCase)
@@ -31,7 +31,7 @@ classdef GrooveCandidatesTest < matlab.unittest.TestCase
     end
 
     methods (Test)
-        function testConstructorCopiesMetaFromDarknessValue(testCase)
+        function testConstructorCopiesMetaFromDarknessMap(testCase)
             gc = GrooveCandidates(testCase.dValue);
             testCase.verifyEqual(gc.imgID, [3; 4]);
             testCase.verifyEqual(gc.width, 3);

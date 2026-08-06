@@ -7,7 +7,7 @@ date = "0725";
 mkdirFromDate(proj.RootFolder,date);
 dir = "results/"+date+"/";
 
-%% 画像を読み込み、DarknessValueオブジェクトをセットアップする
+%% 画像を読み込み、DarknessMapオブジェクトをセットアップする
 img = imread("DSC1111-00001-ori.png");
 img_gray = rgb2gray(img);
 
@@ -21,7 +21,7 @@ imgData = ImageData(img_small,[1,1]);
 
 D_THRESH = 0.6;
 
-origD = DarknessValue(imgData);
+origD = DarknessMap(imgData);
 origD = origD.setDiffTF(D_THRESH);
 origdMat = origD.dMat;
 

@@ -31,7 +31,7 @@ expDir = experimentDir(proj.RootFolder,date);       % 実験結果.matの保存�
 
 %%
 allImg(TOTAL_SEGMENTS,1) = ImageData();
-allOrigD(TOTAL_SEGMENTS,1) = DarknessValue();
+allOrigD(TOTAL_SEGMENTS,1) = DarknessMap();
 allPts_max_8xD(TOTAL_SEGMENTS,1) = GrooveCandidates();
 
 % 1周分のデータのx,y座標
@@ -60,7 +60,7 @@ for iImg=1:NUM_IMAGES
         origHeight = origImg.height;
         
 
-        origD = DarknessValue(origImg);
+        origD = DarknessMap(origImg);
         origD = origD.setDiffTF(D_THRESH);
         dMat = origD.dMat;
 

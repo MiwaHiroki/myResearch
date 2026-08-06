@@ -11,7 +11,7 @@ function result = loadCycleResult(matPath, opts)
 %
 %   figure; result.centroid.audio.spectrogramPlot(4096);
 %
-%   % DarknessValue（別ファイルに保存した dMat）も要るとき
+%   % DarknessMap（別ファイルに保存した dMat）も要るとき
 %   result = loadCycleResult(matPath, LoadDarknessValues=true);
 %   figure; result.allD(1).plotD_x(100);
 %
@@ -54,7 +54,7 @@ function result = loadCycleResult(matPath, opts)
 
     if ~isfield(result, "dValueFile") || result.dValueFile == ""
         error("loadCycleResult:noDarknessValues", ...
-            "%s には DarknessValue が保存されていません。\n" + ...
+            "%s には DarknessMap が保存されていません。\n" + ...
             "保存するには saveCycleResult に SaveDarknessValues=true を指定してください。", ...
             matPath);
     end
@@ -62,7 +62,7 @@ function result = loadCycleResult(matPath, opts)
     dValuePath = fullfile(fileparts(matPath), result.dValueFile);
     if ~isfile(dValuePath)
         error("loadCycleResult:dValueFileNotFound", ...
-            "DarknessValue のファイルが見つかりません: %s", dValuePath);
+            "DarknessMap のファイルが見つかりません: %s", dValuePath);
     end
 
     loadedD = load(dValuePath, "allD");

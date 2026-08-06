@@ -38,18 +38,18 @@ img_small = img_gray(Y_OFFSET:Y_OFFSET+PIXELS-1, X_OFFSET:X_OFFSET+PIXELS-1);
 
 imgData = ImageData(img_small,[1;1]);
 
-origD = DarknessValue(imgData);
+origD = DarknessMap(imgData);
 origD = origD.setDiffTF(D_TH);
 
 pts_max = GrooveCandidates(origD); % 局所的最大値法
 pts_cnt = GrooveCandidates(origD); % 重心法
 
-
+extractor = GrooveExtractor(origD);
 for x = 1:imgData.width
-    [startIdx,endIdx] = getStartEndIdx(origD,x);
-    [origD,sIdxBtm,eIdxBtm,pksNum] = getGrooveBtmIdx(origD,x,startIdx,endIdx,W_TH);
-    pts_max.pksCell{x} = [x*ones(pksNum,1), origD.extractGrv_max(x)];
-    pts_cnt.pksCell{x} = [x*ones(pksNum,1), origD.extractGrv_cnt(x)];
+    [firstIdx,lastIdx] = extractor.findThresholdIntervals(origD,x);
+    [extractor,btmFirstIdx,btmLastIdx,numPeaks] = extractor.findGrooveBottomIntervals(origD,x,firstIdx,lastIdx,W_TH);
+    pts_max.pksCell{x} = [x*ones(numPeaks,1), extractor.extractByLocalMax(origD,x)];
+    pts_cnt.pksCell{x} = [x*ones(numPeaks,1), extractor.extractByCentroid(origD,x)];
 end
 
 pkDots_max = vertcat(pts_max.pksCell{:});

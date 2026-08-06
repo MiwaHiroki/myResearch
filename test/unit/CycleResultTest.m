@@ -43,7 +43,7 @@ classdef CycleResultTest < matlab.unittest.TestCase
             n = testCase.N_SEG;
 
             imgArr(n,1) = ImageData();
-            dArr(n,1)   = DarknessValue();
+            dArr(n,1)   = DarknessMap();
             ptsCnt(n,1) = GrooveCandidates();
             ptsMax(n,1) = GrooveCandidates();
             xcoords = cell(n,1);
@@ -56,14 +56,15 @@ classdef CycleResultTest < matlab.unittest.TestCase
                 img = repmat(col, 1, testCase.IMG_W);
 
                 imgData = ImageData(img, [1; k]);
-                dValue  = setDiffTF(DarknessValue(imgData), 0.6);
+                dValue  = setDiffTF(DarknessMap(imgData), 0.6);
 
                 pts = GrooveCandidates(dValue);
+                extractor = GrooveExtractor(dValue);
                 for x = 1:imgData.width
-                    [startIdx, endIdx] = dValue.getStartEndIdx(x);
-                    [dValue, ~, ~, pksNum] = ...
-                        getGrooveBtmIdx(dValue, x, startIdx, endIdx, 8);
-                    pts.pksCell{x} = [x*ones(pksNum,1), dValue.extractGrv_cnt(x)];
+                    [firstIdx, lastIdx] = extractor.findThresholdIntervals(dValue, x);
+                    [extractor, ~, ~, numPeaks] = ...
+                        extractor.findGrooveBottomIntervals(dValue, x, firstIdx, lastIdx, 8);
+                    pts.pksCell{x} = [x*ones(numPeaks,1), extractor.extractByCentroid(dValue, x)];
                 end
 
                 imgArr(k) = imgData;
@@ -197,7 +198,7 @@ classdef CycleResultTest < matlab.unittest.TestCase
             testCase.verifyNumElements(result.centroid.xcoords, testCase.N_SEG);
             testCase.verifyNumElements(result.centroid.ycoords, testCase.N_SEG);
 
-            % 既定では DarknessValue を保存しない
+            % 既定では DarknessMap を保存しない
             testCase.verifyEqual(result.dValueFile, "");
         end
 
@@ -223,7 +224,7 @@ classdef CycleResultTest < matlab.unittest.TestCase
                 "cycleResult_intpD_" + testCase.DATE + "_dValue.mat");
 
             result = loadCycleResult(matPath, LoadDarknessValues=true);
-            testCase.verifyClass(result.allD, "DarknessValue");
+            testCase.verifyClass(result.allD, "DarknessMap");
             testCase.verifyNumElements(result.allD, testCase.N_SEG);
             testCase.verifyEqual(result.allD(1).dMat, testCase.allD(1).dMat, ...
                 "AbsTol", 1e-12);

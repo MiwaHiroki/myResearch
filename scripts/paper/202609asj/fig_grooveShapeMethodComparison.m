@@ -61,7 +61,7 @@ imgData = ImageData(img_omitMask,[I_IMG;I_SEGMENT]);
 
 %% 溝1本の形状を2つの手法で抽出する
 % 高解像度化はしないのでorigDだけを使う
-origD = DarknessValue(imgData);
+origD = DarknessMap(imgData);
 lgdNames = ["local maximum","centroid"];
 
 d = setDiffTF(origD,D_TH);
@@ -74,16 +74,17 @@ colIdx = find(xCoord >= X_VIEW(1) & xCoord <= X_VIEW(2));
 % 1回のループでまとめて計算する
 y = NaN(numel(colIdx),numel(lgdNames));
 
+extractor = GrooveExtractor(d);
 for i = 1:numel(colIdx)
     x = colIdx(i);
-    [startIdx,endIdx] = getStartEndIdx(d,x);
-    [d,~,~,pksNum] = getGrooveBtmIdx(d,x,startIdx,endIdx,W_TH);
-    if pksNum == 0
+    [firstIdx,lastIdx] = extractor.findThresholdIntervals(d,x);
+    [extractor,~,~,numPeaks] = extractor.findGrooveBottomIntervals(d,x,firstIdx,lastIdx,W_TH);
+    if numPeaks == 0
         continue % この列では溝底が見つからなかった
     end
 
-    % extractGrv_max/cntは元画像のy座標を返すのでそのまま比較できる
-    candCell = {d.extractGrv_max(x), d.extractGrv_cnt(x)};
+    % extractByLocalMax/extractByCentroidは元画像のy座標を返すのでそのまま比較できる
+    candCell = {extractor.extractByLocalMax(d,x), extractor.extractByCentroid(d,x)};
 
     for m = 1:numel(lgdNames)
         cand = candCell{m};

@@ -37,14 +37,14 @@ expDir = experimentDir(proj.RootFolder,date);       % 実験結果.matの保存�
 
 %%
 
-% 画像8*l枚分のImageData, DarknessValue, GrooveCandidatesクラスオブジェクト
+% 画像8*l枚分のImageData, DarknessMap, GrooveCandidatesクラスオブジェクト
 % 溝の形状抽出はすべてcentroid methodによる。
 allImg(TOTAL_SEGMENTS,1) = ImageData();
-allIntpD(TOTAL_SEGMENTS,1) = DarknessValue();
+allIntpD(TOTAL_SEGMENTS,1) = DarknessMap();
 allPts_max_intpD(TOTAL_SEGMENTS,1) = GrooveCandidates();
 allPts_cnt_intpD(TOTAL_SEGMENTS,1) = GrooveCandidates();
 % 以下はpkCentroid_resample_1cycle.mにゆずる。
-% allOrigD(TOTAL_SEGMENTS,1) = DarknessValue();
+% allOrigD(TOTAL_SEGMENTS,1) = DarknessMap();
 % allPts_max_origD(TOTAL_SEGMENTS,1) = GrooveCandidates();
 % allPts_cnt_origD(TOTAL_SEGMENTS,1) = GrooveCandidates();
 
@@ -75,7 +75,7 @@ for iImg=1:NUM_IMAGES
         origHeight = origImg.height;
         
 
-        origD = DarknessValue(origImg);
+        origD = DarknessMap(origImg);
         origD = origD.setDiffTF(D_THRESH);
 
 
@@ -102,7 +102,7 @@ for iImg=1:NUM_IMAGES
         pts_max_intp = GrooveCandidates(intpD);
 
 
-        W_TH = 8;
+        WIDTH_THRESH = 8;
 
         % origD, rsmplDから溝形状を抽出
         %{
@@ -140,19 +140,20 @@ for iImg=1:NUM_IMAGES
 
         %}
 
+        intpExtractor = GrooveExtractor(intpD);
         for x=1:intpD.nCols
-            [startIdx, endIdx] = intpD.getStartEndIdx(x);
-            [intpD, startIdx_btm, endIdx_btm, pksNum] = ...
-                getGrooveBtmIdx(intpD,x,startIdx,endIdx,W_TH);
+            [firstIdx, lastIdx] = intpExtractor.findThresholdIntervals(intpD,x);
+            [intpExtractor, btmFirstIdx, btmLastIdx, numPeaks] = ...
+                intpExtractor.findGrooveBottomIntervals(intpD,x,firstIdx,lastIdx,WIDTH_THRESH);
 
-            cnt_x = intpD.extractGrv_cnt(x);
-            max_x = intpD.extractGrv_max(x);
+            centroidY = intpExtractor.extractByCentroid(intpD,x);
+            maxY = intpExtractor.extractByLocalMax(intpD,x);
 
-            tmpPoints = [x*ones(pksNum,1), cnt_x];
+            tmpPoints = [x*ones(numPeaks,1), centroidY];
             tmpPoints(:,1) = 1+(tmpPoints(:,1)-1) * QUERY_STEP;
             pts_cnt_intp.pksCell{x} = tmpPoints;
 
-            tmpPoints = [x*ones(pksNum,1), max_x];
+            tmpPoints = [x*ones(numPeaks,1), maxY];
             tmpPoints(:,1) = 1+(tmpPoints(:,1)-1) * QUERY_STEP;
             pts_max_intp.pksCell{x} = tmpPoints;
         end
@@ -345,7 +346,7 @@ intpCntAudio.saveAudio(dir);
 cond = cycleConditions( ...
     Upsampling="intpD", Date=date, SaveDir=dir, ExperimentDir=expDir, ...
     NumImages=NUM_IMAGES, NumSegments=NUM_SEGMENTS, ...
-    LMask=L_MASK, ThHist=TH_HIST, DThresh=D_THRESH, WTh=W_TH, ...
+    LMask=L_MASK, ThHist=TH_HIST, DThresh=D_THRESH, WTh=WIDTH_THRESH, ...
     Tol=tol, BinWidth=binWidth, HPrl=h_prl, ...
     QueryStep=QUERY_STEP, InterpMethod=INTERP_METHOD, ...
     Filenames=filenames_new, ScriptName="pkCentroid_interp2_1cycle");

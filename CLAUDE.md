@@ -18,8 +18,8 @@ results = runAllTests;   % discovers test/unit/*Test.m via TestSuite.fromFolder
 Run a single test class or method:
 
 ```matlab
-runtests('test/unit/DarknessValueTest.m')
-runtests('test/unit/DarknessValueTest.m', 'ProcedureName', 'testConstructorComputesDMat')
+runtests('test/unit/DarknessMapTest.m')
+runtests('test/unit/DarknessMapTest.m', 'ProcedureName', 'testConstructorComputesDMat')
 ```
 
 Tests do **not** need a manual `addpath` — each test class adds `src/` in its `TestClassSetup` via `PathFixture`.
@@ -40,8 +40,18 @@ An installed MATLAB is available through the `mcp__matlab__*` tools (static anal
 
 ## Architecture notes
 
-- **Value classes, not handles.** `src/` classes (`ImageData`, `DarknessValue`, `GrooveCandidates`, `AudioData`) are plain `classdef` value types. Transform methods return a modified copy (e.g. `newObj = dResample(obj,p,q)`, `obj = setDiffTF(obj,D_th)`); reassign the result — mutating in place does nothing. Constructors are written to accept zero args so arrays can be preallocated (`allImg(N,1) = ImageData()`).
-- **`DarknessValue` is the core.** It holds `dMat = 1 - img/255` and drives groove-bottom detection: `dResample`/`dInterp` (upsampling) → `setDiffTF(D_th)` (threshold crossings) → `getStartEndIdx`/`getGrooveBtmIdx` (candidate intervals) → `extractGrv_cnt` (centroid) / `extractGrv_max` (local maximum). Header comments note that the index-finding methods arguably belong in a separate class — treat that as known tech debt, not a cleanup target.
+- **Value classes, not handles.** `src/` classes (`ImageData`, `DarknessMap`, `GrooveExtractor`, `GrooveCandidates`, `AudioData`) are plain `classdef` value types. Transform methods return a modified copy (e.g. `newObj = dResample(obj,p,q)`, `obj = setDiffTF(obj,D_THRESH)`); reassign the result — mutating in place does nothing. Constructors are written to accept zero args so arrays can be preallocated (`allImg(N,1) = ImageData()`).
+- **`DarknessMap` holds the darkness matrix; `GrooveExtractor` finds groove bottoms in it.** `DarknessMap` holds `dMat = 1 - img/255` and handles upsampling/display: `dResample`/`dInterp` (upsampling) → `setDiffTF(D_THRESH)` (threshold crossings) → `plotD_x`. `GrooveExtractor` is a separate value class that consumes a `DarknessMap` instance passed into each call (it does not copy `dMat`, which can reach ~2GB after upsampling): `findThresholdIntervals(map,x)` → `findGrooveBottomIntervals(map,x,firstIdx,lastIdx,WIDTH_THRESH)` (candidate intervals, held in the extractor's own `startIdxCells`/`endIdxCells`) → `extractByCentroid(map,x)` / `extractByLocalMax(map,x)`. Typical call-site idiom:
+  ```matlab
+  map = DarknessMap(imgData);
+  map = map.setDiffTF(D_THRESH);
+  extractor = GrooveExtractor(map);
+  for x = 1:map.nCols
+      [firstIdx,lastIdx] = extractor.findThresholdIntervals(map,x);
+      [extractor,~,~,numPeaks] = extractor.findGrooveBottomIntervals(map,x,firstIdx,lastIdx,WIDTH_THRESH);
+      centroidY = extractor.extractByCentroid(map,x);
+  end
+  ```
 - **`scaleFactor` scaling is load-bearing.** After resample/interp, `scaleFactor.row` is the vertical (across-groove) scale factor. Extracted y-coordinates are mapped back to original image space with `(idx - 1) / scaleFactor.row + 1`. Any new detection method must apply the same inverse scaling.
 - **Two detection methods × two upsampling methods.** Centroid vs. local-max, and resample vs. interp2, are compared throughout — most `scripts/` exist to run some subset of that 2×2 matrix. `_1cycle` scripts produce a full revolution of audio; the non-`1cycle` ones inspect a single image segment.
 - One record image = 8 photos × 10 horizontal splits = 80 segments; scripts iterate `TOTAL_SEGMENTS = 80`.

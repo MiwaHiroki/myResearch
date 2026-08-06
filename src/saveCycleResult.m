@@ -12,7 +12,7 @@ function [matPath, dValuePath] = saveCycleResult(conditions, allImg, methodResul
 %   % 重心法と局所的最大値法の両方
 %   matPath = saveCycleResult(cond, allImg, [res_cnt res_max]);
 %
-%   % DarknessValue（dMat）も残す場合
+%   % DarknessMap（dMat）も残す場合
 %   [matPath, dPath] = saveCycleResult(cond, allImg, res_cnt, ...
 %       DarknessValues=allIntpD, SaveDarknessValues=true);
 %
@@ -23,8 +23,8 @@ function [matPath, dValuePath] = saveCycleResult(conditions, allImg, methodResul
 %                   複数手法は [res_cnt res_max] のように並べて渡す。
 %
 % name-value 引数:
-%   DarknessValues     - (TOTAL_SEGMENTS x 1) DarknessValue（既定: 空）
-%   SaveDarknessValues - true のとき DarknessValue 配列を
+%   DarknessValues     - (TOTAL_SEGMENTS x 1) DarknessMap（既定: 空）
+%   SaveDarknessValues - true のとき DarknessMap 配列を
 %                        "<結果ファイル名>_dValue.mat" に分けて保存する（既定: false）。
 %                        dMat は origD で約140MB、rsmplD(8x) で約1GB、
 %                        intpD(step 0.25) で約2GB になるため既定では保存しない。
@@ -41,7 +41,7 @@ function [matPath, dValuePath] = saveCycleResult(conditions, allImg, methodResul
 %
 % 出力:
 %   matPath    - 保存した.matのフルパス
-%   dValuePath - DarknessValue を保存した.matのフルパス（保存しない場合は ""）
+%   dValuePath - DarknessMap を保存した.matのフルパス（保存しない場合は ""）
 %
 % 保存される result の構成:
 %   result.conditions  実験条件（cycleConditions の出力）
@@ -51,7 +51,7 @@ function [matPath, dValuePath] = saveCycleResult(conditions, allImg, methodResul
 %                      .xcoords, .ycoords (N x 1 cell), .y_comb, .audio (1x1 AudioData)
 %   result.localMax    局所的最大値法の結果（渡した場合のみ）。音声を作っていない
 %                      手法では .xcoords/.ycoords/.y_comb/.audio は空になる
-%   result.dValueFile  DarknessValue を保存した.matのファイル名（未保存なら ""）
+%   result.dValueFile  DarknessMap を保存した.matのファイル名（未保存なら ""）
 %
 % 読み込みは loadCycleResult を使う。
 %
@@ -61,7 +61,7 @@ function [matPath, dValuePath] = saveCycleResult(conditions, allImg, methodResul
         conditions (1,1) struct
         allImg (:,1) ImageData
         methodResults (1,:) struct
-        opts.DarknessValues (:,1) DarknessValue = DarknessValue.empty(0,1)
+        opts.DarknessValues (:,1) DarknessMap = DarknessMap.empty(0,1)
         opts.SaveDarknessValues (1,1) logical = false
         opts.SaveDir (1,1) string = ""
         opts.FileName (1,1) string = ""
@@ -168,7 +168,7 @@ function [matPath, dValuePath] = saveCycleResult(conditions, allImg, methodResul
     if opts.SaveDarknessValues
         allD = opts.DarknessValues;
         dInfo = whos("allD");
-        fprintf("DarknessValue を保存します（メモリ上で約 %s）: %s\n", ...
+        fprintf("DarknessMap を保存します（メモリ上で約 %s）: %s\n", ...
             formatBytes(dInfo.bytes), dValuePath);
         if dInfo.bytes > 2*1024^3
             fprintf("  2GBを超えるため保存に時間がかかります。\n");
