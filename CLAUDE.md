@@ -34,7 +34,7 @@ An installed MATLAB is available through the `mcp__matlab__*` tools (static anal
   rootFolder = proj.RootFolder;
   ```
   Base all path construction on `rootFolder`; do not hard-code absolute paths.
-- **`scripts/` are interactive.** The `fitGroove` step calls `ginput` to have the user click the groove center with the mouse — these scripts cannot run fully unattended.
+- **`scripts/` are interactive, with an unattended escape hatch.** The `fitGroove` step calls `ginput` to have the user click the groove center with the mouse — these scripts cannot run fully unattended *unless* a previous `cycleResult_*.mat`'s `grooveSelection.p1`/`.p2` is replayed (see the `fitGroove` architecture note below), in which case `ginput` and figure creation are both skipped.
 - Outputs go to `results/<date>/`, created via `mkdirFromDate(rootFolder, "MMDD")`.
 - `data/`, `results/`, and `CLAUDE.md` are gitignored; input images and generated output are not committed.
 
@@ -52,7 +52,8 @@ An installed MATLAB is available through the `mcp__matlab__*` tools (static anal
       centroidY = extractor.extractByCentroid(map,x);
   end
   ```
+- **`fitGroove` takes multiple pks datasets and can skip both `ginput` and figure creation.** `fitGroove(jSegment,fig,p2,w,h,pksCell,opts)` fits a straight line to points inside a user- (or replay-) selected parallelogram and detrends every dataset in `pksCell` (e.g. `{pks_max,pks_cnt}`) with that single fit, so centroid and local-max no longer need separate `ginput` clicks per segment. Passing `opts.P1`/`opts.P2` (both) replaces `ginput` with those points *and* skips all figure/plotting calls entirely — pass `fig=[]` in that path. `_1cycle` scripts persist the per-segment `p1`/`p2` via `saveCycleResult(...,GrooveSelection=struct('p1',allP1,'p2',allP2))` and can replay them from `result.grooveSelection` on a later run (see README "溝の選択（fitGroove）"). The old multi-peak-averaging variant lives at `src/archive/fitGroove_multiPeaks.m`, unintegrated.
 - **`scaleFactor` scaling is load-bearing.** After resample/interp, `scaleFactor.row` is the vertical (across-groove) scale factor. Extracted y-coordinates are mapped back to original image space with `(idx - 1) / scaleFactor.row + 1`. Any new detection method must apply the same inverse scaling.
 - **Two detection methods × two upsampling methods.** Centroid vs. local-max, and resample vs. interp2, are compared throughout — most `scripts/` exist to run some subset of that 2×2 matrix. `_1cycle` scripts produce a full revolution of audio; the non-`1cycle` ones inspect a single image segment.
 - One record image = 8 photos × 10 horizontal splits = 80 segments; scripts iterate `TOTAL_SEGMENTS = 80`.
-- `scripts/archive/` is superseded code kept for reference; `scripts/evaluation/stylus/` compares the restored audio against a physical stylus playback.
+- `scripts/archive/` and `src/archive/` hold superseded code kept for reference (not wired into the live pipeline); `scripts/evaluation/stylus/` compares the restored audio against a physical stylus playback.
