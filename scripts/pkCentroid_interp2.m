@@ -275,7 +275,8 @@ hold on;
 scatter(pks_cnt(:,1),pks_cnt(:,2),MARKER_SIZE,'c','filled');
 title("Peak Dots (centroid method)");
 % pks_cntの傾きを補正したpks_cnt_corを得る
-[p1_cnt,p2_cnt,pks_cnt_cor] = fitGroove(jSegment,fig,p2_cnt,W_PRL,H_PRL,pks_cnt);
+[p1_cnt,p2_cnt,pksCorCell] = fitGroove(jSegment,fig,p2_cnt,W_PRL,H_PRL,{pks_cnt});
+pks_cnt_cor = pksCorCell{1};
 
 BIN_WIDTH = 2; % BinWidth
 [counts,edges] = histcounts(pks_cnt_cor(:,2),'BinWidth',BIN_WIDTH);
@@ -327,7 +328,8 @@ hold on;
 scatter(pks_cnt_r(:,1),pks_cnt_r(:,2),MARKER_SIZE,'c','filled');
 title("Peak Dots (centroid method)");
 % pks_cntの傾きを補正したpks_cnt_corを得る
-[p1_cnt,p2_cnt,pks_cnt_cor] = fitGroove(jSegment,fig,p2_cnt,W_PRL,H_PRL,pks_cnt_r);
+[p1_cnt,p2_cnt,pksCorCell] = fitGroove(jSegment,fig,p2_cnt,W_PRL,H_PRL,{pks_cnt_r});
+pks_cnt_cor = pksCorCell{1};
 
 BIN_WIDTH = 2; % BinWidth
 [counts,edges] = histcounts(pks_cnt_cor(:,2),'BinWidth',BIN_WIDTH);
@@ -378,7 +380,8 @@ origImg.showImg();
 hold on;
 pts_cnt_intp.showCandidates();
 title("Peak Dots (centroid method)");
-[p1_cnt,p2_cnt,pks_cnt_cor] = fitGroove(jSegment,fig,p2_cnt,W_PRL,H_PRL,pks_cnt_intp);
+[p1_cnt,p2_cnt,pksCorCell] = fitGroove(jSegment,fig,p2_cnt,W_PRL,H_PRL,{pks_cnt_intp});
+pks_cnt_cor = pksCorCell{1};
 
 BIN_WIDTH = 2; % BinWidth
 [counts,edges] = histcounts(pks_cnt_cor(:,2),'BinWidth',BIN_WIDTH);

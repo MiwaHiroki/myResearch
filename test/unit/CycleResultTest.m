@@ -200,6 +200,29 @@ classdef CycleResultTest < matlab.unittest.TestCase
 
             % 既定では DarknessMap を保存しない
             testCase.verifyEqual(result.dValueFile, "");
+
+            % 既定では GrooveSelection も空
+            testCase.verifyEqual(result.grooveSelection.p1, zeros(0,2));
+            testCase.verifyEqual(result.grooveSelection.p2, zeros(0,2));
+        end
+
+        function testGrooveSelectionRoundTrip(testCase)
+            p1 = (1:testCase.N_SEG)' + [0 100];
+            p2 = (1:testCase.N_SEG)' + [0 200];
+
+            matPath = saveCycleResult(testCase.cond, testCase.allImg, testCase.resCnt, ...
+                GrooveSelection=struct('p1',p1,'p2',p2));
+            result = loadCycleResult(matPath);
+
+            testCase.verifyEqual(result.grooveSelection.p1, p1);
+            testCase.verifyEqual(result.grooveSelection.p2, p2);
+        end
+
+        function testRejectsGrooveSelectionSizeMismatch(testCase)
+            testCase.verifyError( ...
+                @() saveCycleResult(testCase.cond, testCase.allImg, testCase.resCnt, ...
+                    GrooveSelection=struct('p1',zeros(2,2),'p2',zeros(2,2))), ...
+                "saveCycleResult:grooveSelectionSizeMismatch");
         end
 
         function testSaveSingleMethod(testCase)

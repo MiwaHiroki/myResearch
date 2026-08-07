@@ -46,8 +46,7 @@ ycoords_cnt = cell(TOTAL_SEGMENTS,1);
 xcoords_max = cell(TOTAL_SEGMENTS,1);
 ycoords_max = cell(TOTAL_SEGMENTS,1);
 
-p2_cnt = zeros(1,2);
-p2_max = zeros(1,2);
+p2 = zeros(1,2);
 
 W_TH = 5; % 「山」の幅の最大値（リサンプルする前の画素数）
 
@@ -116,9 +115,11 @@ for iImg=1:NUM_IMAGES
         imgData.showImg();
         hold on;
         scatter(pks_cnt(:,1),pks_cnt(:,2),3,'c','filled');
-        title("Peak Dots (centroid method)");
-        % pks_cntの傾きを補正したpks_cnt_corを得る
-        [p1_cnt,p2_cnt,pks_cnt_cor] = fitGroove(jSegment,fig,p2_cnt,W_PRL,H_PRL,pks_cnt);
+        title("Peak Dots (centroid & local maximum method)");
+        % 1回の選択でpks_cnt,pks_maxの両方の傾きを補正したpksCorCellを得る
+        [p1,p2,pksCorCell] = fitGroove(jSegment,fig,p2,W_PRL,H_PRL,{pks_cnt,pks_max});
+        pks_cnt_cor = pksCorCell{1};
+        pks_max_cor = pksCorCell{2};
 
         BIN_WIDTH = 2; % BinWidth
         [counts,edges] = histcounts(pks_cnt_cor(:,2),'BinWidth',BIN_WIDTH);
@@ -126,7 +127,7 @@ for iImg=1:NUM_IMAGES
 
         [~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST);
 
-        [~,idx_hist] = min(abs(p1_cnt(2) - centers(histPkLocs)));
+        [~,idx_hist] = min(abs(p1(2) - centers(histPkLocs)));
         groove1Center = centers(histPkLocs(idx_hist));
 
         TOL_DISTANCE = 4;
@@ -159,32 +160,18 @@ for iImg=1:NUM_IMAGES
         xcoords_cnt{n,1} = points_fit(:,1);
         ycoords_cnt{n,1} = points_fit(:,2);
 
-
-        fig = figure;
-        % fig = createFigure([0 0 6 6]);
-        % imshow(img_small,"InitialMagnification","fit");
-        imgData.showImg();
-        hold on;
-        scatter(pks_cnt(:,1),pks_cnt(:,2),3,'c','filled');
-        title("Peak Dots (local maximum method)");
-        % pks_maxの傾きを補正したpks_max_corを得る
-        [p1_max,p2_max,pks_max_cor] = fitGroove(jSegment,fig,p2_max,W_PRL,H_PRL,pks_max);
-
-        % xlim([1 1000]);ylim([1 1000]);
-        % exportgraphics(fig,"./data/0322/PkDotsCmethod.png","Resolution",600);
-
         [counts,edges] = histcounts(pks_max_cor(:,2),'BinWidth',BIN_WIDTH);
         centers = edges(1:end-1) + diff(edges)/2; % ピークの中心
 
         [~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST);
 
-        [~,idx_hist] = min(abs(p1_max(2) - centers(histPkLocs)));
+        [~,idx_hist] = min(abs(p1(2) - centers(histPkLocs)));
         groove1Center = centers(histPkLocs(idx_hist));
 
         % そのピークの中心からtol(pixel)以内にあるy座標
         y_min = groove1Center - TOL_DISTANCE;
         y_max = groove1Center + TOL_DISTANCE;
-        
+
         points = [(1:dValue.width)',NaN(dValue.width,1)];
 
         idxs = (pks_max_cor(:,2) >= y_min) & (pks_max_cor(:,2)<=y_max);
@@ -308,8 +295,7 @@ ycoords_r_cnt = cell(TOTAL_SEGMENTS,1);
 xcoords_r_max = cell(TOTAL_SEGMENTS,1);
 ycoords_r_max = cell(TOTAL_SEGMENTS,1);
 
-p2_cnt = zeros(1,2);
-p2_max = zeros(1,2);
+p2 = zeros(1,2);
 
 p_rsmpl = 8;
 q_rsmpl = 1;
@@ -395,9 +381,11 @@ for iImg=1:8
         imgData.showImg();
         hold on;
         scatter(pks_cnt(:,1),pks_cnt(:,2),3,'c','filled');
-        title("Peak Dots (centroid method)");xlabel("$x$");ylabel("$y$");   
-        % pks_cntの傾きを補正したpks_cnt_corを得る
-        [p1_cnt,p2_cnt,pks_cnt_cor] = fitGroove(jSegment,fig,p2_cnt,W_PRL,H_PRL,pks_cnt);
+        title("Peak Dots (centroid & local maximum method)");xlabel("$x$");ylabel("$y$");
+        % 1回の選択でpks_cnt,pks_maxの両方の傾きを補正したpksCorCellを得る
+        [p1,p2,pksCorCell] = fitGroove(jSegment,fig,p2,W_PRL,H_PRL,{pks_cnt,pks_max});
+        pks_cnt_cor = pksCorCell{1};
+        pks_max_cor = pksCorCell{2};
 
         BIN_WIDTH = 2; % BinWidth
         [counts,edges] = histcounts(pks_cnt_cor(:,2),'BinWidth',BIN_WIDTH);
@@ -405,7 +393,7 @@ for iImg=1:8
 
         [~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST);
 
-        [~,idx_hist] = min(abs(p1_cnt(2) - centers(histPkLocs)));
+        [~,idx_hist] = min(abs(p1(2) - centers(histPkLocs)));
         groove1Center = centers(histPkLocs(idx_hist));
 
         TOL_DISTANCE = 4;
@@ -437,26 +425,12 @@ for iImg=1:8
         xcoords_r_cnt{n,1} = points(:,1);
         ycoords_r_cnt{n,1} = points_fit(:,2);
 
-
-        fig = figure;
-        % fig = createFigure([0 0 6 6]);
-        % imshow(img_small,"InitialMagnification","fit");
-        imgData.showImg();
-        hold on;
-        scatter(pks_cnt(:,1),pks_cnt(:,2),3,'c','filled');
-        title("Peak Dots (local maximum method)");xlabel("$x$");ylabel("$y$");   
-        % pks_maxの傾きを補正したpks_max_corを得る
-        [p1_max,p2_max,pks_max_cor] = fitGroove(jSegment,fig,p2_max,W_PRL,H_PRL,pks_max);
-
-        % xlim([1 1000]);ylim([1 1000]);
-        % exportgraphics(fig,"./data/0322/PkDotsCmethod.png","Resolution",600);
-
         [counts,edges] = histcounts(pks_max_cor(:,2),'BinWidth',BIN_WIDTH);
         centers = edges(1:end-1) + diff(edges)/2; % ピークの中心
 
         [~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST);
 
-        [~,idx_hist] = min(abs(p1_max(2) - centers(histPkLocs)));
+        [~,idx_hist] = min(abs(p1(2) - centers(histPkLocs)));
         groove1Center = centers(histPkLocs(idx_hist));
 
         % そのピークの中心からtol(pixel)以内にあるy座標

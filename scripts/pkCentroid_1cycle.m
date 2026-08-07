@@ -30,6 +30,16 @@ dir = mkdirFromDate(proj.RootFolder,date);          % 図・音声の出力先
 expDir = experimentDir(proj.RootFolder,date);       % 実験結果.matの保存先
 % dir = "C:\Users\owner\Documents\HirokiMiwa\matlab@Miwa\peak detection\data\"+date+"\";
 
+% 以前保存したp1,p2で溝を自動選択する場合は、その結果.matのパスを指定する
+% （空文字なら手動でginputにより選択する。詳細はREADMEの「溝の選択（fitGroove）」）
+PREV_RESULT_PATH = "";
+if PREV_RESULT_PATH ~= ""
+    prevResult = loadCycleResult(PREV_RESULT_PATH);
+    grooveSelection = prevResult.grooveSelection;
+else
+    grooveSelection = [];
+end
+
 %%
 allImg(TOTAL_SEGMENTS,1) = ImageData();
 allOrigD(TOTAL_SEGMENTS,1) = DarknessMap();
@@ -40,8 +50,9 @@ allPts_cnt_origD(TOTAL_SEGMENTS,1) = GrooveCandidates();
 xcoords = cell(TOTAL_SEGMENTS,1); % xcoordsは共通
 ycoords_cnt = cell(TOTAL_SEGMENTS,1); % centroid method
 ycoords_max = cell(TOTAL_SEGMENTS,1); % local maximum method
-p2_max = zeros(1,2);
-p2_cnt = zeros(1,2);
+p2 = zeros(1,2);
+allP1 = zeros(TOTAL_SEGMENTS,2); % fitGrooveで選んだp1,p2（次回以降の自動選択用に保存）
+allP2 = zeros(TOTAL_SEGMENTS,2);
 
 
 for iImg=1:NUM_IMAGES
@@ -96,36 +107,47 @@ for iImg=1:NUM_IMAGES
         h_prl = 8; % 平行四辺形の底辺
 
         % fitGroove()を使って、溝1本分の形状データを抽出する
-        % local maximum method
+        % local maximum method, centroid method 共通の溝選択
         fig = figure;
         origImg.showImg();
-        % fig = createFigure([0 0 6 6]);
-        % imshow(img_omitMask,"InitialMagnification","fit");
         hold on;
         pts_max.showCandidates();
-        % scatter(pks_cnt_intp(:,1),pks_cnt_intp(:,2),5,'c','filled');
-        [p1_max,p2_max,pks_cor] = fitGroove(jSegment,fig,p2_max,w_prl,h_prl,pks_max);
+        pts_cnt.showCandidates();
+        % 1回の選択でpks_max,pks_cntの両方の傾きを補正したpksCorCellを得る
+        if isempty(grooveSelection)
+            [p1,p2,pksCorCell] = fitGroove(jSegment,fig,p2,w_prl,h_prl,{pks_max,pks_cnt});
+        else
+            [p1,p2,pksCorCell] = fitGroove(jSegment,fig,p2,w_prl,h_prl,{pks_max,pks_cnt}, ...
+                P1=grooveSelection.p1(kImgSmall,:), P2=grooveSelection.p2(kImgSmall,:));
+        end
+        pks_max_cor = pksCorCell{1};
+        pks_cnt_cor = pksCorCell{2};
 
+        allP1(kImgSmall,:) = p1;
+        allP2(kImgSmall,:) = p2;
+
+        tol = 3;
         binWidth = 5; % BinWidth
-        [counts,edges] = histcounts(pks_cor(:,2),'BinWidth',binWidth);
+
+        % local maximum method
+        [counts,edges] = histcounts(pks_max_cor(:,2),'BinWidth',binWidth);
         centers = edges(1:end-1) + diff(edges)/2; % ピークの中心
 
         [~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST);
 
-        [~,idx_hist] = min(abs(p1_max(2) - centers(histPkLocs)));
+        [~,idx_hist] = min(abs(p1(2) - centers(histPkLocs)));
         groove1Center = centers(histPkLocs(idx_hist));
 
-        tol = 3;
         % そのピークの中心からtol(pixel)以内にあるy座標
         y_min = groove1Center - tol;
         y_max = groove1Center + tol;
 
         points = [(1:origD.imgWidth)',NaN(origD.nCols,1)];
 
-        idxs = (pks_cor(:,2) >= y_min) & (pks_cor(:,2)<=y_max);
+        idxs = (pks_max_cor(:,2) >= y_min) & (pks_max_cor(:,2)<=y_max);
 
-        points_x = pks_cor(idxs,1);
-        points(points_x,2) = pks_cor(idxs,2);
+        points_x = pks_max_cor(idxs,1);
+        points(points_x,2) = pks_max_cor(idxs,2);
 
         points(:,2) = fillmissing(points(:,2),"linear");
 
@@ -139,39 +161,25 @@ for iImg=1:NUM_IMAGES
         xcoords{kImgSmall,1} = points(:,1);
         ycoords_max{kImgSmall,1} = points_fit(:,2);
 
-        %}
-
-        % fitGroove()を使って、溝1本分の形状データを抽出する
         % centroid method
-        fig = figure;
-        origImg.showImg();
-        % fig = createFigure([0 0 6 6]);
-        % imshow(img_omitMask,"InitialMagnification","fit");
-        hold on;
-        pts_cnt.showCandidates();
-        % scatter(pks_cnt_intp(:,1),pks_cnt_intp(:,2),5,'c','filled');
-        [p1_cnt,p2_cnt,pks_cor] = fitGroove(jSegment,fig,p2_cnt,w_prl,h_prl,pks_cnt);
-
-        binWidth = 5; % BinWidth
-        [counts,edges] = histcounts(pks_cor(:,2),'BinWidth',binWidth);
+        [counts,edges] = histcounts(pks_cnt_cor(:,2),'BinWidth',binWidth);
         centers = edges(1:end-1) + diff(edges)/2; % ピークの中心
 
         [~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST);
 
-        [~,idx_hist] = min(abs(p1_cnt(2) - centers(histPkLocs)));
+        [~,idx_hist] = min(abs(p1(2) - centers(histPkLocs)));
         groove1Center = centers(histPkLocs(idx_hist));
 
-        tol = 3;
         % そのピークの中心からtol(pixel)以内にあるy座標
         y_min = groove1Center - tol;
         y_max = groove1Center + tol;
 
         points = [(1:origD.imgWidth)',NaN(origD.nCols,1)];
 
-        idxs = (pks_cor(:,2) >= y_min) & (pks_cor(:,2)<=y_max);
+        idxs = (pks_cnt_cor(:,2) >= y_min) & (pks_cnt_cor(:,2)<=y_max);
 
-        points_x = pks_cor(idxs,1);
-        points(points_x,2) = pks_cor(idxs,2);
+        points_x = pks_cnt_cor(idxs,1);
+        points(points_x,2) = pks_cnt_cor(idxs,2);
 
         points(:,2) = fillmissing(points(:,2),"linear");
 
@@ -184,8 +192,6 @@ for iImg=1:NUM_IMAGES
 
         xcoords{kImgSmall,1} = points(:,1);
         ycoords_cnt{kImgSmall,1} = points_fit(:,2);
-
-        %}
 
         % データの保存
         allImg(kImgSmall) = origImg;
@@ -273,4 +279,5 @@ res_max = cycleMethodResult("localMax", allPts_max_origD,xcoords,ycoords_max,y_c
 res_cnt = cycleMethodResult("centroid", allPts_cnt_origD, xcoords, ycoords_cnt, y_comb_cnt, origCntAudio);
 
 
-matPath = saveCycleResult(cond, allImg, [res_cnt res_max]);
+matPath = saveCycleResult(cond, allImg, [res_cnt res_max], ...
+    GrooveSelection=struct('p1',allP1,'p2',allP2));

@@ -15,6 +15,12 @@ function result = loadCycleResult(matPath, opts)
 %   result = loadCycleResult(matPath, LoadDarknessValues=true);
 %   figure; result.allD(1).plotD_x(100);
 %
+%   % fitGroove で選んだ p1,p2 を使って別の高解像度化条件を ginput なしで
+%   % 再解析する（result.grooveSelection.p1/p2 を再利用する）
+%   prev = loadCycleResult(prevMatPath);
+%   [~,~,pksCorCell] = fitGroove(jSegment,fig,p2,w,h,{pks_max,pks_cnt}, ...
+%       P1=prev.grooveSelection.p1(kImgSmall,:), P2=prev.grooveSelection.p2(kImgSmall,:));
+%
 % 入力:
 %   matPath - 結果.matのパス
 %

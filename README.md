@@ -11,7 +11,7 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 3. `ImageData` → `DarknessMap` を作り、暗さ行列 `dMat = 1 - img/255` を得る。必要に応じて `dResample`（リサンプル）や `dInterp`（interp2内挿）で高解像度化する。
 4. `DarknessMap` の `setDiffTF` でしきい値 `D_THRESH` を超える領域の立ち上がり／立ち下がりを求め、`GrooveExtractor` で各xの溝底候補の区間（`findThresholdIntervals`）と幅の狭い溝底区間（`findGrooveBottomIntervals`）を特定する。
 5. `GrooveExtractor` の `extractByCentroid`（重心法）／`extractByLocalMax`（局所的最大値法）で溝底のy座標を求め、`GrooveCandidates` に格納する。
-6. `fitGroove` で手動指定した平行四辺形内の点群を直線近似し、溝の傾きを補正する。
+6. `fitGroove` で選択した平行四辺形内の点群を直線近似し、溝の傾きを補正する（詳細は「溝の選択（fitGroove）」）。
 7. ヒストグラムのピークから追跡対象の溝1本を選び、その中心付近（`TOL_DISTANCE`／`tol`）の点だけを抽出、欠損を `fillmissing` で補間し、多項式でデトレンドする。
 8. 全セグメントの座標を連結し、回転数78rpmから標本化周波数を計算して `AudioData` を生成、波形・FFT・スペクトログラムを描画・保存し、wavに書き出す。
 9. `saveCycleResult` で実験条件と解析結果（`ImageData`／`GrooveCandidates`／`AudioData`／`y_comb` など）を `experiments/<日付>/` の `.mat` に保存する（詳細は「1周分の実験結果の保存」）。
@@ -47,7 +47,8 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 ### 共通関数
 
 - **`omitMask`**: 画像左右の無効領域を除去
-- **`fitGroove` / `fitGroove_multiPeaks`**: 平行四辺形内の点群を直線／多項式近似し溝の傾きを補正（`_multiPeaks` は1溝で複数検出された点を平均してから処理）
+- **`fitGroove`**: 手動（`ginput`）または保存済みの点（`P1`/`P2`）で選んだ平行四辺形内の点群を直線近似し、溝の傾きを補正する。複数の溝底候補点データセット（例: 重心法と局所的最大値法）を`cell`でまとめて渡すと、1回の選択で全データセットを補正できる（詳細は「溝の選択（fitGroove）」）
+  - `src/archive/fitGroove_multiPeaks.m`: 旧版（1溝で複数検出された点を平均してから処理）。現行の`fitGroove`に統合されていないため参照用として残置
 - **`createFigure`**: サイズ指定でfigureを作成
 - **`soundCheck`**: 波形・FFT・スペクトログラムをまとめて描画・保存
 - **`mkdirFromDate`**: 図・音声の出力先 `results/<日付>/` を作成しパスを返す
@@ -71,9 +72,30 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 - **`darknessInterp2.m`**: 小領域画像を `interp2` で疑似高解像度化する動作確認用スクリプト。
 - **`evaluation/stylus/sound_from_stylus.m`**: 針で再生した音源を切り出し・フィルタ処理し、復元音声と比較・評価する。
 
+## 溝の選択（fitGroove）
+
+`fitGroove(jSegment,fig,p2,w,h,pksCell,opts)` は、平行四辺形（左端の点`p1`・右端の点`p2`、高さ`h`）内にある溝底候補点を直線近似し、その傾きで`pksCell`の各要素を補正する。
+
+- **複数データセットを1回で補正**: `pksCell`は`{pks_max, pks_cnt}`のように複数の溝底候補点データセットをまとめて渡せる。同じ溝に対して重心法・局所的最大値法を1回の選択（`ginput`1組）で両方補正できるため、手法ごとに別々にクリックする必要がない。戻り値`pksCorCell`も同じ順序・要素数の`cell`になる。
+- **保存済みの点で自動選択**: `opts.P1`/`opts.P2`に既知の点（`(1,2)`の`[x,y]`）を渡すと、その点については`ginput`を呼ばず渡された値をそのまま使う。両方渡せば`ginput`を一切呼ばない完全自動モードになる。`P1`を省略した場合は従来通り（`jSegment==1`なら`ginput`、それ以外は引数の`p2`を`p1`として使う）。
+- **p1,p2の保存と再利用**: 音声復元の実験（`_1cycle`スクリプト）でセグメントごとの`p1`,`p2`を`allP1`,`allP2`に蓄積し、`saveCycleResult`の`GrooveSelection=struct('p1',allP1,'p2',allP2)`で保存しておくと、`loadCycleResult`で読み込んだ`result.grooveSelection.p1`/`.p2`を次回の`fitGroove`呼び出しに`P1`/`P2`として渡すだけで、同じ溝を`ginput`なしで自動選択できる（抽出手法やパラメータだけを変えて再解析したい場合に便利）。
+
+```matlab
+% 手動選択（1回のginputで重心法・局所的最大値法の両方を補正）
+[p1,p2,pksCorCell] = fitGroove(jSegment,fig,p2,w_prl,h_prl,{pks_max,pks_cnt});
+pks_max_cor = pksCorCell{1}; pks_cnt_cor = pksCorCell{2};
+
+% 以前の実験結果に保存したp1,p2を使って自動選択（ginputなし）
+prev = loadCycleResult(prevMatPath);
+[p1,p2,pksCorCell] = fitGroove(jSegment,fig,p2,w_prl,h_prl,{pks_max,pks_cnt}, ...
+    P1=prev.grooveSelection.p1(kImgSmall,:), P2=prev.grooveSelection.p2(kImgSmall,:));
+```
+
+1溝で複数検出された点を平均してから処理する旧版（`fitGroove_multiPeaks`）は現行の`fitGroove`には統合されておらず、`src/archive/fitGroove_multiPeaks.m`に参照用として残置している。
+
 ## 1周分の実験結果の保存
 
-`fitGroove` の手動操作を80セグメント分繰り返す必要があるため、1周分の解析は図を作るたびに再実行できない。そこで解析結果を `.mat` に保存し、図の作成スクリプトはそれを読むだけにする。
+`fitGroove` の手動操作を80セグメント分繰り返す必要がある（`GrooveSelection`による自動選択を使わない場合）ため、1周分の解析は図を作るたびに再実行できない。そこで解析結果を `.mat` に保存し、図の作成スクリプトはそれを読むだけにする。
 
 - 保存先は `experiments/<日付>/`。図・音声の出力先（`results/<日付>/`）とは分ける。
 - **1ファイル = 1つの高解像度化条件**（`origD` / `rsmplD` / `intpD`）。1ファイルの中に重心法・局所的最大値法の両方の結果を入れる（`allImg` を手法ごとに二重保存しないため）。
@@ -112,6 +134,7 @@ figure; result.centroid.audio.spectrogramPlot(4096);
 | `allImg` | (TOTAL_SEGMENTS x 1) `ImageData` |
 | `centroid` / `localMax` | `.pts` (N x 1 `GrooveCandidates`)、`.xcoords`、`.ycoords`（各 N x 1 cell）、`.y_comb`、`.audio` (1x1 `AudioData`) |
 | `dValueFile` | `DarknessMap` を保存した.matのファイル名（未保存なら `""`） |
+| `grooveSelection` | `fitGroove` で選んだ点。`.p1`、`.p2` とも (TOTAL_SEGMENTS x 2)（渡さなかった場合は空の (0 x 2)） |
 
 `DarknessMap` の `dMat` は `origD` で約140MB、`rsmplD`(8x) で約1GB、`intpD`(step 0.25) で約2GBになるため、**既定では保存しない**。1セグメント分の `dMat` は `ginput` 無しで作り直せるので、通常は図の作成に不要。必要な場合は別ファイル（`..._dValue.mat`）に分けて保存する。
 
@@ -119,6 +142,13 @@ figure; result.centroid.audio.spectrogramPlot(4096);
 [matPath, dPath] = saveCycleResult(cond, allImg, res_cnt, ...
     DarknessValues=allIntpD, SaveDarknessValues=true);
 result = loadCycleResult(matPath, LoadDarknessValues=true);   % result.allD に入る
+```
+
+`fitGroove` で選んだ `p1`/`p2`（セグメントごとに1組、手法間で共通）も保存できる。次回以降は保存済みの点を `fitGroove` の `P1`/`P2` に渡せば `ginput` なしで同じ溝を自動選択できる（詳細は「溝の選択（fitGroove）」）。
+
+```matlab
+matPath = saveCycleResult(cond, allImg, res_cnt, GrooveSelection=struct('p1',allP1,'p2',allP2));
+result  = loadCycleResult(matPath);   % result.grooveSelection.p1/.p2 に入る
 ```
 
 既存の結果ファイルは既定では上書きせず `..._2.mat` のように連番を付けて保存する（`Overwrite=true` で上書き）。

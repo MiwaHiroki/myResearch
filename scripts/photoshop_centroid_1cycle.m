@@ -29,6 +29,16 @@ dir = mkdirFromDate(proj.RootFolder,date);          % 図・音声の出力先
 expDir = experimentDir(proj.RootFolder,date);       % 実験結果.matの保存先
 % dir = "C:\Users\owner\Documents\HirokiMiwa\matlab@Miwa\peak detection\data\"+date+"\";
 
+% 以前保存したp1,p2で溝を自動選択する場合は、その結果.matのパスを指定する
+% （空文字なら手動でginputにより選択する。詳細はREADMEの「溝の選択（fitGroove）」）
+PREV_RESULT_PATH = "";
+if PREV_RESULT_PATH ~= ""
+    prevResult = loadCycleResult(PREV_RESULT_PATH);
+    grooveSelection = prevResult.grooveSelection;
+else
+    grooveSelection = [];
+end
+
 %%
 allImg(TOTAL_SEGMENTS,1) = ImageData();
 allOrigD(TOTAL_SEGMENTS,1) = DarknessMap();
@@ -37,7 +47,9 @@ allPts_cnt_8xD(TOTAL_SEGMENTS,1) = GrooveCandidates();
 % 1周分のデータのx,y座標
 xcoords = cell(TOTAL_SEGMENTS,1);
 ycoords = cell(TOTAL_SEGMENTS,1); % local maximum method
-p2_cnt = zeros(1,2);
+p2 = zeros(1,2);
+allP1 = zeros(TOTAL_SEGMENTS,2); % fitGrooveで選んだp1,p2（次回以降の自動選択用に保存）
+allP2 = zeros(TOTAL_SEGMENTS,2);
 
 
 for iImg=1:NUM_IMAGES
@@ -142,7 +154,16 @@ for iImg=1:NUM_IMAGES
         hold on;
         scatter(pkDots_cnt(:,1),pkDots_cnt(:,2),5,'c','filled');
         % scatter(pks_cnt_intp(:,1),pks_cnt_intp(:,2),5,'c','filled');
-        [p1_cnt,p2_cnt,pks_cor] = fitGroove(jSegment,fig,p2_cnt,w_prl,h_prl,pkDots_cnt);
+        if isempty(grooveSelection)
+            [p1,p2,pksCorCell] = fitGroove(jSegment,fig,p2,w_prl,h_prl,{pkDots_cnt});
+        else
+            [p1,p2,pksCorCell] = fitGroove(jSegment,fig,p2,w_prl,h_prl,{pkDots_cnt}, ...
+                P1=grooveSelection.p1(kImgSmall,:), P2=grooveSelection.p2(kImgSmall,:));
+        end
+        pks_cor = pksCorCell{1};
+
+        allP1(kImgSmall,:) = p1;
+        allP2(kImgSmall,:) = p2;
 
         binWidth = 5*8; % BinWidth
         [counts,edges] = histcounts(pks_cor(:,2),'BinWidth',binWidth);
@@ -150,7 +171,7 @@ for iImg=1:NUM_IMAGES
 
         [~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST);
 
-        [~,idx_hist] = min(abs(p1_cnt(2) - centers(histPkLocs)));
+        [~,idx_hist] = min(abs(p1(2) - centers(histPkLocs)));
         groove1Center = centers(histPkLocs(idx_hist));
 
         tol = 3*8;
@@ -242,4 +263,5 @@ cond = cycleConditions(...
 res_cnt = cycleMethodResult("centroid", allPts_cnt_8xD,xcoords,ycoords,y_comb_cnt,origCntAudio);
 
 
-matPath = saveCycleResult(cond, allImg, res_cnt);
+matPath = saveCycleResult(cond, allImg, res_cnt, ...
+    GrooveSelection=struct('p1',allP1,'p2',allP2));

@@ -16,6 +16,10 @@ function [matPath, dValuePath] = saveCycleResult(conditions, allImg, methodResul
 %   [matPath, dPath] = saveCycleResult(cond, allImg, res_cnt, ...
 %       DarknessValues=allIntpD, SaveDarknessValues=true);
 %
+%   % fitGroove で選んだ p1,p2 を保存し、次回以降 ginput なしで再現する場合
+%   matPath = saveCycleResult(cond, allImg, res_cnt, ...
+%       GrooveSelection=struct('p1',allP1,'p2',allP2));
+%
 % 入力:
 %   conditions    - cycleConditions で作成した実験条件のstruct
 %   allImg        - (TOTAL_SEGMENTS x 1) ImageData
@@ -29,6 +33,10 @@ function [matPath, dValuePath] = saveCycleResult(conditions, allImg, methodResul
 %                        dMat は origD で約140MB、rsmplD(8x) で約1GB、
 %                        intpD(step 0.25) で約2GB になるため既定では保存しない。
 %                        1セグメント分の dMat は ginput 無しで作り直せる。
+%   GrooveSelection    - fitGroove で選んだ点の記録。.p1, .p2 とも (TOTAL_SEGMENTS x 2)
+%                        の double（既定: 空）。fitGroove に P1=.../P2=... として渡せば
+%                        ginput なしで同じ溝を自動選択できる（result.grooveSelection
+%                        から読み込む）。
 %   SaveDir            - 保存先フォルダ。既定は conditions.experimentDir
 %                        （experiments/<日付>/）。conditions に
 %                        ExperimentDir を渡していない場合は conditions.saveDir
@@ -52,6 +60,8 @@ function [matPath, dValuePath] = saveCycleResult(conditions, allImg, methodResul
 %   result.localMax    局所的最大値法の結果（渡した場合のみ）。音声を作っていない
 %                      手法では .xcoords/.ycoords/.y_comb/.audio は空になる
 %   result.dValueFile  DarknessMap を保存した.matのファイル名（未保存なら ""）
+%   result.grooveSelection  fitGroove で選んだ点。.p1, .p2 (TOTAL_SEGMENTS x 2)
+%                      （渡さなかった場合は空の (0 x 2)）
 %
 % 読み込みは loadCycleResult を使う。
 %
@@ -63,6 +73,7 @@ function [matPath, dValuePath] = saveCycleResult(conditions, allImg, methodResul
         methodResults (1,:) struct
         opts.DarknessValues (:,1) DarknessMap = DarknessMap.empty(0,1)
         opts.SaveDarknessValues (1,1) logical = false
+        opts.GrooveSelection (1,1) struct = struct('p1', zeros(0,2), 'p2', zeros(0,2))
         opts.SaveDir (1,1) string = ""
         opts.FileName (1,1) string = ""
         opts.Overwrite (1,1) logical = false
@@ -113,6 +124,25 @@ function [matPath, dValuePath] = saveCycleResult(conditions, allImg, methodResul
             "DarknessValues が渡されましたが SaveDarknessValues=false のため保存しません。");
     end
 
+    GS_FIELDS = ["p1","p2"];
+    missingGSFields = GS_FIELDS(~isfield(opts.GrooveSelection, GS_FIELDS));
+    if ~isempty(missingGSFields)
+        error("saveCycleResult:invalidGrooveSelection", ...
+            "GrooveSelection に必要なフィールドがありません: %s", ...
+            strjoin(missingGSFields, ", "));
+    end
+    if ~isempty(opts.GrooveSelection.p1) || ~isempty(opts.GrooveSelection.p2)
+        if size(opts.GrooveSelection.p1,2) ~= 2 || size(opts.GrooveSelection.p2,2) ~= 2
+            error("saveCycleResult:invalidGrooveSelection", ...
+                "GrooveSelection.p1/p2 は (N x 2) の形式で指定してください。");
+        end
+        if size(opts.GrooveSelection.p1,1) ~= nSeg || size(opts.GrooveSelection.p2,1) ~= nSeg
+            error("saveCycleResult:grooveSelectionSizeMismatch", ...
+                "GrooveSelection.p1(%d行)/p2(%d行) の行数が allImg(%d)と一致しません。", ...
+                size(opts.GrooveSelection.p1,1), size(opts.GrooveSelection.p2,1), nSeg);
+        end
+    end
+
     % --- 保存先の決定 ---
     % 実験結果.matは図・音声とは寿命が違うので experiments/<日付>/ に置く。
     % ExperimentDir を持たない古い conditions は従来どおり saveDir に保存する。
@@ -147,6 +177,7 @@ function [matPath, dValuePath] = saveCycleResult(conditions, allImg, methodResul
     for k = 1:numel(methodResults)
         result.(char(methodNames(k))) = rmfield(methodResults(k), "method");
     end
+    result.grooveSelection = opts.GrooveSelection;
 
     if opts.SaveDarknessValues
         dValueName = base + "_dValue.mat";

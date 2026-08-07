@@ -630,7 +630,8 @@ p2 = [0;0];
 th_hist = 125;
 
 % pksの傾きを補正したpks_corを得る
-[p1,p2,pks_cor] = fitGroove(1,fig,p2,w_prl,h_prl,pks_max);
+[p1,p2,pksCorCell] = fitGroove(1,fig,p2,w_prl,h_prl,{pks_max});
+pks_cor = pksCorCell{1};
 
 % xlim([1 1000]);ylim([1 1000]);
 % exportgraphics(fig,"./data/0322/PkDotsCmethod.png","Resolution",600);
@@ -670,7 +671,8 @@ p2 = [0;0];
 th_hist = 125;
 
 % pksの傾きを補正したpks_corを得る
-[p1,p2,pks_cor] = fitGroove(1,fig,p2,w_prl,h_prl,pks);
+[p1,p2,pksCorCell] = fitGroove(1,fig,p2,w_prl,h_prl,{pks});
+pks_cor = pksCorCell{1};
 
 % xlim([1 1000]);ylim([1 1000]);
 % exportgraphics(fig,"./data/0322/PkDotsCmethod.png","Resolution",600);
@@ -710,7 +712,8 @@ p2 = [0;0];
 th_hist = 125;
 
 % pksの傾きを補正したpks_corを得る
-[p1,p2,pks_cor] = fitGroove(1,fig,p2,w_prl,h_prl,pks_r);
+[p1,p2,pksCorCell] = fitGroove(1,fig,p2,w_prl,h_prl,{pks_r});
+pks_cor = pksCorCell{1};
 
 % xlim([1 1000]);ylim([1 1000]);
 % exportgraphics(fig,"./data/0322/PkDotsCmethod.png","Resolution",600);
@@ -751,7 +754,8 @@ p2 = [0;0];
 th_hist = 125;
 
 % pksの傾きを補正したpks_corを得る
-[p1,p2,pks_cor] = fitGroove(1,fig,p2,w_prl,h_prl,pks_r_max);
+[p1,p2,pksCorCell] = fitGroove(1,fig,p2,w_prl,h_prl,{pks_r_max});
+pks_cor = pksCorCell{1};
 
 % xlim([1 1000]);ylim([1 1000]);
 % exportgraphics(fig,"./data/0322/PkDotsCmethod.png","Resolution",600);
