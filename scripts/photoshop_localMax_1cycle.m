@@ -129,17 +129,18 @@ for iImg=1:NUM_IMAGES
 
         % fitGroove()を使って、溝1本分の形状データを抽出する
         % local maximum method
-        fig = figure;
-        origImg.showImg();
-        % fig = createFigure([0 0 6 6]);
-        % imshow(img_omitMask,"InitialMagnification","fit");
-        hold on;
-        scatter(pkDots_max(:,1),pkDots_max(:,2),5,'c','filled');
-        % scatter(pks_cnt_intp(:,1),pks_cnt_intp(:,2),5,'c','filled');
         if isempty(grooveSelection)
+            fig = figure;
+            origImg.showImg();
+            % fig = createFigure([0 0 6 6]);
+            % imshow(img_omitMask,"InitialMagnification","fit");
+            hold on;
+            scatter(pkDots_max(:,1),pkDots_max(:,2),5,'c','filled');
+            % scatter(pks_cnt_intp(:,1),pks_cnt_intp(:,2),5,'c','filled');
             [p1,p2,pksCorCell] = fitGroove(jSegment,fig,p2,w_prl,h_prl,{pkDots_max});
         else
-            [p1,p2,pksCorCell] = fitGroove(jSegment,fig,p2,w_prl,h_prl,{pkDots_max}, ...
+            % 保存済みの点で自動選択するのでfigureは作らない
+            [p1,p2,pksCorCell] = fitGroove(jSegment,[],p2,w_prl,h_prl,{pkDots_max}, ...
                 P1=grooveSelection.p1(kImgSmall,:), P2=grooveSelection.p2(kImgSmall,:));
         end
         pks_cor = pksCorCell{1};

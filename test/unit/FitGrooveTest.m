@@ -86,6 +86,26 @@ classdef FitGrooveTest < matlab.unittest.TestCase
             testCase.verifyEqual(pksCorCell{1}(:,2), (5-10/9)*ones(10,1), 'AbsTol', 1e-9);
         end
 
+        function testAutoSelectAcceptsEmptyFig(testCase)
+            % P1,P2両方指定ならfigが[]でもエラーにならない
+            [p1,p2,pksCorCell] = fitGroove(1,[],[0,0],10,10, ...
+                {testCase.pksA}, P1=[1,5], P2=[10,15]);
+
+            testCase.verifyEqual(p1, [1,5]);
+            testCase.verifyEqual(p2, [10,15]);
+            testCase.verifyEqual(pksCorCell{1}(:,2), (5-10/9)*ones(10,1), 'AbsTol', 1e-9);
+        end
+
+        function testAutoSelectDoesNotCreateFigure(testCase)
+            % P1,P2両方指定のときは新しいfigureを作らない
+            figCountBefore = numel(findall(0,'Type','figure'));
+
+            fitGroove(1,[],[0,0],10,10,{testCase.pksA}, P1=[1,5], P2=[10,15]);
+
+            figCountAfter = numel(findall(0,'Type','figure'));
+            testCase.verifyEqual(figCountAfter, figCountBefore);
+        end
+
         function testErrorsWhenNoPointsInsideParallelogram(testCase)
             farAwayPks = [(1:10)', 1000*ones(10,1)];
             testCase.verifyError(@() fitGroove(1,testCase.fig,[0,0],10,10, ...

@@ -24,13 +24,14 @@ TH_HIST = 150; % threshold of the peak height in the histogram
 D_THRESH = 0.6;
 
 % 保存用
-date = "0731";
+date = "0807";
 dir = mkdirFromDate(proj.RootFolder,date);          % 図・音声の出力先
 expDir = experimentDir(proj.RootFolder,date);       % 実験結果.matの保存先
 
 % 以前保存したp1,p2で溝を自動選択する場合は、その結果.matのパスを指定する
 % （空文字なら手動でginputにより選択する。詳細はREADMEの「溝の選択（fitGroove）」）
 PREV_RESULT_PATH = "";
+% PREV_RESULT_PATH = fullfile(proj.RootFolder,"experiments","0807","cycleResult_rsmplD_0807.mat");
 if PREV_RESULT_PATH ~= ""
     prevResult = loadCycleResult(PREV_RESULT_PATH);
     grooveSelection = prevResult.grooveSelection;
@@ -164,17 +165,18 @@ for iImg=1:NUM_IMAGES
         h_prl = 8; % 平行四辺形の底辺
 
         % local maximum method, centroid method 共通の溝選択
-        fig = figure;
-        origImg.showImg();
-        hold on;
-        pts_max_r.showCandidates();
-        pts_cnt_r.showCandidates();
-        title("Peak Dots (local max & centroid)");
         % 1回の選択でpks_max_r,pks_cnt_rの両方の傾きを補正したpksCorCellを得る
         if isempty(grooveSelection)
+            fig = figure;
+            origImg.showImg();
+            hold on;
+            pts_max_r.showCandidates();
+            pts_cnt_r.showCandidates();
+            title("Peak Dots (local max \& centroid)");
             [p1,p2,pksCorCell] = fitGroove(jSegment,fig,p2,w_prl,h_prl,{pks_max_r,pks_cnt_r});
         else
-            [p1,p2,pksCorCell] = fitGroove(jSegment,fig,p2,w_prl,h_prl,{pks_max_r,pks_cnt_r}, ...
+            % 保存済みの点で自動選択するのでfigureは作らない
+            [p1,p2,pksCorCell] = fitGroove(jSegment,[],p2,w_prl,h_prl,{pks_max_r,pks_cnt_r}, ...
                 P1=grooveSelection.p1(kImgSmall,:), P2=grooveSelection.p2(kImgSmall,:));
         end
         pks_max_cor = pksCorCell{1};

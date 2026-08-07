@@ -77,7 +77,7 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 `fitGroove(jSegment,fig,p2,w,h,pksCell,opts)` は、平行四辺形（左端の点`p1`・右端の点`p2`、高さ`h`）内にある溝底候補点を直線近似し、その傾きで`pksCell`の各要素を補正する。
 
 - **複数データセットを1回で補正**: `pksCell`は`{pks_max, pks_cnt}`のように複数の溝底候補点データセットをまとめて渡せる。同じ溝に対して重心法・局所的最大値法を1回の選択（`ginput`1組）で両方補正できるため、手法ごとに別々にクリックする必要がない。戻り値`pksCorCell`も同じ順序・要素数の`cell`になる。
-- **保存済みの点で自動選択**: `opts.P1`/`opts.P2`に既知の点（`(1,2)`の`[x,y]`）を渡すと、その点については`ginput`を呼ばず渡された値をそのまま使う。両方渡せば`ginput`を一切呼ばない完全自動モードになる。`P1`を省略した場合は従来通り（`jSegment==1`なら`ginput`、それ以外は引数の`p2`を`p1`として使う）。
+- **保存済みの点で自動選択**: `opts.P1`/`opts.P2`に既知の点（`(1,2)`の`[x,y]`）を渡すと、その点については`ginput`を呼ばず渡された値をそのまま使う。両方渡せば`ginput`だけでなく`figure`の作成・描画も一切行わない完全自動モードになるため、`fig`には`[]`を渡してよい（80セグメント分ループで無駄なfigureの生成/破棄をしなくて済む）。`P1`を省略した場合は従来通り（`jSegment==1`なら`ginput`、それ以外は引数の`p2`を`p1`として使う）。
 - **p1,p2の保存と再利用**: 音声復元の実験（`_1cycle`スクリプト）でセグメントごとの`p1`,`p2`を`allP1`,`allP2`に蓄積し、`saveCycleResult`の`GrooveSelection=struct('p1',allP1,'p2',allP2)`で保存しておくと、`loadCycleResult`で読み込んだ`result.grooveSelection.p1`/`.p2`を次回の`fitGroove`呼び出しに`P1`/`P2`として渡すだけで、同じ溝を`ginput`なしで自動選択できる（抽出手法やパラメータだけを変えて再解析したい場合に便利）。
 
 ```matlab
@@ -85,9 +85,9 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 [p1,p2,pksCorCell] = fitGroove(jSegment,fig,p2,w_prl,h_prl,{pks_max,pks_cnt});
 pks_max_cor = pksCorCell{1}; pks_cnt_cor = pksCorCell{2};
 
-% 以前の実験結果に保存したp1,p2を使って自動選択（ginputなし）
+% 以前の実験結果に保存したp1,p2を使って自動選択（ginput・figureともに不要）
 prev = loadCycleResult(prevMatPath);
-[p1,p2,pksCorCell] = fitGroove(jSegment,fig,p2,w_prl,h_prl,{pks_max,pks_cnt}, ...
+[p1,p2,pksCorCell] = fitGroove(jSegment,[],p2,w_prl,h_prl,{pks_max,pks_cnt}, ...
     P1=prev.grooveSelection.p1(kImgSmall,:), P2=prev.grooveSelection.p2(kImgSmall,:));
 ```
 

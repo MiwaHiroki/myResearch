@@ -37,6 +37,7 @@ expDir = experimentDir(proj.RootFolder,date);       % 実験結果.matの保存�
 % 以前保存したp1,p2で溝を自動選択する場合は、その結果.matのパスを指定する
 % （空文字なら手動でginputにより選択する。詳細はREADMEの「溝の選択（fitGroove）」）
 PREV_RESULT_PATH = "";
+% PREV_RESULT_PATH = fullfile(proj.RootFolder,"experiments","0731","cycleResult_intpD_0731_2.mat");
 if PREV_RESULT_PATH ~= ""
     prevResult = loadCycleResult(PREV_RESULT_PATH);
     grooveSelection = prevResult.grooveSelection;
@@ -175,16 +176,17 @@ for iImg=1:NUM_IMAGES
         h_prl = 8; % 平行四辺形の底辺
 
         % local maximum method, centroid method 共通の溝選択
-        fig = figure;
-        origImg.showImg();
-        hold on;
-        pts_max_intp.showCandidates();
-        pts_cnt_intp.showCandidates();
         % 1回の選択でpks_max_intp,pks_cnt_intpの両方の傾きを補正したpksCorCellを得る
         if isempty(grooveSelection)
+            fig = figure;
+            origImg.showImg();
+            hold on;
+            pts_max_intp.showCandidates();
+            pts_cnt_intp.showCandidates();
             [p1,p2,pksCorCell] = fitGroove(jSegment,fig,p2,w_prl,h_prl,{pks_max_intp,pks_cnt_intp});
         else
-            [p1,p2,pksCorCell] = fitGroove(jSegment,fig,p2,w_prl,h_prl,{pks_max_intp,pks_cnt_intp}, ...
+            % 保存済みの点で自動選択するのでfigureは作らない
+            [p1,p2,pksCorCell] = fitGroove(jSegment,[],p2,w_prl,h_prl,{pks_max_intp,pks_cnt_intp}, ...
                 P1=grooveSelection.p1(kImgSmall,:), P2=grooveSelection.p2(kImgSmall,:));
         end
         pks_max_cor = pksCorCell{1};

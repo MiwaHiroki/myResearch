@@ -6,15 +6,16 @@
 %
 % opts.P1/opts.P2に既知の点を渡すと、その点についてはginputで選択せず
 % 渡された値をそのまま使う（音声復元の実験で保存したp1,p2を使って
-% 自動で溝を選択し直す場合に使う）。両方渡せばginputは一切呼ばれない。
+% 自動で溝を選択し直す場合に使う）。両方渡せばginputは一切呼ばれないうえ、
+% figureの作成・描画も一切行わない（figに何を渡しても使われないので[]でよい）。
 %
 % 使い方:
 %   % 手動選択（従来通り）
 %   [p1,p2,pksCorCell] = fitGroove(jSegment,fig,p2,w,h,{pks_max,pks_cnt});
 %   pks_max_cor = pksCorCell{1}; pks_cnt_cor = pksCorCell{2};
 %
-%   % 以前保存したp1,p2を使って自動選択（ginputなし）
-%   [p1,p2,pksCorCell] = fitGroove(jSegment,fig,p2,w,h,{pks_max,pks_cnt}, ...
+%   % 以前保存したp1,p2を使って自動選択（ginput・figureともに不要）
+%   [p1,p2,pksCorCell] = fitGroove(jSegment,[],p2,w,h,{pks_max,pks_cnt}, ...
 %       P1=prevP1,P2=prevP2);
 
 function [p1,p2,pksCorCell] = fitGroove(jSegment,fig,p2,w,h,pksCell,opts)
@@ -39,7 +40,14 @@ function [p1,p2,pksCorCell] = fitGroove(jSegment,fig,p2,w,h,pksCell,opts)
         error("fitGroove:invalidP2", "opts.P2 は要素数2のベクトルで指定してください。");
     end
 
-    figure(fig);
+    % P1,P2が両方渡されているときはginput不要 = 対話的な選択が要らないので、
+    % figureの作成・描画も一切行わない（80セグメント分のループで無駄な
+    % figureの生成/破棄を繰り返さないため）
+    autoMode = ~isempty(opts.P1) && ~isempty(opts.P2);
+
+    if ~autoMode
+        figure(fig);
+    end
 
     % 平行四辺形をつくる
     vertices = zeros(4,2); % 頂点
@@ -55,7 +63,9 @@ function [p1,p2,pksCorCell] = fitGroove(jSegment,fig,p2,w,h,pksCell,opts)
     % 左側
     vertices(1,:) = [1,p1(2) + h/2]';
     vertices(2,:) = [1,p1(2) - h/2]';
-    line(vertices(1:2,1),vertices(1:2,2),'LineWidth',3)
+    if ~autoMode
+        line(vertices(1:2,1),vertices(1:2,2),'LineWidth',3)
+    end
 
     % 右側
     if ~isempty(opts.P2)
@@ -65,13 +75,16 @@ function [p1,p2,pksCorCell] = fitGroove(jSegment,fig,p2,w,h,pksCell,opts)
     end
     vertices(3,:) = [w,p2(2) - h/2]';
     vertices(4,:) = [w,p2(2) + h/2]';
-    line(vertices(3:4,1),vertices(3:4,2),'LineWidth',3)
 
-    pgon = polyshape(vertices);
-    plot(pgon);
+    if ~autoMode
+        line(vertices(3:4,1),vertices(3:4,2),'LineWidth',3)
 
-    hold off;
-    close(gcf);
+        pgon = polyshape(vertices);
+        plot(pgon);
+
+        hold off;
+        close(gcf);
+    end
 
     % 平行四辺形の内部または辺上にある点を選び、各データセットを直線近似で補正する
     numDatasets = numel(pksCell);

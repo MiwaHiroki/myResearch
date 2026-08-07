@@ -108,16 +108,17 @@ for iImg=1:NUM_IMAGES
 
         % fitGroove()を使って、溝1本分の形状データを抽出する
         % local maximum method, centroid method 共通の溝選択
-        fig = figure;
-        origImg.showImg();
-        hold on;
-        pts_max.showCandidates();
-        pts_cnt.showCandidates();
         % 1回の選択でpks_max,pks_cntの両方の傾きを補正したpksCorCellを得る
         if isempty(grooveSelection)
+            fig = figure;
+            origImg.showImg();
+            hold on;
+            pts_max.showCandidates();
+            pts_cnt.showCandidates();
             [p1,p2,pksCorCell] = fitGroove(jSegment,fig,p2,w_prl,h_prl,{pks_max,pks_cnt});
         else
-            [p1,p2,pksCorCell] = fitGroove(jSegment,fig,p2,w_prl,h_prl,{pks_max,pks_cnt}, ...
+            % 保存済みの点で自動選択するのでfigureは作らない
+            [p1,p2,pksCorCell] = fitGroove(jSegment,[],p2,w_prl,h_prl,{pks_max,pks_cnt}, ...
                 P1=grooveSelection.p1(kImgSmall,:), P2=grooveSelection.p2(kImgSmall,:));
         end
         pks_max_cor = pksCorCell{1};
