@@ -70,11 +70,11 @@ for i=1:2
     rsmplD = rsmplD.setDiffTF(D_TH);
     rsmplDCell{i} = rsmplD;
 
-    pts_max_orig = GrooveCandidates(origD); % 局所的最大値法
+    pts_max_orig = GroovePointCloud(origD); % 局所的最大値法
 
     % 重心法
-    pts_cnt_orig = GrooveCandidates(origD);
-    pts_cnt_rsmpl = GrooveCandidates(rsmplD);
+    pts_cnt_orig = GroovePointCloud(origD);
+    pts_cnt_rsmpl = GroovePointCloud(rsmplD);
 
     origExtractor = GrooveExtractor(origD);
     rsmplExtractor = GrooveExtractor(rsmplD);
@@ -144,8 +144,8 @@ for i=1:2 % それぞれのタイルについて
     end
 
     % パターン2: orig(cnt), rsmpl(cnt)
-    % pts_cnt_orig.showCandidates("magenta",MARKER_SIZE);
-    % pts_cnt_rsmpl.showCandidates("cyan",MARKER_SIZE);
+    % pts_cnt_orig.showPoints("magenta",MARKER_SIZE);
+    % pts_cnt_rsmpl.showPoints("cyan",MARKER_SIZE);
 
     
     hold(ax,"off");

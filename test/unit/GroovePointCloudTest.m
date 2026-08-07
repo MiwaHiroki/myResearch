@@ -1,5 +1,5 @@
-% GrooveCandidates クラスの単体テスト
-classdef GrooveCandidatesTest < matlab.unittest.TestCase
+% GroovePointCloud クラスの単体テスト
+classdef GroovePointCloudTest < matlab.unittest.TestCase
 
     properties
         fig
@@ -32,40 +32,40 @@ classdef GrooveCandidatesTest < matlab.unittest.TestCase
 
     methods (Test)
         function testConstructorCopiesMetaFromDarknessMap(testCase)
-            gc = GrooveCandidates(testCase.dValue);
-            testCase.verifyEqual(gc.imgID, [3; 4]);
-            testCase.verifyEqual(gc.width, 3);
-            testCase.verifyEqual(gc.height, 6);
-            testCase.verifyFalse(gc.rsmplTF);
-            testCase.verifyEqual(gc.scaleFactor, struct('row',1,'col',1));
+            gpc = GroovePointCloud(testCase.dValue);
+            testCase.verifyEqual(gpc.imgID, [3; 4]);
+            testCase.verifyEqual(gpc.width, 3);
+            testCase.verifyEqual(gpc.height, 6);
+            testCase.verifyFalse(gpc.rsmplTF);
+            testCase.verifyEqual(gpc.scaleFactor, struct('row',1,'col',1));
         end
 
         function testConstructorInitializesEmptyPksCell(testCase)
-            gc = GrooveCandidates(testCase.dValue);
-            testCase.verifySize(gc.pksCell, [1, 3]);
-            testCase.verifyTrue(all(cellfun(@isempty, gc.pksCell)), ...
+            gpc = GroovePointCloud(testCase.dValue);
+            testCase.verifySize(gpc.pksCell, [1, 3]);
+            testCase.verifyTrue(all(cellfun(@isempty, gpc.pksCell)), ...
                 "pksCell は初期状態では全て空であるべき");
         end
 
         function testDefaultConstructorIsEmpty(testCase)
-            gc = GrooveCandidates();
-            testCase.verifyEmpty(gc.pksCell);
+            gpc = GroovePointCloud();
+            testCase.verifyEmpty(gpc.pksCell);
         end
 
-        function testShowCandidatesDrawsScatter(testCase)
-            gc = GrooveCandidates(testCase.dValue);
-            gc.pksCell{1} = [1, 3];
-            gc.pksCell{2} = [2, 4];
-            gc.showCandidates();
+        function testShowPointsDrawsScatter(testCase)
+            gpc = GroovePointCloud(testCase.dValue);
+            gpc.pksCell{1} = [1, 3];
+            gpc.pksCell{2} = [2, 4];
+            gpc.showPoints();
             testCase.verifyNotEmpty(findobj(testCase.fig, 'Type', 'scatter'), ...
-                "showCandidates は scatter を描画すべき");
+                "showPoints は scatter を描画すべき");
         end
 
-        function testShowCandidatesWithOneArg(testCase)
-            gc = GrooveCandidates(testCase.dValue);
-            gc.pksCell{1} = [1, 3];
-            gc.pksCell{2} = [2, 4];
-            gc.showCandidates();
+        function testShowPointsWithOneArg(testCase)
+            gpc = GroovePointCloud(testCase.dValue);
+            gpc.pksCell{1} = [1, 3];
+            gpc.pksCell{2} = [2, 4];
+            gpc.showPoints();
             s = findobj(testCase.fig, 'Type', 'scatter');
             testCase.verifyEqual(s.SizeData, 5);
             testCase.verifyEqual(s.CData, validatecolor("cyan"));
@@ -73,11 +73,11 @@ classdef GrooveCandidatesTest < matlab.unittest.TestCase
             testCase.verifyEqual(s.MarkerFaceColor, 'flat');
         end
 
-        function testShowCandidatesWithTwoArgs(testCase)
-            gc = GrooveCandidates(testCase.dValue);
-            gc.pksCell{1} = [1, 3];
-            gc.pksCell{2} = [2, 4];
-            gc.showCandidates("red");
+        function testShowPointsWithTwoArgs(testCase)
+            gpc = GroovePointCloud(testCase.dValue);
+            gpc.pksCell{1} = [1, 3];
+            gpc.pksCell{2} = [2, 4];
+            gpc.showPoints("red");
             s = findobj(testCase.fig, 'Type', 'scatter');
             testCase.verifyEqual(s.SizeData, 5);
             testCase.verifyEqual(s.CData, validatecolor("red"));
@@ -85,11 +85,11 @@ classdef GrooveCandidatesTest < matlab.unittest.TestCase
             testCase.verifyEqual(s.MarkerFaceColor, 'flat');
         end
 
-        function testShowCandidatesWithThreeArgs(testCase)
-            gc = GrooveCandidates(testCase.dValue);
-            gc.pksCell{1} = [1, 3];
-            gc.pksCell{2} = [2, 4];
-            gc.showCandidates("green", 12);
+        function testShowPointsWithThreeArgs(testCase)
+            gpc = GroovePointCloud(testCase.dValue);
+            gpc.pksCell{1} = [1, 3];
+            gpc.pksCell{2} = [2, 4];
+            gpc.showPoints("green", 12);
             s = findobj(testCase.fig, 'Type', 'scatter');
             testCase.verifyEqual(s.SizeData, 12);
             testCase.verifyEqual(s.CData, validatecolor("green"));

@@ -41,8 +41,8 @@ imgData = ImageData(img_small,[1;1]);
 origD = DarknessMap(imgData);
 origD = origD.setDiffTF(D_TH);
 
-pts_max = GrooveCandidates(origD); % 局所的最大値法
-pts_cnt = GrooveCandidates(origD); % 重心法
+pts_max = GroovePointCloud(origD); % 局所的最大値法
+pts_cnt = GroovePointCloud(origD); % 重心法
 
 extractor = GrooveExtractor(origD);
 for x = 1:imgData.width
@@ -69,8 +69,8 @@ axis(ax,"image");
 hold(ax,"on");
 % scatter(pkDots_max(:,1),pkDots_max(:,2),5,"cyan","filled","o","MarkerFaceAlpha",0.5);
 % scatter(pkDots_cnt(:,1),pkDots_cnt(:,2),5,"magenta","filled","o","MarkerFaceAlpha",0.5);
-pts_max.showCandidates("red",MARKER_SIZE);
-pts_cnt.showCandidates("cyan",MARKER_SIZE);
+pts_max.showPoints("red",MARKER_SIZE);
+pts_cnt.showPoints("cyan",MARKER_SIZE);
 hold(ax,"off");
 
 % 原稿ではキャプションを付けるので図中のタイトルは出さない

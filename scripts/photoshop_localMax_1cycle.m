@@ -42,7 +42,7 @@ end
 %%
 allImg(TOTAL_SEGMENTS,1) = ImageData();
 allOrigD(TOTAL_SEGMENTS,1) = DarknessMap();
-allPts_max_8xD(TOTAL_SEGMENTS,1) = GrooveCandidates();
+allPts_max_8xD(TOTAL_SEGMENTS,1) = GroovePointCloud();
 
 % 1周分のデータのx,y座標
 xcoords = cell(TOTAL_SEGMENTS,1);
@@ -77,7 +77,7 @@ for iImg=1:NUM_IMAGES
         dMat = origD.dMat;
 
         % objects in which groove candidates are recorded.
-        pts_max = GrooveCandidates(origD);
+        pts_max = GroovePointCloud(origD);
 
         % W_MAX = 8*8;
         % for x=1:origImg.width

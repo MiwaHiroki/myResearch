@@ -9,7 +9,9 @@ Claude が判断した**優先度の高い順**に並べている（P1 が最優
 
 > **2026-08-04 実施済み**: P1（1-1 `DarknessValue`→`DarknessMap`改名、1-2 `GrooveExtractor`への抽出処理分離）を実施した。分離時のメソッド名は本提案のP1-2/P5の案（`findThresholdIntervals`/`findGrooveBottomIntervals`/`extractByCentroid`/`extractByLocalMax`、`startIdxCells`/`endIdxCells`）を採用している。これによりP4-3・P5-1の一部項目も副次的に完了した（各項目に反映済み）。
 >
-> **2026-08-07 実施済み**: P3を選択肢**(A) 削除**で実施した。`MediaData`は`src/archive/`へ、その単体テストは`test/archive/`へ退避し、`src/`のデータクラスは継承関係を持たない独立した値クラスに統一した。これによりP4-2・P5-3も解消済み（各項目に反映済み）。残るのはP2（`GrooveCandidates`改名）・P4-1・P4-3の一部・P5-1/5-2。詳細はCLAUDE.mdのArchitecture notesを参照。
+> **2026-08-07 実施済み**: P3を選択肢**(A) 削除**で実施した。`MediaData`は`src/archive/`へ、その単体テストは`test/archive/`へ退避し、`src/`のデータクラスは継承関係を持たない独立した値クラスに統一した。これによりP4-2・P5-3も解消済み（各項目に反映済み）。
+>
+> **2026-08-07 実施済み**: P2を実施した。ただし採用した名前は提案の`GrooveCandidateSet`ではなく`GroovePointCloud`（併せて`showCandidates`→`showPoints`）。理由は本クラスが「溝底の点」を保持することを主張すべきであり、将来的に点群のクラスタリングメソッドを追加する計画があるため（MATLAB組み込みの`pointCloud`と`pcsegdist`が命名の前例）。詳細はCLAUDE.mdのArchitecture notesを参照。残るのはP4-1・P4-3の一部・P5-1/5-2。
 >
 > 本ドキュメントが対象とするのは`src/`の5クラスの命名のみ。同時期に行った`fitGroove`（複数pksデータセット対応・`GrooveSelection`による自動選択・figure省略）のリファクタリングはクラス名の変更を伴わないため対象外。詳細はREADME.mdの「溝の選択（fitGroove）」およびCLAUDE.mdのArchitecture notesを参照。
 
@@ -35,11 +37,11 @@ Claude が判断した**優先度の高い順**に並べている（P1 が最優
 | `AudioData` | value | `name`, `signal`, `fs`, `filename` | `audioPlot`, `FFTPlot`, `spectrogramPlot`, `saveAudio`, `playAudio` |
 | `DarknessMap`（旧`DarknessValue`） | value | `imgID`, `imgWidth`, `imgHeight`, `nRows`, `nCols`, `rsmplTF`, `scaleFactor`, `dMat`, `diffTF` | `dResample`, `dInterp`, `setDiffTF`, `plotD_x` |
 | `GrooveExtractor`（新規） | value | `startIdxCells`, `endIdxCells` | `findThresholdIntervals`, `findGrooveBottomIntervals`, `extractByCentroid`, `extractByLocalMax` |
-| `GrooveCandidates` | value | `imgID`, `width`, `height`, `rsmplTF`, `scaleFactor`, `pksCell` | `showCandidates` |
+| `GroovePointCloud`（旧`GrooveCandidates`） | value | `imgID`, `width`, `height`, `rsmplTF`, `scaleFactor`, `pksCell` | `showPoints`（旧`showCandidates`） |
 
 > `MediaData`はP3(A)により`src/archive/MediaData.m`へ退避したため一覧から外した。現在`src/`のデータクラスは継承関係を持たない独立した値クラスのみ。
 
-抽出系のプロパティ・メソッドが`DarknessMap`から`GrooveExtractor`に移り、名前もP1-2/P5案どおりに改名された。それ以外（`ImageData`/`AudioData`/`GrooveCandidates`、および`DarknessMap`自身の`imgWidth`/`imgHeight`等）は提案時点のまま。
+抽出系のプロパティ・メソッドが`DarknessMap`から`GrooveExtractor`に移り、名前もP1-2/P5案どおりに改名された。`GrooveCandidates`はP2により`GroovePointCloud`へ改名済み。それ以外（`ImageData`/`AudioData`、および`DarknessMap`自身の`imgWidth`/`imgHeight`等）は提案時点のまま。
 
 ---
 
@@ -71,12 +73,19 @@ Claude が判断した**優先度の高い順**に並べている（P1 が最優
 
 ---
 
-## P2. `GrooveCandidates` を `GrooveCandidateSet` に改名する
+## P2. `GrooveCandidates` を改名する ✅ 実施済み（2026-08-07、`GroovePointCloud`を採用）
 
 - クラス名は原則**単数**（1インスタンス＝1概念）。ヘッダコメントも `GrooveCandidateクラス`（単数）で、コードの複数形と食い違っている。
 - 実体は「1画像分の候補点の集合」なので、集合であることを明示する名前が誤解を減らす。
-- 代替案: `GrooveCandidateSet`（推奨） / `GrooveCandidateMap`。
-- 併せてヘッダコメントの表記もクラス名に一致させる。
+- 代替案: `GrooveCandidateSet` / `GrooveCandidateMap`。
+
+**実施内容**
+
+- 検討の結果、提案の`GrooveCandidateSet`ではなく**`GroovePointCloud`**を採用した。理由は次の2点:
+  - このクラスが保持するのは「候補」ではなく「溝底として抽出された点」であることを主張すべき（論文用語の「ピーク点」もdescriptiveでないため採用しなかった）。
+  - 将来このクラスに点群のクラスタリングメソッドを追加する計画があり、MATLAB組み込みの`pointCloud`クラス（`pcsegdist`等でクラスタリングされる対象）が命名の前例になる。
+- 併せて `showCandidates` → `showPoints` に改名（クラス名との一貫性のため）。
+- ヘッダコメントの表記もクラス名に一致させた。
 
 ---
 
@@ -108,7 +117,7 @@ Claude が判断した**優先度の高い順**に並べている（P1 が最優
 |---|---|---|---|
 | `ImageData` | `width` / `height` | `width` / `height` | - |
 | `DarknessMap`（旧`DarknessValue`） | `imgWidth` / `imgHeight` | `width` / `height` | 未着手 |
-| `GrooveCandidates` | `width` / `height` | `width` / `height` | - |
+| `GroovePointCloud`（旧`GrooveCandidates`） | `width` / `height` | `width` / `height` | - |
 
 - `DarknessMap` の `imgWidth`/`imgHeight` を `width`/`height` に揃える（`img` 接頭辞は不要）。P1では扱わなかったため引き続き未着手。
 
@@ -124,7 +133,7 @@ Claude が判断した**優先度の高い順**に並べている（P1 が最優
 |---|---|---|---|
 | `rsmplTF` | `isResampled` | `TF` 接尾より論理値の意図が明確。`is` 接頭で真偽が伝わる | 未着手（`DarknessMap`に残存） |
 | `sIdxC` / `eIdxC` | `startIdxCells` / `endIdxCells` | 略語 `C`（cell）と `s`/`e` を展開 | ✅ 実施済み（P1-2で`GrooveExtractor`へ移動と同時に改名） |
-| `pksCell` | `peakCells` | `pks` を展開 | 未着手（`GrooveCandidates`に残存） |
+| `pksCell` | `peakCells` | `pks` を展開 | 未着手（`GroovePointCloud`に残存） |
 | `dMat` | `darknessMat` or `dMat`（据え置き可） | 中心データ。P1改名時に合わせて検討 | 据え置き（P1で`dMat`のまま維持） |
 
 ---
@@ -141,7 +150,7 @@ Claude が判断した**優先度の高い順**に並べている（P1 が最優
 
 ### 5-2. 表示系メソッドの命名パターン統一
 
-- 現状 `audioPlot` / `FFTPlot` / `spectrogramPlot`（名詞+Plot）と `showImg` / `showCandidates`（show+名詞）が混在。
+- 現状 `audioPlot` / `FFTPlot` / `spectrogramPlot`（名詞+Plot）と `showImg` / `showPoints`（show+名詞）が混在。
 - どちらかに寄せる。案として **`plot〜`** に統一:
   - `audioPlot` → `plotWaveform`
   - `FFTPlot` → `plotFFT`（頭字語は大文字許容、ただし先頭は小文字）
@@ -161,7 +170,7 @@ Claude が判断した**優先度の高い順**に並べている（P1 が最優
 1. ~~**P1-1**（`DarknessValue` → `DarknessMap` 改名のみ）~~ ✅ 実施済み（2026-08-04）
 2. ~~**P1-2**（`GrooveExtractor` 分離）~~ ✅ 実施済み（2026-08-04、1-1と同時）
 3. ~~**P3 の方針決定**（継承を残すか消すか）~~ ✅ 実施済み（2026-08-07、(A)削除を採用）
-4. **P2**（`GrooveCandidates` → `GrooveCandidateSet`）。
+4. ~~**P2**（`GrooveCandidates` → `GroovePointCloud`）~~ ✅ 実施済み（2026-08-07）
 5. **P4**（プロパティ統一。残るのは`DarknessMap.imgWidth/imgHeight`・`pksCell`・`rsmplTF`）── 参照箇所が多いので単独コミットで。
 6. **P5**（メソッド命名統一。残るのは`plotD_x`・表示系メソッドの統一）。
 

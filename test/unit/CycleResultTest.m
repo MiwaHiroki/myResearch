@@ -44,8 +44,8 @@ classdef CycleResultTest < matlab.unittest.TestCase
 
             imgArr(n,1) = ImageData();
             dArr(n,1)   = DarknessMap();
-            ptsCnt(n,1) = GrooveCandidates();
-            ptsMax(n,1) = GrooveCandidates();
+            ptsCnt(n,1) = GroovePointCloud();
+            ptsMax(n,1) = GroovePointCloud();
             xcoords = cell(n,1);
             ycoords = cell(n,1);
 
@@ -58,7 +58,7 @@ classdef CycleResultTest < matlab.unittest.TestCase
                 imgData = ImageData(img, [1; k]);
                 dValue  = setDiffTF(DarknessMap(imgData), 0.6);
 
-                pts = GrooveCandidates(dValue);
+                pts = GroovePointCloud(dValue);
                 extractor = GrooveExtractor(dValue);
                 for x = 1:imgData.width
                     [firstIdx, lastIdx] = extractor.findThresholdIntervals(dValue, x);
@@ -188,7 +188,7 @@ classdef CycleResultTest < matlab.unittest.TestCase
             testCase.verifyTrue(isfield(result, "localMax"));
             testCase.verifyFalse(isfield(result.centroid, "method"));
 
-            testCase.verifyClass(result.centroid.pts, "GrooveCandidates");
+            testCase.verifyClass(result.centroid.pts, "GroovePointCloud");
             testCase.verifyNumElements(result.centroid.pts, testCase.N_SEG);
             testCase.verifyClass(result.centroid.audio, "AudioData");
             testCase.verifySize(result.centroid.audio, [1 1]);

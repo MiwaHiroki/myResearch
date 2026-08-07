@@ -64,11 +64,11 @@ rsmplD = rsmplD.setDiffTF(D_THRESH);
 
 
 % for original img
-pts_cnt = GrooveCandidates(origD);
-pts_max = GrooveCandidates(origD);
+pts_cnt = GroovePointCloud(origD);
+pts_max = GroovePointCloud(origD);
 % for resampled img
-pts_cnt_r = GrooveCandidates(rsmplD);
-pts_max_r = GrooveCandidates(rsmplD);
+pts_cnt_r = GroovePointCloud(rsmplD);
+pts_max_r = GroovePointCloud(rsmplD);
 
 origExtractor = GrooveExtractor(origD);
 rsmplExtractor = GrooveExtractor(rsmplD);
@@ -106,10 +106,10 @@ eIdxs = vertcat(origExtractor.endIdxCells{:});
 figure;
 origImg.showImg();
 hold on;
-pts_max.showCandidates();
-pts_cnt.showCandidates();
-pts_max_r.showCandidates();
-pts_cnt_r.showCandidates();
+pts_max.showPoints();
+pts_cnt.showPoints();
+pts_max_r.showPoints();
+pts_cnt_r.showPoints();
 title("Peak Dots from Original and Resampled Darkness")
 
 legend(["original (localMax)","original (centroid)","resampled (localMax)","resampled (centroid)"]);

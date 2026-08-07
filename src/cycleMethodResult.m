@@ -16,7 +16,7 @@ function res = cycleMethodResult(method, pts, xcoords, ycoords, y_comb, audio)
 %
 % 入力:
 %   method  - "centroid"（重心法）または "localMax"（局所的最大値法）
-%   pts     - (TOTAL_SEGMENTS x 1) GrooveCandidates
+%   pts     - (TOTAL_SEGMENTS x 1) GroovePointCloud
 %   xcoords - (TOTAL_SEGMENTS x 1) cell。各セルは1セグメント分のx座標
 %   ycoords - (TOTAL_SEGMENTS x 1) cell。各セルは1セグメント分のy座標（デトレンド後）
 %   y_comb  - ycoords を縦に連結した1周分のy座標
@@ -29,7 +29,7 @@ function res = cycleMethodResult(method, pts, xcoords, ycoords, y_comb, audio)
 
     arguments
         method (1,1) string {mustBeMember(method,["centroid","localMax"])}
-        pts (:,1) GrooveCandidates
+        pts (:,1) GroovePointCloud
         xcoords (:,1) cell = {}
         ycoords (:,1) cell = {}
         y_comb (:,1) double = []

@@ -42,7 +42,7 @@ imgData = ImageData(img_small,[1;1]);
 origD = DarknessMap(imgData);
 origD = origD.setDiffTF(D_TH);
 
-pts = GrooveCandidates(origD);
+pts = GroovePointCloud(origD);
 extractor = GrooveExtractor(origD);
 for x = 1:imgData.width
     [firstIdx,lastIdx] = extractor.findThresholdIntervals(origD,x);

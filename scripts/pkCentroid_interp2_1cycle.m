@@ -47,16 +47,16 @@ end
 
 %%
 
-% 画像8*l枚分のImageData, DarknessMap, GrooveCandidatesクラスオブジェクト
+% 画像8*l枚分のImageData, DarknessMap, GroovePointCloudクラスオブジェクト
 % 溝の形状抽出はすべてcentroid methodによる。
 allImg(TOTAL_SEGMENTS,1) = ImageData();
 allIntpD(TOTAL_SEGMENTS,1) = DarknessMap();
-allPts_max_intpD(TOTAL_SEGMENTS,1) = GrooveCandidates();
-allPts_cnt_intpD(TOTAL_SEGMENTS,1) = GrooveCandidates();
+allPts_max_intpD(TOTAL_SEGMENTS,1) = GroovePointCloud();
+allPts_cnt_intpD(TOTAL_SEGMENTS,1) = GroovePointCloud();
 % 以下はpkCentroid_resample_1cycle.mにゆずる。
 % allOrigD(TOTAL_SEGMENTS,1) = DarknessMap();
-% allPts_max_origD(TOTAL_SEGMENTS,1) = GrooveCandidates();
-% allPts_cnt_origD(TOTAL_SEGMENTS,1) = GrooveCandidates();
+% allPts_max_origD(TOTAL_SEGMENTS,1) = GroovePointCloud();
+% allPts_cnt_origD(TOTAL_SEGMENTS,1) = GroovePointCloud();
 
 % 1周分のデータのx,y座標
 xcoords = cell(TOTAL_SEGMENTS,1);
@@ -101,16 +101,16 @@ for iImg=1:NUM_IMAGES
 
         % objects in which groove candidates are recorded.
         % for original img
-        % pts_cnt = GrooveCandidates(origD);
-        % pts_max = GrooveCandidates(origD);
+        % pts_cnt = GroovePointCloud(origD);
+        % pts_max = GroovePointCloud(origD);
 
         % for resampled img
-        % pts_cnt_r = GrooveCandidates(rsmplD);
-        % pts_max_r = GrooveCandidates(rsmplD);
+        % pts_cnt_r = GroovePointCloud(rsmplD);
+        % pts_max_r = GroovePointCloud(rsmplD);
 
         % for interpolated img
-        pts_cnt_intp = GrooveCandidates(intpD);
-        pts_max_intp = GrooveCandidates(intpD);
+        pts_cnt_intp = GroovePointCloud(intpD);
+        pts_max_intp = GroovePointCloud(intpD);
 
 
         WIDTH_THRESH = 8;
@@ -181,8 +181,8 @@ for iImg=1:NUM_IMAGES
             fig = figure;
             origImg.showImg();
             hold on;
-            pts_max_intp.showCandidates();
-            pts_cnt_intp.showCandidates();
+            pts_max_intp.showPoints();
+            pts_cnt_intp.showPoints();
             [p1,p2,pksCorCell] = fitGroove(jSegment,fig,p2,w_prl,h_prl,{pks_max_intp,pks_cnt_intp});
         else
             % 保存済みの点で自動選択するのでfigureは作らない

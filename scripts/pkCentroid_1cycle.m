@@ -43,8 +43,8 @@ end
 %%
 allImg(TOTAL_SEGMENTS,1) = ImageData();
 allOrigD(TOTAL_SEGMENTS,1) = DarknessMap();
-allPts_max_origD(TOTAL_SEGMENTS,1) = GrooveCandidates();
-allPts_cnt_origD(TOTAL_SEGMENTS,1) = GrooveCandidates();
+allPts_max_origD(TOTAL_SEGMENTS,1) = GroovePointCloud();
+allPts_cnt_origD(TOTAL_SEGMENTS,1) = GroovePointCloud();
 
 % 1周分のデータのx,y座標
 xcoords = cell(TOTAL_SEGMENTS,1); % xcoordsは共通
@@ -81,8 +81,8 @@ for iImg=1:NUM_IMAGES
 
         % objects in which groove candidates are recorded.
         % for original img
-        pts_cnt = GrooveCandidates(origD);
-        pts_max = GrooveCandidates(origD);
+        pts_cnt = GroovePointCloud(origD);
+        pts_max = GroovePointCloud(origD);
 
         WIDTH_THRESH = 8;
 
@@ -113,8 +113,8 @@ for iImg=1:NUM_IMAGES
             fig = figure;
             origImg.showImg();
             hold on;
-            pts_max.showCandidates();
-            pts_cnt.showCandidates();
+            pts_max.showPoints();
+            pts_cnt.showPoints();
             [p1,p2,pksCorCell] = fitGroove(jSegment,fig,p2,w_prl,h_prl,{pks_max,pks_cnt});
         else
             % 保存済みの点で自動選択するのでfigureは作らない

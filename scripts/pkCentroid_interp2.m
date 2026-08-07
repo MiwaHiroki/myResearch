@@ -74,8 +74,8 @@ dMat_interp = interp2(xx,yy,dMat,x_q,y_q,"cubic");
 sIdxC = cell(1, imgData.width);
 eIdxC = cell(1, imgData.width);
 
-pts_centroid = GrooveCandidates(dValue);
-pts_localMax = GrooveCandidates(dValue);
+pts_centroid = GroovePointCloud(dValue);
+pts_localMax = GroovePointCloud(dValue);
 
 WIDTH_THRESH = 5;
 w_TH = WIDTH_THRESH / step;
@@ -164,14 +164,14 @@ rsmplD = rsmplD.setDiffTF(D_THRESH);
 
 % objects in which groove candidates are recorded.
 % for original img
-pts_cnt = GrooveCandidates(origD);
-pts_max = GrooveCandidates(origD);
+pts_cnt = GroovePointCloud(origD);
+pts_max = GroovePointCloud(origD);
 % for resampled img
-pts_cnt_r = GrooveCandidates(rsmplD);
-pts_max_r = GrooveCandidates(rsmplD);
+pts_cnt_r = GroovePointCloud(rsmplD);
+pts_max_r = GroovePointCloud(rsmplD);
 % for interpolated img
-pts_cnt_intp = GrooveCandidates(intpD);
-pts_max_intp = GrooveCandidates(intpD);
+pts_cnt_intp = GroovePointCloud(intpD);
+pts_max_intp = GroovePointCloud(intpD);
 
 
 WIDTH_THRESH = 8;
@@ -245,9 +245,9 @@ origImg.showImg("fit");
 ax=gca;
 % imshow(uint8(origImg.img), "InitialMagnification","fit");
 hold on;
-pts_cnt.showCandidates("cyan");
-pts_cnt_r.showCandidates("magenta");
-pts_cnt_intp.showCandidates("yellow");
+pts_cnt.showPoints("cyan");
+pts_cnt_r.showPoints("magenta");
+pts_cnt_intp.showPoints("yellow");
 % set(gca,'YDir','reverse','TickDir','out');
 % set(gca,"XAxisLocation","top");
 % xlabel("$x$");ylabel("$y$");
@@ -378,7 +378,7 @@ fig = figure;
 % imshow(img_small,"InitialMagnification","fit");
 origImg.showImg();
 hold on;
-pts_cnt_intp.showCandidates();
+pts_cnt_intp.showPoints();
 title("Peak Dots (centroid method)");
 [p1_cnt,p2_cnt,pksCorCell] = fitGroove(jSegment,fig,p2_cnt,W_PRL,H_PRL,{pks_cnt_intp});
 pks_cnt_cor = pksCorCell{1};

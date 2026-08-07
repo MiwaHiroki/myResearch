@@ -25,7 +25,7 @@ origD = DarknessMap(imgData);
 origD = origD.setDiffTF(D_THRESH);
 origdMat = origD.dMat;
 
-% pts_cnt = GrooveCandidates(origD);
+% pts_cnt = GroovePointCloud(origD);
 % 
 % 
 % for x=1:pixels

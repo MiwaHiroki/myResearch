@@ -60,14 +60,14 @@ intpD = dInterp(origD, QUERY_STEP, INTERP_METHOD);
 intpD = intpD.setDiffTF(D_TH);
 
 % local maximum method
-pts_max_orig = GrooveCandidates(origD);
-pts_max_rsmpl = GrooveCandidates(rsmplD);
-pts_max_intp = GrooveCandidates(intpD);
+pts_max_orig = GroovePointCloud(origD);
+pts_max_rsmpl = GroovePointCloud(rsmplD);
+pts_max_intp = GroovePointCloud(intpD);
 
 % centroid method
-pts_cnt_orig = GrooveCandidates(origD);
-pts_cnt_rsmpl = GrooveCandidates(rsmplD);
-pts_cnt_intp = GrooveCandidates(intpD);
+pts_cnt_orig = GroovePointCloud(origD);
+pts_cnt_rsmpl = GroovePointCloud(rsmplD);
+pts_cnt_intp = GroovePointCloud(intpD);
 
 origExtractor = GrooveExtractor(origD);
 rsmplExtractor = GrooveExtractor(rsmplD);
@@ -127,9 +127,9 @@ for i=1:2
     for j=1:numel(METHODS)
         % scatter(pkDots_max(:,1),pkDots_max(:,2),5,"cyan","filled","o","MarkerFaceAlpha",0.5);
         % scatter(pkDots_cnt(:,1),pkDots_cnt(:,2),5,"magenta","filled","o","MarkerFaceAlpha",0.5);
-        % pts_cnt_orig.showCandidates("magenta",MARKER_SIZE);
-        % pts_cnt_rsmpl.showCandidates("cyan",MARKER_SIZE);
-        % pts_cnt_intp.showCandidates("yellow",MARKER_SIZE);
+        % pts_cnt_orig.showPoints("magenta",MARKER_SIZE);
+        % pts_cnt_rsmpl.showPoints("cyan",MARKER_SIZE);
+        % pts_cnt_intp.showPoints("yellow",MARKER_SIZE);
 
         % switch i % UPSAMPLING
         %     case 1; markerShape = "o";

@@ -50,11 +50,11 @@ p2 = zeros(1,2);
 
 W_TH = 5; % 「山」の幅の最大値（リサンプルする前の画素数）
 
-% 画像8*l枚分のImageData, DarknessMap, GrooveCandidatesクラスオブジェクト
+% 画像8*l枚分のImageData, DarknessMap, GroovePointCloudクラスオブジェクト
 imgData_full(TOTAL_SEGMENTS,1) = ImageData();
 dValue_full(TOTAL_SEGMENTS,1) = DarknessMap();
-pts_centroid_full(TOTAL_SEGMENTS,1) = GrooveCandidates();
-pts_localMax_full(TOTAL_SEGMENTS,1) = GrooveCandidates();
+pts_centroid_full(TOTAL_SEGMENTS,1) = GroovePointCloud();
+pts_localMax_full(TOTAL_SEGMENTS,1) = GroovePointCloud();
 
 
 % リサンプルしていないデータの解析
@@ -85,8 +85,8 @@ for iImg=1:NUM_IMAGES
         sIdxC = cell(1, imgData.width);
         eIdxC = cell(1, imgData.width);
 
-        pts_centroid = GrooveCandidates(dValue);
-        pts_localMax = GrooveCandidates(dValue);
+        pts_centroid = GroovePointCloud(dValue);
+        pts_localMax = GroovePointCloud(dValue);
 
         for x=1:imgData.width
             [startIdx, endIdx] = dValue.startEndIdx(x);
@@ -300,10 +300,10 @@ p2 = zeros(1,2);
 p_rsmpl = 8;
 q_rsmpl = 1;
 
-% 画像8*l枚分のImageData, DarknessMap, GrooveCandidates
+% 画像8*l枚分のImageData, DarknessMap, GroovePointCloud
 dValue_r_full(TOTAL_SEGMENTS,1) = DarknessMap();
-pts_r_centroid_full(TOTAL_SEGMENTS,1) = GrooveCandidates();
-pts_r_localMax_full(TOTAL_SEGMENTS,1) = GrooveCandidates();
+pts_r_centroid_full(TOTAL_SEGMENTS,1) = GroovePointCloud();
+pts_r_localMax_full(TOTAL_SEGMENTS,1) = GroovePointCloud();
 
 % リサンプルしたデータについて解析
 for iImg=1:8
@@ -319,8 +319,8 @@ for iImg=1:8
         sIdxC = cell(1,imgData.width);
         eIdxC = cell(1,imgData.width);
 
-        pts_centroid = GrooveCandidates(dValue_r);
-        pts_localMax = GrooveCandidates(dValue_r);
+        pts_centroid = GroovePointCloud(dValue_r);
+        pts_localMax = GroovePointCloud(dValue_r);
 
         for x=1:imgData.width
             startIdx = find(dValue_r.diffTF(:,x)==1)+1;
@@ -560,10 +560,10 @@ for iImg=1:NUM_IMAGES
         fig = createFigure([0 0 8 10]);
         imshow(uint8(imgData.img),"InitialMagnification","fit");
         hold on;axis on;
-        pts_max.showCandidates();
-        pts_cnt.showCandidates();
-        pts_r_max.showCandidates();
-        pts_r_cnt.showCandidates();
+        pts_max.showPoints();
+        pts_cnt.showPoints();
+        pts_r_max.showPoints();
+        pts_r_cnt.showPoints();
         title("Groove Candidates (4 patterns)");xlabel("$x$");ylabel("$y$");
         
         legend(["local max (not resampled)","centroid (not resampled)",...

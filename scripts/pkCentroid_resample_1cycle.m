@@ -41,13 +41,13 @@ end
 
 %%
 
-% 画像8*l枚分のImageData, DarknessMap, GrooveCandidatesクラスオブジェクト
+% 画像8*l枚分のImageData, DarknessMap, GroovePointCloudクラスオブジェクト
 % local maximum method, centroid method両方
 % origDからも溝底候補点を求めるが、そこから音声は作っていないので保存しない
 allImg(TOTAL_SEGMENTS,1) = ImageData();
 allRsmplD(TOTAL_SEGMENTS,1) = DarknessMap();
-allPts_max_rsmplD(TOTAL_SEGMENTS,1) = GrooveCandidates();
-allPts_cnt_rsmplD(TOTAL_SEGMENTS,1) = GrooveCandidates();
+allPts_max_rsmplD(TOTAL_SEGMENTS,1) = GroovePointCloud();
+allPts_cnt_rsmplD(TOTAL_SEGMENTS,1) = GroovePointCloud();
 
 
 % 1周分のデータのx,y座標
@@ -92,11 +92,11 @@ for iImg=1:NUM_IMAGES
 
         % objects in which groove candidates are recorded.
         % for original img
-        % pts_cnt = GrooveCandidates(origD);
-        % pts_max = GrooveCandidates(origD);
+        % pts_cnt = GroovePointCloud(origD);
+        % pts_max = GroovePointCloud(origD);
         % for resampled img
-        pts_cnt_r = GrooveCandidates(rsmplD);
-        pts_max_r = GrooveCandidates(rsmplD);
+        pts_cnt_r = GroovePointCloud(rsmplD);
+        pts_max_r = GroovePointCloud(rsmplD);
 
         % 溝底の座標
         % pksCell_r = cell(1,newWidth);
@@ -170,8 +170,8 @@ for iImg=1:NUM_IMAGES
             fig = figure;
             origImg.showImg();
             hold on;
-            pts_max_r.showCandidates();
-            pts_cnt_r.showCandidates();
+            pts_max_r.showPoints();
+            pts_cnt_r.showPoints();
             title("Peak Dots (local max \& centroid)");
             [p1,p2,pksCorCell] = fitGroove(jSegment,fig,p2,w_prl,h_prl,{pks_max_r,pks_cnt_r});
         else

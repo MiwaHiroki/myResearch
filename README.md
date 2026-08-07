@@ -10,11 +10,11 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 2. `omitMask` で左右の無効領域（マスク）を除去する。
 3. `ImageData` → `DarknessMap` を作り、暗さ行列 `dMat = 1 - img/255` を得る。必要に応じて `dResample`（リサンプル）や `dInterp`（interp2内挿）で高解像度化する。
 4. `DarknessMap` の `setDiffTF` でしきい値 `D_THRESH` を超える領域の立ち上がり／立ち下がりを求め、`GrooveExtractor` で各xの溝底候補の区間（`findThresholdIntervals`）と幅の狭い溝底区間（`findGrooveBottomIntervals`）を特定する。
-5. `GrooveExtractor` の `extractByCentroid`（重心法）／`extractByLocalMax`（局所的最大値法）で溝底のy座標を求め、`GrooveCandidates` に格納する。
+5. `GrooveExtractor` の `extractByCentroid`（重心法）／`extractByLocalMax`（局所的最大値法）で溝底のy座標を求め、`GroovePointCloud` に格納する。
 6. `fitGroove` で選択した平行四辺形内の点群を直線近似し、溝の傾きを補正する（詳細は「溝の選択（fitGroove）」）。
 7. ヒストグラムのピークから追跡対象の溝1本を選び、その中心付近（`TOL_DISTANCE`／`tol`）の点だけを抽出、欠損を `fillmissing` で補間し、多項式でデトレンドする。
 8. 全セグメントの座標を連結し、回転数78rpmから標本化周波数を計算して `AudioData` を生成、波形・FFT・スペクトログラムを描画・保存し、wavに書き出す。
-9. `saveCycleResult` で実験条件と解析結果（`ImageData`／`GrooveCandidates`／`AudioData`／`y_comb` など）を `experiments/<日付>/` の `.mat` に保存する（詳細は「1周分の実験結果の保存」）。
+9. `saveCycleResult` で実験条件と解析結果（`ImageData`／`GroovePointCloud`／`AudioData`／`y_comb` など）を `experiments/<日付>/` の `.mat` に保存する（詳細は「1周分の実験結果の保存」）。
 
 ## ディレクトリ構成
 
@@ -40,7 +40,7 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 - **`GrooveExtractor`**: `DarknessMap` から溝底候補点を抽出するクラス。`dMat`（最大約2GB）を複製しないよう、各メソッドは対象の `DarknessMap` インスタンスを引数として都度受け取る。
   - `findThresholdIntervals(map,x)` / `findGrooveBottomIntervals(map,x,firstIdx,lastIdx,WIDTH_THRESH)`: 溝底候補区間の特定（区間は `startIdxCells`/`endIdxCells` に保持）
   - `extractByCentroid(map,x)` / `extractByLocalMax(map,x)`: 重心法／局所的最大値法で溝底のy座標を算出
-- **`GrooveCandidates`**: 検出した溝底候補点（`pksCell`）を保持し、`showCandidates` で散布図表示。
+- **`GroovePointCloud`**（旧`GrooveCandidates`。2026-08-07改名）: 検出した溝底の点群（`pksCell`）を保持し、`showPoints` で散布図表示。
 - **`AudioData`**: 復元音声を保持し、波形（`audioPlot`）・FFT（`FFTPlot`）・スペクトログラム（`spectrogramPlot`）の描画、wav保存（`saveAudio`）、再生（`playAudio`）を行う。
 
 上記はいずれも継承関係を持たない独立した値クラス。共通の抽象基底クラスだった`MediaData`は誰にも継承されず孤立していたため、`src/archive/MediaData.m`へ退避した（単体テストも`test/archive/`に移動済み）。
@@ -56,7 +56,7 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 - **`experimentDir`**: 実験結果`.mat`の保存先 `experiments/<日付>/` を作成しパスを返す（`Create=false` でパスを組むだけ）
 - **`setDefaultIntrpr`**: 描画のインタプリタをLaTeXに設定
 - **`cycleConditions`**: 1周分の音声を作成したときの実験条件（定数・日付・保存先・高解像度化のパラメータ）をstructにまとめる。必須の定数が欠けていればエラーになる
-- **`cycleMethodResult`**: 溝底抽出手法1つ分の1周データ（`GrooveCandidates`配列・x/y座標・`y_comb`・`AudioData`）をstructにまとめる。要素数の整合性をここで検証する
+- **`cycleMethodResult`**: 溝底抽出手法1つ分の1周データ（`GroovePointCloud`配列・x/y座標・`y_comb`・`AudioData`）をstructにまとめる。要素数の整合性をここで検証する
 - **`saveCycleResult`**: 上記2つをまとめて `experiments/<日付>/cycleResult_<条件>_<日付>.mat` に保存する（詳細は下記「1周分の実験結果の保存」）
 - **`loadCycleResult`**: `saveCycleResult` で保存した結果を読み込む
 - **`cycleResultFileName`**: 結果.matのファイル名の命名規則を返す（保存側・読み込み側で共有）
@@ -133,7 +133,7 @@ figure; result.centroid.audio.spectrogramPlot(4096);
 | `conditions` | 実験条件（`cycleConditions` の出力。定数・日付・保存先・高解像度化のパラメータ・画像ファイル名） |
 | `meta` | 実行日時・スクリプト名・MATLAB版・gitコミット・ルートフォルダ |
 | `allImg` | (TOTAL_SEGMENTS x 1) `ImageData` |
-| `centroid` / `localMax` | `.pts` (N x 1 `GrooveCandidates`)、`.xcoords`、`.ycoords`（各 N x 1 cell）、`.y_comb`、`.audio` (1x1 `AudioData`) |
+| `centroid` / `localMax` | `.pts` (N x 1 `GroovePointCloud`)、`.xcoords`、`.ycoords`（各 N x 1 cell）、`.y_comb`、`.audio` (1x1 `AudioData`) |
 | `dValueFile` | `DarknessMap` を保存した.matのファイル名（未保存なら `""`） |
 | `grooveSelection` | `fitGroove` で選んだ点。`.p1`、`.p2` とも (TOTAL_SEGMENTS x 2)（渡さなかった場合は空の (0 x 2)） |
 

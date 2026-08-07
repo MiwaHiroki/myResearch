@@ -62,13 +62,13 @@ rsmplD = rsmplD.setDiffTF(D_TH);
 intpD = dInterp(origD, QUERY_STEP, INTERP_METHOD);
 intpD = intpD.setDiffTF(D_TH);
 
-pts_max_orig = GrooveCandidates(origD); % 局所的最大値法
-pts_max_rsmpl = GrooveCandidates(origD); % 局所的最大値法
+pts_max_orig = GroovePointCloud(origD); % 局所的最大値法
+pts_max_rsmpl = GroovePointCloud(origD); % 局所的最大値法
 
 % 重心法
-pts_cnt_orig = GrooveCandidates(origD);
-pts_cnt_rsmpl = GrooveCandidates(rsmplD);
-pts_cnt_intp = GrooveCandidates(intpD);
+pts_cnt_orig = GroovePointCloud(origD);
+pts_cnt_rsmpl = GroovePointCloud(rsmplD);
+pts_cnt_intp = GroovePointCloud(intpD);
 
 origExtractor = GrooveExtractor(origD);
 rsmplExtractor = GrooveExtractor(rsmplD);
@@ -118,11 +118,11 @@ scatter(pkDots_cnt_orig(:,1),pkDots_cnt_orig(:,2),MARKER_SIZE,"yellow",Marker="*
 scatter(pkDots_cnt_rsmpl(:,1),pkDots_cnt_rsmpl(:,2),MARKER_SIZE,"cyan",Marker="*");
 
 % パターン2: orig(cnt), rsmpl(cnt)
-% pts_cnt_orig.showCandidates("magenta",MARKER_SIZE);
-% pts_cnt_rsmpl.showCandidates("cyan",MARKER_SIZE);
+% pts_cnt_orig.showPoints("magenta",MARKER_SIZE);
+% pts_cnt_rsmpl.showPoints("cyan",MARKER_SIZE);
 
 % 使わない
-% pts_cnt_intp.showCandidates("yellow",MARKER_SIZE);
+% pts_cnt_intp.showPoints("yellow",MARKER_SIZE);
 
 hold(ax,"off");
 

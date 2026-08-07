@@ -1,8 +1,11 @@
 % 2026/06/11作成
-% GrooveCandidateクラス
-% 「ピーク点」「溝底候補点」を求め、その情報を格納するクラス
+% 2026/08/07改名: GrooveCandidates → GroovePointCloud
+% （rename-proposal.md P2。「候補」ではなく溝底の点そのものを保持している
+% ことを主張する名前にした。将来的に点群のクラスタリング処理を追加する予定）
+%
+% 「ピーク点」「溝底の点」を求め、その点群を格納するクラス
 
-classdef GrooveCandidates
+classdef GroovePointCloud
     properties
         imgID (2,1) double
         width (1,1) double
@@ -13,7 +16,7 @@ classdef GrooveCandidates
     end
 
     methods
-        function obj = GrooveCandidates(dValue)
+        function obj = GroovePointCloud(dValue)
             if nargin>0
                 obj.imgID = dValue.imgID;
                 obj.width = dValue.imgWidth;
@@ -24,7 +27,7 @@ classdef GrooveCandidates
             end
         end
 
-        % function obj = GrooveCandidates(dValue,pksNums,sIdxCell,eIdxCell,method)
+        % function obj = GroovePointCloud(dValue,pksNums,sIdxCell,eIdxCell,method)
         %     obj.imgID = dValue.imgID;
         %     obj.width = dValue.width;
         %     obj.height = dValue.height;
@@ -59,7 +62,7 @@ classdef GrooveCandidates
         %     end
         % end
         
-        function showCandidates(obj,color,sz)
+        function showPoints(obj,color,sz)
             pks = vertcat(obj.pksCell{:});
             if nargin==1
                 scatter(pks(:,1),pks(:,2),5,"cyan","filled","o");
