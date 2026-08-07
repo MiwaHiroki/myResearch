@@ -19,12 +19,12 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 ## ディレクトリ構成
 
 - **`Research.prj`**: MATLABプロジェクトファイル
-- **`src/`**: クラス定義と共通関数
+- **`src/`**: クラス定義と共通関数（配線されていない旧コードは `archive/`）
 - **`scripts/`**: 溝底抽出・音声生成の実行スクリプト群（旧版は `archive/`、針再生の評価は `evaluation/`）
 - **`data/`**: 入力データ（`pictures/` は盤面写真、`stylus playback/` は針再生の音源）
 - **`experiments/`**: 1周分の解析結果の`.mat`（日付ごと。旧版・失敗した試行は `archive/`）
 - **`results/`**: 図・音声の出力先（日付ごと。原稿用の図は `figures/paper/<会議名>/`）
-- **`test/`**: テストコード
+- **`test/`**: テストコード（`unit/` が `runAllTests` の対象。廃止したクラスのテストは `archive/`）
 
 `experiments/` と `results/` は寿命が違うので分けている。`results/` の図・音声は `experiments/` の`.mat`から何度でも作り直せるが、`.mat` 自体は `fitGroove` の手動操作を80セグメント分やり直さないと作れない。**バックアップの対象は `data/` と `experiments/` の2つ**で、`results/` は消してよい。どちらもgit管理外。
 
@@ -42,7 +42,8 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
   - `extractByCentroid(map,x)` / `extractByLocalMax(map,x)`: 重心法／局所的最大値法で溝底のy座標を算出
 - **`GrooveCandidates`**: 検出した溝底候補点（`pksCell`）を保持し、`showCandidates` で散布図表示。
 - **`AudioData`**: 復元音声を保持し、波形（`audioPlot`）・FFT（`FFTPlot`）・スペクトログラム（`spectrogramPlot`）の描画、wav保存（`saveAudio`）、再生（`playAudio`）を行う。
-- **`MediaData`**: メディアデータ用の抽象基底クラス（現状 `AudioData` は継承していない）。
+
+上記はいずれも継承関係を持たない独立した値クラス。共通の抽象基底クラスだった`MediaData`は誰にも継承されず孤立していたため、`src/archive/MediaData.m`へ退避した（単体テストも`test/archive/`に移動済み）。
 
 ### 共通関数
 

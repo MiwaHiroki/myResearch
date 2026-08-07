@@ -1,11 +1,18 @@
 % MediaData（抽象クラス）の単体テスト
+%
+% MediaData は継承されないまま孤立していたため src/archive/ へ退避した
+% （rename-proposal.md の P3、2026-08-07）。それに伴いこのテストも
+% test/archive/ に移し、runAllTests（test/unit/ のみを探索）の対象外にしている。
+% 参照用に残しているだけなので、実行したいときは手動で
+%   runtests('test/archive/MediaDataTest.m')
+% を呼ぶ（PathFixture は src/archive/ を指すようにしてある）。
 classdef MediaDataTest < matlab.unittest.TestCase
 
     methods (TestClassSetup)
         function addToPath(testCase)
             import matlab.unittest.fixtures.PathFixture
             thisDir = fileparts(mfilename('fullpath'));
-            srcDir    = fullfile(thisDir, '..', '..', 'src');
+            srcDir    = fullfile(thisDir, '..', '..', 'src', 'archive');
             helperDir = fullfile(thisDir, 'helpers');
             testCase.applyFixture(PathFixture(srcDir));
             testCase.applyFixture(PathFixture(helperDir));

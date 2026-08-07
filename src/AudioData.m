@@ -1,8 +1,10 @@
 % 2026/06/03作成
 % 音声信号の簡単な処理を行うAudioDataクラス
-
-% 2026/06/15書き換え
-% MediaDataを継承しない
+%
+% 2026/06/15書き換え: MediaDataを継承しない
+% 2026/08/07: 継承元だったMediaDataは誰にも継承されず孤立していたため
+%   src/archive/へ退避した（rename-proposal.mdのP3）。
+%   src/のデータクラスはいずれも継承関係を持たない独立した値クラスとする。
 
 classdef AudioData
     properties (SetAccess = private)

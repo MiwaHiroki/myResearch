@@ -1,5 +1,10 @@
 % ImageData class
-% DO NOT derive from AudioData class
+% 盤面画像（グレースケール行列）と幅・高さ・IDを保持する値クラス
+%
+% AudioDataなど他のデータクラスからは派生させない。
+% 共通の抽象基底クラスだったMediaDataも誰にも継承されず孤立していたため
+% src/archive/へ退避した（rename-proposal.mdのP3、2026/08/07）。
+% src/のデータクラスはいずれも継承関係を持たない独立した値クラスとする。
 
 classdef ImageData
     properties
