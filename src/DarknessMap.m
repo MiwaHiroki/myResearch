@@ -8,8 +8,8 @@
 classdef DarknessMap
     properties (SetAccess=private)
         imgID (2,1) double
-        imgWidth (1,1) double
-        imgHeight (1,1) double
+        width (1,1) double
+        height (1,1) double
         nRows (1,1) double % nRows of dMat
         nCols (1,1) double % nCols of dMat
     end
@@ -26,8 +26,8 @@ classdef DarknessMap
         function obj = DarknessMap(imgData)
             if nargin>0
                 obj.imgID = imgData.imgID;
-                obj.imgWidth = imgData.width;
-                obj.imgHeight = imgData.height;
+                obj.width = imgData.width;
+                obj.height = imgData.height;
                 obj.rsmplTF = false;
                 obj.scaleFactor = struct('row',1,'col',1);
                 obj.dMat = 1 - imgData.img/255;
@@ -46,9 +46,9 @@ classdef DarknessMap
 
 
         function newObj = dInterp(obj,step,method)
-            [xx,yy] = meshgrid(1:obj.imgWidth, 1:obj.imgHeight);
+            [xx,yy] = meshgrid(1:obj.width, 1:obj.height);
 
-            [x_q,y_q] = meshgrid(1:step:obj.imgWidth, 1:step:obj.imgHeight);
+            [x_q,y_q] = meshgrid(1:step:obj.width, 1:step:obj.height);
 
             dMat_interp = interp2(xx,yy,obj.dMat,x_q,y_q,method);
             % intpWidth = size(dMat_interp,2);

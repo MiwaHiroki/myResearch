@@ -213,7 +213,7 @@ for iImg=1:NUM_IMAGES
 
         % なんか配列の長さが合わなそうな初期化
         % dInterp()の中身も同様なので実際は問題ない
-        points = [(1:QUERY_STEP:intpD.imgWidth)',NaN(intpD.nCols,1)];
+        points = [(1:QUERY_STEP:intpD.width)',NaN(intpD.nCols,1)];
 
         idxs = (pks_max_cor(:,2) >= y_min) & (pks_max_cor(:,2)<=y_max);
 
@@ -251,7 +251,7 @@ for iImg=1:NUM_IMAGES
 
         % なんか配列の長さが合わなそうな初期化
         % dInterp()の中身も同様なので実際は問題ない
-        points = [(1:QUERY_STEP:intpD.imgWidth)',NaN(intpD.nCols,1)];
+        points = [(1:QUERY_STEP:intpD.width)',NaN(intpD.nCols,1)];
 
         idxs = (pks_cnt_cor(:,2) >= y_min) & (pks_cnt_cor(:,2)<=y_max);
 

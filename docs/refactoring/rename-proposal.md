@@ -29,19 +29,19 @@ Claude が判断した**優先度の高い順**に並べている（P1 が最優
 
 > 直近コミットで `rRatio → scaleFactor`、`ddiff → setDiffTF` は対応済み。本提案では扱わない。
 
-### 現在の状態（P1・P3実施後、2026-08-07時点）
+### 現在の状態（P1・P2・P3・P4-1実施後、2026-08-09時点）
 
 | クラス | 種別 | 主なプロパティ | 主なメソッド |
 |---|---|---|---|
 | `ImageData` | value | `imgID`, `img`, `width`, `height` | `showImg` |
 | `AudioData` | value | `name`, `signal`, `fs`, `filename` | `audioPlot`, `FFTPlot`, `spectrogramPlot`, `saveAudio`, `playAudio` |
-| `DarknessMap`（旧`DarknessValue`） | value | `imgID`, `imgWidth`, `imgHeight`, `nRows`, `nCols`, `rsmplTF`, `scaleFactor`, `dMat`, `diffTF` | `dResample`, `dInterp`, `setDiffTF`, `plotD_x` |
+| `DarknessMap`（旧`DarknessValue`） | value | `imgID`, `width`, `height`（旧`imgWidth`/`imgHeight`）, `nRows`, `nCols`, `rsmplTF`, `scaleFactor`, `dMat`, `diffTF` | `dResample`, `dInterp`, `setDiffTF`, `plotD_x` |
 | `GrooveExtractor`（新規） | value | `startIdxCells`, `endIdxCells` | `findThresholdIntervals`, `findGrooveBottomIntervals`, `extractByCentroid`, `extractByLocalMax` |
 | `GroovePointCloud`（旧`GrooveCandidates`） | value | `imgID`, `width`, `height`, `rsmplTF`, `scaleFactor`, `pksCell` | `showPoints`（旧`showCandidates`） |
 
 > `MediaData`はP3(A)により`src/archive/MediaData.m`へ退避したため一覧から外した。現在`src/`のデータクラスは継承関係を持たない独立した値クラスのみ。
 
-抽出系のプロパティ・メソッドが`DarknessMap`から`GrooveExtractor`に移り、名前もP1-2/P5案どおりに改名された。`GrooveCandidates`はP2により`GroovePointCloud`へ改名済み。それ以外（`ImageData`/`AudioData`、および`DarknessMap`自身の`imgWidth`/`imgHeight`等）は提案時点のまま。
+抽出系のプロパティ・メソッドが`DarknessMap`から`GrooveExtractor`に移り、名前もP1-2/P5案どおりに改名された。`GrooveCandidates`はP2により`GroovePointCloud`へ改名済み。`DarknessMap`の`imgWidth`/`imgHeight`もP4-1により`width`/`height`へ改名済み。残るのは`ImageData`/`AudioData`のプロパティ名（提案時点のまま）と、P4-1で扱っていない`pksCell`/`rsmplTF`など。
 
 ---
 
@@ -111,15 +111,16 @@ Claude が判断した**優先度の高い順**に並べている（P1 が最優
 
 同じ概念が別名になっており、データが伝播するクラス群として一貫性を欠く。
 
-### 4-1. 幅・高さの統一
+### 4-1. 幅・高さの統一 ✅ 実施済み（2026-08-09）
 
-| クラス | 現状（幅 / 高さ） | 提案 | 状態 |
+| クラス | 旧（幅 / 高さ） | 現状 | 状態 |
 |---|---|---|---|
 | `ImageData` | `width` / `height` | `width` / `height` | - |
-| `DarknessMap`（旧`DarknessValue`） | `imgWidth` / `imgHeight` | `width` / `height` | 未着手 |
+| `DarknessMap`（旧`DarknessValue`） | `imgWidth` / `imgHeight` | `width` / `height` | ✅ 実施済み |
 | `GroovePointCloud`（旧`GrooveCandidates`） | `width` / `height` | `width` / `height` | - |
 
-- `DarknessMap` の `imgWidth`/`imgHeight` を `width`/`height` に揃える（`img` 接頭辞は不要）。P1では扱わなかったため引き続き未着手。
+- `DarknessMap` の `imgWidth`/`imgHeight` を `width`/`height` に改名し、`img` 接頭辞を廃した。プロパティ宣言・コンストラクタ・`dInterp`内のmeshgrid呼び出し、および呼び出し元（`GroovePointCloud`のコンストラクタ・`DarknessMapTest`・`scripts/`内の`origD`/`intpD`参照4ファイル）を更新した。
+- **実施方法の特記事項**: `src/DarknessMap.m`本体の3箇所の書き換えは、ローカルLLM（Ollama経由のgemma4, 8B Q4_K_M）に委譲して行った。ただし当初検討した「ファイル全文を渡して書き直させる」方式は記憶`ollama-gemma4-coding-workflow`の運用方針（全文再生成は意図しない改変・脱落のリスクが高い）と相容れないため採用せず、代わりにOllama MCPサーバー（`C:\Users\owner\.gemini\antigravity\scratch\ollama_mcp_server.js`）に**ファイルの一部分だけを安全に書き換える**新ツール`edit_file_with_ollama`を追加した。Claudeが実ファイルから一意なアンカー（`old_string`）を厳密にコピーして渡し、gemma4はそのスニペットの変換後の中身だけを生成、サーバー側で一意一致を確認してから置換・書き込みする設計。3箇所とも1回で正しく変換され（左辺のみ改名し右辺の`imgData.width`等を変えない、というやや紛らわしいケースも含めて正確）、差し戻し・Claudeによる引き取りは発生しなかった。
 
 ### 4-2. ケーシングの統一 ✅ 解消済み（2026-08-07、P3(A)により対応不要）
 
@@ -171,7 +172,7 @@ Claude が判断した**優先度の高い順**に並べている（P1 が最優
 2. ~~**P1-2**（`GrooveExtractor` 分離）~~ ✅ 実施済み（2026-08-04、1-1と同時）
 3. ~~**P3 の方針決定**（継承を残すか消すか）~~ ✅ 実施済み（2026-08-07、(A)削除を採用）
 4. ~~**P2**（`GrooveCandidates` → `GroovePointCloud`）~~ ✅ 実施済み（2026-08-07）
-5. **P4**（プロパティ統一。残るのは`DarknessMap.imgWidth/imgHeight`・`pksCell`・`rsmplTF`）── 参照箇所が多いので単独コミットで。
+5. ~~**P4-1**（`DarknessMap.imgWidth/imgHeight` → `width`/`height`）~~ ✅ 実施済み（2026-08-09）。**P4**の残りは`pksCell`・`rsmplTF`。
 6. **P5**（メソッド命名統一。残るのは`plotD_x`・表示系メソッドの統一）。
 
 > 各ステップ後に `cd test; runAllTests` で回帰確認する。`scripts/`（archive 含む）とテストの参照も同時に更新が必要。

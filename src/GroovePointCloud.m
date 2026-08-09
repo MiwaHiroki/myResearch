@@ -19,8 +19,8 @@ classdef GroovePointCloud
         function obj = GroovePointCloud(dValue)
             if nargin>0
                 obj.imgID = dValue.imgID;
-                obj.width = dValue.imgWidth;
-                obj.height = dValue.imgHeight;
+                obj.width = dValue.width;
+                obj.height = dValue.height;
                 obj.rsmplTF = dValue.rsmplTF;
                 obj.scaleFactor = dValue.scaleFactor;
                 obj.pksCell = cell(1,obj.width);

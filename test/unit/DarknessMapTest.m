@@ -40,8 +40,8 @@ classdef DarknessMapTest < matlab.unittest.TestCase
 
         function testConstructorCopiesImageMeta(testCase)
             testCase.verifyEqual(testCase.dMap.imgID, [3; 4]);
-            testCase.verifyEqual(testCase.dMap.imgWidth, 3);
-            testCase.verifyEqual(testCase.dMap.imgHeight, 6);
+            testCase.verifyEqual(testCase.dMap.width, 3);
+            testCase.verifyEqual(testCase.dMap.height, 6);
             testCase.verifyEqual(testCase.dMap.nRows, 6);
             testCase.verifyEqual(testCase.dMap.nCols, 3);
         end
@@ -98,5 +98,5 @@ end
 
 % --- ローカル関数 -------------------------------------------------------
 function setDMatExternally(dMap)
-    dMap.imgWidth = 999;   %#ok<NASGU>  SetAccess=private のためエラーになるはず
+    dMap.width = 999;   %#ok<NASGU>  SetAccess=private のためエラーになるはず
 end

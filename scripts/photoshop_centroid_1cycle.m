@@ -180,7 +180,7 @@ for iImg=1:NUM_IMAGES
         y_min = groove1Center - tol;
         y_max = groove1Center + tol;
 
-        points = [(1:origD.imgWidth)',NaN(origD.nCols,1)];
+        points = [(1:origD.width)',NaN(origD.nCols,1)];
 
         idxs = (pks_cor(:,2) >= y_min) & (pks_cor(:,2)<=y_max);
 
