@@ -61,8 +61,8 @@ classdef GrooveExtractorTest < matlab.unittest.TestCase
         function testExtractByLocalMax(testCase)
             obj = testCase.extractor.findGrooveBottomIntervals(testCase.dMap, 1, 3, 4, 5);
             maxY = obj.extractByLocalMax(testCase.dMap, 1);
-            % 3,4 行目とも 0.9 なので最初の最大値 = 3 行目
-            testCase.verifyEqual(maxY, 3);
+            % 3,4 行目とも最大値 0.9 なので、タイの平均 = 3.5 行目
+            testCase.verifyEqual(maxY, 3.5);
         end
     end
 end

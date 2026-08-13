@@ -22,16 +22,22 @@ classdef GrooveExtractor
             firstIdx = find(map.diffTF(:,x)==1)+1;
             lastIdx = find(map.diffTF(:,x)==-1);
 
-            if lastIdx(1)<firstIdx(1)
-                lastIdx = lastIdx(2:length(lastIdx));
-            end
-            if lastIdx(end)<firstIdx(end)
-                firstIdx = firstIdx(1:length(firstIdx)-1);
+            if isempty(firstIdx)
+                lastIdx(:) = []; % 対応するfirstIdxのない先頭の立ち下がりを除外
+            elseif isempty(lastIdx)
+                firstIdx(:) = []; % 対応するlastIdxのない末尾の立ち上がりを除外
+            else
+                if lastIdx(1)<firstIdx(1)
+                    lastIdx = lastIdx(2:length(lastIdx));
+                end
+                if lastIdx(end)<firstIdx(end)
+                    firstIdx = firstIdx(1:length(firstIdx)-1);
+                end
             end
         end
 
         function [obj,btmFirstIdx,btmLastIdx,numPeaks] = findGrooveBottomIntervals(obj,map,x,firstIdx,lastIdx,WIDTH_THRESH)
-            btmIntervalIdx = find((lastIdx-firstIdx) < WIDTH_THRESH*map.scaleFactor.row); % 溝底に対応するfirstIdxのIdxを調べる
+            btmIntervalIdx = find((lastIdx-firstIdx) <= WIDTH_THRESH*map.scaleFactor.row); % 溝底に対応するfirstIdxのIdxを調べる
             btmFirstIdx = firstIdx(btmIntervalIdx);
             btmLastIdx = lastIdx(btmIntervalIdx);
 
@@ -73,8 +79,9 @@ classdef GrooveExtractor
                 if isscalar(peakRowIdxs)
                     maxY(k) = peakRowIdxs;
                 else
-                    [~,maxY(k)] = max(D_x(peakRowIdxs));
-                    maxY(k) = maxY(k) + btmFirstIdx(k) -1 ;
+                    D_peak = D_x(peakRowIdxs);
+                    maxLocalIdx = find(D_peak==max(D_peak)); % 最大値が複数ある場合は中央(平均)を採用
+                    maxY(k) = mean(maxLocalIdx) + btmFirstIdx(k) -1 ;
                 end
             end
 

@@ -60,7 +60,7 @@ classdef DarknessMap
         end
 
         function obj = setDiffTF(obj,D_THRESH)
-            aboveThreshold = (obj.dMat > D_THRESH);
+            aboveThreshold = (obj.dMat >= D_THRESH);
             obj.diffTF = diff(aboveThreshold);
         end
 
