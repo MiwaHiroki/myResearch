@@ -37,6 +37,7 @@ An installed MATLAB is available through the `mcp__matlab__*` tools (static anal
 - **`scripts/` are interactive, with an unattended escape hatch.** The `fitGroove` step calls `ginput` to have the user click the groove center with the mouse — these scripts cannot run fully unattended *unless* a previous `cycleResult_*.mat`'s `grooveSelection.p1`/`.p2` is replayed (see the `fitGroove` architecture note below), in which case `ginput` and figure creation are both skipped.
 - Outputs go to `results/<date>/`, created via `mkdirFromDate(rootFolder, "MMDD")`.
 - `data/`, `results/`, and `CLAUDE.md` are gitignored; input images and generated output are not committed.
+- git操作（コミットメッセージ・ブランチ・PRのルール）は [`docs/git-rules.md`](docs/git-rules.md) を参照。
 
 ## Architecture notes
 
