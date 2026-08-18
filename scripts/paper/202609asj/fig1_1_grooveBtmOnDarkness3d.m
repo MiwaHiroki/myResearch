@@ -47,10 +47,10 @@ extractor = GrooveExtractor(origD);
 for x = 1:imgData.width
     [firstIdx,lastIdx] = extractor.findThresholdIntervals(origD,x);
     [extractor,~,~,numPeaks] = extractor.findGrooveBottomIntervals(origD,x,firstIdx,lastIdx,W_TH);
-    pts.pksCell{x} = [x*ones(numPeaks,1), extractor.extractByCentroid(origD,x)];
+    pts.peakCells{x} = [x*ones(numPeaks,1), extractor.extractByCentroid(origD,x)];
 end
 
-ptsXY = vertcat(pts.pksCell{:});
+ptsXY = vertcat(pts.peakCells{:});
 ptsX = ptsXY(:,1); ptsY = ptsXY(:,2);
 
 % 溝底点のy座標は非整数なので、waterfallの面に乗せるDは線形補間で求める

@@ -126,8 +126,8 @@ for iImg=1:NUM_IMAGES
             cnt_x = origD.extractGrv_cnt(x);
             max_x = origD.extractGrv_max(x);
 
-            pts_cnt.pksCell{x} = [x*ones(pksNum,1), cnt_x];
-            pts_max.pksCell{x} = [x*ones(pksNum,1), max_x];
+            pts_cnt.peakCells{x} = [x*ones(pksNum,1), cnt_x];
+            pts_max.peakCells{x} = [x*ones(pksNum,1), max_x];
 
 
             [startIdx, endIdx] = getStartEndIdx(rsmplD, x);
@@ -137,15 +137,15 @@ for iImg=1:NUM_IMAGES
             cnt_x = rsmplD.extractGrv_cnt(x);
             max_x = rsmplD.extractGrv_max(x);
 
-            pts_cnt_r.pksCell{x} = [x*ones(pksNum,1), cnt_x];
-            pts_max_r.pksCell{x} = [x*ones(pksNum,1), max_x];
+            pts_cnt_r.peakCells{x} = [x*ones(pksNum,1), cnt_x];
+            pts_max_r.peakCells{x} = [x*ones(pksNum,1), max_x];
         end
 
-        pks_cnt = vertcat(pts_cnt.pksCell{:});
-        pks_max = vertcat(pts_max.pksCell{:});
+        pks_cnt = vertcat(pts_cnt.peakCells{:});
+        pks_max = vertcat(pts_max.peakCells{:});
 
-        pks_cnt_r = vertcat(pts_cnt_r.pksCell{:});
-        pks_max_r = vertcat(pts_max_r.pksCell{:});
+        pks_cnt_r = vertcat(pts_cnt_r.peakCells{:});
+        pks_max_r = vertcat(pts_max_r.peakCells{:});
 
         % fitGroove()を使って、溝1本分の形状データを抽出する
 
@@ -162,15 +162,15 @@ for iImg=1:NUM_IMAGES
 
             tmpPoints = [x*ones(numPeaks,1), centroidY];
             tmpPoints(:,1) = 1+(tmpPoints(:,1)-1) * QUERY_STEP;
-            pts_cnt_intp.pksCell{x} = tmpPoints;
+            pts_cnt_intp.peakCells{x} = tmpPoints;
 
             tmpPoints = [x*ones(numPeaks,1), maxY];
             tmpPoints(:,1) = 1+(tmpPoints(:,1)-1) * QUERY_STEP;
-            pts_max_intp.pksCell{x} = tmpPoints;
+            pts_max_intp.peakCells{x} = tmpPoints;
         end
 
-        pks_max_intp = vertcat(pts_max_intp.pksCell{:});
-        pks_cnt_intp = vertcat(pts_cnt_intp.pksCell{:});
+        pks_max_intp = vertcat(pts_max_intp.peakCells{:});
+        pks_cnt_intp = vertcat(pts_cnt_intp.peakCells{:});
 
         w_prl = origWidth; % 平行四辺形の高さ
         h_prl = 8; % 平行四辺形の底辺

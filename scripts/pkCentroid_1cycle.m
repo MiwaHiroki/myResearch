@@ -96,12 +96,12 @@ for iImg=1:NUM_IMAGES
             centroidY = extractor.extractByCentroid(origD,x);
             maxY = extractor.extractByLocalMax(origD,x);
 
-            pts_cnt.pksCell{x} = [x*ones(numPeaks,1), centroidY];
-            pts_max.pksCell{x} = [x*ones(numPeaks,1), maxY];
+            pts_cnt.peakCells{x} = [x*ones(numPeaks,1), centroidY];
+            pts_max.peakCells{x} = [x*ones(numPeaks,1), maxY];
         end
 
-        pks_cnt = vertcat(pts_cnt.pksCell{:});
-        pks_max = vertcat(pts_max.pksCell{:});
+        pks_cnt = vertcat(pts_cnt.peakCells{:});
+        pks_max = vertcat(pts_max.peakCells{:});
 
         w_prl = origWidth; % 平行四辺形の高さ
         h_prl = 8; % 平行四辺形の底辺

@@ -37,10 +37,10 @@ origdMat = origD.dMat;
 %     % startIdx_btm, endIdx_btm, pksNumは今後不要になる予定
 % 
 %     cnt_x = origD.extractGrv_cnt(x);
-%     pts_cnt.pksCell{x} = [x*ones(pksNum,1), cnt_x];
+%     pts_cnt.peakCells{x} = [x*ones(pksNum,1), cnt_x];
 % end
 %
-% ptsXY = vertcat(pts_cnt.pksCell{:});
+% ptsXY = vertcat(pts_cnt.peakCells{:});
 % ptsX = ptsXY(:,1);ptsY = ptsXY(:,2);
 % ptsZ = zeros(length(ptsXY),1);
 % for i=1:length(ptsXY)

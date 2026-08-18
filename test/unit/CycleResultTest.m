@@ -64,7 +64,7 @@ classdef CycleResultTest < matlab.unittest.TestCase
                     [firstIdx, lastIdx] = extractor.findThresholdIntervals(dValue, x);
                     [extractor, ~, ~, numPeaks] = ...
                         extractor.findGrooveBottomIntervals(dValue, x, firstIdx, lastIdx, 8);
-                    pts.pksCell{x} = [x*ones(numPeaks,1), extractor.extractByCentroid(dValue, x)];
+                    pts.peakCells{x} = [x*ones(numPeaks,1), extractor.extractByCentroid(dValue, x)];
                 end
 
                 imgArr(k) = imgData;

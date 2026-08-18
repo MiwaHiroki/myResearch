@@ -87,7 +87,7 @@ for iImg=1:NUM_IMAGES
         %     % startIdx_btm, endIdx_btm, pksNumは今後不要になる予定
         % 
         %     max_x = origD.extractGrv_max(x);
-        %     pts_max.pksCell{x} = [x*ones(pksNum,1), max_x];
+        %     pts_max.peakCells{x} = [x*ones(pksNum,1), max_x];
         % end
 
         pksCell = cell(newWidth,1);
@@ -121,7 +121,7 @@ for iImg=1:NUM_IMAGES
 
         end
 
-        % pkDots_max = vertcat(pts_max.pksCell{:});
+        % pkDots_max = vertcat(pts_max.peakCells{:});
         pkDots_max = vertcat(pksCell{:});
 
         w_prl = origWidth; % 平行四辺形の高さ

@@ -40,22 +40,22 @@ classdef GroovePointCloudTest < matlab.unittest.TestCase
             testCase.verifyEqual(gpc.scaleFactor, struct('row',1,'col',1));
         end
 
-        function testConstructorInitializesEmptyPksCell(testCase)
+        function testConstructorInitializesEmptyPeakCells(testCase)
             gpc = GroovePointCloud(testCase.dValue);
-            testCase.verifySize(gpc.pksCell, [1, 3]);
-            testCase.verifyTrue(all(cellfun(@isempty, gpc.pksCell)), ...
-                "pksCell は初期状態では全て空であるべき");
+            testCase.verifySize(gpc.peakCells, [1, 3]);
+            testCase.verifyTrue(all(cellfun(@isempty, gpc.peakCells)), ...
+                "peakCells は初期状態では全て空であるべき");
         end
 
         function testDefaultConstructorIsEmpty(testCase)
             gpc = GroovePointCloud();
-            testCase.verifyEmpty(gpc.pksCell);
+            testCase.verifyEmpty(gpc.peakCells);
         end
 
         function testShowPointsDrawsScatter(testCase)
             gpc = GroovePointCloud(testCase.dValue);
-            gpc.pksCell{1} = [1, 3];
-            gpc.pksCell{2} = [2, 4];
+            gpc.peakCells{1} = [1, 3];
+            gpc.peakCells{2} = [2, 4];
             gpc.showPoints();
             testCase.verifyNotEmpty(findobj(testCase.fig, 'Type', 'scatter'), ...
                 "showPoints は scatter を描画すべき");
@@ -63,8 +63,8 @@ classdef GroovePointCloudTest < matlab.unittest.TestCase
 
         function testShowPointsWithOneArg(testCase)
             gpc = GroovePointCloud(testCase.dValue);
-            gpc.pksCell{1} = [1, 3];
-            gpc.pksCell{2} = [2, 4];
+            gpc.peakCells{1} = [1, 3];
+            gpc.peakCells{2} = [2, 4];
             gpc.showPoints();
             s = findobj(testCase.fig, 'Type', 'scatter');
             testCase.verifyEqual(s.SizeData, 5);
@@ -75,8 +75,8 @@ classdef GroovePointCloudTest < matlab.unittest.TestCase
 
         function testShowPointsWithTwoArgs(testCase)
             gpc = GroovePointCloud(testCase.dValue);
-            gpc.pksCell{1} = [1, 3];
-            gpc.pksCell{2} = [2, 4];
+            gpc.peakCells{1} = [1, 3];
+            gpc.peakCells{2} = [2, 4];
             gpc.showPoints("red");
             s = findobj(testCase.fig, 'Type', 'scatter');
             testCase.verifyEqual(s.SizeData, 5);
@@ -87,8 +87,8 @@ classdef GroovePointCloudTest < matlab.unittest.TestCase
 
         function testShowPointsWithThreeArgs(testCase)
             gpc = GroovePointCloud(testCase.dValue);
-            gpc.pksCell{1} = [1, 3];
-            gpc.pksCell{2} = [2, 4];
+            gpc.peakCells{1} = [1, 3];
+            gpc.peakCells{2} = [2, 4];
             gpc.showPoints("green", 12);
             s = findobj(testCase.fig, 'Type', 'scatter');
             testCase.verifyEqual(s.SizeData, 12);

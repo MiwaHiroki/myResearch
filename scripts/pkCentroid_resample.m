@@ -83,8 +83,8 @@ for x=1:origImg.width
     centroidY = origExtractor.extractByCentroid(origD,x);
     maxY = origExtractor.extractByLocalMax(origD,x);
 
-    pts_cnt.pksCell{x} = [x*ones(numPeaks,1), centroidY];
-    pts_max.pksCell{x} = [x*ones(numPeaks,1), maxY];
+    pts_cnt.peakCells{x} = [x*ones(numPeaks,1), centroidY];
+    pts_max.peakCells{x} = [x*ones(numPeaks,1), maxY];
 
 
     [firstIdx, lastIdx] = rsmplExtractor.findThresholdIntervals(rsmplD, x);
@@ -94,8 +94,8 @@ for x=1:origImg.width
     centroidY = rsmplExtractor.extractByCentroid(rsmplD,x);
     maxY = rsmplExtractor.extractByLocalMax(rsmplD,x);
 
-    pts_cnt_r.pksCell{x} = [x*ones(numPeaks,1), centroidY];
-    pts_max_r.pksCell{x} = [x*ones(numPeaks,1), maxY];
+    pts_cnt_r.peakCells{x} = [x*ones(numPeaks,1), centroidY];
+    pts_max_r.peakCells{x} = [x*ones(numPeaks,1), maxY];
 
 end
 

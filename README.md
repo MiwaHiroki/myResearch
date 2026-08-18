@@ -40,7 +40,7 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 - **`GrooveExtractor`**: `DarknessMap` から溝底候補点を抽出するクラス。`dMat`（最大約2GB）を複製しないよう、各メソッドは対象の `DarknessMap` インスタンスを引数として都度受け取る。
   - `findThresholdIntervals(map,x)` / `findGrooveBottomIntervals(map,x,firstIdx,lastIdx,WIDTH_THRESH)`: 溝底候補区間の特定（区間は `startIdxCells`/`endIdxCells` に保持）
   - `extractByCentroid(map,x)` / `extractByLocalMax(map,x)`: 重心法／局所的最大値法で溝底のy座標を算出
-- **`GroovePointCloud`**（旧`GrooveCandidates`。2026-08-07改名）: 検出した溝底の点群（`pksCell`）を保持し、`showPoints` で散布図表示。
+- **`GroovePointCloud`**（旧`GrooveCandidates`。2026-08-07改名）: 検出した溝底の点群（`peakCells`。旧`pksCell`。2026-08-18改名）を保持し、`showPoints` で散布図表示。
 - **`AudioData`**: 復元音声を保持し、波形（`audioPlot`）・FFT（`FFTPlot`）・スペクトログラム（`spectrogramPlot`）の描画、wav保存（`saveAudio`）、再生（`playAudio`）を行う。
 
 上記はいずれも継承関係を持たない独立した値クラス。共通の抽象基底クラスだった`MediaData`は誰にも継承されず孤立していたため、`src/archive/MediaData.m`へ退避した（単体テストも`test/archive/`に移動済み）。

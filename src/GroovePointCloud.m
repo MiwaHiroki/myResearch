@@ -12,7 +12,7 @@ classdef GroovePointCloud
         height (1,1) double
         isResampled (1,1) logical
         scaleFactor (1,1) struct
-        pksCell (1,:) cell
+        peakCells (1,:) cell
     end
 
     methods
@@ -23,7 +23,7 @@ classdef GroovePointCloud
                 obj.height = dValue.height;
                 obj.isResampled = dValue.isResampled;
                 obj.scaleFactor = dValue.scaleFactor;
-                obj.pksCell = cell(1,obj.width);
+                obj.peakCells = cell(1,obj.width);
             end
         end
 
@@ -34,36 +34,36 @@ classdef GroovePointCloud
         %     obj.isResampled = dValue.isResampled;
         %     obj.rRatio = dValue.rRatio;
         %     if method=="localMax"
-        %         obj.pksCell = localMaxMethod(obj,dValue,pksNums,sIdxCell,eIdxCell);
+        %         obj.peakCells = localMaxMethod(obj,dValue,pksNums,sIdxCell,eIdxCell);
         %     % elseif method=="centroid"
-        %     %     pksCell = centroidMethod();
+        %     %     peakCells = centroidMethod();
         %     else
         %         disp("invalid method name");
         %     end
         % end
 
-        % function pksCell = localMaxMethod(obj,dValue,pksNums,sIdxCell,eIdxCell)
-        %     pksCell = cell(1, obj.width);
-        % 
+        % function peakCells = localMaxMethod(obj,dValue,pksNums,sIdxCell,eIdxCell)
+        %     peakCells = cell(1, obj.width);
+        %
         %     for i=1:obj.width
-        %         pksCell{i} = zeros(pksNums(i),2);
+        %         peakCells{i} = zeros(pksNums(i),2);
         %         % x=iにおける溝候補点（ピーク点）のx,y座標。
-        % 
+        %
         %         for k=1:pksNums(i)
         %             idxs = (sIdxCell{i}(k,2):eIdxCell{i}(k,2))';
         %             if isscalar(idxs)
-        %                 pksCell{i}(k,:) = [i,idxs];
+        %                 peakCells{i}(k,:) = [i,idxs];
         %             else
         %                 [~,tmpMax] = max(dValue.dMat(idxs,i));
-        %                 pksCell{i}(k,:) = [i, tmpMax+eIdxCell{i}(k,2)-1];
+        %                 peakCells{i}(k,:) = [i, tmpMax+eIdxCell{i}(k,2)-1];
         %             end
         %         end
-        %         % pksCell{i} = [i*ones(pksNums(i),1), pk_i];
+        %         % peakCells{i} = [i*ones(pksNums(i),1), pk_i];
         %     end
         % end
-        
+
         function showPoints(obj,color,sz)
-            pks = vertcat(obj.pksCell{:});
+            pks = vertcat(obj.peakCells{:});
             if nargin==1
                 scatter(pks(:,1),pks(:,2),5,"cyan","filled","o");
             elseif nargin==2

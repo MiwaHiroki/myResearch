@@ -115,8 +115,8 @@ for iImg=1:NUM_IMAGES
             centroidY = rsmplExtractor.extractByCentroid(rsmplD,x);
             maxY = rsmplExtractor.extractByLocalMax(rsmplD,x);
 
-            pts_cnt_r.pksCell{x} = [x*ones(numPeaks,1), centroidY];
-            pts_max_r.pksCell{x} = [x*ones(numPeaks,1), maxY];
+            pts_cnt_r.peakCells{x} = [x*ones(numPeaks,1), centroidY];
+            pts_max_r.peakCells{x} = [x*ones(numPeaks,1), maxY];
         end
 
 
@@ -131,8 +131,8 @@ for iImg=1:NUM_IMAGES
             cnt_x = origD.extractGrv_cnt(x);
             max_x = origD.extractGrv_max(x);
 
-            pts_cnt.pksCell{x} = [x*ones(pksNum,1), cnt_x];
-            pts_max.pksCell{x} = [x*ones(pksNum,1), max_x];
+            pts_cnt.peakCells{x} = [x*ones(pksNum,1), cnt_x];
+            pts_max.peakCells{x} = [x*ones(pksNum,1), max_x];
 
             [startIdx, endIdx] = getStartEndIdx(rsmplD, x);
             [rsmplD,startIdx_btm,endIdx_btm,pksNum] = ...
@@ -141,17 +141,17 @@ for iImg=1:NUM_IMAGES
             cnt_x = rsmplD.extractGrv_cnt(x);
             max_x = rsmplD.extractGrv_max(x);
 
-            pts_cnt_r.pksCell{x} = [x*ones(pksNum,1), cnt_x];
-            pts_max_r.pksCell{x} = [x*ones(pksNum,1), max_x];
+            pts_cnt_r.peakCells{x} = [x*ones(pksNum,1), cnt_x];
+            pts_max_r.peakCells{x} = [x*ones(pksNum,1), max_x];
         end
 
         % figGroove()の使用のために必要
-        pks_cnt = vertcat(pts_cnt.pksCell{:});
-        pks_max = vertcat(pts_max.pksCell{:});
+        pks_cnt = vertcat(pts_cnt.peakCells{:});
+        pks_max = vertcat(pts_max.peakCells{:});
         %}
 
-        pks_cnt_r = vertcat(pts_cnt_r.pksCell{:});
-        pks_max_r = vertcat(pts_max_r.pksCell{:});
+        pks_cnt_r = vertcat(pts_cnt_r.peakCells{:});
+        pks_max_r = vertcat(pts_max_r.peakCells{:});
 
         % sIdxs_r = vertcat(sIdxC_r{:});
         % eIdxs_r = vertcat(eIdxC_r{:});

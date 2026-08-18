@@ -76,27 +76,27 @@ intpExtractor = GrooveExtractor(intpD);
 for x = 1:imgData.width
     [firstIdx,lastIdx] = origExtractor.findThresholdIntervals(origD,x);
     [origExtractor,~,~,numPeaks] = origExtractor.findGrooveBottomIntervals(origD,x,firstIdx,lastIdx,W_TH);
-    pts_max_orig.pksCell{x} = [x*ones(numPeaks,1), origExtractor.extractByLocalMax(origD,x)];
-    pts_cnt_orig.pksCell{x} = [x*ones(numPeaks,1), origExtractor.extractByCentroid(origD,x)];
+    pts_max_orig.peakCells{x} = [x*ones(numPeaks,1), origExtractor.extractByLocalMax(origD,x)];
+    pts_cnt_orig.peakCells{x} = [x*ones(numPeaks,1), origExtractor.extractByCentroid(origD,x)];
 
     [firstIdx,lastIdx] = rsmplExtractor.findThresholdIntervals(rsmplD,x);
     [rsmplExtractor,~,~,numPeaks] = rsmplExtractor.findGrooveBottomIntervals(rsmplD,x,firstIdx,lastIdx,W_TH);
-    pts_max_rsmpl.pksCell{x} = [x*ones(numPeaks,1), rsmplExtractor.extractByLocalMax(rsmplD,x)];
-    pts_cnt_rsmpl.pksCell{x} = [x*ones(numPeaks,1), rsmplExtractor.extractByCentroid(rsmplD,x)];
+    pts_max_rsmpl.peakCells{x} = [x*ones(numPeaks,1), rsmplExtractor.extractByLocalMax(rsmplD,x)];
+    pts_cnt_rsmpl.peakCells{x} = [x*ones(numPeaks,1), rsmplExtractor.extractByCentroid(rsmplD,x)];
 
     [firstIdx,lastIdx] = intpExtractor.findThresholdIntervals(intpD,x);
     [intpExtractor,btmFirstIdx,btmLastIdx,numPeaks] = intpExtractor.findGrooveBottomIntervals(intpD,x,firstIdx,lastIdx,W_TH);
-    pts_cnt_intp.pksCell{x} = [x*ones(numPeaks,1), intpExtractor.extractByCentroid(intpD,x)];
+    pts_cnt_intp.peakCells{x} = [x*ones(numPeaks,1), intpExtractor.extractByCentroid(intpD,x)];
 
 end
 
-pkDots_max_orig = vertcat(pts_max_orig.pksCell{:});
-pkDots_cnt_orig = vertcat(pts_cnt_orig.pksCell{:});
+pkDots_max_orig = vertcat(pts_max_orig.peakCells{:});
+pkDots_cnt_orig = vertcat(pts_cnt_orig.peakCells{:});
 
-pkDots_max_rsmpl = vertcat(pts_max_rsmpl.pksCell{:});
-pkDots_cnt_rsmpl = vertcat(pts_cnt_rsmpl.pksCell{:});
+pkDots_max_rsmpl = vertcat(pts_max_rsmpl.peakCells{:});
+pkDots_cnt_rsmpl = vertcat(pts_cnt_rsmpl.peakCells{:});
 
-pkDots_intp = vertcat(pts_cnt_intp.pksCell{:});
+pkDots_intp = vertcat(pts_cnt_intp.peakCells{:});
 
 %% 描画
 % 凡例はTightInsetに含まれないので、tiledlayoutのPadding="tight"に余白を任せる

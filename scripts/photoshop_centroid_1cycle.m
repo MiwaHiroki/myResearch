@@ -105,7 +105,7 @@ for iImg=1:NUM_IMAGES
 
             centroidY = extractor.extractByCentroid(origD,x);
 
-            pts_cnt.pksCell{x} = [x*ones(numPeaks,1), centroidY];
+            pts_cnt.peakCells{x} = [x*ones(numPeaks,1), centroidY];
         end
 
         % pksCell = cell(newWidth,1);
@@ -139,7 +139,7 @@ for iImg=1:NUM_IMAGES
         % 
         % end
 
-        pkDots_cnt = vertcat(pts_cnt.pksCell{:});
+        pkDots_cnt = vertcat(pts_cnt.peakCells{:});
         % pkDots_cnt = vertcat(pksCell{:});
 
         w_prl = origWidth; % 平行四辺形の高さ

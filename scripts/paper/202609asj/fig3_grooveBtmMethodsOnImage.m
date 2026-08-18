@@ -48,12 +48,12 @@ extractor = GrooveExtractor(origD);
 for x = 1:imgData.width
     [firstIdx,lastIdx] = extractor.findThresholdIntervals(origD,x);
     [extractor,btmFirstIdx,btmLastIdx,numPeaks] = extractor.findGrooveBottomIntervals(origD,x,firstIdx,lastIdx,W_TH);
-    pts_max.pksCell{x} = [x*ones(numPeaks,1), extractor.extractByLocalMax(origD,x)];
-    pts_cnt.pksCell{x} = [x*ones(numPeaks,1), extractor.extractByCentroid(origD,x)];
+    pts_max.peakCells{x} = [x*ones(numPeaks,1), extractor.extractByLocalMax(origD,x)];
+    pts_cnt.peakCells{x} = [x*ones(numPeaks,1), extractor.extractByCentroid(origD,x)];
 end
 
-pkDots_max = vertcat(pts_max.pksCell{:});
-pkDots_cnt = vertcat(pts_cnt.pksCell{:});
+pkDots_max = vertcat(pts_max.peakCells{:});
+pkDots_cnt = vertcat(pts_cnt.peakCells{:});
 
 %% 描画
 % 凡例はTightInsetに含まれないので、tiledlayoutのPadding="tight"に余白を任せる

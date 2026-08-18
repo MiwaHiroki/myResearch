@@ -81,12 +81,12 @@ for i=1:2
     for x = 1:imgData.width
         [firstIdx,lastIdx] = origExtractor.findThresholdIntervals(origD,x);
         [origExtractor,~,~,numPeaks] = origExtractor.findGrooveBottomIntervals(origD,x,firstIdx,lastIdx,W_TH);
-        pts_max_orig.pksCell{x} = [x*ones(numPeaks,1), origExtractor.extractByLocalMax(origD,x)];
-        pts_cnt_orig.pksCell{x} = [x*ones(numPeaks,1), origExtractor.extractByCentroid(origD,x)];
+        pts_max_orig.peakCells{x} = [x*ones(numPeaks,1), origExtractor.extractByLocalMax(origD,x)];
+        pts_cnt_orig.peakCells{x} = [x*ones(numPeaks,1), origExtractor.extractByCentroid(origD,x)];
 
         [firstIdx,lastIdx] = rsmplExtractor.findThresholdIntervals(rsmplD,x);
         [rsmplExtractor,~,~,numPeaks] = rsmplExtractor.findGrooveBottomIntervals(rsmplD,x,firstIdx,lastIdx,W_TH);
-        pts_cnt_rsmpl.pksCell{x} = [x*ones(numPeaks,1), rsmplExtractor.extractByCentroid(rsmplD,x)];
+        pts_cnt_rsmpl.peakCells{x} = [x*ones(numPeaks,1), rsmplExtractor.extractByCentroid(rsmplD,x)];
     end
 
     ptsMaxOrigCell{i}  = pts_max_orig;
@@ -110,13 +110,13 @@ for i=1:2 % それぞれのタイルについて
     axis(ax,"image");
     hold(ax,"on");
 
-    tmpPksCell = ptsMaxOrigCell{i}.pksCell;
+    tmpPksCell = ptsMaxOrigCell{i}.peakCells;
     pkDots_max_orig = vertcat(tmpPksCell{:});
     
-    tmpPksCell = ptsCntOrigCell{i}.pksCell;
+    tmpPksCell = ptsCntOrigCell{i}.peakCells;
     pkDots_cnt_orig = vertcat(tmpPksCell{:});
     
-    tmpPksCell = ptsCntRsmplCell{i}.pksCell;
+    tmpPksCell = ptsCntRsmplCell{i}.peakCells;
     pkDots_cnt_rsmpl = vertcat(tmpPksCell{:});
     
     % % orig(max), orig(cnt), rsmpl(cnt)を表示

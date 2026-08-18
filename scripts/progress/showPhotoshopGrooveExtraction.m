@@ -78,12 +78,12 @@ for x = 1:map.nCols
     [extractor,~,~,numPeaks] = extractor.findGrooveBottomIntervals(map,x,firstIdx,lastIdx,WIDTH_THRESH);
     centroidY = extractor.extractByCentroid(map,x);
     localMaxY = extractor.extractByLocalMax(map,x);
-    ptsCentroid.pksCell{x} = [x*ones(numPeaks,1), centroidY];
-    ptsLocalMax.pksCell{x} = [x*ones(numPeaks,1), localMaxY];
+    ptsCentroid.peakCells{x} = [x*ones(numPeaks,1), centroidY];
+    ptsLocalMax.peakCells{x} = [x*ones(numPeaks,1), localMaxY];
 end
 
-pksCentroid = vertcat(ptsCentroid.pksCell{:});
-pksLocalMax = vertcat(ptsLocalMax.pksCell{:});
+pksCentroid = vertcat(ptsCentroid.peakCells{:});
+pksLocalMax = vertcat(ptsLocalMax.peakCells{:});
 
 %% 図2: 高解像度画像に重心法・局所的最大値法の抽出点を重ねる
 fig2 = createFigure([0 0 6 6]);

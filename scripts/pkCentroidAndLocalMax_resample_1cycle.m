@@ -97,14 +97,14 @@ for iImg=1:NUM_IMAGES
             cnt_x = dValue.extractGrv_cnt(x);
             max_x = dValue.extractGrv_max(x);
 
-            pts_centroid.pksCell{x} = [x*ones(pksNum,1), cnt_x];
-            pts_localMax.pksCell{x} = [x*ones(pksNum,1), max_x];
+            pts_centroid.peakCells{x} = [x*ones(pksNum,1), cnt_x];
+            pts_localMax.peakCells{x} = [x*ones(pksNum,1), max_x];
         end
 
         sIdxs = vertcat(sIdxC{:});
         eIdxs = vertcat(eIdxC{:});
-        pks_cnt = vertcat(pts_centroid.pksCell{:});
-        pks_max = vertcat(pts_localMax.pksCell{:});
+        pks_cnt = vertcat(pts_centroid.peakCells{:});
+        pks_max = vertcat(pts_localMax.peakCells{:});
 
         W_PRL = imgData.width; % 平行四辺形の高さ
         H_PRL = 8; % 平行四辺形の底辺
@@ -363,14 +363,14 @@ for iImg=1:8
                 cnt_x(k) = sigma_jxD/sigma_D;
                 cnt_x(k) = 1 + (cnt_x(k)-1)/dValue_r.scaleFactor.row;
             end
-            pts_centroid.pksCell{x} = [x*ones(pksNum,1), cnt_x];
-            pts_localMax.pksCell{x} = [x*ones(pksNum,1), max_x];
+            pts_centroid.peakCells{x} = [x*ones(pksNum,1), cnt_x];
+            pts_localMax.peakCells{x} = [x*ones(pksNum,1), max_x];
         end
 
         sIdxs = vertcat(sIdxC{:});
         eIdxs = vertcat(eIdxC{:});
-        pks_cnt = vertcat(pts_centroid.pksCell{:});
-        pks_max = vertcat(pts_localMax.pksCell{:});
+        pks_cnt = vertcat(pts_centroid.peakCells{:});
+        pks_max = vertcat(pts_localMax.peakCells{:});
 
         W_PRL = imgData.width; % 平行四辺形の高さ
         H_PRL = 8; % 平行四辺形の底辺

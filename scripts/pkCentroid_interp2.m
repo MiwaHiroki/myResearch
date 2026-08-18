@@ -90,14 +90,14 @@ for x=1:imgData.width
     centroidY = extractor.extractByCentroid(dValue,x);
     maxY = extractor.extractByLocalMax(dValue,x);
 
-    pts_centroid.pksCell{x} = [x*ones(numPeaks,1), centroidY];
-    pts_localMax.pksCell{x} = [x*ones(numPeaks,1), maxY];
+    pts_centroid.peakCells{x} = [x*ones(numPeaks,1), centroidY];
+    pts_localMax.peakCells{x} = [x*ones(numPeaks,1), maxY];
 end
 
 sIdxs = vertcat(sIdxC{:});
 eIdxs = vertcat(eIdxC{:});
-pks_cnt = vertcat(pts_centroid.pksCell{:});
-pks_max = vertcat(pts_localMax.pksCell{:});
+pks_cnt = vertcat(pts_centroid.peakCells{:});
+pks_max = vertcat(pts_localMax.peakCells{:});
 
 fig = figure;
 % fig = createFigure([0 0 6 6]);
@@ -187,8 +187,8 @@ for x=1:origImg.width
     centroidY = origExtractor.extractByCentroid(origD,x);
     maxY = origExtractor.extractByLocalMax(origD,x);
 
-    pts_cnt.pksCell{x} = [x*ones(numPeaks,1), centroidY];
-    pts_max.pksCell{x} = [x*ones(numPeaks,1), maxY];
+    pts_cnt.peakCells{x} = [x*ones(numPeaks,1), centroidY];
+    pts_max.peakCells{x} = [x*ones(numPeaks,1), maxY];
 
 
     [firstIdx, lastIdx] = rsmplExtractor.findThresholdIntervals(rsmplD, x);
@@ -198,18 +198,18 @@ for x=1:origImg.width
     centroidY = rsmplExtractor.extractByCentroid(rsmplD,x);
     maxY = rsmplExtractor.extractByLocalMax(rsmplD,x);
 
-    pts_cnt_r.pksCell{x} = [x*ones(numPeaks,1), centroidY];
-    pts_max_r.pksCell{x} = [x*ones(numPeaks,1), maxY];
+    pts_cnt_r.peakCells{x} = [x*ones(numPeaks,1), centroidY];
+    pts_max_r.peakCells{x} = [x*ones(numPeaks,1), maxY];
 
 end
 
 sIdxs = vertcat(origExtractor.startIdxCells{:});
 eIdxs = vertcat(origExtractor.endIdxCells{:});
-pks_cnt = vertcat(pts_cnt.pksCell{:});
-pks_max = vertcat(pts_max.pksCell{:});
+pks_cnt = vertcat(pts_cnt.peakCells{:});
+pks_max = vertcat(pts_max.peakCells{:});
 
-pks_cnt_r = vertcat(pts_cnt_r.pksCell{:});
-pks_max_r = vertcat(pts_max_r.pksCell{:});
+pks_cnt_r = vertcat(pts_cnt_r.peakCells{:});
+pks_max_r = vertcat(pts_max_r.peakCells{:});
 
 intpExtractor = GrooveExtractor(intpD);
 for x=1:intpD.nCols
@@ -222,18 +222,18 @@ for x=1:intpD.nCols
 
     tmpPoints = [x*ones(numPeaks,1), centroidY];
     tmpPoints(:,1) = 1+(tmpPoints(:,1) - 1)*step;
-    pts_cnt_intp.pksCell{x} = tmpPoints;
+    pts_cnt_intp.peakCells{x} = tmpPoints;
 
     tmpPoints = [x*ones(numPeaks,1), maxY];
     tmpPoints(:,1) = 1+(tmpPoints(:,1) - 1)*step;
-    pts_max_intp.pksCell{x} = tmpPoints;
+    pts_max_intp.peakCells{x} = tmpPoints;
 
 end
 
 sIdxs_intp = vertcat(intpExtractor.startIdxCells{:});
 eIdxs_intp = vertcat(intpExtractor.endIdxCells{:});
-pks_cnt_intp = vertcat(pts_cnt_intp.pksCell{:});
-pks_max_intp = vertcat(pts_max_intp.pksCell{:});
+pks_cnt_intp = vertcat(pts_cnt_intp.peakCells{:});
+pks_max_intp = vertcat(pts_max_intp.peakCells{:});
 
 %}
 
