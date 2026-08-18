@@ -10,7 +10,7 @@ classdef GroovePointCloud
         imgID (2,1) double
         width (1,1) double
         height (1,1) double
-        rsmplTF (1,1) logical
+        isResampled (1,1) logical
         scaleFactor (1,1) struct
         pksCell (1,:) cell
     end
@@ -21,7 +21,7 @@ classdef GroovePointCloud
                 obj.imgID = dValue.imgID;
                 obj.width = dValue.width;
                 obj.height = dValue.height;
-                obj.rsmplTF = dValue.rsmplTF;
+                obj.isResampled = dValue.isResampled;
                 obj.scaleFactor = dValue.scaleFactor;
                 obj.pksCell = cell(1,obj.width);
             end
@@ -31,7 +31,7 @@ classdef GroovePointCloud
         %     obj.imgID = dValue.imgID;
         %     obj.width = dValue.width;
         %     obj.height = dValue.height;
-        %     obj.rsmplTF = dValue.rsmplTF;
+        %     obj.isResampled = dValue.isResampled;
         %     obj.rRatio = dValue.rRatio;
         %     if method=="localMax"
         %         obj.pksCell = localMaxMethod(obj,dValue,pksNums,sIdxCell,eIdxCell);

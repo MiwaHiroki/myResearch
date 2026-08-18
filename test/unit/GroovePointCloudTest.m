@@ -36,7 +36,7 @@ classdef GroovePointCloudTest < matlab.unittest.TestCase
             testCase.verifyEqual(gpc.imgID, [3; 4]);
             testCase.verifyEqual(gpc.width, 3);
             testCase.verifyEqual(gpc.height, 6);
-            testCase.verifyFalse(gpc.rsmplTF);
+            testCase.verifyFalse(gpc.isResampled);
             testCase.verifyEqual(gpc.scaleFactor, struct('row',1,'col',1));
         end
 

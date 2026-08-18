@@ -14,6 +14,8 @@ Claude が判断した**優先度の高い順**に並べている（P1 が最優
 > **2026-08-07 実施済み**: P2を実施した。ただし採用した名前は提案の`GrooveCandidateSet`ではなく`GroovePointCloud`（併せて`showCandidates`→`showPoints`）。理由は本クラスが「溝底の点」を保持することを主張すべきであり、将来的に点群のクラスタリングメソッドを追加する計画があるため（MATLAB組み込みの`pointCloud`と`pcsegdist`が命名の前例）。詳細はCLAUDE.mdのArchitecture notesを参照。残るのはP4-1・P4-3の一部・P5-1/5-2。
 >
 > 本ドキュメントが対象とするのは`src/`の5クラスの命名のみ。同時期に行った`fitGroove`（複数pksデータセット対応・`GrooveSelection`による自動選択・figure省略）のリファクタリングはクラス名の変更を伴わないため対象外。詳細はREADME.mdの「溝の選択（fitGroove）」およびCLAUDE.mdのArchitecture notesを参照。
+>
+> **2026-08-18 実施済み**: P4-3の1行目（`rsmplTF`→`isResampled`）を実施した。提案表は`DarknessMap`のみを対象としていたが、`GroovePointCloud`も自身の`rsmplTF`プロパティを`DarknessMap`からのコピーとして保持しており（コンストラクタで`obj.rsmplTF = dValue.rsmplTF;`）、両クラスの受け渡し地点で名前が食い違うのを避けるため`GroovePointCloud`側も合わせて`isResampled`に改名した（P4-1で`width`/`height`を両クラス揃えて改名した前例を踏襲）。詳細はP4-3の節を参照。
 
 ---
 
@@ -132,10 +134,17 @@ Claude が判断した**優先度の高い順**に並べている（P1 が最優
 
 | 現状 | 提案 | 理由 | 状態 |
 |---|---|---|---|
-| `rsmplTF` | `isResampled` | `TF` 接尾より論理値の意図が明確。`is` 接頭で真偽が伝わる | 未着手（`DarknessMap`に残存） |
+| `rsmplTF` | `isResampled` | `TF` 接尾より論理値の意図が明確。`is` 接頭で真偽が伝わる | ✅ 実施済み（2026-08-18） |
 | `sIdxC` / `eIdxC` | `startIdxCells` / `endIdxCells` | 略語 `C`（cell）と `s`/`e` を展開 | ✅ 実施済み（P1-2で`GrooveExtractor`へ移動と同時に改名） |
 | `pksCell` | `peakCells` | `pks` を展開 | 未着手（`GroovePointCloud`に残存） |
 | `dMat` | `darknessMat` or `dMat`（据え置き可） | 中心データ。P1改名時に合わせて検討 | 据え置き（P1で`dMat`のまま維持） |
+
+**実施内容（`rsmplTF` → `isResampled`）**
+
+- `src/DarknessMap.m`: プロパティ宣言、コンストラクタでの初期化（`false`）、`dResample`内の設定（`true`）、`plotD_x`内の参照（タイトルへの"resampled"注記の分岐）を改名。あわせて冒頭コメントのメソッド一覧に紛れ込んでいた誤記`isResampled(obj)`（存在しないメソッドとして書かれていた）も削除して整理した。
+- `src/GroovePointCloud.m`: 提案表は`DarknessMap`のみを対象としていたが、本クラスも独自に`rsmplTF`プロパティを持ち、コンストラクタで`obj.rsmplTF = dValue.rsmplTF;`と`DarknessMap`から直接コピーしている。コピー元・コピー先で名前が食い違う状態を避けるため、**判断としてこちらも`isResampled`に改名した**（P4-1で`width`/`height`を両クラス揃えて改名した前例と同じ考え方）。プロパティ宣言・コンストラクタ本体・コメントアウトされた旧コンストラクタ案（未使用の参考コードだが同一ファイル内にあるため整合させた）を更新。
+- 呼び出し元: `test/unit/DarknessMapTest.m`（3箇所）、`test/unit/GroovePointCloudTest.m`（1箇所）を更新。`scripts/`（`archive`含む）を全文grepしたが`rsmplTF`/`isResampled`の参照はなし。
+- 検証: 変更した4ファイルすべて`check_matlab_code`で警告ゼロ（`DarknessMapTest.m`の既存の抑制コメント関連infoは本改名と無関係の既存事項）。`cd test; runAllTests`で74件全件成功（回帰なし）。
 
 ---
 
@@ -172,7 +181,8 @@ Claude が判断した**優先度の高い順**に並べている（P1 が最優
 2. ~~**P1-2**（`GrooveExtractor` 分離）~~ ✅ 実施済み（2026-08-04、1-1と同時）
 3. ~~**P3 の方針決定**（継承を残すか消すか）~~ ✅ 実施済み（2026-08-07、(A)削除を採用）
 4. ~~**P2**（`GrooveCandidates` → `GroovePointCloud`）~~ ✅ 実施済み（2026-08-07）
-5. ~~**P4-1**（`DarknessMap.imgWidth/imgHeight` → `width`/`height`）~~ ✅ 実施済み（2026-08-09）。**P4**の残りは`pksCell`・`rsmplTF`。
-6. **P5**（メソッド命名統一。残るのは`plotD_x`・表示系メソッドの統一）。
+5. ~~**P4-1**（`DarknessMap.imgWidth/imgHeight` → `width`/`height`）~~ ✅ 実施済み（2026-08-09）。
+6. ~~**P4-3の1行目**（`rsmplTF` → `isResampled`、`DarknessMap`と`GroovePointCloud`の両方）~~ ✅ 実施済み（2026-08-18）。**P4**の残りは`pksCell`。
+7. **P5**（メソッド命名統一。残るのは`plotD_x`・表示系メソッドの統一）。
 
 > 各ステップ後に `cd test; runAllTests` で回帰確認する。`scripts/`（archive 含む）とテストの参照も同時に更新が必要。

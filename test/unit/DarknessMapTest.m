@@ -47,7 +47,7 @@ classdef DarknessMapTest < matlab.unittest.TestCase
         end
 
         function testConstructorDefaults(testCase)
-            testCase.verifyFalse(testCase.dMap.rsmplTF);
+            testCase.verifyFalse(testCase.dMap.isResampled);
             testCase.verifyEqual(testCase.dMap.scaleFactor, struct('row',1,'col',1));
         end
 
@@ -61,11 +61,11 @@ classdef DarknessMapTest < matlab.unittest.TestCase
                 "resample が利用できないためスキップ");
             newObj = testCase.dMap.dResample(2, 1);
 
-            testCase.verifyTrue(newObj.rsmplTF);
+            testCase.verifyTrue(newObj.isResampled);
             testCase.verifyEqual(newObj.scaleFactor.row, 2);
             testCase.verifyEqual(newObj.nRows, size(newObj.dMat, 1));
             % 値クラスなので元オブジェクトは不変
-            testCase.verifyFalse(testCase.dMap.rsmplTF);
+            testCase.verifyFalse(testCase.dMap.isResampled);
         end
 
         function testDInterpIdentityForStepOne(testCase)
