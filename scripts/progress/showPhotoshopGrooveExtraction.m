@@ -12,7 +12,7 @@ setDefaultIntrpr();
 proj = currentProject();
 rootFolder = proj.RootFolder;
 
-IMG_INDEX = 3; % DSC1111-00003（showImage.mと同じ画像）
+IMG_INDEX = 7; % DSC1111-00003（showImage.mと同じ画像）
 
 oriPath = fullfile(rootFolder,"data","pictures","1111","original", ...
     "DSC1111-0000"+num2str(IMG_INDEX)+"-ori.png");
@@ -28,8 +28,12 @@ rowScale = h8x/hOri; % 縦方向(溝を横切る方向)の拡大率
 colScale = w8x/wOri; % 横方向の拡大率
 
 % 元画像上での切り出し範囲（溝が複数本きれいに写る範囲を選定済み）
-ROW_RANGE = 90:170;
-COL_RANGE = 1000:1080;
+% ROW_RANGE = 90:170;
+% COL_RANGE = 1000:1080;
+
+% (ユーザーの追記)laptopのnoiseDetail.mに基づく参照範囲
+ROW_RANGE = 186:217;
+COL_RANGE = 2005:2036;
 
 % 対応する高解像度画像上の範囲（scaleFactorと同じ「(idx-1)*scale+1」の対応付け）
 rowRange8x = (round((ROW_RANGE(1)-1)*rowScale)+1) : (round((ROW_RANGE(end)-1)*rowScale)+1);
@@ -48,11 +52,12 @@ dir = mkdirFromDate(rootFolder,date);
 %% 図1: 高解像度化を行った画像の一部分
 % ImageData.showImg()はXAxisLocationを上にするため、title()だとx軸ラベルと
 % 重なる。そのため図の下にテキストボックスでキャプションを付ける。
-fig1 = createFigure([0 0 10 10]);
-imgData8x.showImg();
-addCaptionBelow(fig1,"Photoshop 8x upscaled image (segment)");
+% (ユーザーの追記): キャプションは不要
+fig1 = createFigure([0 0 6 6]);
+imgData8x.showImg("fit");
+% addCaptionBelow(fig1,"Photoshop 8x upscaled image (segment)");
 exportgraphics(fig1, dir+"1_photoshopHighRes_segment.png","Resolution",300,"BackgroundColor","white");
-close(fig1);
+% close(fig1);
 
 %% 溝底候補点の抽出（重心法・局所的最大値法）
 % CLAUDE.mdのGrooveExtractor呼び出し方に準拠。
@@ -81,23 +86,40 @@ pksCentroid = vertcat(ptsCentroid.pksCell{:});
 pksLocalMax = vertcat(ptsLocalMax.pksCell{:});
 
 %% 図2: 高解像度画像に重心法・局所的最大値法の抽出点を重ねる
-fig2 = createFigure([0 0 10 10]);
-imgData8x.showImg();
+fig2 = createFigure([0 0 6 6]);
+imgData8x.showImg("fit");
 hold on;
-hCentroid = scatter(pksCentroid(:,1),pksCentroid(:,2),10,'red','filled','o');
-hLocalMax = scatter(pksLocalMax(:,1),pksLocalMax(:,2),18,'cyan','x','LineWidth',1.0);
+hLocalMax = scatter(pksLocalMax(:,1),pksLocalMax(:,2),5,'red','filled','o');
+hCentroid = scatter(pksCentroid(:,1),pksCentroid(:,2),5,'cyan','filled','o');
 legend([hCentroid,hLocalMax],{'centroid method','local maximum method'}, ...
     'Location','southoutside','Orientation','horizontal');
-addCaptionBelow(fig2,"Groove extraction on the upscaled image");
-exportgraphics(fig2, dir+"2_photoshopHighRes_centroid_localMax.png","Resolution",300,"BackgroundColor","white");
-close(fig2);
+lgd = legend; lgd.ItemHitFcn = @togglevisibility;
+% addCaptionBelow(fig2,"Groove extraction on the upscaled image");
+% exportgraphics(fig2, dir+"2_photoshopHighRes_centroid_localMax.png","Resolution",300,"BackgroundColor","white");
+% close(fig2);
+
+% 図を分ける？
+% 図2-1: 局所的最大値法
+% 図2-2: 重心法
+fig2_1 = createFigure([0 0 6 6]);
+imgData8x.showImg("fit");
+hold on;
+hLocalMax = scatter(pksLocalMax(:,1),pksLocalMax(:,2),5,'red','filled','o');
+exportgraphics(fig2, dir+"2-1_photoshopHighRes_localMax.png","Resolution",300,"BackgroundColor","white");
+
+fig2_2 = createFigure([0 0 6 6]);
+imgData8x.showImg("fit");
+hold on;
+hCentroid = scatter(pksCentroid(:,1),pksCentroid(:,2),5,'cyan','filled','o');
+exportgraphics(fig2, dir+"2-2_photoshopHighRes_centroid.png","Resolution",300,"BackgroundColor","white");
+
 
 %% 図3: 高解像度化を行う前の画像の対応部分
-fig3 = createFigure([0 0 10 10]);
-imgDataOri.showImg();
-addCaptionBelow(fig3,"Original image before upscaling (corresponding segment)");
+fig3 = createFigure([0 0 6 6]);
+imgDataOri.showImg("fit");
+% addCaptionBelow(fig3,"Original image before upscaling (corresponding segment)");
 exportgraphics(fig3, dir+"3_original_segment.png","Resolution",300,"BackgroundColor","white");
-close(fig3);
+% close(fig3);
 
 %% ローカル関数
 function addCaptionBelow(fig,str)
