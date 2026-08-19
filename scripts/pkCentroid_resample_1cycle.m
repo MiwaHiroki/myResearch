@@ -168,7 +168,7 @@ for iImg=1:NUM_IMAGES
         % 1回の選択でpks_max_r,pks_cnt_rの両方の傾きを補正したpksCorCellを得る
         if isempty(grooveSelection)
             fig = figure;
-            origImg.showImg();
+            origImg.showImage();
             hold on;
             pts_max_r.showPoints();
             pts_cnt_r.showPoints();
@@ -288,13 +288,13 @@ axis tight;ylim([-1 1]);
 
 rsmplMaxAudio = AudioData("audio (local maximum method)("+num2str(rsmplD.scaleFactor.row)+"x resampled)",amp_max,fs);
 
-fig = figure;rsmplMaxAudio.audioPlot();
+fig = figure;rsmplMaxAudio.plotWaveform();
 saveas(fig,dir+rsmplMaxAudio.filename+"_amp","fig");saveas(fig,dir+rsmplMaxAudio.filename+"_amp","png");close;
 
-fig = figure;rsmplMaxAudio.FFTPlot();
+fig = figure;rsmplMaxAudio.plotFFT();
 saveas(fig,dir+rsmplMaxAudio.filename+"_fft","fig");saveas(fig,dir+rsmplMaxAudio.filename+"_fft","png");close;
 
-fig = figure;rsmplMaxAudio.spectrogramPlot(1024);
+fig = figure;rsmplMaxAudio.plotSpectrogram(1024);
 saveas(fig,dir+rsmplMaxAudio.filename+"_stft","fig");saveas(fig,dir+rsmplMaxAudio.filename+"_stft","png");close;
 
 rsmplMaxAudio.saveAudio(dir);
@@ -302,13 +302,13 @@ rsmplMaxAudio.saveAudio(dir);
 
 rsmplCntAudio = AudioData("audio (centroid method)("+num2str(rsmplD.scaleFactor.row)+"x resampled)",amp_cnt,fs);
 
-fig = figure;rsmplCntAudio.audioPlot();
+fig = figure;rsmplCntAudio.plotWaveform();
 saveas(fig,dir+rsmplCntAudio.filename+"_amp","fig");saveas(fig,dir+rsmplCntAudio.filename+"_amp","png");close;
 
-fig = figure;rsmplCntAudio.FFTPlot();
+fig = figure;rsmplCntAudio.plotFFT();
 saveas(fig,dir+rsmplCntAudio.filename+"_fft","fig");saveas(fig,dir+rsmplCntAudio.filename+"_fft","png");close;
 
-fig = figure;rsmplCntAudio.spectrogramPlot(1024);
+fig = figure;rsmplCntAudio.plotSpectrogram(1024);
 saveas(fig,dir+rsmplCntAudio.filename+"_stft","fig");saveas(fig,dir+rsmplCntAudio.filename+"_stft","png");close;
 
 rsmplCntAudio.saveAudio(dir);

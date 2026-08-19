@@ -9,7 +9,7 @@ function result = loadCycleResult(matPath, opts)
 %   matPath = cycleResultPath(proj.RootFolder, "intpD", "0731");
 %   result = loadCycleResult(matPath);
 %
-%   figure; result.centroid.audio.spectrogramPlot(4096);
+%   figure; result.centroid.audio.plotSpectrogram(4096);
 %
 %   % DarknessMap（別ファイルに保存した dMat）も要るとき
 %   result = loadCycleResult(matPath, LoadDarknessValues=true);

@@ -24,7 +24,7 @@ classdef ImageData
             end
         end
 
-        function showImg(varargin)
+        function showImage(varargin)
             if nargin==1
                 obj = varargin{1};
                 imshow(uint8(obj.img));

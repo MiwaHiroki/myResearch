@@ -111,7 +111,7 @@ for iImg=1:NUM_IMAGES
         % 1回の選択でpks_max,pks_cntの両方の傾きを補正したpksCorCellを得る
         if isempty(grooveSelection)
             fig = figure;
-            origImg.showImg();
+            origImg.showImage();
             hold on;
             pts_max.showPoints();
             pts_cnt.showPoints();
@@ -240,25 +240,25 @@ axis tight;ylim([-1 1]);
 origMaxAudio = AudioData("audio (local maximum method)(original)",amp_max,fs);
 origCntAudio = AudioData("audio (centroid method)(original)",amp_cnt,fs);
 
-fig = figure;origMaxAudio.audioPlot();
+fig = figure;origMaxAudio.plotWaveform();
 saveas(fig,dir+origMaxAudio.filename+"_amp","fig");saveas(fig,dir+origMaxAudio.filename+"_amp","png");close;
 
-fig = figure;origMaxAudio.FFTPlot();
+fig = figure;origMaxAudio.plotFFT();
 saveas(fig,dir+origMaxAudio.filename+"_fft","fig");saveas(fig,dir+origMaxAudio.filename+"_fft","png");close;
 
-fig = figure;origMaxAudio.spectrogramPlot(1024);
+fig = figure;origMaxAudio.plotSpectrogram(1024);
 saveas(fig,dir+origMaxAudio.filename+"_stft","fig");saveas(fig,dir+origMaxAudio.filename+"_stft","png");close;
 
 origMaxAudio.saveAudio(dir);
 
 
-fig = figure;origCntAudio.audioPlot();
+fig = figure;origCntAudio.plotWaveform();
 saveas(fig,dir+origCntAudio.filename+"_amp","fig");saveas(fig,dir+origCntAudio.filename+"_amp","png");close;
 
-fig = figure;origCntAudio.FFTPlot();
+fig = figure;origCntAudio.plotFFT();
 saveas(fig,dir+origCntAudio.filename+"_fft","fig");saveas(fig,dir+origCntAudio.filename+"_fft","png");close;
 
-fig = figure;origCntAudio.spectrogramPlot(1024);
+fig = figure;origCntAudio.plotSpectrogram(1024);
 saveas(fig,dir+origCntAudio.filename+"_stft","fig");saveas(fig,dir+origCntAudio.filename+"_stft","png");close;
 
 origCntAudio.saveAudio(dir);

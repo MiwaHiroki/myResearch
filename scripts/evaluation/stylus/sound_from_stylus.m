@@ -39,15 +39,15 @@ StylusPlayback_wa = AudioData("StylusPlayback(wa)",y_wa,fs_stylus);
 StylusPlayback_wa.saveAudio(dir)
 
 fig = createFigure([0 0 6 4]);
-StylusPlayback_wa.audioPlot();
+StylusPlayback_wa.plotWaveform();
 saveas(fig,dir+StylusPlayback_wa.name+"_amp.fig");saveas(fig,dir+StylusPlayback_wa.name+"_amp.png");
 
 fig = createFigure([0 0 6 4]);
-StylusPlayback_wa.FFTPlot();
+StylusPlayback_wa.plotFFT();
 saveas(fig,dir+StylusPlayback_wa.name+"_fft.fig");saveas(fig,dir+StylusPlayback_wa.name+"_fft.png");
 
 fig = createFigure([0 0 6 6]);
-StylusPlayback_wa.spectrogramPlot();
+StylusPlayback_wa.plotSpectrogram();
 saveas(fig,dir+StylusPlayback_wa.name+"_stft.fig");saveas(fig,dir+StylusPlayback_wa.name+"_stft.png");
 
 %%
@@ -56,15 +56,15 @@ StylusPlayback_wa_highpass = AudioData("StylusPlayback(wa)(highpass)",y_wa_highp
 tmpName = StylusPlayback_wa_highpass.filename;
 
 fig = createFigure([0 0 6 4]);
-StylusPlayback_wa_highpass.audioPlot();
+StylusPlayback_wa_highpass.plotWaveform();
 saveas(fig,dir+tmpName+"_amp.fig");saveas(fig,dir+tmpName+"_amp.png");
 
 fig = createFigure([0 0 6 4]);
-StylusPlayback_wa_highpass.FFTPlot();
+StylusPlayback_wa_highpass.plotFFT();
 saveas(fig,dir+tmpName+"_fft.fig");saveas(fig,dir+tmpName+"_fft.png");
 
 fig = createFigure([0 0 6 6]);
-StylusPlayback_wa_highpass.spectrogramPlot();
+StylusPlayback_wa_highpass.plotSpectrogram();
 saveas(fig,dir+tmpName+"_stft.fig");saveas(fig,dir+tmpName+"_stft.png");
 
 StylusPlayback_wa_highpass.saveAudio(proj.RootFolder+"\data\stylus playback\");
@@ -77,7 +77,7 @@ tidx_0615 = (0:length(audio_0615)-1)'/fs;
 
 figure;
 plot(tidx_0615,audio_0615);hold on;
-StylusPlayback_wa_highpass.audioPlot();
+StylusPlayback_wa_highpass.plotWaveform();
 title("Produced Audio and Stylus Playback");
 legend(["Produced Audio (0615)","Stylus Playback"]);
 lgd = legend;

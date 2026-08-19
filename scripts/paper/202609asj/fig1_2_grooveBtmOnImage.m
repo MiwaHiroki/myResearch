@@ -54,7 +54,7 @@ ptsXY = vertcat(pts.peakCells{:});
 ptsX = ptsXY(:,1); ptsY = ptsXY(:,2);
 
 %% 描画
-% showImgは使わず、axesを指定できるimagescで描く
+% showImageは使わず、axesを指定できるimagescで描く
 fig = createFigure([0 0 FIG_W FIG_H]);
 ax = axes(fig);
 

@@ -54,11 +54,11 @@ t = tiledlayout(fig,1,2,"TileSpacing","compact","Padding","tight");
 axList = gobjects(1,numel(audioCell));
 
 for k = 1:numel(audioCell)
-    ax = nexttile(t); % spectrogramPlotはgcaに描くのでnexttileを先に呼ぶ
+    ax = nexttile(t); % plotSpectrogramはgcaに描くのでnexttileを先に呼ぶ
 
     % 原稿ではキャプションを付けるので図中のタイトルは出さない
     % カラーバーは2枚共通のものを後からレイアウトに付ける
-    audioCell{k}.spectrogramPlot(WIN_SIZE,ShowTitle=false,ShowColorbar=false);
+    audioCell{k}.plotSpectrogram(WIN_SIZE,ShowTitle=false,ShowColorbar=false);
 
     % 右端はデータのあるところまでに詰める。左端は0のままにしないと
     % xticksの0が範囲外になって表示されない（窓長1024なら空白は0.012s）

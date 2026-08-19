@@ -74,22 +74,22 @@ classdef AudioDataTest < matlab.unittest.TestCase
             testCase.verifyEqual(numel(y), numel(testCase.signal));
         end
 
-        function testAudioPlotDrawsLine(testCase)
-            testCase.audio.audioPlot();
+        function testPlotWaveformDrawsLine(testCase)
+            testCase.audio.plotWaveform();
             testCase.verifyNotEmpty(findobj(testCase.fig, 'Type', 'line'));
         end
 
-        function testFFTPlotDrawsLine(testCase)
-            testCase.audio.FFTPlot();
+        function testPlotFFTDrawsLine(testCase)
+            testCase.audio.plotFFT();
             testCase.verifyNotEmpty(findobj(testCase.fig, 'Type', 'line'));
         end
 
-        function testSpectrogramPlotRuns(testCase)
+        function testPlotSpectrogramRuns(testCase)
             % stft は Signal Processing Toolbox が必要
             testCase.assumeNotEmpty(which("stft"), ...
                 "stft が利用できないためスキップ");
             longAudio = AudioData("chirp", sin(2*pi*500*(0:1/testCase.fs:1)'), testCase.fs);
-            longAudio.spectrogramPlot();
+            longAudio.plotSpectrogram();
             testCase.verifyNotEmpty(findobj(testCase.fig, 'Type', 'surface'));
         end
     end

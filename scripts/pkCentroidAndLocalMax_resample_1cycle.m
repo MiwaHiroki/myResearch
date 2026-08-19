@@ -112,7 +112,7 @@ for iImg=1:NUM_IMAGES
         fig = figure;
         % fig = createFigure([0 0 6 6]);
         % imshow(img_small,"InitialMagnification","fit");
-        imgData.showImg();
+        imgData.showImage();
         hold on;
         scatter(pks_cnt(:,1),pks_cnt(:,2),3,'c','filled');
         title("Peak Dots (centroid & local maximum method)");
@@ -235,15 +235,15 @@ amp_cnt_raw = y_cnt_raw / TOL_DISTANCE;
 audio_cnt = AudioData("audio from centroid method",amp_cnt_raw,fs);
 
 fig = createFigure([0 0 6 4]);
-audio_cnt.audioPlot();
+audio_cnt.plotWaveform();
 saveas(fig,dir+audio_cnt.filename+"_amp","fig");saveas(fig,dir+audio_cnt.filename+"_amp","png");close;
 
 fig = createFigure([0 0 6 4]);
-audio_cnt.FFTPlot();
+audio_cnt.plotFFT();
 saveas(fig,dir+audio_cnt.filename+"_fft","fig");saveas(fig,dir+audio_cnt.filename+"_fft","png");close;
 
 fig1 = createFigure([0 0 6 6]);
-audio_cnt.spectrogramPlot();title(audio_cnt.name);
+audio_cnt.plotSpectrogram();title(audio_cnt.name);
 saveas(fig1,dir+audio_cnt.filename+"_stft","fig");saveas(fig1,dir+audio_cnt.filename+"_stft","png");
 
 audio_cnt.saveAudio(dir);
@@ -257,15 +257,15 @@ amp_max_raw = y_max_raw / TOL_DISTANCE;
 audio_max = AudioData("audio from local maximum method",amp_max_raw,fs);
 
 fig = createFigure([0 0 6 4]);
-audio_max.audioPlot();
+audio_max.plotWaveform();
 saveas(fig,dir+audio_max.filename+"_amp","fig");saveas(fig,dir+audio_max.filename+"_amp","png");close;
 
 fig = createFigure([0 0 6 4]);
-audio_max.FFTPlot();
+audio_max.plotFFT();
 saveas(fig,dir+audio_max.filename+"_fft","fig");saveas(fig,dir+audio_max.filename+"_fft","png");close;
 
 fig2 = createFigure([0 0 6 6]);
-audio_max.spectrogramPlot();title(audio_max.name);
+audio_max.plotSpectrogram();title(audio_max.name);
 saveas(fig2,dir+audio_max.filename+"_stft","fig");saveas(fig2,dir+audio_max.filename+"_stft","png");
 
 audio_max.saveAudio(dir);
@@ -378,7 +378,7 @@ for iImg=1:8
         fig = figure;
         % fig = createFigure([0 0 6 6]);
         % imshow(img_small,"InitialMagnification","fit");
-        imgData.showImg();
+        imgData.showImage();
         hold on;
         scatter(pks_cnt(:,1),pks_cnt(:,2),3,'c','filled');
         title("Peak Dots (centroid & local maximum method)");xlabel("$x$");ylabel("$y$");
@@ -487,15 +487,15 @@ amp_cnt_raw = y_r_cnt_raw / TOL_DISTANCE;
 audio_r_cnt = AudioData("audio from centroid method (resampled)",amp_cnt_raw,fs);
 
 fig = createFigure([0 0 6 4]);
-audio_r_cnt.audioPlot();
+audio_r_cnt.plotWaveform();
 saveas(fig,dir+audio_r_cnt.filename+"_amp","fig");saveas(fig,dir+audio_r_cnt.filename+"_amp","png");close;
 
 fig = createFigure([0 0 6 4]);
-audio_r_cnt.FFTPlot();
+audio_r_cnt.plotFFT();
 saveas(fig,dir+audio_r_cnt.filename+"_fft","fig");saveas(fig,dir+audio_r_cnt.filename+"_fft","png");close;
 
 fig1 = createFigure([0 0 6 6]);
-audio_r_cnt.spectrogramPlot();
+audio_r_cnt.plotSpectrogram();
 saveas(fig1,dir+audio_r_cnt.filename+"_stft","fig");saveas(fig1,dir+audio_r_cnt.filename+"_stft","png");
 
 audio_r_cnt.saveAudio(dir);
@@ -509,15 +509,15 @@ amp_max_raw = y_r_max_raw / TOL_DISTANCE;
 audio_r_max = AudioData("audio from local maximum method (resampled)",amp_max_raw,fs);
 
 fig = createFigure([0 0 6 4]);
-audio_r_max.audioPlot();
+audio_r_max.plotWaveform();
 saveas(fig,dir+audio_r_max.filename+"_amp","fig");saveas(fig,dir+audio_r_max.filename+"_amp","png");close;
 
 fig = createFigure([0 0 6 4]);
-audio_r_max.FFTPlot();
+audio_r_max.plotFFT();
 saveas(fig,dir+audio_r_max.filename+"_fft","fig");saveas(fig,dir+audio_r_max.filename+"_fft","png");close;
 
 fig = createFigure([0 0 6 6 ]);
-audio_r_max.spectrogramPlot();
+audio_r_max.plotSpectrogram();
 saveas(fig,dir+audio_r_max.filename+"_stft","fig");saveas(fig,dir+audio_r_max.filename+"_stft","png");
 
 audio_r_max.saveAudio(dir);
@@ -620,45 +620,45 @@ date = "0710";
 dir = mkdirFromDate(proj.RootFolder,date);
 
 fig = createFigure([0 0 6 4]);
-mvMean_s.audioPlot();
+mvMean_s.plotWaveform();
 saveas(fig,dir+mvMean_s.filename+"_amp","fig");saveas(fig,dir+mvMean_s.filename+"_amp","png");close;
 
 fig = createFigure([0 0 6 4]);
-mvMean_s.FFTPlot();
+mvMean_s.plotFFT();
 saveas(fig,dir+mvMean_s.filename+"_fft","fig");saveas(fig,dir+mvMean_s.filename+"_fft","png");close;
 
 fig = createFigure([0 0 6 6 ]);
-mvMean_s.spectrogramPlot();
+mvMean_s.plotSpectrogram();
 saveas(fig,dir+mvMean_s.filename+"_stft","fig");saveas(fig,dir+mvMean_s.filename+"_stft","png");
 
 mvMean_s.saveAudio(dir);
 
 
 fig = createFigure([0 0 6 4]);
-mvMean_m.audioPlot();
+mvMean_m.plotWaveform();
 saveas(fig,dir+mvMean_m.filename+"_amp","fig");saveas(fig,dir+mvMean_m.filename+"_amp","png");close;
 
 fig = createFigure([0 0 6 4]);
-mvMean_m.FFTPlot();
+mvMean_m.plotFFT();
 saveas(fig,dir+mvMean_m.filename+"_fft","fig");saveas(fig,dir+mvMean_m.filename+"_fft","png");close;
 
 fig = createFigure([0 0 6 6 ]);
-mvMean_m.spectrogramPlot();
+mvMean_m.plotSpectrogram();
 saveas(fig,dir+mvMean_m.filename+"_stft","fig");saveas(fig,dir+mvMean_m.filename+"_stft","png");
 
 mvMean_m.saveAudio(dir);
 
 
 fig = createFigure([0 0 6 4]);
-mvMean_l.audioPlot();
+mvMean_l.plotWaveform();
 saveas(fig,dir+mvMean_l.filename+"_amp","fig");saveas(fig,dir+mvMean_l.filename+"_amp","png");close;
 
 fig = createFigure([0 0 6 4]);
-mvMean_l.FFTPlot();
+mvMean_l.plotFFT();
 saveas(fig,dir+mvMean_l.filename+"_fft","fig");saveas(fig,dir+mvMean_l.filename+"_fft","png");close;
 
 fig = createFigure([0 0 6 6 ]);
-mvMean_l.spectrogramPlot();
+mvMean_l.plotSpectrogram();
 saveas(fig,dir+mvMean_l.filename+"_stft","fig");saveas(fig,dir+mvMean_l.filename+"_stft","png");
 
 mvMean_l.saveAudio(dir);
@@ -687,45 +687,45 @@ date = "0710";
 dir = mkdirFromDate(proj.RootFolder,date);
 
 fig = createFigure([0 0 6 4]);
-mvMedian_s.audioPlot();
+mvMedian_s.plotWaveform();
 saveas(fig,dir+mvMedian_s.filename+"_amp","fig");saveas(fig,dir+mvMedian_s.filename+"_amp","png");close;
 
 fig = createFigure([0 0 6 4]);
-mvMedian_s.FFTPlot();
+mvMedian_s.plotFFT();
 saveas(fig,dir+mvMedian_s.filename+"_fft","fig");saveas(fig,dir+mvMedian_s.filename+"_fft","png");close;
 
 fig = createFigure([0 0 6 6 ]);
-mvMedian_s.spectrogramPlot();
+mvMedian_s.plotSpectrogram();
 saveas(fig,dir+mvMedian_s.filename+"_stft","fig");saveas(fig,dir+mvMedian_s.filename+"_stft","png");
 
 mvMedian_s.saveAudio(dir);
 
 
 fig = createFigure([0 0 6 4]);
-mvMedian_m.audioPlot();
+mvMedian_m.plotWaveform();
 saveas(fig,dir+mvMedian_m.filename+"_amp","fig");saveas(fig,dir+mvMedian_m.filename+"_amp","png");close;
 
 fig = createFigure([0 0 6 4]);
-mvMedian_m.FFTPlot();
+mvMedian_m.plotFFT();
 saveas(fig,dir+mvMedian_m.filename+"_fft","fig");saveas(fig,dir+mvMedian_m.filename+"_fft","png");close;
 
 fig = createFigure([0 0 6 6 ]);
-mvMedian_m.spectrogramPlot();
+mvMedian_m.plotSpectrogram();
 saveas(fig,dir+mvMedian_m.filename+"_stft","fig");saveas(fig,dir+mvMedian_m.filename+"_stft","png");
 
 mvMedian_m.saveAudio(dir);
 
 
 fig = createFigure([0 0 6 4]);
-mvMedian_l.audioPlot();
+mvMedian_l.plotWaveform();
 saveas(fig,dir+mvMedian_l.filename+"_amp","fig");saveas(fig,dir+mvMedian_l.filename+"_amp","png");close;
 
 fig = createFigure([0 0 6 4]);
-mvMedian_l.FFTPlot();
+mvMedian_l.plotFFT();
 saveas(fig,dir+mvMedian_l.filename+"_fft","fig");saveas(fig,dir+mvMedian_l.filename+"_fft","png");close;
 
 fig = createFigure([0 0 6 6 ]);
-mvMedian_l.spectrogramPlot();
+mvMedian_l.plotSpectrogram();
 saveas(fig,dir+mvMedian_l.filename+"_stft","fig");saveas(fig,dir+mvMedian_l.filename+"_stft","png");
 
 mvMedian_l.saveAudio(dir);

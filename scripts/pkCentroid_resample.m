@@ -104,7 +104,7 @@ eIdxs = vertcat(origExtractor.endIdxCells{:});
 
 
 figure;
-origImg.showImg();
+origImg.showImage();
 hold on;
 pts_max.showPoints();
 pts_cnt.showPoints();

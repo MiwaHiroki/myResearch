@@ -22,7 +22,7 @@ classdef AudioData
             audio.filename = replace(name," ","_");
         end
 
-        function audioPlot(audio)
+        function plotWaveform(audio)
             tidx = (1:length(audio.signal))'/audio.fs;
             % figure;
             plot(tidx,audio.signal);
@@ -31,7 +31,7 @@ classdef AudioData
             xlim([tidx(1) tidx(end)]);ylim([-1 1]);
         end
 
-        function FFTPlot(audio)
+        function plotFFT(audio)
             len = length(audio.signal);
             fidx = (1:len) / len * audio.fs;
             Y = fft(audio.signal);
@@ -47,7 +47,7 @@ classdef AudioData
             % saveas(fig,dir+"FFT_"+append+".fig");
         end
 
-        function spectrogramPlot(audio,winSize,opts)
+        function plotSpectrogram(audio,winSize,opts)
             % ShowTitle,ShowColorbarは原稿用の図で不要なときにfalseにする
             arguments
                 audio

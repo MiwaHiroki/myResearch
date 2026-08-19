@@ -179,7 +179,7 @@ for iImg=1:NUM_IMAGES
         % 1回の選択でpks_max_intp,pks_cnt_intpの両方の傾きを補正したpksCorCellを得る
         if isempty(grooveSelection)
             fig = figure;
-            origImg.showImg();
+            origImg.showImage();
             hold on;
             pts_max_intp.showPoints();
             pts_cnt_intp.showPoints();
@@ -295,7 +295,7 @@ mkSize = 5; % marker size
 fig = figure;
 % fig = createFigure([0 0 6 6]);
 % imshow(img_small,"InitialMagnification","fit");
-origImg.showImg();
+origImg.showImage();
 hold on;
 scatter(pks_cnt(:,1),pks_cnt(:,2),mkSize,'filled');
 scatter(pks_cnt_r(:,1),pks_cnt_r(:,2),mkSize,'filled');
@@ -326,25 +326,25 @@ amp_cnt = y_mean0_cnt / (tol/2);
 intpMaxAudio = AudioData("audio ("+num2str(1/QUERY_STEP)+"x interp)(local max)",amp_max,fs);
 intpCntAudio = AudioData("audio ("+num2str(1/QUERY_STEP)+"x interp)(centroid)",amp_cnt,fs);
 
-fig = figure;intpMaxAudio.audioPlot();
+fig = figure;intpMaxAudio.plotWaveform();
 saveas(fig,dir+intpMaxAudio.filename+"_amp","fig");saveas(fig,dir+intpMaxAudio.filename+"_amp","png");close;
 
-fig = figure;intpMaxAudio.FFTPlot();
+fig = figure;intpMaxAudio.plotFFT();
 saveas(fig,dir+intpMaxAudio.filename+"_fft","fig");saveas(fig,dir+intpMaxAudio.filename+"_fft","png");close;
 
-fig = figure;intpMaxAudio.spectrogramPlot(8192);
+fig = figure;intpMaxAudio.plotSpectrogram(8192);
 saveas(fig,dir+intpMaxAudio.filename+"_stft","fig");saveas(fig,dir+intpMaxAudio.filename+"_stft","png");close;
 
 intpMaxAudio.saveAudio(dir);
 
 
-fig = figure;intpCntAudio.audioPlot();
+fig = figure;intpCntAudio.plotWaveform();
 saveas(fig,dir+intpCntAudio.filename+"_amp","fig");saveas(fig,dir+intpCntAudio.filename+"_amp","png");close;
 
-fig = figure;intpCntAudio.FFTPlot();
+fig = figure;intpCntAudio.plotFFT();
 saveas(fig,dir+intpCntAudio.filename+"_fft","fig");saveas(fig,dir+intpCntAudio.filename+"_fft","png");close;
 
-fig = figure;intpCntAudio.spectrogramPlot(8192);
+fig = figure;intpCntAudio.plotSpectrogram(8192);
 saveas(fig,dir+intpCntAudio.filename+"_stft","fig");saveas(fig,dir+intpCntAudio.filename+"_stft","png");close;
 
 intpCntAudio.saveAudio(dir);

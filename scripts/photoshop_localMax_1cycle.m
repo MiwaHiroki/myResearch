@@ -131,7 +131,7 @@ for iImg=1:NUM_IMAGES
         % local maximum method
         if isempty(grooveSelection)
             fig = figure;
-            origImg.showImg();
+            origImg.showImage();
             % fig = createFigure([0 0 6 6]);
             % imshow(img_omitMask,"InitialMagnification","fit");
             hold on;
@@ -218,13 +218,13 @@ axis tight;ylim([-1 1]);
 
 origMaxAudio = AudioData("audio (photoshop-localMax)",amp_max,fs);
 
-fig = figure;origMaxAudio.audioPlot();
+fig = figure;origMaxAudio.plotWaveform();
 saveas(fig,dir+origMaxAudio.filename+"_amp","fig");saveas(fig,dir+origMaxAudio.filename+"_amp","png");close;
 
-fig = figure;origMaxAudio.FFTPlot();
+fig = figure;origMaxAudio.plotFFT();
 saveas(fig,dir+origMaxAudio.filename+"_fft","fig");saveas(fig,dir+origMaxAudio.filename+"_fft","png");close;
 
-fig = figure;origMaxAudio.spectrogramPlot(8192);
+fig = figure;origMaxAudio.plotSpectrogram(8192);
 saveas(fig,dir+origMaxAudio.filename+"_stft","fig");saveas(fig,dir+origMaxAudio.filename+"_stft","png");close;
 
 origMaxAudio.saveAudio(dir);

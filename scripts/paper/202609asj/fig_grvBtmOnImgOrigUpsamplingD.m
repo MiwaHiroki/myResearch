@@ -101,7 +101,7 @@ fig = createFigure([0 0 FIG_W FIG_H]);
 t = tiledlayout(fig,1,2,"TileSpacing","tight","Padding","tight");
 
 for i=1:2 % それぞれのタイルについて
-    % showImgは使わず、axesを指定できるimagescで描く
+    % showImageは使わず、axesを指定できるimagescで描く
     ax = nexttile(t);
 
     tmpImg = imgCell{i}.img;

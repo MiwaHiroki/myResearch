@@ -44,25 +44,25 @@ classdef ImageDataTest < matlab.unittest.TestCase
             testCase.verifyEqual(obj.width, 5, "width は列数と一致すべき");
         end
 
-        function testShowImgDrawsImage(testCase)
+        function testShowImageDrawsImage(testCase)
             img = 100 * ones(4, 6);
             obj = ImageData(img, [1; 1]);
-            obj.showImg();
+            obj.showImage();
             testCase.verifyNotEmpty(findobj(testCase.fig, 'Type', 'image'), ...
-                "showImg は image オブジェクトを描画すべき");
+                "showImage は image オブジェクトを描画すべき");
         end
 
-        function testShowImgFitOption(testCase)
+        function testShowImageFitOption(testCase)
             img = 100 * ones(4, 6);
             obj = ImageData(img, [1; 1]);
-            obj.showImg("fit");
+            obj.showImage("fit");
             testCase.verifyNotEmpty(findobj(testCase.fig, 'Type', 'image'));
         end
 
-        function testShowImgInvalidArgumentErrors(testCase)
+        function testShowImageInvalidArgumentErrors(testCase)
             img = 100 * ones(4, 6);
             obj = ImageData(img, [1; 1]);
-            testCase.verifyError(@() obj.showImg("bogus"), ?MException);
+            testCase.verifyError(@() obj.showImage("bogus"), ?MException);
         end
     end
 end

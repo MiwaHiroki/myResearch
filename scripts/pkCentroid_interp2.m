@@ -102,7 +102,7 @@ pks_max = vertcat(pts_localMax.peakCells{:});
 fig = figure;
 % fig = createFigure([0 0 6 6]);
 % imshow(img_small,"InitialMagnification","fit");
-imgData.showImg();
+imgData.showImage();
 hold on;
 scatter(pks_cnt(:,1),pks_cnt(:,2),3,'c','filled');
 title("Peak Dots (centroid method)");
@@ -241,7 +241,7 @@ pks_max_intp = vertcat(pts_max_intp.peakCells{:});
 % 結果の確認
 fig = createFigure([0 0 10 10]);
 % figure;
-origImg.showImg("fit");
+origImg.showImage("fit");
 ax=gca;
 % imshow(uint8(origImg.img), "InitialMagnification","fit");
 hold on;
@@ -269,8 +269,8 @@ p2_cnt = [0;0];
 
 fig = figure;
 % fig = createFigure([0 0 6 6]);
-% origImg.showImg();
-origImg.showImg("fit")
+% origImg.showImage();
+origImg.showImage("fit")
 hold on;
 scatter(pks_cnt(:,1),pks_cnt(:,2),MARKER_SIZE,'c','filled');
 title("Peak Dots (centroid method)");
@@ -323,7 +323,7 @@ p2_cnt = [0;0];
 fig = figure;
 % fig = createFigure([0 0 6 6]);
 % imshow(img_small,"InitialMagnification","fit");
-origImg.showImg();
+origImg.showImage();
 hold on;
 scatter(pks_cnt_r(:,1),pks_cnt_r(:,2),MARKER_SIZE,'c','filled');
 title("Peak Dots (centroid method)");
@@ -376,7 +376,7 @@ p2_cnt = [0;0];
 fig = figure;
 % fig = createFigure([0 0 6 6]);
 % imshow(img_small,"InitialMagnification","fit");
-origImg.showImg();
+origImg.showImage();
 hold on;
 pts_cnt_intp.showPoints();
 title("Peak Dots (centroid method)");

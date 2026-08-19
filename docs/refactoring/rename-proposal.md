@@ -20,6 +20,8 @@ Claude が判断した**優先度の高い順**に並べている（P1 が最優
 > **2026-08-18 実施済み**: P4-3の3行目（`GroovePointCloud.pksCell`→`peakCells`）を実施した。これにより**P4は全項目完了**。詳細はP4-3の節を参照。
 >
 > **2026-08-19 実施済み**: P5-1（`DarknessMap.plotD_x`→`plotDarknessColumn`）を実施した。詳細はP5-1の節を参照。
+>
+> **2026-08-19 実施済み**: P5-2（表示系メソッドの命名パターン統一）を実施した。これで**P5は全項目完了**。詳細はP5-2の節を参照。
 
 ---
 
@@ -185,14 +187,29 @@ Claude が判断した**優先度の高い順**に並べている（P1 が最優
 - 検証: 変更した4ファイル（`src/DarknessMap.m`、`test/unit/DarknessMapTest.m`、`src/loadCycleResult.m`、`scripts/paper/202609asj/fig2_darknessProfile.m`）すべて`check_matlab_code`で本改名に起因する警告なし（`DarknessMapTest.m`に出た1件のinfoは、既存の抑制コメント`%#ok<NASGU>`に関する無関係な既存事項）。`cd test; runAllTests`で74件全件成功（回帰なし。`StaticAnalysisTest`が`scripts/`側の静的解析も兼ねて通過）。
 - `scripts/paper/202609asj/fig2_darknessProfile.m`は実画像を要するため自動テスト不可。次回実行時に図の見た目が崩れていないか目視確認が必要。
 
-### 5-2. 表示系メソッドの命名パターン統一
+### 5-2. 表示系メソッドの命名パターン統一 ✅ 実施済み（2026-08-19）
 
 - 現状 `audioPlot` / `FFTPlot` / `spectrogramPlot`（名詞+Plot）と `showImg` / `showPoints`（show+名詞）が混在。
-- どちらかに寄せる。案として **`plot〜`** に統一:
-  - `audioPlot` → `plotWaveform`
-  - `FFTPlot` → `plotFFT`（頭字語は大文字許容、ただし先頭は小文字）
-  - `spectrogramPlot` → `plotSpectrogram`
-- あわせて `showImg` → `plotImage` などに寄せると、全クラスで「描画は `plot〜`」と統一できる。
+
+| 現状 | 提案 | 状態 |
+|---|---|---|
+| `AudioData.audioPlot` | `plotWaveform` | ✅ 実施済み |
+| `AudioData.FFTPlot` | `plotFFT`（頭字語は大文字許容、ただし先頭は小文字） | ✅ 実施済み |
+| `AudioData.spectrogramPlot` | `plotSpectrogram` | ✅ 実施済み |
+| `ImageData.showImg` | `plotImage`（提案時点の案） | 不採用。**`showImage`を採用**（下記「実施内容」参照） |
+
+**実施内容**
+
+- `AudioData`の3メソッドは提案どおり`plot〜`に統一した: `audioPlot`→`plotWaveform`、`FFTPlot`→`plotFFT`、`spectrogramPlot`→`plotSpectrogram`。
+- `ImageData.showImg`は提案の`plotImage`案を**採用しなかった**。ユーザーの判断により、画像表示は「描画（plot）」ではなく「表示（show）」という性質を保つべきとして`show`接頭辞を維持し、略語`Img`のみを`Image`に展開した`showImage`を採用した。これにより`GroovePointCloud.showPoints`（別途スコープ外、変更なし）と合わせて、本コードベースには「音声の描画は`plot〜`」「画像・点群の表示は`show〜`」という2系統の命名パターンが意図的に併存する。5-2着手時点で提案していた「全クラスで`plot〜`に統一する」という当初案からの意図的な逸脱であり、命名の一貫性よりも意味的な正確さ（画像はプロットというよりショーである）を優先した。
+- `src/AudioData.m`・`src/ImageData.m`のメソッド定義本体を改名。
+- 呼び出し元: `src/loadCycleResult.m`（ヘッダコメント中の使用例）、`test/unit/AudioDataTest.m`（テストメソッド名も`testAudioPlotDrawsLine`→`testPlotWaveformDrawsLine`、`testFFTPlotDrawsLine`→`testPlotFFTDrawsLine`、`testSpectrogramPlotRuns`→`testPlotSpectrogramRuns`に改名）、`test/unit/ImageDataTest.m`（同様に`testShowImgDrawsImage`→`testShowImageDrawsImage`、`testShowImgFitOption`→`testShowImageFitOption`、`testShowImgInvalidArgumentErrors`→`testShowImageInvalidArgumentErrors`に改名）を更新。
+  - `scripts/`側は`AudioData`呼び出し6ファイル（`pkCentroid_1cycle.m`、`pkCentroid_resample_1cycle.m`、`pkCentroid_interp2_1cycle.m`、`pkCentroidAndLocalMax_resample_1cycle.m`、`photoshop_centroid_1cycle.m`、`photoshop_localMax_1cycle.m`）と`evaluation/stylus/sound_from_stylus.m`、`paper/202609asj`配下4ファイル（`fig5_spectrogramComparisonOrigD.m`、`fig6_spectrogramUpsampling.m`、`fig_waveformUpsampling.m`、`fig_waveformComparisonOrigD.m`。後2者はコメント中の`spectrogramPlot`言及も含む）を更新。
+  - `ImageData.showImg`呼び出しは`scripts/`側9ファイル（`photoshop_localMax_1cycle.m`、`photoshop_centroid_1cycle.m`、`pkCentroid_interp2.m`、`pkCentroid_resample.m`、`pkCentroid_resample_1cycle.m`、`pkCentroidAndLocalMax_resample_1cycle.m`、`pkCentroid_1cycle.m`、`pkCentroid_interp2_1cycle.m`、`progress/showPhotoshopGrooveExtraction.m`）と`paper/202609asj`配下のコメント参照5ファイル（`fig1_2_grooveBtmOnImage.m`、`fig2_darknessProfile.m`、`fig3_grooveBtmMethodsOnImage.m`、`fig_GrooveBtmOnImageUpsamplingD.m`、`fig_grvBtmOnImgOrigUpsamplingD.m`。いずれも「`showImgは使わず`」という説明コメントのみで呼び出しではない）を更新。
+  - `scripts/archive/findpeaks2d.m`は対象外（archiveのため）。`test/trash/AudioDataTest.m`・`test/trash/OOPTest.m`も対象外（trashのため）。
+- `README.md`の`AudioData`・`ImageData`説明とコード例（`spectrogramPlot(4096)`→`plotSpectrogram(4096)`）を更新。`CLAUDE.md`はこれらのメソッド名に言及していないため変更不要。
+- 検証: 変更した23ファイル（`src/`2、`test/unit/`2、`scripts/`19）すべて`check_matlab_code`で本改名に起因する警告なし（`AudioDataTest.m`の1件の`%#ok<NASGU>`関連info、`pkCentroidAndLocalMax_resample_1cycle.m`・`pkCentroid_interp2.m`・`showPhotoshopGrooveExtraction.m`に出た「変数に割り当てられた値は使用されていない可能性」系の警告はいずれも変更箇所と行番号が一致せず、既存事項と確認した）。`cd test; runAllTests`で74件全件成功（回帰なし。`StaticAnalysisTest`が`scripts/`側の静的解析も兼ねて通過）。
+- `scripts/`は`ginput`や実画像を要するものが多く自動テスト不可なため、`_1cycle`系・`paper/202609asj`配下の図スクリプト・`evaluation/stylus/sound_from_stylus.m`は実行結果までは目視確認していない。次回実行時に見た目の崩れがないか確認が必要。
 
 ### 5-3. `save` インターフェースの統一（P3の方針に依存） ✅ 解消済み（2026-08-07、P3(A)により対応不要）
 
@@ -212,6 +229,6 @@ Claude が判断した**優先度の高い順**に並べている（P1 が最優
 6. ~~**P4-3の1行目**（`rsmplTF` → `isResampled`、`DarknessMap`と`GroovePointCloud`の両方）~~ ✅ 実施済み（2026-08-18）。
 7. ~~**P4-3の3行目**（`GroovePointCloud.pksCell` → `peakCells`）~~ ✅ 実施済み（2026-08-18）。これで**P4**は完了。
 8. ~~**P5-1の`plotD_x`**（→`plotDarknessColumn`）~~ ✅ 実施済み（2026-08-19）。
-9. **P5-2**（表示系メソッド命名パターンの統一。`audioPlot`/`FFTPlot`/`spectrogramPlot`と`showImg`/`showPoints`の混在が未着手）。
+9. ~~**P5-2**（表示系メソッド命名パターンの統一。`AudioData`の`audioPlot`/`FFTPlot`/`spectrogramPlot`→`plotWaveform`/`plotFFT`/`plotSpectrogram`、`ImageData.showImg`→`showImage`）~~ ✅ 実施済み（2026-08-19、ただし`showImg`は提案の`plotImage`案ではなく`showImage`を採用。詳細はP5-2の節を参照）。これで**P5は全項目完了**。
 
 > 各ステップ後に `cd test; runAllTests` で回帰確認する。`scripts/`（archive 含む）とテストの参照も同時に更新が必要。

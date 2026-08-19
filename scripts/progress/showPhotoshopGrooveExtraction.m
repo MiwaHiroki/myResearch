@@ -50,11 +50,11 @@ date = "0817";
 dir = mkdirFromDate(rootFolder,date);
 
 %% 図1: 高解像度化を行った画像の一部分
-% ImageData.showImg()はXAxisLocationを上にするため、title()だとx軸ラベルと
+% ImageData.showImage()はXAxisLocationを上にするため、title()だとx軸ラベルと
 % 重なる。そのため図の下にテキストボックスでキャプションを付ける。
 % (ユーザーの追記): キャプションは不要
 fig1 = createFigure([0 0 6 6]);
-imgData8x.showImg("fit");
+imgData8x.showImage("fit");
 % addCaptionBelow(fig1,"Photoshop 8x upscaled image (segment)");
 exportgraphics(fig1, dir+"1_photoshopHighRes_segment.png","Resolution",300,"BackgroundColor","white");
 % close(fig1);
@@ -87,7 +87,7 @@ pksLocalMax = vertcat(ptsLocalMax.peakCells{:});
 
 %% 図2: 高解像度画像に重心法・局所的最大値法の抽出点を重ねる
 fig2 = createFigure([0 0 6 6]);
-imgData8x.showImg("fit");
+imgData8x.showImage("fit");
 hold on;
 hLocalMax = scatter(pksLocalMax(:,1),pksLocalMax(:,2),5,'red','filled','o');
 hCentroid = scatter(pksCentroid(:,1),pksCentroid(:,2),5,'cyan','filled','o');
@@ -102,13 +102,13 @@ lgd = legend; lgd.ItemHitFcn = @togglevisibility;
 % 図2-1: 局所的最大値法
 % 図2-2: 重心法
 fig2_1 = createFigure([0 0 6 6]);
-imgData8x.showImg("fit");
+imgData8x.showImage("fit");
 hold on;
 hLocalMax = scatter(pksLocalMax(:,1),pksLocalMax(:,2),5,'red','filled','o');
 exportgraphics(fig2, dir+"2-1_photoshopHighRes_localMax.png","Resolution",300,"BackgroundColor","white");
 
 fig2_2 = createFigure([0 0 6 6]);
-imgData8x.showImg("fit");
+imgData8x.showImage("fit");
 hold on;
 hCentroid = scatter(pksCentroid(:,1),pksCentroid(:,2),5,'cyan','filled','o');
 exportgraphics(fig2, dir+"2-2_photoshopHighRes_centroid.png","Resolution",300,"BackgroundColor","white");
@@ -116,14 +116,14 @@ exportgraphics(fig2, dir+"2-2_photoshopHighRes_centroid.png","Resolution",300,"B
 
 %% 図3: 高解像度化を行う前の画像の対応部分
 fig3 = createFigure([0 0 6 6]);
-imgDataOri.showImg("fit");
+imgDataOri.showImage("fit");
 % addCaptionBelow(fig3,"Original image before upscaling (corresponding segment)");
 exportgraphics(fig3, dir+"3_original_segment.png","Resolution",300,"BackgroundColor","white");
 % close(fig3);
 
 %% ローカル関数
 function addCaptionBelow(fig,str)
-% title()はImageData.showImg()のXAxisLocation="top"と重なるため、
+% title()はImageData.showImage()のXAxisLocation="top"と重なるため、
 % 図の下にキャプションを付ける。
 annotation(fig,"textbox",[0 0 1 0.08],"String",str, ...
     "EdgeColor","none","HorizontalAlignment","center", ...

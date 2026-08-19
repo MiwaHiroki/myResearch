@@ -53,9 +53,9 @@ t = tiledlayout(fig,1,numel(audioCell),"TileSpacing","tight","Padding","compact"
 axList = gobjects(1,numel(audioCell));
 
 for k = 1:numel(audioCell)
-    ax = nexttile(t); % spectrogramPlotはgcaに描くのでnexttileを先に呼ぶ
+    ax = nexttile(t); % plotSpectrogramはgcaに描くのでnexttileを先に呼ぶ
 
-    audioCell{k}.audioPlot();
+    audioCell{k}.plotWaveform();
 
     % 右端はデータのあるところまでに詰める。左端は0のままにしないと
     % xticksの0が範囲外になって表示されない

@@ -32,7 +32,7 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 
 ### クラス
 
-- **`ImageData`**: 盤面画像（グレースケール行列）と幅・高さ・IDを保持。`showImg` で画像を表示。
+- **`ImageData`**: 盤面画像（グレースケール行列）と幅・高さ・IDを保持。`showImage`（旧`showImg`。2026-08-19改名）で画像を表示。
 - **`DarknessMap`**: 暗さ行列 `dMat` の保持・変換・表示を担うクラス。
   - `dResample(p,q)` / `dInterp(step,method)`: 解像度変換（リサンプル／内挿）
   - `setDiffTF(D_THRESH)`: しきい値超えの立ち上がり・立ち下がりを計算
@@ -41,7 +41,7 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
   - `findThresholdIntervals(map,x)` / `findGrooveBottomIntervals(map,x,firstIdx,lastIdx,WIDTH_THRESH)`: 溝底候補区間の特定（区間は `startIdxCells`/`endIdxCells` に保持）
   - `extractByCentroid(map,x)` / `extractByLocalMax(map,x)`: 重心法／局所的最大値法で溝底のy座標を算出
 - **`GroovePointCloud`**（旧`GrooveCandidates`。2026-08-07改名）: 検出した溝底の点群（`peakCells`。旧`pksCell`。2026-08-18改名）を保持し、`showPoints` で散布図表示。
-- **`AudioData`**: 復元音声を保持し、波形（`audioPlot`）・FFT（`FFTPlot`）・スペクトログラム（`spectrogramPlot`）の描画、wav保存（`saveAudio`）、再生（`playAudio`）を行う。
+- **`AudioData`**: 復元音声を保持し、波形（`plotWaveform`。旧`audioPlot`）・FFT（`plotFFT`。旧`FFTPlot`）・スペクトログラム（`plotSpectrogram`。旧`spectrogramPlot`。いずれも2026-08-19改名）の描画、wav保存（`saveAudio`）、再生（`playAudio`）を行う。
 
 上記はいずれも継承関係を持たない独立した値クラス。共通の抽象基底クラスだった`MediaData`は誰にも継承されず孤立していたため、`src/archive/MediaData.m`へ退避した（単体テストも`test/archive/`に移動済み）。
 
@@ -121,7 +121,7 @@ matPath = saveCycleResult(cond, allImg, res_cnt);
 % 読み込み（図の作成スクリプト）
 matPath = cycleResultPath(rootFolder, "intpD", "0731");
 result  = loadCycleResult(matPath);
-figure; result.centroid.audio.spectrogramPlot(4096);
+figure; result.centroid.audio.plotSpectrogram(4096);
 ```
 
 `ExperimentDir` を省略すると `SaveDir` に保存される（移行前の動作）。読み込み側の `cycleResultPath` は `experiments/<日付>/` を先に見て、無ければ `results/<日付>/` も探すので、古い場所に残っている結果もそのまま読める。

@@ -61,7 +61,7 @@ pkDots_cnt = vertcat(pts_cnt.peakCells{:});
 fig = createFigure([0 0 FIG_W FIG_H]);
 t = tiledlayout(fig,1,1,"TileSpacing","tight","Padding","tight");
 
-% showImgは使わず、axesを指定できるimagescで描く
+% showImageは使わず、axesを指定できるimagescで描く
 ax = nexttile(t);
 imagesc(ax,imgData.img);
 colormap(ax,gray); clim(ax,[0 255]);
