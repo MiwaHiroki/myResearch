@@ -89,8 +89,8 @@ classdef DarknessMapTest < matlab.unittest.TestCase
             testCase.verifyEqual(obj.diffTF, expected);
         end
 
-        function testPlotDxDrawsLine(testCase)
-            testCase.dMap.plotD_x(1);
+        function testPlotDarknessColumnDrawsLine(testCase)
+            testCase.dMap.plotDarknessColumn(1);
             testCase.verifyNotEmpty(findobj(testCase.fig, 'Type', 'line'));
         end
     end

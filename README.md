@@ -36,7 +36,7 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 - **`DarknessMap`**: 暗さ行列 `dMat` の保持・変換・表示を担うクラス。
   - `dResample(p,q)` / `dInterp(step,method)`: 解像度変換（リサンプル／内挿）
   - `setDiffTF(D_THRESH)`: しきい値超えの立ち上がり・立ち下がりを計算
-  - `plotD_x(x)`: 列xの暗さ分布をプロット
+  - `plotDarknessColumn(x)`: 列xの暗さ分布をプロット
 - **`GrooveExtractor`**: `DarknessMap` から溝底候補点を抽出するクラス。`dMat`（最大約2GB）を複製しないよう、各メソッドは対象の `DarknessMap` インスタンスを引数として都度受け取る。
   - `findThresholdIntervals(map,x)` / `findGrooveBottomIntervals(map,x,firstIdx,lastIdx,WIDTH_THRESH)`: 溝底候補区間の特定（区間は `startIdxCells`/`endIdxCells` に保持）
   - `extractByCentroid(map,x)` / `extractByLocalMax(map,x)`: 重心法／局所的最大値法で溝底のy座標を算出

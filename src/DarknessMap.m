@@ -1,6 +1,6 @@
 % DarknessMap class
 % properties: imgID, width, height, D_THRESH, scaleFactor, dMat
-% methods: constructor,dResample(obj,p,q),plotD_x(obj,x,opts),setDiffTF(obj,D_THRESH)
+% methods: constructor,dResample(obj,p,q),plotDarknessColumn(obj,x,opts),setDiffTF(obj,D_THRESH)
 % constructor: obj = DarknessMap(imgData)
 %
 % 溝底候補の抽出(閾値区間探索・重心法/最大値法)は GrooveExtractor が担う。
@@ -64,7 +64,7 @@ classdef DarknessMap
             obj.diffTF = diff(aboveThreshold);
         end
 
-        function p = plotD_x(obj,x,opts)
+        function p = plotDarknessColumn(obj,x,opts)
             % x=xにおけるDをy方向にプロットする
             % ShowTitle,ShowColorbarは原稿用の図で不要なときにfalseにする
             % ShowLineMarkerは，必要なときはtrueにする

@@ -13,7 +13,7 @@ function result = loadCycleResult(matPath, opts)
 %
 %   % DarknessMap（別ファイルに保存した dMat）も要るとき
 %   result = loadCycleResult(matPath, LoadDarknessValues=true);
-%   figure; result.allD(1).plotD_x(100);
+%   figure; result.allD(1).plotDarknessColumn(100);
 %
 %   % fitGroove で選んだ p1,p2 を使って別の高解像度化条件を ginput なしで
 %   % 再解析する（result.grooveSelection.p1/p2 を再利用する）

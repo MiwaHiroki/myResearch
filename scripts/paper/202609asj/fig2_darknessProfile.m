@@ -78,7 +78,7 @@ ax = axes(fig);
 
 % 原稿ではキャプションを付けるので図中のタイトルは出さない
 % カラーバーは線グラフには不要なので出さない
-origD.plotD_x(X_C,ShowTitle=false,ShowColorbar=false,ShowLineMarker=true);
+origD.plotDarknessColumn(X_C,ShowTitle=false,ShowColorbar=false,ShowLineMarker=true);
 hold(ax,"on");
 yline(ax,D_TH,"-","LineWidth",0.5,"Color","k");
 scatter(ax,sY,origD.dMat(sIdxBtm,X_C),8,"red","filled","o");

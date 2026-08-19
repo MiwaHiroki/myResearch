@@ -18,6 +18,8 @@ Claude が判断した**優先度の高い順**に並べている（P1 が最優
 > **2026-08-18 実施済み**: P4-3の1行目（`rsmplTF`→`isResampled`）を実施した。提案表は`DarknessMap`のみを対象としていたが、`GroovePointCloud`も自身の`rsmplTF`プロパティを`DarknessMap`からのコピーとして保持しており（コンストラクタで`obj.rsmplTF = dValue.rsmplTF;`）、両クラスの受け渡し地点で名前が食い違うのを避けるため`GroovePointCloud`側も合わせて`isResampled`に改名した（P4-1で`width`/`height`を両クラス揃えて改名した前例を踏襲）。詳細はP4-3の節を参照。
 >
 > **2026-08-18 実施済み**: P4-3の3行目（`GroovePointCloud.pksCell`→`peakCells`）を実施した。これにより**P4は全項目完了**。詳細はP4-3の節を参照。
+>
+> **2026-08-19 実施済み**: P5-1（`DarknessMap.plotD_x`→`plotDarknessColumn`）を実施した。詳細はP5-1の節を参照。
 
 ---
 
@@ -39,13 +41,13 @@ Claude が判断した**優先度の高い順**に並べている（P1 が最優
 |---|---|---|---|
 | `ImageData` | value | `imgID`, `img`, `width`, `height` | `showImg` |
 | `AudioData` | value | `name`, `signal`, `fs`, `filename` | `audioPlot`, `FFTPlot`, `spectrogramPlot`, `saveAudio`, `playAudio` |
-| `DarknessMap`（旧`DarknessValue`） | value | `imgID`, `width`, `height`（旧`imgWidth`/`imgHeight`）, `nRows`, `nCols`, `rsmplTF`, `scaleFactor`, `dMat`, `diffTF` | `dResample`, `dInterp`, `setDiffTF`, `plotD_x` |
+| `DarknessMap`（旧`DarknessValue`） | value | `imgID`, `width`, `height`（旧`imgWidth`/`imgHeight`）, `nRows`, `nCols`, `isResampled`（旧`rsmplTF`）, `scaleFactor`, `dMat`, `diffTF` | `dResample`, `dInterp`, `setDiffTF`, `plotDarknessColumn`（旧`plotD_x`） |
 | `GrooveExtractor`（新規） | value | `startIdxCells`, `endIdxCells` | `findThresholdIntervals`, `findGrooveBottomIntervals`, `extractByCentroid`, `extractByLocalMax` |
 | `GroovePointCloud`（旧`GrooveCandidates`） | value | `imgID`, `width`, `height`, `isResampled`（旧`rsmplTF`）, `scaleFactor`, `peakCells`（旧`pksCell`） | `showPoints`（旧`showCandidates`） |
 
 > `MediaData`はP3(A)により`src/archive/MediaData.m`へ退避したため一覧から外した。現在`src/`のデータクラスは継承関係を持たない独立した値クラスのみ。
 
-抽出系のプロパティ・メソッドが`DarknessMap`から`GrooveExtractor`に移り、名前もP1-2/P5案どおりに改名された。`GrooveCandidates`はP2により`GroovePointCloud`へ改名済み。`DarknessMap`の`imgWidth`/`imgHeight`もP4-1により`width`/`height`へ改名済み。P4-3の`rsmplTF`→`isResampled`・`pksCell`→`peakCells`も実施済みで、**P4は全項目完了**。残るのは`ImageData`/`AudioData`のプロパティ名（提案時点のまま）とP5。
+抽出系のプロパティ・メソッドが`DarknessMap`から`GrooveExtractor`に移り、名前もP1-2/P5案どおりに改名された。`GrooveCandidates`はP2により`GroovePointCloud`へ改名済み。`DarknessMap`の`imgWidth`/`imgHeight`もP4-1により`width`/`height`へ改名済み。P4-3の`rsmplTF`→`isResampled`・`pksCell`→`peakCells`も実施済みで、**P4は全項目完了**。P5-1の`plotD_x`→`plotDarknessColumn`も実施済み。残るのは`ImageData`/`AudioData`のプロパティ名（提案時点のまま）とP5-2（表示系メソッドの命名パターン統一）。
 
 ---
 
@@ -165,13 +167,23 @@ Claude が判断した**優先度の高い順**に並べている（P1 が最優
 
 ## P5. メソッド命名を統一する
 
-### 5-1. アンダースコア＋略語を camelCase に
+### 5-1. アンダースコア＋略語を camelCase に ✅ 一部実施済み（`plotD_x`は2026-08-19実施）
 
 | 現状 | 提案 | 状態 |
 |---|---|---|
-| `plotD_x` | `plotDarknessColumn` / `plotColumn` | 未着手（`DarknessMap`に残存） |
+| `plotD_x` | `plotDarknessColumn` / `plotColumn` | ✅ 実施済み（2026-08-19、`plotDarknessColumn`を採用。`DarknessMap`） |
 | `extractGrv_cnt` | `extractByCentroid`（P1で移動先の名前と統一） | ✅ 実施済み（`GrooveExtractor.extractByCentroid`） |
 | `extractGrv_max` | `extractByLocalMax`（同上） | ✅ 実施済み（`GrooveExtractor.extractByLocalMax`） |
+
+**実施内容（`plotD_x` → `plotDarknessColumn`）**
+
+- 採用名の判断: 提案は`plotDarknessColumn`と`plotColumn`の2案を挙げていたが、**`plotDarknessColumn`を採用**した。理由は`plotColumn`だと読み手がこれが`DarknessMap`のメソッドだと知らなければ「何の列をプロットするのか」が名前だけでは伝わらないため。本コードベースが`extractByCentroid`・`findThresholdIntervals`・`GroovePointCloud`など略語より説明的な名前を一貫して選んできた前例に合わせた。
+- `src/DarknessMap.m`: メソッド定義本体（`function p = plotD_x(obj,x,opts)`）と冒頭コメントのメソッド一覧を改名。
+- `test/unit/DarknessMapTest.m`: `testPlotDxDrawsLine`→`testPlotDarknessColumnDrawsLine`にテストメソッド名ごと改名（`showCandidates`→`showPoints`改名時の前例を踏襲し、呼び出し箇所`testCase.dMap.plotD_x(1)`も合わせて更新）。
+- 呼び出し元: `src/loadCycleResult.m`（ヘッダコメント中の使用例1箇所）、`scripts/paper/202609asj/fig2_darknessProfile.m`（`origD.plotD_x(...)`1箇所）を更新。`scripts/`（`archive`含む）・`test/`全体を`plotD_x`で全文grepし、他に生きた呼び出しがないことを確認した（`test/trash/OOPTest.m`に旧名の言及が残るが、これは`test/trash/`＝廃止済みコードのため対象外とした）。
+- `README.md`・`CLAUDE.md`の`DarknessMap`メソッド説明も`plotDarknessColumn`に更新。
+- 検証: 変更した4ファイル（`src/DarknessMap.m`、`test/unit/DarknessMapTest.m`、`src/loadCycleResult.m`、`scripts/paper/202609asj/fig2_darknessProfile.m`）すべて`check_matlab_code`で本改名に起因する警告なし（`DarknessMapTest.m`に出た1件のinfoは、既存の抑制コメント`%#ok<NASGU>`に関する無関係な既存事項）。`cd test; runAllTests`で74件全件成功（回帰なし。`StaticAnalysisTest`が`scripts/`側の静的解析も兼ねて通過）。
+- `scripts/paper/202609asj/fig2_darknessProfile.m`は実画像を要するため自動テスト不可。次回実行時に図の見た目が崩れていないか目視確認が必要。
 
 ### 5-2. 表示系メソッドの命名パターン統一
 
@@ -199,6 +211,7 @@ Claude が判断した**優先度の高い順**に並べている（P1 が最優
 5. ~~**P4-1**（`DarknessMap.imgWidth/imgHeight` → `width`/`height`）~~ ✅ 実施済み（2026-08-09）。
 6. ~~**P4-3の1行目**（`rsmplTF` → `isResampled`、`DarknessMap`と`GroovePointCloud`の両方）~~ ✅ 実施済み（2026-08-18）。
 7. ~~**P4-3の3行目**（`GroovePointCloud.pksCell` → `peakCells`）~~ ✅ 実施済み（2026-08-18）。これで**P4**は完了。
-8. **P5**（メソッド命名統一。残るのは`plotD_x`・表示系メソッドの統一）。
+8. ~~**P5-1の`plotD_x`**（→`plotDarknessColumn`）~~ ✅ 実施済み（2026-08-19）。
+9. **P5-2**（表示系メソッド命名パターンの統一。`audioPlot`/`FFTPlot`/`spectrogramPlot`と`showImg`/`showPoints`の混在が未着手）。
 
 > 各ステップ後に `cd test; runAllTests` で回帰確認する。`scripts/`（archive 含む）とテストの参照も同時に更新が必要。
