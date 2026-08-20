@@ -71,6 +71,9 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 - **`pkCentroid_resample.m`**: 画像1枚（1セグメント）について、リサンプルの有無×2手法の溝底検出結果を比較する検討用スクリプト。
 - **`pkCentroid_interp2.m`**: 画像1枚について、元データ・リサンプル・内挿の溝底検出結果を比較する検討用スクリプト。
 - **`darknessInterp2.m`**: 小領域画像を `interp2` で疑似高解像度化する動作確認用スクリプト。
+- **`bilateral/bilateralOri_centroid.m`**: 高解像度化していない画像(`*-ori.png`)の1セグメントにバイラテラルフィルタ（`imbilatfilt`、カーネル3通り）をかけ、重心法の溝底点を画像上に表示する検討用スクリプト。
+- **`bilateral/bilateralOriResample_centroid.m`**: 上記のフィルタ後に暗度の1次元リサンプル（`dResample`）を行ってから重心法を適用する版。
+- **`bilateral/bilateral8x_centroid.m`**: Photoshopで8xに高解像度化した画像(`*-8x.png`)の一部にバイラテラルフィルタをかけ、重心法の溝底点を表示する版（画像が大きいため元画像座標で指定した窓を切り出して処理する）。
 - **`evaluation/stylus/sound_from_stylus.m`**: 針で再生した音源を切り出し・フィルタ処理し、復元音声と比較・評価する。
 
 ## 溝の選択（fitGroove）
