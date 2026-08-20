@@ -36,8 +36,8 @@ expDir = experimentDir(proj.RootFolder,date);       % 実験結果.matの保存�
 
 % 以前保存したp1,p2で溝を自動選択する場合は、その結果.matのパスを指定する
 % （空文字なら手動でginputにより選択する。詳細はREADMEの「溝の選択（fitGroove）」）
-PREV_RESULT_PATH = "";
-% PREV_RESULT_PATH = fullfile(proj.RootFolder,"experiments","0731","cycleResult_intpD_0731_2.mat");
+% PREV_RESULT_PATH = "";
+PREV_RESULT_PATH = fullfile(proj.RootFolder,"experiments","0731","cycleResult_intpD_0731_2.mat");
 if PREV_RESULT_PATH ~= ""
     prevResult = loadCycleResult(PREV_RESULT_PATH);
     grooveSelection = prevResult.grooveSelection;
@@ -199,78 +199,18 @@ for iImg=1:NUM_IMAGES
         binWidth = 5; % BinWidth
 
         % local maximum method
-        [counts,edges] = histcounts(pks_max_cor(:,2),'BinWidth',binWidth);
-        centers = edges(1:end-1) + diff(edges)/2; % ピークの中心
+        points_fit = extractGrooveWaveform(pks_max_cor, p1(2), (1:QUERY_STEP:intpD.width)', ...
+            BinWidth=binWidth, MinPeakHeight=TH_HIST, Tolerance=tol);
 
-        [~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST);
-
-        [~,idx_hist] = min(abs(p1(2) - centers(histPkLocs)));
-        groove1Center = centers(histPkLocs(idx_hist));
-
-        % そのピークの中心からtol(pixel)以内にあるy座標
-        y_min = groove1Center - tol;
-        y_max = groove1Center + tol;
-
-        % なんか配列の長さが合わなそうな初期化
-        % dInterp()の中身も同様なので実際は問題ない
-        points = [(1:QUERY_STEP:intpD.width)',NaN(intpD.nCols,1)];
-
-        idxs = (pks_max_cor(:,2) >= y_min) & (pks_max_cor(:,2)<=y_max);
-
-        clusterdPoints = pks_max_cor(idxs,:);
-        points_x = clusterdPoints(:,1); %QUERY_STEP刻みのx座標。データの一部が欠損してる可能性
-        Lia = ismember(points(:,1),points_x);
-        % Lia: logical配列。「第一引数に第二引数の数値が見つかったかどうか」
-        points(Lia,2) = clusterdPoints(:,2);
-
-        points(:,2) = fillmissing(points(:,2),"linear");
-
-        points_fit = points;
-
-
-        p = polyfit(points(:,1),points(:,2),3);
-        points_fit(:,2) = points(:,2) - polyval(p,points(:,1));
-        points_fit(:,2) = points_fit(:,2) - mean(points_fit(:,2));
-
-        xcoords{kImgSmall,1} = points(:,1);
+        xcoords{kImgSmall,1} = points_fit(:,1);
         ycoords_max{kImgSmall,1} = points_fit(:,2);
 
 
         % centroid method
-        [counts,edges] = histcounts(pks_cnt_cor(:,2),'BinWidth',binWidth);
-        centers = edges(1:end-1) + diff(edges)/2; % ピークの中心
+        points_fit = extractGrooveWaveform(pks_cnt_cor, p1(2), (1:QUERY_STEP:intpD.width)', ...
+            BinWidth=binWidth, MinPeakHeight=TH_HIST, Tolerance=tol);
 
-        [~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST);
-
-        [~,idx_hist] = min(abs(p1(2) - centers(histPkLocs)));
-        groove1Center = centers(histPkLocs(idx_hist));
-
-        % そのピークの中心からtol(pixel)以内にあるy座標
-        y_min = groove1Center - tol;
-        y_max = groove1Center + tol;
-
-        % なんか配列の長さが合わなそうな初期化
-        % dInterp()の中身も同様なので実際は問題ない
-        points = [(1:QUERY_STEP:intpD.width)',NaN(intpD.nCols,1)];
-
-        idxs = (pks_cnt_cor(:,2) >= y_min) & (pks_cnt_cor(:,2)<=y_max);
-
-        clusterdPoints = pks_cnt_cor(idxs,:);
-        points_x = clusterdPoints(:,1); %QUERY_STEP刻みのx座標。データの一部が欠損してる可能性
-        Lia = ismember(points(:,1),points_x);
-        % Lia: logical配列。「第一引数に第二引数の数値が見つかったかどうか」
-        points(Lia,2) = clusterdPoints(:,2);
-
-        points(:,2) = fillmissing(points(:,2),"linear");
-
-        points_fit = points;
-
-
-        p = polyfit(points(:,1),points(:,2),3);
-        points_fit(:,2) = points(:,2) - polyval(p,points(:,1));
-        points_fit(:,2) = points_fit(:,2) - mean(points_fit(:,2));
-
-        xcoords{kImgSmall,1} = points(:,1);
+        xcoords{kImgSmall,1} = points_fit(:,1);
         ycoords_cnt{kImgSmall,1} = points_fit(:,2);
 
 

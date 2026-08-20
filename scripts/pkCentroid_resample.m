@@ -637,14 +637,7 @@ pks_cor = pksCorCell{1};
 % exportgraphics(fig,"./data/0322/PkDotsCmethod.png","Resolution",600);
 
 binWidth = 5; % BinWidth
-[counts,edges] = histcounts(pks_cor(:,2),'BinWidth',binWidth);
-centers = edges(1:end-1) + diff(edges)/2; % ピークの中心
-
-[~,histPkLocs] = findpeaks(counts,'MinPeakHeight',th_hist);
-
-[~,idx_hist] = min(abs(p1(2) - centers(histPkLocs)));
-groove1Center = centers(histPkLocs(idx_hist));
-
+groove1Center = findGrooveCenter(pks_cor, p1(2), BinWidth=binWidth, MinPeakHeight=th_hist);
 
 tol = 4;
 % そのピークの中心からtol(pixel)以内にあるy座標
@@ -678,14 +671,7 @@ pks_cor = pksCorCell{1};
 % exportgraphics(fig,"./data/0322/PkDotsCmethod.png","Resolution",600);
 
 binWidth = 5; % BinWidth
-[counts,edges] = histcounts(pks_cor(:,2),'BinWidth',binWidth);
-centers = edges(1:end-1) + diff(edges)/2; % ピークの中心
-
-[~,histPkLocs] = findpeaks(counts,'MinPeakHeight',th_hist);
-
-[~,idx_hist] = min(abs(p1(2) - centers(histPkLocs)));
-groove1Center = centers(histPkLocs(idx_hist));
-
+groove1Center = findGrooveCenter(pks_cor, p1(2), BinWidth=binWidth, MinPeakHeight=th_hist);
 
 tol = 4;
 % そのピークの中心からtol(pixel)以内にあるy座標
@@ -719,14 +705,7 @@ pks_cor = pksCorCell{1};
 % exportgraphics(fig,"./data/0322/PkDotsCmethod.png","Resolution",600);
 
 binWidth = 5; % BinWidth
-[counts,edges] = histcounts(pks_cor(:,2),'BinWidth',binWidth);
-centers = edges(1:end-1) + diff(edges)/2; % ピークの中心
-
-[~,histPkLocs] = findpeaks(counts,'MinPeakHeight',th_hist);
-
-[~,idx_hist] = min(abs(p1(2) - centers(histPkLocs)));
-groove1Center = centers(histPkLocs(idx_hist));
-
+groove1Center = findGrooveCenter(pks_cor, p1(2), BinWidth=binWidth, MinPeakHeight=th_hist);
 
 tol = 4;
 % そのピークの中心からtol(pixel)以内にあるy座標
@@ -761,15 +740,7 @@ pks_cor = pksCorCell{1};
 % exportgraphics(fig,"./data/0322/PkDotsCmethod.png","Resolution",600);
 
 binWidth = 5; % BinWidth
-[counts,edges] = histcounts(pks_cor(:,2),'BinWidth',binWidth);
-centers = edges(1:end-1) + diff(edges)/2; % ピークの中心
-
-[~,histPkLocs] = findpeaks(counts,'MinPeakHeight',th_hist);
-
-[~,idx_hist] = min(abs(p1(2) - centers(histPkLocs)));
-groove1Center = centers(histPkLocs(idx_hist));
-
-
+groove1Center = findGrooveCenter(pks_cor, p1(2), BinWidth=binWidth, MinPeakHeight=th_hist);
 
 tol = 4;
 % そのピークの中心からtol(pixel)以内にあるy座標

@@ -189,61 +189,17 @@ for iImg=1:NUM_IMAGES
         binWidth = 5; % BinWidth
 
         % local maximum method
-        [counts,edges] = histcounts(pks_max_cor(:,2),'BinWidth',binWidth);
-        centers = edges(1:end-1) + diff(edges)/2; % ピークの中心
+        points_fit = extractGrooveWaveform(pks_max_cor, p1(2), (1:rsmplD.nCols)', ...
+            BinWidth=binWidth, MinPeakHeight=TH_HIST, Tolerance=tol);
 
-        [~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST);
-
-        [~,idx_hist] = min(abs(p1(2) - centers(histPkLocs)));
-        groove1Center = centers(histPkLocs(idx_hist));
-
-        % そのピークの中心からtol(pixel)以内にあるy座標
-        y_min = groove1Center - tol;
-        y_max = groove1Center + tol;
-
-        points = [(1:origD.nCols)',NaN(origD.nCols,1)];
-
-        idxs = (pks_max_cor(:,2) >= y_min) & (pks_max_cor(:,2)<=y_max);
-        points(pks_max_cor(idxs,1),2) = pks_max_cor(idxs,2);
-
-        points(:,2) = fillmissing(points(:,2),"linear");
-
-        points_fit = points;
-
-        p = polyfit(points(:,1),points(:,2),3);
-        points_fit(:,2) = points(:,2) - polyval(p,points(:,1));
-        points_fit(:,2) = points_fit(:,2) - mean(points_fit(:,2));
-
-        xcoords{kImgSmall,1} = points(:,1);
+        xcoords{kImgSmall,1} = points_fit(:,1);
         ycoords_max{kImgSmall,1} = points_fit(:,2);
 
         % centroid method
-        [counts,edges] = histcounts(pks_cnt_cor(:,2),'BinWidth',binWidth);
-        centers = edges(1:end-1) + diff(edges)/2; % ピークの中心
+        points_fit = extractGrooveWaveform(pks_cnt_cor, p1(2), (1:rsmplD.nCols)', ...
+            BinWidth=binWidth, MinPeakHeight=TH_HIST, Tolerance=tol);
 
-        [~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST);
-
-        [~,idx_hist] = min(abs(p1(2) - centers(histPkLocs)));
-        groove1Center = centers(histPkLocs(idx_hist));
-
-        % そのピークの中心からtol(pixel)以内にあるy座標
-        y_min = groove1Center - tol;
-        y_max = groove1Center + tol;
-
-        points = [(1:origD.nCols)',NaN(origD.nCols,1)];
-
-        idxs = (pks_cnt_cor(:,2) >= y_min) & (pks_cnt_cor(:,2)<=y_max);
-        points(pks_cnt_cor(idxs,1),2) = pks_cnt_cor(idxs,2);
-
-        points(:,2) = fillmissing(points(:,2),"linear");
-
-        points_fit = points;
-
-        p = polyfit(points(:,1),points(:,2),3);
-        points_fit(:,2) = points(:,2) - polyval(p,points(:,1));
-        points_fit(:,2) = points_fit(:,2) - mean(points_fit(:,2));
-
-        xcoords{kImgSmall,1} = points(:,1);
+        xcoords{kImgSmall,1} = points_fit(:,1);
         ycoords_cnt{kImgSmall,1} = points_fit(:,2);
 
 

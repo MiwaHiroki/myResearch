@@ -12,7 +12,7 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 4. `DarknessMap` の `setDiffTF` でしきい値 `D_THRESH` を超える領域の立ち上がり／立ち下がりを求め、`GrooveExtractor` で各xの溝底候補の区間（`findThresholdIntervals`）と幅の狭い溝底区間（`findGrooveBottomIntervals`）を特定する。
 5. `GrooveExtractor` の `extractByCentroid`（重心法）／`extractByLocalMax`（局所的最大値法）で溝底のy座標を求め、`GroovePointCloud` に格納する。
 6. `fitGroove` で選択した平行四辺形内の点群を直線近似し、溝の傾きを補正する（詳細は「溝の選択（fitGroove）」）。
-7. ヒストグラムのピークから追跡対象の溝1本を選び、その中心付近（`TOL_DISTANCE`／`tol`）の点だけを抽出、欠損を `fillmissing` で補間し、多項式でデトレンドする。
+7. `findGrooveCenter` でヒストグラムのピークから追跡対象の溝1本を選び、`extractGrooveShape` でその中心付近（`Tolerance`／`TOL_DISTANCE`／`tol`）の点だけを抽出して欠損を `fillmissing` で補間し、`detrendGrooveShape` で多項式デトレンドする（3つをまとめて呼ぶ `extractGrooveWaveform` を使うのが基本）。
 8. 全セグメントの座標を連結し、回転数78rpmから標本化周波数を計算して `AudioData` を生成、波形・FFT・スペクトログラムを描画・保存し、wavに書き出す。
 9. `saveCycleResult` で実験条件と解析結果（`ImageData`／`GroovePointCloud`／`AudioData`／`y_comb` など）を `experiments/<日付>/` の `.mat` に保存する（詳細は「1周分の実験結果の保存」）。
 
@@ -50,6 +50,10 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 - **`omitMask`**: 画像左右の無効領域を除去
 - **`fitGroove`**: 手動（`ginput`）または保存済みの点（`P1`/`P2`）で選んだ平行四辺形内の点群を直線近似し、溝の傾きを補正する。複数の溝底候補点データセット（例: 重心法と局所的最大値法）を`cell`でまとめて渡すと、1回の選択で全データセットを補正できる（詳細は「溝の選択（fitGroove）」）
   - `src/archive/fitGroove_multiPeaks.m`: 旧版（1溝で複数検出された点を平均してから処理）。現行の`fitGroove`に統合されていないため参照用として残置
+- **`findGrooveCenter`**: `fitGroove` で傾き補正済みの点群からy座標のヒストグラムを作り、前回選んだ中心（`prevCenter`）に最も近いピークを追跡対象の溝の中心として返す
+- **`extractGrooveShape`**: 溝の中心から`Tolerance`以内の点をx座標全域のNaN埋め配列に展開し、`fillmissing`で欠損を線形補間する（分数刻みの`xQuery`にも`ismember`で対応）
+- **`detrendGrooveShape`**: 点群のy座標に多項式（既定3次）をpolyfitして差し引き、平均を0にする
+- **`extractGrooveWaveform`**: 上記3つを`findGrooveCenter`→`extractGrooveShape`→`detrendGrooveShape`の順に呼び出す合成関数。`scripts/pkCentroid_resample.m`は疎な点群（fillmissing前）だけが必要なため`findGrooveCenter`のみを直接使う
 - **`createFigure`**: サイズ指定でfigureを作成
 - **`soundCheck`**: 波形・FFT・スペクトログラムをまとめて描画・保存
 - **`mkdirFromDate`**: 図・音声の出力先 `results/<日付>/` を作成しパスを返す
