@@ -12,7 +12,8 @@ if ~isfolder(saveDir)
 end
 % 出力ファイル名。LaTeXで扱えるよう英数字と-_のみを使う
 FIG_NAME_PROFILE = "fig2-1_darknessProfile";       % x=X_Cの断面
-FIG_NAME_IMAGE = "fig2-2_grooveBtmRangeOnImage";   % 画像上の区間始点・終点
+FIG_NAME_IMAGE_BTM = "fig2-2_grooveBtmRangeOnImage";   % 画像上の区間始点・終点
+FIG_NAME_IMAGE = "fig2-0_image";
 
 %% パラメータ
 IMG_FILE = "DSC1111-00008-ori.png";
@@ -70,6 +71,31 @@ sY = (sIdxBtm_C - 1)/origD.scaleFactor.row + 1;
 eY = (eIdxBtm_C - 1)/origD.scaleFactor.row + 1;
 allsIdxBtm(:,2) = (allsIdxBtm(:,2) - 1)/origD.scaleFactor.row + 1;
 alleIdxBtm(:,2) = (alleIdxBtm(:,2) - 1)/origD.scaleFactor.row + 1;
+
+
+%% 描画(画像のみ表示)
+fig = createFigure([0 0 FIG_W FIG_H]);
+t = tiledlayout(fig,1,1,"TileSpacing","tight","Padding","tight");
+
+% showImageは使わず、axesを指定できるimagescで描く
+ax = nexttile(t);
+imagesc(ax,imgData.img);
+colormap(ax,gray); clim(ax,[0 255]);
+axis(ax,"image");
+
+set(ax,"YDir","reverse","TickDir","out");
+set(ax,"XAxisLocation","top");
+xlabel(ax,"$x$"); ylabel(ax,"$y$");
+% xticks(ax,[25 50]); yticks(ax,[25 50]); % X_VIEW=50のとき
+xticks(ax,[10 20 30]); yticks(ax,[10 20 30]); % X_VIEW=50のとき
+
+ax.FontSize = FONT_TICK;
+ax.LabelFontSizeMultiplier = 1; % 既定の1.1倍を無効にして明示指定を効かせる
+ax.XLabel.FontSize = FONT_LABEL;
+ax.YLabel.FontSize = FONT_LABEL;
+
+%% 保存
+savePaperFigure(fig,saveDir,FIG_NAME_IMAGE,FIG_W,FIG_H);
 
 
 %% 描画(x=X_Cでの断面)
@@ -137,4 +163,4 @@ ax.YLabel.FontSize = FONT_LABEL;
 
 
 %% 保存
-savePaperFigure(fig,saveDir,FIG_NAME_IMAGE,FIG_W,FIG_H);
+savePaperFigure(fig,saveDir,FIG_NAME_IMAGE_BTM,FIG_W,FIG_H);
