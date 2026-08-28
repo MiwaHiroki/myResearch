@@ -52,6 +52,7 @@ for x = 1:imgData.width
     [firstIdx,lastIdx] = extractor.findThresholdIntervals(origD,x);
     [extractor,~,~,numPeaks] = extractor.findGrooveBottomIntervals(origD,x,firstIdx,lastIdx,W_TH);
     pts.peakCells{x} = [x*ones(numPeaks,1), extractor.extractByCentroid(origD,x)];
+    % pts.peakCells{x} = [x*ones(numPeaks,1), extractor.extractByLocalMax(origD,x)];
 end
 
 ptsXY = vertcat(pts.peakCells{:});
