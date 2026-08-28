@@ -92,9 +92,9 @@ ax.ZLabel.FontSize = FONT_LABEL;
 c = colorbar(ax);
 c.FontSize = FONT_TICK;
 c.TickLabelInterpreter = "latex";
-c.Label.String = "$D$";
-c.Label.Interpreter = "latex";
-c.Label.FontSize = FONT_LABEL;
+% c.Label.String = "$D$";
+% c.Label.Interpreter = "latex";
+% c.Label.FontSize = FONT_LABEL;
 
 % tightenAxesはTightInsetにカラーバー分の余白を含まないため、呼ぶとaxesが
 % カラーバーの領域まで広がってカラーバーがキャンバス外にはみ出してしまう。
