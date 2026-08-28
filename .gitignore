@@ -8,7 +8,12 @@
 /data
 
 # outputs
-/results
+# results/figures/slides のみ他PCと共有するため追跡対象にする
+# （results/figures/paperを含め、それ以外のresults配下は引き続き無視する）
+/results/*
+!/results/figures/
+/results/figures/*
+!/results/figures/slides/
 /audioFiles
 
 # experiment results (.mat)
