@@ -24,7 +24,7 @@ DATE = "0731";
 UPSAMPLINGS = ["rsmplD","intpD"];
 METHOD = "centroid"; % 溝底抽出の手法は固定して高解像度化だけを比べる
 
-CONV_DATE = "0802";
+CONV_DATE = "0731";
 CONV_MAT = fullfile(proj.RootFolder,"experiments",CONV_DATE, ...
     "cycleResult_origD_"+CONV_DATE+".mat");
 CONV_METHOD = "centroid";
@@ -35,14 +35,16 @@ CONV_NAME = "conventional"; % 表示・ログ用の名前
 % 窓が覆う時間と周波数分解能がずれるので、fsに比例させて時間長を揃える
 WIN_SIZE_REF = 1024; % rsmplDのfsに対する窓長[サンプル]
 
-F_VIEW = [0 5e3];  % 表示する周波数の範囲[Hz]
+% F_VIEW = [0 5e3];  % 表示する周波数の範囲[Hz]
+F_VIEW = [0 2e4];  % 20kHzまで表示する場合
 C_VIEW = [-120 0]; % 表示するレベルの範囲[dB]
 C_STEP = 30;       % カラーバーの目盛り間隔[dB]
 T_STEP = 0.2;      % 時間軸の目盛り間隔[s]
 Y_VIEW = [-1 1];   % 表示するAmplitudeの範囲
 
 % 図のサイズ[cm]とフォントサイズ[pt]（スライド用の標準値）
-FIG_W = 12; FIG_H = 8;
+% 波形表示figure、スペクトログラム表示figureの大きさ
+FIG_W = [8, 8] ; FIG_H = [6, 10];
 FONT_TICK = 14; FONT_LABEL = 16;
 
 %% 音声データを読み込む
@@ -106,7 +108,7 @@ for k = 1:numel(audioCell)
     name = audioNames(k);
 
     % 波形
-    fig = createFigure([0 0 FIG_W FIG_H]);
+    fig = createFigure([0 0 FIG_W(1) FIG_H(1)]);
     ax = gca;
     audio.plotWaveform();
 
@@ -128,12 +130,12 @@ for k = 1:numel(audioCell)
     ax.XLabel.FontSize = FONT_LABEL;
     ax.YLabel.FontSize = FONT_LABEL;
 
-    saveSlideFigure(fig,saveDir,name+"_waveform",FIG_W,FIG_H);
+    saveSlideFigure(fig,saveDir,name+"_waveform",FIG_W(1),FIG_H(1));
 
     % スペクトログラム（カラーバーは図ごとに必須）
     % tiledlayout+Padding="tight"でカラーバー分の余白を確保する。単体axesの
     % 自動レイアウトはfigureを縮めるとカラーバーのラベルが見切れることがある
-    fig = createFigure([0 0 FIG_W FIG_H]);
+    fig = createFigure([0 0 FIG_W(2) FIG_H(2)]);
     t = tiledlayout(fig,1,1,"Padding","tight");
     ax = nexttile(t); % plotSpectrogramはgcaに描くのでnexttileを先に呼ぶ
     audio.plotSpectrogram(winSizes(k),ShowTitle=false,ShowColorbar=false);
@@ -143,7 +145,8 @@ for k = 1:numel(audioCell)
     ylim(ax,F_VIEW); clim(ax,C_VIEW);
 
     ax.YAxis.Exponent = 3;
-    yticks(ax,F_VIEW(1):1e3:F_VIEW(2));
+    % yticks(ax,F_VIEW(1):1e3:F_VIEW(2));
+    yticks(ax,F_VIEW(1):5e3:F_VIEW(2)); % F_VIEWが20kHzまでのとき
     xticks(ax,0:T_STEP:max(xlim(ax)));
     ax.TickLabelInterpreter = "latex";
     box(ax,"on");
@@ -153,14 +156,15 @@ for k = 1:numel(audioCell)
     ax.XLabel.FontSize = FONT_LABEL;
     ax.YLabel.FontSize = FONT_LABEL;
 
-    c = colorbar(ax);
-    c.Layout.Tile = "east";
-    c.Ticks = C_VIEW(1):C_STEP:C_VIEW(2);
-    c.FontSize = FONT_TICK;
-    c.TickLabelInterpreter = "latex";
-    c.Label.String = "Magnitude [dB]";
-    c.Label.Interpreter = "latex";
-    c.Label.FontSize = FONT_LABEL;
+    % c = colorbar(ax);
+    % c.Layout.Tile = "east";
+    % c.Ticks = C_VIEW(1):C_STEP:C_VIEW(2);
+    % c.FontSize = FONT_TICK;
+    % c.TickLabelInterpreter = "latex";
+    % c.Label.String = "Magnitude [dB]";
+    % c.Label.Interpreter = "latex";
+    % c.Label.FontSize = FONT_LABEL;
 
-    saveSlideFigure(fig,saveDir,name+"_spectrogram",FIG_W,FIG_H);
+    % saveSlideFigure(fig,saveDir,name+"_spectrogram_noColorbar",FIG_W(2),FIG_H(2));
+    saveSlideFigure(fig,saveDir,name+"_spectrogram_noColorbar_20kHz",FIG_W(2),FIG_H(2));
 end
