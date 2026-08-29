@@ -103,3 +103,45 @@ c.TickLabelInterpreter = "latex";
 
 %% 保存
 saveSlideFigure(fig,saveDir,figName,FIG_W,FIG_H);
+
+%% 描画と保存(waterfallのみ、scatter3なし)
+% waterfall(X,Y,Z)はsize(Z)=[length(Y) length(X)]を要求するのでdMatを転置する
+% その結果、図の第1軸がy、第2軸がxになる
+fig = createFigure([0 0 FIG_W FIG_H]);
+ax = axes(fig);
+
+X = 1:origD.nRows;    % = y
+Y = (1:origD.nCols)'; % = x
+p = waterfall(ax,X,Y,origD.dMat',"Marker",".");
+p.MarkerSize = 8;
+% hold(ax,"on");
+% scatter3(ax,ptsY,ptsX,ptsD,20,"cyan","filled","o");
+% hold(ax,"off");
+
+xlim(ax,Y_VIEW); ylim(ax,X_VIEW); zlim(ax,Z_VIEW); clim(ax,[0 1]);
+colormap(ax,flipud(gray));
+view(ax,AZ,EL);
+
+% スライド用にタイトルは出さない
+xlabel(ax,"$y$"); ylabel(ax,"$x$"); zlabel(ax,"$D$");
+
+ax.FontSize = FONT_TICK;
+ax.LabelFontSizeMultiplier = 1; % 既定の1.1倍を無効にして明示指定を効かせる
+ax.XLabel.FontSize = FONT_LABEL;
+ax.YLabel.FontSize = FONT_LABEL;
+ax.ZLabel.FontSize = FONT_LABEL;
+
+% 今回はスライド用にカラーバーを付ける（原稿版には無い）
+c = colorbar(ax);
+c.FontSize = FONT_TICK;
+c.TickLabelInterpreter = "latex";
+% c.Label.String = "$D$";
+% c.Label.Interpreter = "latex";
+% c.Label.FontSize = FONT_LABEL;
+
+% tightenAxesはTightInsetにカラーバー分の余白を含まないため、呼ぶとaxesが
+% カラーバーの領域まで広がってカラーバーがキャンバス外にはみ出してしまう。
+% カラーバーがある図ではtightenAxesを使わず、余白はexportgraphicsの
+% タイトクロップに任せる
+
+saveSlideFigure(fig,saveDir,figName+"waterfallOnly",FIG_W,FIG_H);
