@@ -92,7 +92,7 @@ tightenAxes(ax); % フォントサイズ確定後に呼ぶ
 %% 保存
 saveSlideFigure(fig,saveDir,figName,FIG_W,FIG_H);
 
-%% 描画(最大値法)
+%% 描画と保存(最大値法)
 fig = createFigure([0 0 FIG_W FIG_H]);
 ax = axes(fig);
 
@@ -119,4 +119,31 @@ ax.YLabel.FontSize = FONT_LABEL;
 tightenAxes(ax); % フォントサイズ確定後に呼ぶ
 
 saveSlideFigure(fig,saveDir,figName+"_localMax",FIG_W,FIG_H);
+
+%% 描画と保存(画像+赤枠のみ)
+fig = createFigure([0 0 FIG_W FIG_H]);
+ax = axes(fig);
+
+imagesc(ax,imgData.img);
+colormap(ax,gray); clim(ax,[0 255]);
+axis(ax,"image");
+hold(ax,"on");
+% grooveBtmOn3d.mで表示している範囲を矩形で示す
+% rectangle(ax,"Position",[X_VIEW(1) Y_VIEW(1) diff(X_VIEW) diff(Y_VIEW)], ...
+    % "EdgeColor","red","LineWidth",1.5);
+hold(ax,"off");
+
+% スライド用にタイトルは出さない
+set(ax,"YDir","reverse","TickDir","out");
+set(ax,"XAxisLocation","top")
+xlabel(ax,"$x$"); ylabel(ax,"$y$");
+
+ax.FontSize = FONT_TICK;
+ax.LabelFontSizeMultiplier = 1; % 既定の1.1倍を無効にして明示指定を効かせる
+ax.XLabel.FontSize = FONT_LABEL;
+ax.YLabel.FontSize = FONT_LABEL;
+
+tightenAxes(ax); % フォントサイズ確定後に呼ぶ
+
+saveSlideFigure(fig,saveDir,figName+"_imgOnly",FIG_W,FIG_H);
 
