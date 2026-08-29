@@ -130,10 +130,13 @@ for k = 1:numel(audioCell)
 
     saveSlideFigure(fig,saveDir,name+"_waveform",FIG_W,FIG_H);
 
-    % スペクトログラム（カラーバーは図ごとに必須なのでShowColorbar=true）
+    % スペクトログラム（カラーバーは図ごとに必須）
+    % tiledlayout+Padding="tight"でカラーバー分の余白を確保する。単体axesの
+    % 自動レイアウトはfigureを縮めるとカラーバーのラベルが見切れることがある
     fig = createFigure([0 0 FIG_W FIG_H]);
-    ax = gca;
-    audio.plotSpectrogram(winSizes(k),ShowTitle=false,ShowColorbar=true);
+    t = tiledlayout(fig,1,1,"Padding","tight");
+    ax = nexttile(t); % plotSpectrogramはgcaに描くのでnexttileを先に呼ぶ
+    audio.plotSpectrogram(winSizes(k),ShowTitle=false,ShowColorbar=false);
 
     tData = findobj(ax,"Type","surface").XData;
     xlim(ax,[0 max(tData(:))]);
@@ -151,6 +154,7 @@ for k = 1:numel(audioCell)
     ax.YLabel.FontSize = FONT_LABEL;
 
     c = colorbar(ax);
+    c.Layout.Tile = "east";
     c.Ticks = C_VIEW(1):C_STEP:C_VIEW(2);
     c.FontSize = FONT_TICK;
     c.TickLabelInterpreter = "latex";

@@ -27,7 +27,8 @@ T_STEP = 0.2;      % 時間軸の目盛り間隔[s]
 Y_VIEW = [-1 1];   % 表示するAmplitudeの範囲
 
 % 図のサイズ[cm]とフォントサイズ[pt]（スライド用の標準値）
-FIG_W = 12; FIG_H = 8;
+% 波形表示figure、スペクトログラム表示figureの大きさ
+FIG_W = [8.7, 10] ; FIG_H = [6, 8];
 FONT_TICK = 14; FONT_LABEL = 16;
 
 %% 音声データを読み込む
@@ -52,7 +53,7 @@ for k = 1:numel(audioCell)
     name = audioNames(k);
 
     % 波形
-    fig = createFigure([0 0 FIG_W FIG_H]);
+    fig = createFigure([0 0 FIG_W(1) FIG_H(1)]);
     ax = gca;
     audio.plotWaveform();
 
@@ -74,12 +75,15 @@ for k = 1:numel(audioCell)
     ax.XLabel.FontSize = FONT_LABEL;
     ax.YLabel.FontSize = FONT_LABEL;
 
-    saveSlideFigure(fig,saveDir,name+"_waveform",FIG_W,FIG_H);
+    saveSlideFigure(fig,saveDir,name+"_waveform",FIG_W(1),FIG_H(1));
 
-    % スペクトログラム（カラーバーは図ごとに必須なのでShowColorbar=true）
-    fig = createFigure([0 0 FIG_W FIG_H]);
-    ax = gca;
-    audio.plotSpectrogram(WIN_SIZE,ShowTitle=false,ShowColorbar=true);
+    % スペクトログラム（カラーバーは図ごとに必須）
+    % tiledlayout+Padding="tight"でカラーバー分の余白を確保する。単体axesの
+    % 自動レイアウトはfigureを縮めるとカラーバーのラベルが見切れることがある
+    fig = createFigure([0 0 FIG_W(2) FIG_H(2)]);
+    t = tiledlayout(fig,1,1,"Padding","tight");
+    ax = nexttile(t); % plotSpectrogramはgcaに描くのでnexttileを先に呼ぶ
+    audio.plotSpectrogram(WIN_SIZE,ShowTitle=false,ShowColorbar=false);
 
     tData = findobj(ax,"Type","surface").XData;
     xlim(ax,[0 max(tData(:))]);
@@ -97,6 +101,7 @@ for k = 1:numel(audioCell)
     ax.YLabel.FontSize = FONT_LABEL;
 
     c = colorbar(ax);
+    c.Layout.Tile = "east";
     c.Ticks = C_VIEW(1):C_STEP:C_VIEW(2);
     c.FontSize = FONT_TICK;
     c.TickLabelInterpreter = "latex";
@@ -104,5 +109,5 @@ for k = 1:numel(audioCell)
     c.Label.Interpreter = "latex";
     c.Label.FontSize = FONT_LABEL;
 
-    saveSlideFigure(fig,saveDir,name+"_spectrogram",FIG_W,FIG_H);
+    saveSlideFigure(fig,saveDir,name+"_spectrogram",FIG_W(2),FIG_H(2));
 end
