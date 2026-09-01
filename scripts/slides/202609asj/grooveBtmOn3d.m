@@ -35,6 +35,9 @@ AZ = 30; EL = 30; % 視点
 FIG_W = 12; FIG_H = 8;
 FONT_TICK = 14; FONT_LABEL = 16;
 
+% waterfallで表示するときのマーカーのサイズ
+MARKER_SIZE = 8;
+
 %% 画像を読み込み、溝底点を検出する
 img_gray = rgb2gray(imread(IMG_FILE));
 img_small = img_gray(Y_OFFSET:Y_OFFSET+PIXELS-1, X_OFFSET:X_OFFSET+PIXELS-1);
@@ -70,7 +73,7 @@ ax = axes(fig);
 X = 1:origD.nRows;    % = y
 Y = (1:origD.nCols)'; % = x
 p = waterfall(ax,X,Y,origD.dMat',"Marker",".");
-p.MarkerSize = 8;
+p.MarkerSize = MARKER_SIZE;
 hold(ax,"on");
 scatter3(ax,ptsY,ptsX,ptsD,20,"cyan","filled","o");
 hold(ax,"off");
@@ -113,7 +116,7 @@ ax = axes(fig);
 X = 1:origD.nRows;    % = y
 Y = (1:origD.nCols)'; % = x
 p = waterfall(ax,X,Y,origD.dMat',"Marker",".");
-p.MarkerSize = 8;
+p.MarkerSize = MARKER_SIZE;
 % hold(ax,"on");
 % scatter3(ax,ptsY,ptsX,ptsD,20,"cyan","filled","o");
 % hold(ax,"off");
