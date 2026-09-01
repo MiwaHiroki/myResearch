@@ -31,7 +31,7 @@ W_TH = 8;   % 溝底とみなす区間幅の上限[px]
 X_C = 1;         % 暗度分布を見る列（元スクリプトのX_C=30から変更）
 Y_VIEW = [1 30]; % 表示するyの範囲
 
-MARKER_SIZE = 8;
+MARKER_SIZE = 15;
 
 % 1の縦線の色と2のプロット線の色をこの値で揃える（既定の1本目の線色）
 LINE_COLOR = [0 0.4470 0.7410];
@@ -108,7 +108,7 @@ fig = createFigure([0 0 FIG_W_PROFILE FIG_H]);
 t = tiledlayout(fig,1,1,"Padding","tight");
 ax = nexttile(t); % plotDarknessColumnはgcaに描くのでnexttileを先に呼ぶ
 
-p = origD.plotDarknessColumn(X_C,ShowTitle=false,ShowColorbar=false,ShowLineMarker=true);
+p = origD.plotDarknessColumn(X_C,ShowTitle=false,ShowColorbar=false,ShowLineMarker=true,MarkerSize=MARKER_SIZE);
 p.Color = LINE_COLOR; % 1の縦線と色を揃える
 hold(ax,"on");
 yline(ax,D_TH,"-","LineWidth",0.5,"Color","k");
