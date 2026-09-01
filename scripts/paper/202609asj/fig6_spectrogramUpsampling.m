@@ -1,6 +1,6 @@
 % fig6_spectrogramUpsampling.m
 % 音響学会2026年9月 原稿用のFigure 6?（1段幅=79mm）
-% 従来法と、rsmplD(1次元リサンプル)・intpD(2次元補間)から重心法で作成した音声の
+% 従来法(photoshopによる高解像度化画像)と、rsmplD(1次元リサンプル)・intpD(2次元補間)から重心法で作成した音声の
 % スペクトログラムを、tiledlayoutで横に3枚並べて1つのfigureにする
 % 左から 従来法 / rsmplD / intpD
 % 様式はfig5_spectrogramComparison.mに合わせてある
