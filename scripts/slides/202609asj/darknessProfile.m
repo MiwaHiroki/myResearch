@@ -38,7 +38,7 @@ LINE_COLOR = [0 0.4470 0.7410];
 
 % 図のサイズ[cm]とフォントサイズ[pt]。大きさは今回に限り3図とも8cm×8cmにする
 FIG_W = 8; FIG_H = 8;
-FIG_W_COLUMN = FIG_W + 2; % 1はカラーバーを追加する分、横幅を+2cmする
+FIG_W_PROFILE = FIG_W + 2; % 2はカラーバーを追加する分、横幅を+2cmする
 FONT_TICK = 14; FONT_LABEL = 16;
 
 %% 画像を読み込み、各列の溝底区間を求める
@@ -77,11 +77,8 @@ allsIdxBtm(:,2) = (allsIdxBtm(:,2) - 1)/origD.scaleFactor.row + 1;
 alleIdxBtm(:,2) = (alleIdxBtm(:,2) - 1)/origD.scaleFactor.row + 1;
 
 %% 描画1: 切り出した画像 + x=X_Cの位置を示す縦線（2の線色と揃える）
-% カラーバーを追加するのでtiledlayout+Padding="tight"で余白を確保する
-% ([[colorbar-figure-caution]]参照。axis imageのため横幅をFIG_W_COLUMNに広げる)
-fig = createFigure([0 0 FIG_W_COLUMN FIG_H]);
-t = tiledlayout(fig,1,1,"Padding","tight");
-ax = nexttile(t);
+fig = createFigure([0 0 FIG_W FIG_H]);
+ax = axes(fig);
 
 imagesc(ax,imgData.img);
 colormap(ax,gray); clim(ax,[0 255]);
@@ -100,17 +97,14 @@ ax.LabelFontSizeMultiplier = 1;
 ax.XLabel.FontSize = FONT_LABEL;
 ax.YLabel.FontSize = FONT_LABEL;
 
-% カラーバー: 軸ラベルは付けない（画素値0-255の参照用）
-c = colorbar(ax);
-c.Layout.Tile = "east";
-c.FontSize = FONT_TICK;
-
-saveSlideFigure(fig,saveDir,"darknessProfile_column",FIG_W_COLUMN,FIG_H);
+tightenAxes(ax);
+saveSlideFigure(fig,saveDir,"darknessProfile_column",FIG_W,FIG_H);
 
 %% 描画2(fig2-1相当): x=X_Cでの暗度断面。今回のみカラーバーを表示する
 % カラーバーがあるのでtiledlayout+Padding="tight"で余白を確保する
 % ([[colorbar-figure-caution]]参照。単体axesの自動レイアウトはラベルが見切れうる）
-fig = createFigure([0 0 FIG_W FIG_H]);
+% カラーバー分、横幅をFIG_W_PROFILEに広げる
+fig = createFigure([0 0 FIG_W_PROFILE FIG_H]);
 t = tiledlayout(fig,1,1,"Padding","tight");
 ax = nexttile(t); % plotDarknessColumnはgcaに描くのでnexttileを先に呼ぶ
 
@@ -142,7 +136,7 @@ c = colorbar(ax);
 c.Layout.Tile = "east";
 c.FontSize = FONT_TICK;
 
-saveSlideFigure(fig,saveDir,"darknessProfile_profile",FIG_W,FIG_H);
+saveSlideFigure(fig,saveDir,"darknessProfile_profile",FIG_W_PROFILE,FIG_H);
 
 %% 描画3(fig2-2相当): 画像上に全列の溝底区間の始点・終点を表示
 fig = createFigure([0 0 FIG_W FIG_H]);
