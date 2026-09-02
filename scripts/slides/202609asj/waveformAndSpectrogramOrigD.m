@@ -1,4 +1,4 @@
-% fig5_spectrogramComparisonOrigD.m (スライド用)
+% spectrogramComparisonOrigD.m (スライド用)
 % 音響学会2026年9月 スライド用
 % scripts/paper/202609asj/fig5_spectrogramComparisonOrigD.mと同じデータ
 % (origD、局所的最大値法・重心法)を使い、各音声の波形とスペクトログラムを
