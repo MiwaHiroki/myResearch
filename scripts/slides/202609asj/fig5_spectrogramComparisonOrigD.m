@@ -31,6 +31,7 @@ Y_VIEW = [-1 1];   % 表示するAmplitudeの範囲
 FIG_W = [8.7, 10] ; FIG_H = [6, 8];
 FONT_TICK = 14; FONT_LABEL = 16;
 
+
 %% 音声データを読み込む
 matPath = cycleResultPath(proj.RootFolder,UPSAMPLING,DATE);
 result = loadCycleResult(matPath);

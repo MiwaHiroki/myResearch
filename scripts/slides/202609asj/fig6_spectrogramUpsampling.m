@@ -44,7 +44,7 @@ Y_VIEW = [-1 1];   % 表示するAmplitudeの範囲
 
 % 図のサイズ[cm]とフォントサイズ[pt]（スライド用の標準値）
 % 波形表示figure、スペクトログラム表示figureの大きさ
-FIG_W = [8, 8] ; FIG_H = [6, 10];
+FIG_W = [9, 8] ; FIG_H = [6, 10];
 FONT_TICK = 14; FONT_LABEL = 16;
 
 %% 音声データを読み込む

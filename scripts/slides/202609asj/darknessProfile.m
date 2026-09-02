@@ -112,8 +112,8 @@ p = origD.plotDarknessColumn(X_C,ShowTitle=false,ShowColorbar=false,ShowLineMark
 p.Color = LINE_COLOR; % 1の縦線と色を揃える
 hold(ax,"on");
 yline(ax,D_TH,"-","LineWidth",0.5,"Color","k");
-scatter(ax,sY,origD.dMat(sIdxBtm_C,X_C),MARKER_SIZE,"red","filled","o");
-scatter(ax,eY,origD.dMat(eIdxBtm_C,X_C),MARKER_SIZE,"yellow","filled","o","MarkerEdgeColor","k");
+scatter(ax,sY,origD.dMat(sIdxBtm_C,X_C),MARKER_SIZE+10,"red","filled","o");
+scatter(ax,eY,origD.dMat(eIdxBtm_C,X_C),MARKER_SIZE+10,"yellow","filled","o","MarkerEdgeColor","k");
 hold(ax,"off");
 
 xlim(ax,Y_VIEW);
