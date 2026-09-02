@@ -96,14 +96,15 @@ for k = 1:numel(dCell)
     ax.ZLabel.FontSize = FONT_LABEL;
 
     % 今回はスライド用にカラーバーを付ける（原稿版には無い）
-    c = colorbar(ax);
-    c.FontSize = FONT_TICK;
-    c.TickLabelInterpreter = "latex";
+    % c = colorbar(ax);
+    % c.FontSize = FONT_TICK;
+    % c.TickLabelInterpreter = "latex";
 
     % tightenAxesはTightInsetにカラーバー分の余白を含まないため、呼ぶとaxesが
     % カラーバーの領域まで広がってカラーバーがキャンバス外にはみ出してしまう。
     % カラーバーがある図ではtightenAxesを使わず、余白はexportgraphicsの
     % タイトクロップに任せる
 
-    saveSlideFigure(fig,saveDir,figNames(k),FIG_W,FIG_H);
+    % saveSlideFigure(fig,saveDir,figNames(k),FIG_W,FIG_H);
+    saveSlideFigure(fig,saveDir,figNames(k)+"_noColorBar",FIG_W,FIG_H);
 end
