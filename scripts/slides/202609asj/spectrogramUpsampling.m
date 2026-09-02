@@ -1,4 +1,4 @@
-% fig6_spectrogramUpsampling.m (スライド用)
+% spectrogramUpsampling.m (スライド用)
 % 音響学会2026年9月 スライド用
 % scripts/paper/202609asj/fig6_spectrogramUpsampling.mと同じデータ
 % (従来法・rsmplD・intpD、いずれも重心法)を使い、各音声の波形とスペクトログラムを
@@ -24,7 +24,7 @@ DATE = "0731";
 UPSAMPLINGS = ["rsmplD","intpD"];
 METHOD = "centroid"; % 溝底抽出の手法は固定して高解像度化だけを比べる
 
-CONV_DATE = "0731";
+CONV_DATE = "0802";
 CONV_MAT = fullfile(proj.RootFolder,"experiments",CONV_DATE, ...
     "cycleResult_origD_"+CONV_DATE+".mat");
 CONV_METHOD = "centroid";
