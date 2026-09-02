@@ -1,7 +1,7 @@
 % spectrogramComparisonOrigD.m (スライド用)
 % 音響学会2026年9月 スライド用
 % scripts/paper/202609asj/fig5_spectrogramComparisonOrigD.mと同じデータ
-% (origD、局所的最大値法・重心法)を使い、各音声の波形とスペクトログラムを
+% (origDに対して局所的最大値法・重心法)を使い、各音声の波形とスペクトログラムを
 % 1図1ファイルのpngとして書き出す（計4枚）
 % スライド用の図の様式はmemory: slide-figure-size / slide-figure-dirs を参照
 % （tiledlayoutでまとめない、タイトル無し、カラーバーは図ごとに必須、pngのみ保存）
@@ -28,7 +28,7 @@ Y_VIEW = [-1 1];   % 表示するAmplitudeの範囲
 
 % 図のサイズ[cm]とフォントサイズ[pt]（スライド用の標準値）
 % 波形表示figure、スペクトログラム表示figureの大きさ
-FIG_W = [8.7, 10] ; FIG_H = [6, 8];
+FIG_W = [8, 8] ; FIG_H = [6, 10];
 FONT_TICK = 14; FONT_LABEL = 16;
 
 
@@ -110,5 +110,5 @@ for k = 1:numel(audioCell)
     c.Label.Interpreter = "latex";
     c.Label.FontSize = FONT_LABEL;
 
-    saveSlideFigure(fig,saveDir,name+"_spectrogram",FIG_W(2),FIG_H(2));
+    saveSlideFigure(fig,saveDir,name+"_spectrogram_colorbar",FIG_W(2),FIG_H(2));
 end

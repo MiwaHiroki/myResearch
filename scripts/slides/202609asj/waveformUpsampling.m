@@ -34,7 +34,7 @@ CONV_MAT = fullfile(proj.RootFolder,"experiments",CONV_DATE, ...
     "cycleResult_origD_"+CONV_DATE+".mat");
 CONV_METHOD = "centroid";
 CONV_VAR = "audio"; % .mat内のAudioDataの変数名, ただしS.result.(CONV_METHOD)のフィールド
-CONV_NAME = "conventional"; % 表示・ログ用の名前
+CONV_NAME = "photoshop"; % 表示・ログ用の名前
 
 Y_VIEW = [-1 1]; % 表示するAmplitudeの範囲
 T_STEP = 0.2;    % 時間軸の目盛り間隔[s]
