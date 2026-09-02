@@ -1,0 +1,66 @@
+% grooveShape3d.m (スライド用)
+% 音響学会2026年9月 スライド用
+% grooveBtmOn3d.mが暗度Dを3D表示しているのに対し、こちらは音溝そのものの
+% 物理形状を3D模式図として表示する。音溝の断面が実際にどんな形かは分からない
+% ため、平坦面(land)・斜面(slope)・溝底(bottom)の3種類の平面のみで構成する。
+% grooveBtmOn3d.mと並べて比較できるよう、軸範囲・視点・図サイズはgrooveBtmOn3d.m
+% と同じ値を用いる。
+% スライド用の図の様式はmemory: slide-figure-size / slide-figure-dirs を参照
+% （タイトル無し、pngのみ保存）
+
+setDefaultIntrpr();
+
+proj = currentProject();
+saveDir = fullfile(proj.RootFolder,"results","figures","slides","202609asj");
+if ~isfolder(saveDir)
+    mkdir(saveDir);
+end
+figName = "grooveShape3d";
+
+%% パラメータ（grooveBtmOn3d.mと同じ表示範囲・視点・図サイズ）
+Y_VIEW = [1 40]; % 溝を横切る方向
+X_VIEW = [1 10]; % 溝に平行な方向
+Z_VIEW = [0 1];
+AZ = 30; EL = 30; % 視点
+
+FIG_W = 12; FIG_H = 8;
+FONT_TICK = 14; FONT_LABEL = 16;
+
+%% 断面プロファイルの定義
+% y方向の区切り位置。区間ごとの意味は以下の通り（実データ・目視確認による）:
+%   [ 1, 6]: 隣（前）の溝の斜面がview端で切れた部分（一つ前の溝底はview範囲外）
+%   [ 6,14]: 平坦面(land)
+%   [14,21]: 斜面(slope)
+%   [21,24]: 溝底(bottom)。実データでのGrooveExtractor検出範囲(y=21-24)と一致させる
+%   [24,31]: 斜面(slope)
+%   [31,40]: 平坦面(land)
+Y_BREAKS = [1 6 14 21 24 31 40];
+SLOPE_WIDTH = 21 - 14; % 他の斜面区間と同じ傾き率をview端の途中の斜面にも適用する
+Z_BREAKS = [1 - (6-1)/SLOPE_WIDTH, 1, 1, 0, 0, 1, 1]; % land=1(高い), 溝底=0(低い)
+X_EXTENT = [1 10]; % 溝に平行な方向。模式図のため断面形状を一様に押し出す
+
+Z = repmat(Z_BREAKS, numel(X_EXTENT), 1);
+
+%% 描画
+fig = createFigure([0 0 FIG_W FIG_H]);
+ax = axes(fig);
+
+surface(ax,Y_BREAKS,X_EXTENT,Z);
+
+xlim(ax,Y_VIEW); ylim(ax,X_VIEW); zlim(ax,Z_VIEW);
+view(ax,AZ,EL);
+
+% スライド用にタイトルは出さない
+xlabel(ax,"$y$"); ylabel(ax,"$x$"); zlabel(ax,"$z$");
+
+ax.FontSize = FONT_TICK;
+ax.LabelFontSizeMultiplier = 1; % 既定の1.1倍を無効にして明示指定を効かせる
+ax.XLabel.FontSize = FONT_LABEL;
+ax.YLabel.FontSize = FONT_LABEL;
+ax.ZLabel.FontSize = FONT_LABEL;
+
+% grooveBtmOn3d.mと大きさ・向きを揃えるため、同じ余白処理（tightenAxesを
+% 呼ばずexportgraphicsのタイトクロップに任せる）を踏襲する
+
+%% 保存
+saveSlideFigure(fig,saveDir,figName,FIG_W,FIG_H);
