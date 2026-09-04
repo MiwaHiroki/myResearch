@@ -36,19 +36,48 @@ FONT_TICK = 14; FONT_LABEL = 16;
 %   [31,40]: 平坦面(land)
 Y_BREAKS = [1 6 14 21 24 31 40];
 SLOPE_WIDTH = 21 - 14; % 他の斜面区間と同じ傾き率をview端の途中の斜面にも適用する
-Z_BREAKS = [1 - (6-1)/SLOPE_WIDTH, 1, 1, 0, 0, 1, 1]; % land=1(高い), 溝底=0(低い)
+Z_BREAKS = [1 - (6-1)/SLOPE_WIDTH, 1, 1, 0.2, 0.2, 1, 1]; % land=1(高い), 溝底=0.2(低い)
 X_EXTENT = [1 10]; % 溝に平行な方向。模式図のため断面形状を一様に押し出す
 
-Z = repmat(Z_BREAKS, numel(X_EXTENT), 1);
+% 断面プロファイルの各区間が属するカテゴリ（Y_BREAKSの6区間に対応）
+SEGMENT_TYPES = ["slope","land","slope","bottom","slope","land"];
+% 各カテゴリの色（輝度値0-1）。実測値ではなく、視覚的に区別しやすいよう明示指定する
+CATEGORIES = ["land","slope","bottom"];
+CATEGORY_GRAY = [0.15, 0.9, 0.55]; % land(暗い) < bottom(中間) < slope(明るい)
+
+numSegments = numel(Y_BREAKS) - 1;
+segColors = zeros(numSegments,3);
+for i = 1:numSegments
+    g = CATEGORY_GRAY(CATEGORIES == SEGMENT_TYPES(i));
+    segColors(i,:) = [g g g];
+end
 
 %% 描画
 fig = createFigure([0 0 FIG_W FIG_H]);
 ax = axes(fig);
 
-surface(ax,Y_BREAKS,X_EXTENT,Z);
+hold(ax,"on");
+surfHandles = gobjects(1,numSegments);
+for i = 1:numSegments
+    y0 = Y_BREAKS(i); y1 = Y_BREAKS(i+1);
+    zSeg = [Z_BREAKS(i) Z_BREAKS(i+1); Z_BREAKS(i) Z_BREAKS(i+1)];
+    surfHandles(i) = surface(ax,[y0 y1],X_EXTENT,zSeg,"FaceColor",segColors(i,:),"EdgeColor","k");
+end
+hold(ax,"off");
 
 xlim(ax,Y_VIEW); ylim(ax,X_VIEW); zlim(ax,Z_VIEW);
 view(ax,AZ,EL);
+
+% land/slope/bottomの色対応を示すlegend（各カテゴリの最初の区間を代表に使う）
+legendHandles = gobjects(1,numel(CATEGORIES));
+for k = 1:numel(CATEGORIES)
+    idx = find(SEGMENT_TYPES == CATEGORIES(k), 1);
+    legendHandles(k) = surfHandles(idx);
+end
+lgd = legend(ax,legendHandles,CATEGORIES,Location="southeast");
+lgd.FontSize = FONT_TICK;
+lgd.ItemTokenSize = [10 10]; % 凡例のマーカー部分を詰める
+legend(ax,"boxoff");
 
 % スライド用にタイトルは出さない
 xlabel(ax,"$y$"); ylabel(ax,"$x$"); zlabel(ax,"$z$");
