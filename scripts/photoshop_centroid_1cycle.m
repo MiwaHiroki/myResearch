@@ -167,36 +167,12 @@ for iImg=1:NUM_IMAGES
         allP2(kImgSmall,:) = p2;
 
         binWidth = 5*8; % BinWidth
-        [counts,edges] = histcounts(pks_cor(:,2),'BinWidth',binWidth);
-        centers = edges(1:end-1) + diff(edges)/2; % ピークの中心
-
-        [~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST);
-
-        [~,idx_hist] = min(abs(p1(2) - centers(histPkLocs)));
-        groove1Center = centers(histPkLocs(idx_hist));
-
         tol = 3*8;
-        % そのピークの中心からtol(pixel)以内にあるy座標
-        y_min = groove1Center - tol;
-        y_max = groove1Center + tol;
 
-        points = [(1:origD.width)',NaN(origD.nCols,1)];
+        points_fit = extractGrooveWaveform(pks_cor, p1(2), (1:origD.nCols)', ...
+            BinWidth=binWidth, MinPeakHeight=TH_HIST, Tolerance=tol);
 
-        idxs = (pks_cor(:,2) >= y_min) & (pks_cor(:,2)<=y_max);
-
-        points_x = pks_cor(idxs,1);
-        points(points_x,2) = pks_cor(idxs,2);
-
-        points(:,2) = fillmissing(points(:,2),"linear");
-
-        points_fit = points;
-
-
-        p = polyfit(points(:,1),points(:,2),3);
-        points_fit(:,2) = points(:,2) - polyval(p,points(:,1));
-        points_fit(:,2) = points_fit(:,2) - mean(points_fit(:,2));
-
-        xcoords{kImgSmall,1} = points(:,1);
+        xcoords{kImgSmall,1} = points_fit(:,1);
         ycoords{kImgSmall,1} = points_fit(:,2);
 
         %}
