@@ -44,7 +44,7 @@ Y_VIEW = [-1 1];   % 表示するAmplitudeの範囲
 
 % 図のサイズ[cm]とフォントサイズ[pt]（スライド用の標準値）
 % 波形表示figure、スペクトログラム表示figureの大きさ
-FIG_W = [8.5, 8] ; FIG_H = [6, 10];
+FIG_W = [8.2, 8] ; FIG_H = [6, 10];
 FONT_TICK = 14; FONT_LABEL = 16;
 
 %% 音声データを読み込む
@@ -146,8 +146,8 @@ for k = 1:numel(audioCell)
     ylim(ax,F_VIEW); clim(ax,C_VIEW);
 
     ax.YAxis.Exponent = 3;
-    % yticks(ax,F_VIEW(1):1e3:F_VIEW(2));
-    yticks(ax,F_VIEW(1):5e3:F_VIEW(2)); % F_VIEWが20kHzまでのとき
+    yticks(ax,F_VIEW(1):1e3:F_VIEW(2));
+    % yticks(ax,F_VIEW(1):5e3:F_VIEW(2)); % F_VIEWが20kHzまでのとき
     xticks(ax,0:T_STEP:max(xlim(ax)));
     ax.TickLabelInterpreter = "latex";
     box(ax,"on");
