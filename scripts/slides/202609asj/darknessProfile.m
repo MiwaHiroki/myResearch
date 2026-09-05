@@ -1,12 +1,16 @@
 % darknessProfile.m (スライド用)
 % 音響学会2026年9月 スライド用
-% scripts/paper/202609asj/fig2_darknessProfile.mをもとに、以下の3枚を
+% scripts/paper/202609asj/fig2_darknessProfile.mをもとに、以下の5枚を
 % 1図1ファイルのpngとして書き出す
-%   1. darknessProfile_column        - 画像 + x=X_Cの位置を示す縦線
-%   2. darknessProfile_profile       - 元スクリプトfig2-1相当（x=X_Cの暗度断面）
-%                                       今回のみカラーバーを表示する
-%   3. darknessProfile_grooveBtmRange - 元スクリプトfig2-2相当（全列の溝底区間を
-%                                       赤点・黄点で表示）
+%   1. darknessProfile_column          - 画像 + x=X_Cの位置を示す縦線
+%   2. darknessProfile_profile         - 元スクリプトfig2-1相当（x=X_Cの暗度断面）
+%                                         今回のみカラーバーを表示する
+%   3. darknessProfile_grooveBtmRange  - 元スクリプトfig2-2相当（全列の溝底区間を
+%                                         赤点・黄点で表示）
+%   4. darknessProfile_profile_localMax - 2と同じ断面に、最大値法による
+%                                          溝底検出位置をxlineで重ねたもの
+%   5. darknessProfile_profile_centroid - 2と同じ断面に、重心法による
+%                                          溝底検出位置をxlineで重ねたもの
 % スライド用の図の様式はmemory: slide-figure-size / slide-figure-dirs を参照
 % （タイトル無し、pngのみ保存）。ただし図の大きさは今回に限り8cm×8cm（[[slide-figure-size]]
 % の標準12cm×8cmではなく、正方形画像に合わせて3図とも揃える）。
@@ -35,6 +39,8 @@ MARKER_SIZE = 15;
 
 % 1の縦線の色と2のプロット線の色をこの値で揃える（既定の1本目の線色）
 LINE_COLOR = [0 0.4470 0.7410];
+% 4,5で検出位置のxlineに使う色（明るめの緑。D曲線の青・start赤・end黄と被らない）
+DETECTED_COLOR = [0.3 0.8 0.3];
 
 % 図のサイズ[cm]とフォントサイズ[pt]。大きさは今回に限り3図とも8cm×8cmにする
 FIG_W = 8; FIG_H = 8;
@@ -137,6 +143,52 @@ c.Layout.Tile = "east";
 c.FontSize = FONT_TICK;
 
 saveSlideFigure(fig,saveDir,"darknessProfile_profile",FIG_W_PROFILE,FIG_H);
+
+%% 描画2-1,2-2: 2と同じ断面に、検出手法ごとの溝底推定位置をxlineで重ねる
+% extractorはループで全列分のstartIdxCells/endIdxCellsを保持しているので、
+% ループ後でもX_C列に対してextractByLocalMax/extractByCentroidを呼べる
+localMaxY = extractor.extractByLocalMax(origD,X_C);
+centroidY = extractor.extractByCentroid(origD,X_C);
+
+detectMethods = struct( ...
+    "suffix",     {"localMax",  "centroid"}, ...
+    "detectedY",  {localMaxY,   centroidY}, ...
+    "legendName", {"local max", "centroid"});
+
+for m = 1:numel(detectMethods)
+    fig = createFigure([0 0 FIG_W_PROFILE FIG_H]);
+    t = tiledlayout(fig,1,1,"Padding","tight");
+    ax = nexttile(t); % plotDarknessColumnはgcaに描くのでnexttileを先に呼ぶ
+
+    p = origD.plotDarknessColumn(X_C,ShowTitle=false,ShowColorbar=false,ShowLineMarker=true,MarkerSize=MARKER_SIZE);
+    p.Color = LINE_COLOR; % 1の縦線と色を揃える
+    hold(ax,"on");
+    yline(ax,D_TH,"-","LineWidth",0.5,"Color","k");
+    scatter(ax,sY,origD.dMat(sIdxBtm_C,X_C),MARKER_SIZE+10,"red","filled","o");
+    scatter(ax,eY,origD.dMat(eIdxBtm_C,X_C),MARKER_SIZE+10,"yellow","filled","o","MarkerEdgeColor","k");
+    xline(ax,detectMethods(m).detectedY,"-","LineWidth",1.5,"Color",DETECTED_COLOR);
+    hold(ax,"off");
+
+    xlim(ax,Y_VIEW);
+    lgd = legend(ax,["$D$","$D_\mathrm{th}$","start","end",detectMethods(m).legendName],Location="southwest");
+    lgd.FontSize = FONT_TICK;
+    lgd.ItemTokenSize = [10 10]; % 凡例のマーカー部分を詰める
+    legend(ax,"boxoff");
+
+    ax.FontSize = FONT_TICK;
+    ax.LabelFontSizeMultiplier = 1;
+    ax.XLabel.FontSize = FONT_LABEL;
+    ax.YLabel.FontSize = FONT_LABEL;
+
+    % カラーバー: 2と同様に今回のみ表示する
+    colormap(ax,flip(gray));
+    clim(ax,[0 1]);
+    c = colorbar(ax);
+    c.Layout.Tile = "east";
+    c.FontSize = FONT_TICK;
+
+    saveSlideFigure(fig,saveDir,"darknessProfile_profile_"+detectMethods(m).suffix,FIG_W_PROFILE,FIG_H);
+end
 
 %% 描画3(fig2-2相当): 画像上に全列の溝底区間の始点・終点を表示
 fig = createFigure([0 0 FIG_W FIG_H]);
