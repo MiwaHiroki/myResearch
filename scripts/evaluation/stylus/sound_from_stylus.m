@@ -8,7 +8,7 @@ setDefaultIntrpr();
 proj = currentProject();
 
 % フル尺
-[y_ori,fs_stylus] = audioread(proj.RootFolder+"\data\stylus playback\Audio 1_01.wav");
+[y_ori,fs_stylus] = audioread(proj.RootFolder+"\data\stylus_playback\Audio 1_01.wav");
 
 % 「畢竟するに、砂上の楼閣に」
 % [y,fs_stylus] = audioread("./audio files/Audio 1_01_01.wav");
@@ -24,11 +24,11 @@ proj = currentProject();
 tlim = [65,88];
 y_tri = y_ori(tlim(1)*fs_stylus:tlim(2)*fs_stylus);
 StylusPlayback = AudioData("StylusPlayback(1sentence)",y_tri,fs_stylus);
-StylusPlayback.saveAudio(proj.RootFolder+"\data\stylus playback\")
+StylusPlayback.saveAudio(proj.RootFolder+"\data\stylus_playback\")
 
 %%
 % 「クレムリン宮殿は」の「wa」だけ解析、保存する
-date = "0710";
+date = "stylus";
 dir = mkdirFromDate(proj.RootFolder,date);
 
 tlim2 = [16.1,16.9];
