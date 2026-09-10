@@ -16,8 +16,11 @@ end
 %% パラメータ
 % 読み込む音声
 STYLUS_NAME = "stylus"; % 表示・ログ用の名前
+STYLUS_NAME_AMPLIFY = "stylus_amplify"; % 表示・ログ用の名前
 STYLUS_FILENAME = "StylusPlayback(wa)(highpass)" + ".wav"; % 読み込むファイルの名前
 stylusDir = fullfile(proj.RootFolder, "data", "stylus_playback", STYLUS_FILENAME);
+
+STYLUS_AMPLIFY = 2;
 
 % 読み込む音声のサンプリング周波数は44.1kHz
 % --> だいたいorigDから作成した音声のサンプリング周波数に近いので窓も同じ長さで
@@ -37,9 +40,14 @@ FONT_TICK = 14; FONT_LABEL = 16;
 
 %% 音声データを読み込む
 [y, fs] = audioread(stylusDir);
-audio = AudioData(STYLUS_NAME, y, fs);
-% どの音声を読んだかを残す（保存時に手法を取り違えていないかの確認用）
+y_amplify = y*STYLUS_AMPLIFY;
 
+
+% audio = AudioData(STYLUS_NAME_AMPLIFY, y_amplify, fs);
+% fprintf("%s: name=""%s"", fs=%d Hz\n", ...
+%     STYLUS_NAME_AMPLIFY, STYLUS_FILENAME, fs);
+
+audio = AudioData(STYLUS_NAME, y, fs);
 fprintf("%s: name=""%s"", fs=%d Hz\n", ...
     STYLUS_NAME, STYLUS_FILENAME, fs);
 
