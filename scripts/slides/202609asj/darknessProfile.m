@@ -34,6 +34,7 @@ W_TH = 8;   % 溝底とみなす区間幅の上限[px]
 
 X_C = 1;         % 暗度分布を見る列（元スクリプトのX_C=30から変更）
 Y_VIEW = [1 30]; % 表示するyの範囲
+Y_VIEW_ZOOM = [11 20]; % 描画2-1,2-2で表示するyの範囲（start~endが最重要のため拡大）
 
 MARKER_SIZE = 15;
 
@@ -169,7 +170,7 @@ for m = 1:numel(detectMethods)
     xline(ax,detectMethods(m).detectedY,"-","LineWidth",1.5,"Color",DETECTED_COLOR);
     hold(ax,"off");
 
-    xlim(ax,Y_VIEW);
+    xlim(ax,Y_VIEW_ZOOM);
     lgd = legend(ax,["$D$","$D_\mathrm{th}$","start","end",detectMethods(m).legendName],Location="southwest");
     lgd.FontSize = FONT_TICK;
     lgd.ItemTokenSize = [10 10]; % 凡例のマーカー部分を詰める
@@ -182,12 +183,12 @@ for m = 1:numel(detectMethods)
 
     % カラーバー: 2と同様に今回のみ表示する
     colormap(ax,flip(gray));
-    clim(ax,[0 1]);
+    % clim(ax,[0 1]);
     c = colorbar(ax);
     c.Layout.Tile = "east";
     c.FontSize = FONT_TICK;
 
-    saveSlideFigure(fig,saveDir,"darknessProfile_profile_"+detectMethods(m).suffix,FIG_W_PROFILE,FIG_H);
+    % saveSlideFigure(fig,saveDir,"darknessProfile_profile_"+detectMethods(m).suffix,FIG_W_PROFILE,FIG_H);
 end
 
 %% 描画3(fig2-2相当): 画像上に全列の溝底区間の始点・終点を表示
