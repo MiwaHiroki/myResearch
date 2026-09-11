@@ -1,4 +1,4 @@
-% fig6_spectrogramUpsampling.m (スライド用)
+% spectrogramUpsampling.m (スライド用)
 % 音響学会2026年9月 スライド用
 % scripts/paper/202609asj/fig6_spectrogramUpsampling.mと同じデータ
 % (従来法・rsmplD・intpD、いずれも重心法)を使い、各音声の波形とスペクトログラムを
@@ -24,7 +24,7 @@ DATE = "0731";
 UPSAMPLINGS = ["rsmplD","intpD"];
 METHOD = "centroid"; % 溝底抽出の手法は固定して高解像度化だけを比べる
 
-CONV_DATE = "0731";
+CONV_DATE = "0802";
 CONV_MAT = fullfile(proj.RootFolder,"experiments",CONV_DATE, ...
     "cycleResult_origD_"+CONV_DATE+".mat");
 CONV_METHOD = "centroid";
@@ -35,8 +35,8 @@ CONV_NAME = "conventional"; % 表示・ログ用の名前
 % 窓が覆う時間と周波数分解能がずれるので、fsに比例させて時間長を揃える
 WIN_SIZE_REF = 1024; % rsmplDのfsに対する窓長[サンプル]
 
-% F_VIEW = [0 5e3];  % 表示する周波数の範囲[Hz]
-F_VIEW = [0 2e4];  % 20kHzまで表示する場合
+F_VIEW = [0 5e3];  % 表示する周波数の範囲[Hz]
+% F_VIEW = [0 2e4];  % 20kHzまで表示する場合
 C_VIEW = [-120 0]; % 表示するレベルの範囲[dB]
 C_STEP = 30;       % カラーバーの目盛り間隔[dB]
 T_STEP = 0.2;      % 時間軸の目盛り間隔[s]
@@ -44,7 +44,7 @@ Y_VIEW = [-1 1];   % 表示するAmplitudeの範囲
 
 % 図のサイズ[cm]とフォントサイズ[pt]（スライド用の標準値）
 % 波形表示figure、スペクトログラム表示figureの大きさ
-FIG_W = [9, 8] ; FIG_H = [6, 10];
+FIG_W = [8.2, 8] ; FIG_H = [6, 10];
 FONT_TICK = 14; FONT_LABEL = 16;
 
 %% 音声データを読み込む
@@ -130,6 +130,7 @@ for k = 1:numel(audioCell)
     ax.XLabel.FontSize = FONT_LABEL;
     ax.YLabel.FontSize = FONT_LABEL;
 
+    tightenAxes(ax);
     saveSlideFigure(fig,saveDir,name+"_waveform",FIG_W(1),FIG_H(1));
 
     % スペクトログラム（カラーバーは図ごとに必須）
@@ -145,8 +146,8 @@ for k = 1:numel(audioCell)
     ylim(ax,F_VIEW); clim(ax,C_VIEW);
 
     ax.YAxis.Exponent = 3;
-    % yticks(ax,F_VIEW(1):1e3:F_VIEW(2));
-    yticks(ax,F_VIEW(1):5e3:F_VIEW(2)); % F_VIEWが20kHzまでのとき
+    yticks(ax,F_VIEW(1):1e3:F_VIEW(2));
+    % yticks(ax,F_VIEW(1):5e3:F_VIEW(2)); % F_VIEWが20kHzまでのとき
     xticks(ax,0:T_STEP:max(xlim(ax)));
     ax.TickLabelInterpreter = "latex";
     box(ax,"on");
@@ -165,6 +166,6 @@ for k = 1:numel(audioCell)
     % c.Label.Interpreter = "latex";
     % c.Label.FontSize = FONT_LABEL;
 
-    % saveSlideFigure(fig,saveDir,name+"_spectrogram_noColorbar",FIG_W(2),FIG_H(2));
-    saveSlideFigure(fig,saveDir,name+"_spectrogram_noColorbar_20kHz",FIG_W(2),FIG_H(2));
+    saveSlideFigure(fig,saveDir,name+"_spectrogram_noColorbar_5kHz",FIG_W(2),FIG_H(2));
+    % saveSlideFigure(fig,saveDir,name+"_spectrogram_noColorbar_20kHz",FIG_W(2),FIG_H(2));
 end

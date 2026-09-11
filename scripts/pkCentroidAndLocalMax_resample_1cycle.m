@@ -122,70 +122,18 @@ for iImg=1:NUM_IMAGES
         pks_max_cor = pksCorCell{2};
 
         BIN_WIDTH = 2; % BinWidth
-        [counts,edges] = histcounts(pks_cnt_cor(:,2),'BinWidth',BIN_WIDTH);
-        centers = edges(1:end-1) + diff(edges)/2; % ピークの中心
-
-        [~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST);
-
-        [~,idx_hist] = min(abs(p1(2) - centers(histPkLocs)));
-        groove1Center = centers(histPkLocs(idx_hist));
-
         TOL_DISTANCE = 4;
-        % そのピークの中心からTOL_DISTANCE(pixel)以内にあるy座標
-        y_min = groove1Center - TOL_DISTANCE;
-        y_max = groove1Center + TOL_DISTANCE;
 
-        % f=figure; barh(centers,counts);
-        % set(gca,'YDir','reverse','xAxisLocation','top');box on
-        % % xlim([0 1000]);ylim([0 1000]);xticks(0:200:1000);yticks(0:200:1000)
-        % hold on;
-        % yline(y_min);yline(y_max);
-        % hold off;
-
-        points = [(1:dValue.width)',NaN(dValue.width,1)];
-
-        idxs = (pks_cnt_cor(:,2) >= y_min) & (pks_cnt_cor(:,2)<=y_max);
-        points(pks_cnt_cor(idxs,1),2) = pks_cnt_cor(idxs,2);
-
-        % 形状抽出に失敗した点を埋める
-        % 波形表示時の各信号の長さを揃えるため
-        points(:,2) = fillmissing(points(:,2),"linear");
-
-        points_fit = points;
-
-        p = polyfit(points(:,1),points(:,2),3);
-        points_fit(:,2) = points(:,2) - polyval(p,points(:,1));
-        points_fit(:,2) = points_fit(:,2) - mean(points_fit(:,2));
+        points_fit = extractGrooveWaveform(pks_cnt_cor, p1(2), (1:dValue.nCols)', ...
+            BinWidth=BIN_WIDTH, MinPeakHeight=TH_HIST, Tolerance=TOL_DISTANCE);
 
         xcoords_cnt{n,1} = points_fit(:,1);
         ycoords_cnt{n,1} = points_fit(:,2);
 
-        [counts,edges] = histcounts(pks_max_cor(:,2),'BinWidth',BIN_WIDTH);
-        centers = edges(1:end-1) + diff(edges)/2; % ピークの中心
+        points_fit = extractGrooveWaveform(pks_max_cor, p1(2), (1:dValue.nCols)', ...
+            BinWidth=BIN_WIDTH, MinPeakHeight=TH_HIST, Tolerance=TOL_DISTANCE);
 
-        [~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST);
-
-        [~,idx_hist] = min(abs(p1(2) - centers(histPkLocs)));
-        groove1Center = centers(histPkLocs(idx_hist));
-
-        % そのピークの中心からtol(pixel)以内にあるy座標
-        y_min = groove1Center - TOL_DISTANCE;
-        y_max = groove1Center + TOL_DISTANCE;
-
-        points = [(1:dValue.width)',NaN(dValue.width,1)];
-
-        idxs = (pks_max_cor(:,2) >= y_min) & (pks_max_cor(:,2)<=y_max);
-        points(pks_max_cor(idxs,1),2) = pks_max_cor(idxs,2);
-
-        points(:,2) = fillmissing(points(:,2),"linear");
-
-        points_fit = points;
-
-        p = polyfit(points(:,1),points(:,2),3);
-        points_fit(:,2) = points(:,2) - polyval(p,points(:,1));
-        points_fit(:,2) = points_fit(:,2) - mean(points_fit(:,2));
-
-        xcoords_max{n,1} = points(:,1);
+        xcoords_max{n,1} = points_fit(:,1);
         ycoords_max{n,1} = points_fit(:,2);
 
         % save data to "~~~_full" class objects
@@ -388,69 +336,21 @@ for iImg=1:8
         pks_max_cor = pksCorCell{2};
 
         BIN_WIDTH = 2; % BinWidth
-        [counts,edges] = histcounts(pks_cnt_cor(:,2),'BinWidth',BIN_WIDTH);
-        centers = edges(1:end-1) + diff(edges)/2; % ピークの中心
-
-        [~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST);
-
-        [~,idx_hist] = min(abs(p1(2) - centers(histPkLocs)));
-        groove1Center = centers(histPkLocs(idx_hist));
-
         TOL_DISTANCE = 4;
-        % そのピークの中心からtol(pixel)以内にあるy座標
-        y_min = groove1Center - TOL_DISTANCE;
-        y_max = groove1Center + TOL_DISTANCE;
 
-        % f=figure; barh(centers,counts);
-        % set(gca,'YDir','reverse','xAxisLocation','top');box on
-        % % xlim([0 1000]);ylim([0 1000]);xticks(0:200:1000);yticks(0:200:1000)
-        % hold on;
-        % yline(y_min);yline(y_max);
-        % hold off;
+        points_fit = extractGrooveWaveform(pks_cnt_cor, p1(2), (1:dValue_r.nCols)', ...
+            BinWidth=BIN_WIDTH, MinPeakHeight=TH_HIST, Tolerance=TOL_DISTANCE);
 
-
-        points = [(1:dValue_r.width)',NaN(dValue_r.width,1)];
-
-        idxs = (pks_cnt_cor(:,2) >= y_min) & (pks_cnt_cor(:,2)<=y_max);
-        points(pks_cnt_cor(idxs,1),2) = pks_cnt_cor(idxs,2);
-
-        points(:,2) = fillmissing(points(:,2),"linear");
-
-        points_fit = points;
-
-        p = polyfit(points(:,1),points(:,2),3);
-        points_fit(:,2) = points(:,2) - polyval(p,points(:,1));
-        points_fit(:,2) = points_fit(:,2) - mean(points_fit(:,2));
-
-        xcoords_r_cnt{n,1} = points(:,1);
+        xcoords_r_cnt{n,1} = points_fit(:,1);
         ycoords_r_cnt{n,1} = points_fit(:,2);
 
-        [counts,edges] = histcounts(pks_max_cor(:,2),'BinWidth',BIN_WIDTH);
-        centers = edges(1:end-1) + diff(edges)/2; % ピークの中心
+        % 以前はここだけdValue.width（リサンプル前）を使うコピペミスがあったが、
+        % dResampleは列数を変えないため数値的には同じ結果だった。
+        % 自己文書化のためdValue_r.nColsに統一する（挙動は変わらない）。
+        points_fit = extractGrooveWaveform(pks_max_cor, p1(2), (1:dValue_r.nCols)', ...
+            BinWidth=BIN_WIDTH, MinPeakHeight=TH_HIST, Tolerance=TOL_DISTANCE);
 
-        [~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST);
-
-        [~,idx_hist] = min(abs(p1(2) - centers(histPkLocs)));
-        groove1Center = centers(histPkLocs(idx_hist));
-
-        % そのピークの中心からtol(pixel)以内にあるy座標
-        y_min = groove1Center - TOL_DISTANCE;
-        y_max = groove1Center + TOL_DISTANCE;
-
-        points = [(1:dValue.width)',NaN(dValue.width,1)];
-
-        idxs = (pks_max_cor(:,2) >= y_min) & (pks_max_cor(:,2)<=y_max);
-        points(pks_max_cor(idxs,1),2) = pks_max_cor(idxs,2);
-
-        points(:,2) = fillmissing(points(:,2),"linear");
-
-        points_fit = points;
-
-        p = polyfit(points(:,1),points(:,2),3);
-        points_fit(:,2) = points(:,2) - polyval(p,points(:,1));
-        points_fit(:,2) = points_fit(:,2) - mean(points_fit(:,2));
-
-        xcoords_r_max{n,1} = points(:,1);
+        xcoords_r_max{n,1} = points_fit(:,1);
         ycoords_r_max{n,1} = points_fit(:,2);
 
         % save data to "~_full" class objects

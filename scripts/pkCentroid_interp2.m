@@ -279,40 +279,10 @@ title("Peak Dots (centroid method)");
 pks_cnt_cor = pksCorCell{1};
 
 BIN_WIDTH = 2; % BinWidth
-[counts,edges] = histcounts(pks_cnt_cor(:,2),'BinWidth',BIN_WIDTH);
-centers = edges(1:end-1) + diff(edges)/2; % ピークの中心
-
-[~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST);
-
-[~,idx_hist] = min(abs(p1_cnt(2) - centers(histPkLocs)));
-groove1Center = centers(histPkLocs(idx_hist));
-
 TOL_DISTANCE = 4;
-% そのピークの中心からTOL_DISTANCE(pixel)以内にあるy座標
-y_min = groove1Center - TOL_DISTANCE;
-y_max = groove1Center + TOL_DISTANCE;
 
-% f=figure; barh(centers,counts);
-% set(gca,'YDir','reverse','xAxisLocation','top');box on
-% % xlim([0 1000]);ylim([0 1000]);xticks(0:200:1000);yticks(0:200:1000)
-% hold on;
-% yline(y_min);yline(y_max);
-% hold off;
-
-points = [(1:origD.nCols)',NaN(origD.nCols,1)];
-
-idxs = (pks_cnt_cor(:,2) >= y_min) & (pks_cnt_cor(:,2)<=y_max);
-points(pks_cnt_cor(idxs,1),2) = pks_cnt_cor(idxs,2);
-
-% 形状抽出に失敗した点を埋める
-% 波形表示時の各信号の長さを揃えるため
-points(:,2) = fillmissing(points(:,2),"linear");
-
-points_fit = points;
-
-p = polyfit(points(:,1),points(:,2),3);
-points_fit(:,2) = points(:,2) - polyval(p,points(:,1));
-points_fit(:,2) = points_fit(:,2) - mean(points_fit(:,2));
+points_fit = extractGrooveWaveform(pks_cnt_cor, p1_cnt(2), (1:origD.nCols)', ...
+    BinWidth=BIN_WIDTH, MinPeakHeight=TH_HIST, Tolerance=TOL_DISTANCE);
 
 points_orig = points_fit;
 
@@ -332,40 +302,10 @@ title("Peak Dots (centroid method)");
 pks_cnt_cor = pksCorCell{1};
 
 BIN_WIDTH = 2; % BinWidth
-[counts,edges] = histcounts(pks_cnt_cor(:,2),'BinWidth',BIN_WIDTH);
-centers = edges(1:end-1) + diff(edges)/2; % ピークの中心
-
-[~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST);
-
-[~,idx_hist] = min(abs(p1_cnt(2) - centers(histPkLocs)));
-groove1Center = centers(histPkLocs(idx_hist));
-
 TOL_DISTANCE = 4;
-% そのピークの中心からTOL_DISTANCE(pixel)以内にあるy座標
-y_min = groove1Center - TOL_DISTANCE;
-y_max = groove1Center + TOL_DISTANCE;
 
-% f=figure; barh(centers,counts);
-% set(gca,'YDir','reverse','xAxisLocation','top');box on
-% % xlim([0 1000]);ylim([0 1000]);xticks(0:200:1000);yticks(0:200:1000)
-% hold on;
-% yline(y_min);yline(y_max);
-% hold off;
-
-points = [(1:origD.nCols)',NaN(origD.nCols,1)];
-
-idxs = (pks_cnt_cor(:,2) >= y_min) & (pks_cnt_cor(:,2)<=y_max);
-points(pks_cnt_cor(idxs,1),2) = pks_cnt_cor(idxs,2);
-
-% 形状抽出に失敗した点を埋める
-% 波形表示時の各信号の長さを揃えるため
-points(:,2) = fillmissing(points(:,2),"linear");
-
-points_fit = points;
-
-p = polyfit(points(:,1),points(:,2),3);
-points_fit(:,2) = points(:,2) - polyval(p,points(:,1));
-points_fit(:,2) = points_fit(:,2) - mean(points_fit(:,2));
+points_fit = extractGrooveWaveform(pks_cnt_cor, p1_cnt(2), (1:rsmplD.nCols)', ...
+    BinWidth=BIN_WIDTH, MinPeakHeight=TH_HIST, Tolerance=TOL_DISTANCE);
 
 points_rsmpl = points_fit;
 
@@ -384,44 +324,13 @@ title("Peak Dots (centroid method)");
 pks_cnt_cor = pksCorCell{1};
 
 BIN_WIDTH = 2; % BinWidth
-[counts,edges] = histcounts(pks_cnt_cor(:,2),'BinWidth',BIN_WIDTH);
-centers = edges(1:end-1) + diff(edges)/2; % ピークの中心
-
-[~,histPkLocs] = findpeaks(counts,'MinPeakHeight',TH_HIST/step);
-
-[~,idx_hist] = min(abs(p1_cnt(2) - centers(histPkLocs)));
-groove1Center = centers(histPkLocs(idx_hist));
-
 TOL_DISTANCE = 4;
-% そのピークの中心からTOL_DISTANCE(pixel)以内にあるy座標
-y_min = groove1Center - TOL_DISTANCE;
-y_max = groove1Center + TOL_DISTANCE;
 
-% f=figure; barh(centers,counts);
-% set(gca,'YDir','reverse','xAxisLocation','top');box on
-% % xlim([0 1000]);ylim([0 1000]);xticks(0:200:1000);yticks(0:200:1000)
-% hold on;
-% yline(y_min);yline(y_max);
-% hold off;
-
-points = [(1:intpD.nCols)',NaN(intpD.nCols,1)];
-
-idxs = find((pks_cnt_cor(:,2) >= y_min) & (pks_cnt_cor(:,2)<=y_max));
-points(:,1) = pks_cnt_cor(idxs,1);
-points(:,2) = pks_cnt_cor(idxs,2);
-% idxs = (pks_cnt_cor(:,2) >= y_min) & (pks_cnt_cor(:,2)<=y_max);
-% points(pks_cnt_cor(idxs,1),2) = pks_cnt_cor(idxs,2);
-
-
-% 形状抽出に失敗した点を埋める
-% 波形表示時の各信号の長さを揃えるため
-% points(:,2) = fillmissing(points(:,2),"linear");
-
-points_fit = points;
-
-p = polyfit(points(:,1),points(:,2),3);
-points_fit(:,2) = points(:,2) - polyval(p,points(:,1));
-points_fit(:,2) = points_fit(:,2) - mean(points_fit(:,2));
+% extractGrooveWaveform()への移行によりismember対応のx座標マッチングと
+% fillmissingが常に行われるようになった（以前はfillmissingがコメントアウト
+% されていて分数刻みのx座標マッチングにもバグがあり、出力が変わる）。
+points_fit = extractGrooveWaveform(pks_cnt_cor, p1_cnt(2), (1:step:intpD.width)', ...
+    BinWidth=BIN_WIDTH, MinPeakHeight=TH_HIST/step, Tolerance=TOL_DISTANCE);
 
 points_intp = points_fit;
 
