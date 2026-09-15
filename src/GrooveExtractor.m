@@ -22,7 +22,12 @@ classdef GrooveExtractor
             firstIdx = find(map.diffTF(:,x)==1)+1;
             lastIdx = find(map.diffTF(:,x)==-1);
 
-            if isempty(firstIdx)
+            if isempty(firstIdx) && isempty(lastIdx)
+                % その列に閾値超えの区間が1つもない（例: ホコリ等で音溝が
+                % 完全に覆われた列）。firstIdx/lastIdxとも find() の返す
+                % 空列ベクトル(0x1)のまま返す。
+                return
+            elseif isempty(firstIdx)
                 lastIdx(:) = []; % 対応するfirstIdxのない先頭の立ち下がりを除外
             elseif isempty(lastIdx)
                 firstIdx(:) = []; % 対応するlastIdxのない末尾の立ち上がりを除外

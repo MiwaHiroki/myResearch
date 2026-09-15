@@ -64,5 +64,30 @@ classdef GrooveExtractorTest < matlab.unittest.TestCase
             % 3,4 行目とも最大値 0.9 なので、タイの平均 = 3.5 行目
             testCase.verifyEqual(maxY, 3.5);
         end
+
+        function testFindThresholdIntervalsWithNoThresholdCrossingReturnsEmpty(testCase)
+            % 列全体が閾値未満（例: ホコリで音溝が完全に覆われた列）でも
+            % firstIdx/lastIdxが不整合な空配列(0x1 と 0x0)にならないことを確認する回帰テスト
+            dcolBright = 0.1 * ones(6, 1); % 全行が閾値(0.5)未満で暗領域が1つも無い
+            img = 255 * (1 - repmat(dcolBright, 1, 3));
+            imgData = ImageData(img, [1; 1]);
+            dMap = DarknessMap(imgData).setDiffTF(0.5);
+            extractor = GrooveExtractor(dMap);
+
+            [firstIdx, lastIdx] = extractor.findThresholdIntervals(dMap, 1);
+            testCase.verifyEmpty(firstIdx);
+            testCase.verifyEmpty(lastIdx);
+
+            [obj, btmFirstIdx, btmLastIdx, numPeaks] = ...
+                extractor.findGrooveBottomIntervals(dMap, 1, firstIdx, lastIdx, 5);
+            testCase.verifyEqual(numPeaks, 0);
+            testCase.verifyEmpty(btmFirstIdx);
+            testCase.verifyEmpty(btmLastIdx);
+
+            centroidY = obj.extractByCentroid(dMap, 1);
+            maxY = obj.extractByLocalMax(dMap, 1);
+            testCase.verifyEmpty(centroidY);
+            testCase.verifyEmpty(maxY);
+        end
     end
 end
