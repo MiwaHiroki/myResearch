@@ -44,6 +44,21 @@ classdef ImageDataTest < matlab.unittest.TestCase
             testCase.verifyEqual(obj.width, 5, "width は列数と一致すべき");
         end
 
+        function testClearImageEmptiesImgButKeepsMetadata(testCase)
+            img = reshape(1:15, 3, 5);   % height=3, width=5
+            id  = [7; 9];
+            obj = ImageData(img, id);
+
+            newObj = obj.clearImage();
+
+            testCase.verifyEmpty(newObj.img, "clearImage 後は img が空であるべき");
+            testCase.verifyEqual(newObj.imgID, id, "imgID は保持されるべき");
+            testCase.verifyEqual(newObj.width, obj.width, "width は保持されるべき");
+            testCase.verifyEqual(newObj.height, obj.height, "height は保持されるべき");
+
+            testCase.verifyEqual(obj.img, img, "clearImage は元のオブジェクトを変更しないべき（値クラス）");
+        end
+
         function testShowImageDrawsImage(testCase)
             img = 100 * ones(4, 6);
             obj = ImageData(img, [1; 1]);

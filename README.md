@@ -32,7 +32,7 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 
 ### クラス
 
-- **`ImageData`**: 盤面画像（グレースケール行列）と幅・高さ・IDを保持。`showImage`（旧`showImg`。2026-08-19改名）で画像を表示。
+- **`ImageData`**: 盤面画像（グレースケール行列）と幅・高さ・IDを保持。`showImage`（旧`showImg`。2026-08-19改名）で画像を表示。`clearImage()`で`img`だけ破棄した軽量コピーを作れる（`cycleResult`保存時に使用。「1周分の実験結果の保存」参照）。
 - **`DarknessMap`**: 暗さ行列 `dMat` の保持・変換・表示を担うクラス。
   - `dResample(p,q)` / `dInterp(step,method)`: 解像度変換（リサンプル／内挿）
   - `setDiffTF(D_THRESH)`: しきい値超えの立ち上がり・立ち下がりを計算
@@ -140,12 +140,20 @@ figure; result.centroid.audio.plotSpectrogram(4096);
 | --- | --- |
 | `conditions` | 実験条件（`cycleConditions` の出力。定数・日付・保存先・高解像度化のパラメータ・画像ファイル名） |
 | `meta` | 実行日時・スクリプト名・MATLAB版・gitコミット・ルートフォルダ |
-| `allImg` | (TOTAL_SEGMENTS x 1) `ImageData` |
+| `allImg` | (TOTAL_SEGMENTS x 1) `ImageData`（`.img`は保存しない。下記参照） |
 | `centroid` / `localMax` | `.pts` (N x 1 `GroovePointCloud`)、`.xcoords`、`.ycoords`（各 N x 1 cell）、`.y_comb`、`.audio` (1x1 `AudioData`) |
 | `dValueFile` | `DarknessMap` を保存した.matのファイル名（未保存なら `""`） |
 | `grooveSelection` | `fitGroove` で選んだ点。`.p1`、`.p2` とも (TOTAL_SEGMENTS x 2)（渡さなかった場合は空の (0 x 2)） |
 
 `DarknessMap` の `dMat` は `origD` で約140MB、`rsmplD`(8x) で約1GB、`intpD`(step 0.25) で約2GBになるため、**既定では保存しない**。1セグメント分の `dMat` は `ginput` 無しで作り直せるので、通常は図の作成に不要。必要な場合は別ファイル（`..._dValue.mat`）に分けて保存する。
+
+`ImageData` の `img`（画素データ）も同じ理由（80セグメント分で数百MBになる）で`allImg`には**保存しない**（`imgID`/`width`/`height`は残る）。必要な撮影画像（`iImg`）だけ、元のPNGファイルから`reconstructImage(conditions,iImg)`で作り直せる。`allImg`をまとめて再構成すると再びメモリを圧迫するため、`iImg`単位（撮影1枚＝`NumSegments`セグメント分）で呼び出すこと。撮影画像ファイルがカレントフォルダに無い場合は`PhotoDir`オプションでフォルダを指定する。
+
+```matlab
+result = loadCycleResult(matPath);
+imgs = reconstructImage(result.conditions, 3);   % iImg=3 の全セグメント分
+imgData = imgs(jSegment);                        % 特定のセグメントだけ使う
+```
 
 ```matlab
 [matPath, dPath] = saveCycleResult(cond, allImg, res_cnt, ...

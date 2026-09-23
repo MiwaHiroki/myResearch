@@ -183,6 +183,11 @@ classdef CycleResultTest < matlab.unittest.TestCase
             testCase.verifyNumElements(result.allImg, testCase.N_SEG);
             testCase.verifyEqual(result.allImg(2).imgID, [1;2]);
 
+            % imgは保存しない（issue#17）。imgID/width/heightは残る
+            testCase.verifyEmpty(result.allImg(2).img);
+            testCase.verifyEqual(result.allImg(2).width, testCase.allImg(2).width);
+            testCase.verifyEqual(result.allImg(2).height, testCase.allImg(2).height);
+
             % 手法ごとにフィールドが分かれている
             testCase.verifyTrue(isfield(result, "centroid"));
             testCase.verifyTrue(isfield(result, "localMax"));
