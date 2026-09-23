@@ -38,6 +38,7 @@ An installed MATLAB is available through the `mcp__matlab__*` tools (static anal
 - Outputs go to `results/<date>/`, created via `mkdirFromDate(rootFolder, "MMDD")`.
 - `data/`, `results/`, and `CLAUDE.md` are gitignored; input images and generated output are not committed. Exception: `results/figures/slides/` (the スライド用の完成図表) is tracked so it can be shared across machines — `results/figures/paper/` and everything else under `results/` (date folders, etc.) stays ignored.
 - git操作（コミットメッセージ・ブランチ・PRのルール）は [`docs/git-rules.md`](docs/git-rules.md) を参照。
+- タスクはGitHub Issuesで管理している。issueを受け取ったら [`docs/issue-guide.md`](docs/issue-guide.md) の手順に従う（「未決事項」があれば着手前に確認）。ラベルごとのひな型は `.github/ISSUE_TEMPLATE/`。
 
 ## Architecture notes
 
