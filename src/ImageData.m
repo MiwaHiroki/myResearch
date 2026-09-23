@@ -1,6 +1,10 @@
 % ImageData class
 % 盤面画像（グレースケール行列）と幅・高さ・IDを保持する値クラス
 %
+% img（画素データ）はcycleResultには保存しない（issue#17）。clearImage()で
+% imgだけ破棄した軽量コピーが作れる。保存後にimgが必要な場合は
+% reconstructImage(conditions,iImg)で元の撮影画像から作り直す。
+%
 % AudioDataなど他のデータクラスからは派生させない。
 % 共通の抽象基底クラスだったMediaDataも誰にも継承されず孤立していたため
 % src/archive/へ退避した（rename-proposal.mdのP3、2026/08/07）。
@@ -22,6 +26,12 @@ classdef ImageData
                 imgData.width = size(img,2);
                 imgData.img = img;
             end
+        end
+
+        function newObj = clearImage(obj)
+            % img（画素データ）を破棄した軽量コピーを返す。imgID/width/heightは保持する。
+            newObj = obj;
+            newObj.img = [];
         end
 
         function showImage(varargin)

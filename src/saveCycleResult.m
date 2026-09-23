@@ -54,7 +54,8 @@ function [matPath, dValuePath] = saveCycleResult(conditions, allImg, methodResul
 % 保存される result の構成:
 %   result.conditions  実験条件（cycleConditions の出力）
 %   result.meta        実行日時・スクリプト名・MATLAB版・gitコミットなど
-%   result.allImg      (N x 1) ImageData
+%   result.allImg      (N x 1) ImageData（.imgは保存しない。imgIDは残るので
+%                      必要ならreconstructImageで元の撮影画像から作り直せる）
 %   result.centroid    重心法の結果。.pts (N x 1 GroovePointCloud),
 %                      .xcoords, .ycoords (N x 1 cell), .y_comb, .audio (1x1 AudioData)
 %   result.localMax    局所的最大値法の結果（渡した場合のみ）。音声を作っていない
@@ -65,7 +66,8 @@ function [matPath, dValuePath] = saveCycleResult(conditions, allImg, methodResul
 %
 % 読み込みは loadCycleResult を使う。
 %
-% 関連: cycleConditions, cycleMethodResult, cycleResultFileName, loadCycleResult
+% 関連: cycleConditions, cycleMethodResult, cycleResultFileName, loadCycleResult,
+%       reconstructImage
 
     arguments
         conditions (1,1) struct
@@ -170,10 +172,18 @@ function [matPath, dValuePath] = saveCycleResult(conditions, allImg, methodResul
     [matPath, base] = uniquePath(saveDir, fileName, opts.Overwrite);
 
     % --- result の組み立て ---
+    % allImg(k).img は保存しない（数百MBになるため。issue#17）。
+    % imgID/width/heightは残すので、必要ならreconstructImage(conditions,iImg)で
+    % 元の撮影画像から作り直せる。
+    allImgToSave = allImg;
+    for k = 1:numel(allImgToSave)
+        allImgToSave(k) = allImgToSave(k).clearImage();
+    end
+
     result = struct();
     result.conditions = conditions;
     result.meta       = collectMeta(conditions.scriptName);
-    result.allImg     = allImg;
+    result.allImg     = allImgToSave;
     for k = 1:numel(methodResults)
         result.(char(methodNames(k))) = rmfield(methodResults(k), "method");
     end
@@ -189,7 +199,8 @@ function [matPath, dValuePath] = saveCycleResult(conditions, allImg, methodResul
     end
 
     % --- 保存 ---
-    % ImageData や GroovePointCloud で数百MBになるため -v7.3（HDF5, 圧縮）で書く
+    % allImgのimgは既に落としているが、GroovePointCloud等でも数百MBになり得るため
+    % -v7.3（HDF5, 圧縮）で書く
     resultInfo = whos("result");
     fprintf("result を保存します（メモリ上で約 %s）: %s\n", ...
         formatBytes(resultInfo.bytes), matPath);
