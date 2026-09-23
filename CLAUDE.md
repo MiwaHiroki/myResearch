@@ -39,6 +39,7 @@ An installed MATLAB is available through the `mcp__matlab__*` tools (static anal
 - `data/`, `results/`, and `CLAUDE.md` are gitignored; input images and generated output are not committed. Exception: `results/figures/slides/` (the スライド用の完成図表) is tracked so it can be shared across machines — `results/figures/paper/` and everything else under `results/` (date folders, etc.) stays ignored.
 - git操作（コミットメッセージ・ブランチ・PRのルール）は [`docs/git-rules.md`](docs/git-rules.md) を参照。
 - タスクはGitHub Issuesで管理している。issueを受け取ったら [`docs/issue-guide.md`](docs/issue-guide.md) の手順に従う（「未決事項」があれば着手前に確認）。ラベルごとのひな型は `.github/ISSUE_TEMPLATE/`。
+- 進捗レポート（数週間に一度、Googleスライド化する前提のまとめ）は `docs/progress/` 配下で自動更新している。状態は `docs/progress/.state.json`（`current_file`/`next_report_date`/`last_commit`など）で管理し、スケジュールタスク`progress-report-daily`（毎日3時実行、詳細はアプリのスケジュールタスク管理から確認可能）がgitコミット履歴を元に追記する。**ユーザーから次回の進捗報告・打ち合わせ予定日を伝えられたら（Claudeから尋ねた場合に限らず、どのセッションでも）、`.state.json`の`next_report_date`を更新すること。** 進捗ファイルへの自動commitの扱いは [`docs/git-rules.md`](docs/git-rules.md) の例外規定を参照。
 
 ## Architecture notes
 
