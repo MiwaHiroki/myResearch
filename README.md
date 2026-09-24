@@ -181,3 +181,6 @@ result  = loadCycleResult(matPath);   % result.grooveSelection.p1/.p2 に入る
    ```
 3. `scripts/` 内の目的に合ったスクリプト（例: `pkCentroid_interp2_1cycle.m`）を実行します。処理途中で `fitGroove` により溝中心をマウス（`ginput`）で指定する操作が必要です。
 4. 生成された図・音声は `results/<日付>/` に、1周分の解析結果の`.mat`は `experiments/<日付>/` に保存されます。
+
+# 動作テスト用文章
+これはclaudeのルーティーンの動作テストのための文章です。何も意味はありません。
