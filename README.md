@@ -79,6 +79,7 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 - **`bilateral/bilateralOriResample_centroid.m`**: 上記のフィルタ後に暗度の1次元リサンプル（`dResample`）を行ってから重心法を適用する版。
 - **`bilateral/bilateralOriInterp2_centroid.m`**: 上記のフィルタ後に暗度の2次元内挿（`dInterp`、`step=0.125`・spline）を行ってから重心法を適用する版。
 - **`bilateral/bilateral8x_centroid.m`**: Photoshopで8xに高解像度化した画像(`*-8x.png`)の一部にバイラテラルフィルタをかけ、重心法の溝底点を表示する版（画像が大きいため元画像座標で指定した窓を切り出して処理する）。
+- **`bilateral/bilateralOri_centroid_1cycle.m`**: 高解像度化していない画像にバイラテラルフィルタ（カーネル3通り＋フィルタなし）をかけ、条件ごとに1周分の音声を重心法で作成して波形・FFT・スペクトログラムを比較する。溝の選択は過去の`cycleResult`の`grooveSelection`を再利用するので`ginput`は不要。動作確認用のため実験結果`.mat`は保存しない。
 - **`evaluation/stylus/sound_from_stylus.m`**: 針で再生した音源を切り出し・フィルタ処理し、復元音声と比較・評価する。
 
 ## 溝の選択（fitGroove）
