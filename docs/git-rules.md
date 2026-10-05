@@ -55,6 +55,20 @@ Ollama経由のgemma4など、Claude以外のツール・エージェントが�
 - Claudeが自律的に複数ファイル・複数ステップにまたがる変更を行う場合は、作業ブランチを切る。ユーザーがマージ前に差分をレビューできるようにするため。
 - ブランチ名は`claude/<内容を表す短い英語スラッグ>`とする（例: `claude/darkness-map-rename`）。既存の`feature/*`・`backup/*`と混在させず、Claude発の作業ブランチだと一目で分かるようにする。
 
+## worktreeでの並行作業
+
+複数のClaudeセッションを並行して走らせるときは、セッションごとにgit worktreeを使い、編集が衝突しないようにする。
+
+- **作り方**: デスクトップアプリでセッション開始時に「worktree」を選ぶ（CLIなら`claude --worktree <名前>`）。`.claude/worktrees/<名前>/`に作られ、`.claude/`ごとgitignore済み。分岐元はメインのチェックアウトの現在の`HEAD`（`.claude/settings.json`の`worktree.baseRef: "head"`。未pushのコミットも含めるため）。
+- **初期化は自動**: `core.hooksPath=.githooks`で有効化した`.githooks/post-checkout`が、worktree作成時に以下を行う（メインのチェックアウトでは何もしない）。
+  - `data/`・`experiments/`: メインへのジャンクションを張る。**中身はメインと共有**なので、worktree側で消すとメインからも消える。worktreeを削除してもリンクが消えるだけで、リンク先は残る（確認済み）。
+  - `.claude/settings.local.json`（許可設定）: メインからコピー（gitignoreされているため）。コピーなので、恒久的に直したい場合はメイン側を編集する。
+  - 失敗した・手動で`git worktree add`した場合は、worktree内で`sh .githooks/post-checkout`を実行すればやり直せる。別PCでは`git config core.hooksPath .githooks`を一度実行して有効化する。
+- **`results/`は共有しない**: worktreeの`results/`は独立。残したい出力はマージ前にメインへ移す。
+- **ブランチ**: worktreeのブランチもClaude発の作業ブランチとして扱い、下記「プルリクエスト運用」に従う。`master`はメインのチェックアウトが使っているため、worktree内で直接`master`にコミットはできない。
+- **MATLAB**: MATLABは1つを全セッションで共有している。テスト（`test/unit/`）は自分のファイル位置から`src/`を足すので、worktreeのテストファイルを絶対パスで`runtests`すればworktree側のコードで走る。`currentProject()`に依存する`scripts/`は開いているプロジェクトのルートを使うため、worktree側で実行する場合はそのworktreeの`Research.prj`を開く必要があり、他のセッションに影響する。同時に複数セッションからスクリプトを走らせない。
+- **後片付け**: 作業が終わったworktreeは、ブランチをマージ（またはPR化）してから`git worktree remove`で削除する。削除はユーザーの指示があってから行う。
+
 ## プルリクエスト運用
 
 - 作業ブランチでの変更が完了したらリモートへpushし、`gh pr create`でPRを作成する。push・PR作成はユーザーへの影響が及ぶ操作なので、実行前に一言確認してから行う（既存のグローバルルールの適用）。
