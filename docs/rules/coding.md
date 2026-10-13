@@ -21,6 +21,11 @@ Claude（メインセッション・サブエージェントとも）がMATLAB�
 - `arguments` ブロックで、型・サイズ・値を検証する。
 - name-value引数は `opts.Name` の形にし、既定値を書く。既定値が無い場合は、必須であることがコメントから分かるようにする。
 
+## エラーと警告
+
+- `error`・`warning` には識別子を付ける。形は `"<関数名>:<理由>"`（例: `findGrooveCenter:noPeaksFound`、`saveCycleResult:fileExists`）。理由はcamelCaseで短く書く。
+- テストでは、`verifyError`・`verifyWarning` でこの識別子を確かめる。
+
 ## コメント
 
 - 関数の先頭に日本語で、何をするかと、なぜそうするかを書く。
@@ -30,6 +35,17 @@ Claude（メインセッション・サブエージェントとも）がMATLAB�
 
 - パスは `currentProject().RootFolder` を基準に作る。絶対パスを直接書かない。
 - 高解像度化（`dResample`/`dInterp`）した後の行インデックスは、`(idx - 1) / scaleFactor.row + 1` で元の画像の座標に戻す。新しい検出方法を作るときも同じように戻す。
+
+## スクリプト
+
+既存のスクリプト（例: [`scripts/pkCentroid_1cycle.m`](../../scripts/pkCentroid_1cycle.m)）の書き方に合わせる。
+
+- 冒頭のコメントに、ファイル名、何をするか、作成日を書く。
+- `setDefaultIntrpr();` と `proj = currentProject();` から始める。
+- パラメータは冒頭にまとめる。名前は大文字のスネークケースにし、行末に意味と単位をコメントで書く。
+- 実行日 `date`、出力先（`mkdirFromDate`・`experimentDir`）、以前の結果を再現するためのパス（`PREV_RESULT_PATH`）も冒頭に置き、実行する人が書き換える場所を1か所にまとめる。
+- 繰り返し使う処理や、テストで確かめたい処理は `src/` の関数にする。スクリプトには手順とパラメータだけを置く。
+- 出力の上書きに注意する（[`data.md`](data.md) の「出力の上書き」）。
 
 ## テスト
 
@@ -43,6 +59,15 @@ Claude（メインセッション・サブエージェントとも）がMATLAB�
 
 - 書いた・変えた `.m` ファイルは、`checkcode`（`mcp__matlab__check_matlab_code`）で警告が出ないことを確かめる。
 - `cd test; results = runAllTests;` がすべて通ることを確かめる。
+
+## ドキュメント
+
+`README.md` は処理の流れ・`src/`・`scripts/` の説明の一次情報源なので、コードと一緒に更新する。
+
+- `src/` に関数・クラスを足したら、READMEの「`src/` の主なクラス・関数」に追記する。
+- `scripts/` にスクリプトを足したら、READMEの「`scripts/` の主なスクリプト」に追記する。
+- 処理の流れや保存形式を変えたら、READMEの該当する節（「処理の流れ」「1周分の実験結果の保存」など）も直す。
+- `CLAUDE.md` の「Architecture notes」がクラス構成や関数のつながりに触れている場合は、そこも直す。
 
 ## 触らないもの
 
