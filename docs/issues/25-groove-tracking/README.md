@@ -30,6 +30,10 @@
   - 実装担当が作った `experiments/1013/cycleResult_origD_track_1013.mat` は、コミット前のコードで作ったため `meta.gitDirty = true`。**評価（モードB）では、コミット後のコードで追跡の結果を別の日付で作り直して使う。** 1013のファイルは消さずに残す。
   - U1（追跡の経路の目視）：ユーザーが `results/1013/grooveTrack_img1〜8.png` を確認し、問題なし。評価スクリプトが作る重ね描きの図（`evalTrack_overlay_img*.png`）は、評価のときに改めて見る。
   - `CLAUDE.md` の Architecture notes に追跡の流れを1項目足した（main）。
+- 2026-10-13（評価の日付、ユーザーの決定）
+  - 評価（モードB）は **2026-10-14以降** に行い、保存の日付は**評価を実行する日（MMDD）**にする。手動選択の再現（`cycleResult_origD_<日付>.mat`）、作り直す追跡の結果（`cycleResult_origD_track_<日付>.mat`）、評価の図・表（`results/<日付>/evalTrack_*`）をすべてこの日付にする。
+  - 理由：今日（1013）実行すると、作り直す追跡の結果が1回目の実装の出力（`experiments/1013/cycleResult_origD_track_1013.mat`、`results/1013/` の追跡の図・wav）とぶつかるため。
+  - evaluatorへの依頼文は、評価の当日にメインが作る。
 
 ## ファイル一覧
 
@@ -39,3 +43,5 @@
 - [`plan.md`](./plan.md)：計画（planner、2026-10-13 承認）
 - [`criteria.md`](./criteria.md)：評価基準（evaluator モードA、2026-10-13 承認）。受け入れテストは `test/unit/GrooveTrackingAcceptanceTest.m`、評価スクリプトは `scripts/evaluation/grooveTracking/compareTrackingToManual.m`
 - [`impl-report-1.md`](./impl-report-1.md)：実装の報告 1回目（implementer、2026-10-13）
+- [`retrospective.md`](./retrospective.md)：試験運用の振り返り（main、中間版。評価の後に最終版にする）
+- [`follow-ups.md`](./follow-ups.md)：続きのissueの案と、作るタイミングのメモ（main）
