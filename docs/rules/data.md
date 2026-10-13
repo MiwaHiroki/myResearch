@@ -14,7 +14,7 @@ Claude（メインセッション・サブエージェントとも）がデー�
 ## 新しいファイル
 
 - `data/`・`experiments/` に新しいファイルを作るのは、タスク（issue）で指示された場合に限る。
-- cycleResultは `saveCycleResult(..., Overwrite=false)` で保存する（同名のファイルがあればエラーにする）。
+- cycleResultは `saveCycleResult(..., Overwrite=false)` で保存する。同名のファイルがあってもエラーにはならず、`_2` などを付けた別名で保存して警告（`saveCycleResult:fileExists`）を出す。既存のファイルは消えないが、意図しない別名のファイルができていないかを確かめる。
 - 図など、生データ以外の出力は `results/<日付>/`（`mkdirFromDate(rootFolder, "MMDD")`）に置く。
 
 ## worktree
