@@ -12,7 +12,7 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 4. `DarknessMap` の `setDiffTF` でしきい値 `D_THRESH` を超える領域の立ち上がり／立ち下がりを求め、`GrooveExtractor` で各xの溝底候補の区間（`findThresholdIntervals`）と幅の狭い溝底区間（`findGrooveBottomIntervals`）を特定する。
 5. `GrooveExtractor` の `extractByCentroid`（重心法）／`extractByLocalMax`（局所的最大値法）で溝底のy座標を求め、`GroovePointCloud` に格納する。
 6. `fitGroove` で選択した平行四辺形内の点群を直線近似し、溝の傾きを補正する（詳細は「溝の選択（fitGroove）」）。
-7. `findGrooveCenter` でヒストグラムのピークから追跡対象の溝1本を選び、`extractGrooveShape` でその中心付近（`Tolerance`／`TOL_DISTANCE`／`tol`）の点だけを抽出して欠損を `fillmissing` で補間し、`detrendGrooveShape` で多項式デトレンドする（3つをまとめて呼ぶ `extractGrooveWaveform` を使うのが基本）。
+7. `findGrooveCenter` でヒストグラムのピークから追跡対象の溝1本を選び、`extractGrooveShape` でその中心付近（`Tolerance`／`TOL_DISTANCE`／`tol`）の点だけを抽出して欠損を `fillmissing` で補間し、`detrendGrooveShape` で多項式デトレンドする（3つをまとめて呼ぶ `extractGrooveWaveform` を使うのが基本）。`grooveTrack_1cycle.m` では、6・7の代わりに写真1枚ごとに `mergeSegmentPoints` → `trackGroove` → `detrendTrackedShape` を使う（詳細は「溝の自動追跡（trackGroove）」）。
 8. 全セグメントの座標を連結し、回転数78rpmから標本化周波数を計算して `AudioData` を生成、波形・FFT・スペクトログラムを描画・保存し、wavに書き出す。
 9. `saveCycleResult` で実験条件と解析結果（`ImageData`／`GroovePointCloud`／`AudioData`／`y_comb` など）を `experiments/<日付>/` の `.mat` に保存する（詳細は「1周分の実験結果の保存」）。
 
@@ -54,6 +54,10 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 - **`extractGrooveShape`**: 溝の中心から`Tolerance`以内の点をx座標全域のNaN埋め配列に展開し、`fillmissing`で欠損を線形補間する（分数刻みの`xQuery`にも`ismember`で対応）
 - **`detrendGrooveShape`**: 点群のy座標に多項式（既定3次）をpolyfitして差し引き、平均を0にする
 - **`extractGrooveWaveform`**: 上記3つを`findGrooveCenter`→`extractGrooveShape`→`detrendGrooveShape`の順に呼び出す合成関数。`scripts/pkCentroid_resample.m`は疎な点群（fillmissing前）だけが必要なため`findGrooveCenter`のみを直接使う
+- **`mergeSegmentPoints`**: 写真1枚分（10セグメント）の`GroovePointCloud`の点群を、セグメントの幅の累積和だけxをずらして1つの`[x y]`に連結し、写真1枚分の`xQuery`と、セグメントごとの列の数`counts`・ずらし量`xOffsets`を返す（`QueryStep`で`intpD`の分数刻みの列も作れる）。詳細は「溝の自動追跡（trackGroove）」
+- **`trackGroove`**: 写真1枚分の点群から、クリック位置を通る溝1本を左右に1列ずつ逐次追跡し、`xQuery`全体のy座標（欠損は線形補間）、点を採れた列`found`、`info`を返す。`fitGroove`＋`extractGrooveShape`の代わり。詳細は「溝の自動追跡（trackGroove）」
+- **`detrendTrackedShape`**: 追跡した写真1枚分のy座標に多項式（既定9次）を`polyfit`の`[p,S,mu]`形式（xのセンタリング・スケーリング）であてはめて差し引き、平均を0にする。`detrendGrooveShape`の代わり（約4000列に高い次数をかけても警告が出ない）
+- **`trackingSeeds`**: cycleResultの`grooveSelection`から写真ごとの追跡の始点（8×2）を返す。新しい形式（`.seeds`）ならそれを、手動選択の古い形式（`.p1`が80×2）なら各写真の最初のセグメントの`p1`を返す
 - **`createFigure`**: サイズ指定でfigureを作成
 - **`soundCheck`**: 波形・FFT・スペクトログラムをまとめて描画・保存
 - **`mkdirFromDate`**: 図・音声の出力先 `results/<日付>/` を作成しパスを返す
@@ -71,6 +75,7 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 
 - **`pkCentroid_resample_1cycle.m`**: リサンプルしたデータに重心法を適用し、1周分の音声を生成する基本スクリプト。末尾で `saveCycleResult` により `cycleResult_rsmplD_<日付>.mat` を保存。
 - **`pkCentroid_interp2_1cycle.m`**: 上記を内挿（`dInterp`）ベースに置き換えた版。1周分の音声を生成し、`cycleResult_intpD_<日付>.mat` を保存。
+- **`grooveTrack_1cycle.m`**: 高解像度化していない画像で、写真1枚につき1回のクリックから溝1本を自動追跡し（`trackGroove`）、写真ごとに多項式デトレンド（`detrendTrackedShape`、9次）をかけて、重心法・局所的最大値法の1周分の音声を作る。`pkCentroid_1cycle.m`の`fitGroove`＋`extractGrooveWaveform`（1周80回の`ginput`）を置き換えたもの（1周8回）。`cycleResult_origD_track_<日付>.mat`を保存する。`PREV_RESULT_PATH`に以前の結果.matを指定すると、保存したクリック位置（または手動選択の`p1`）で`ginput`なしに再現する。`date`は`"MMDD"`のままだとエラーで止まるので、実行日に書き換える。詳細は「溝の自動追跡（trackGroove）」
 - **`pkCentroidAndLocalMax_resample_1cycle.m`**: 重心法と局所的最大値法、リサンプルの有無（計4パターン）で1周分の音声を作り比較。移動平均・移動中央値による平滑化や針再生との比較も含む。
 - **`pkCentroid_resample.m`**: 画像1枚（1セグメント）について、リサンプルの有無×2手法の溝底検出結果を比較する検討用スクリプト。
 - **`pkCentroid_interp2.m`**: 画像1枚について、元データ・リサンプル・内挿の溝底検出結果を比較する検討用スクリプト。
@@ -102,6 +107,45 @@ prev = loadCycleResult(prevMatPath);
 ```
 
 1溝で複数検出された点を平均してから処理する旧版（`fitGroove_multiPeaks`）は現行の`fitGroove`には統合されておらず、`src/archive/fitGroove_multiPeaks.m`に参照用として残置している。
+
+## 溝の自動追跡（trackGroove）
+
+`fitGroove`はセグメントごとに平行四辺形を選ぶので、1周で80回の`ginput`が要る。`scripts/grooveTrack_1cycle.m`では、処理の流れの6・7（`fitGroove`→`findGrooveCenter`→`extractGrooveShape`→`detrendGrooveShape`）を、写真1枚（10セグメント）ごとに次の手順で置き換え、クリックを1周8回に減らしている（issue #25）。
+
+1. `mergeSegmentPoints`で、写真1枚分の点群を横につなぐ（セグメントjの点のxに、それより左のセグメントの幅の合計を足す）。
+2. 写真1枚分の画像の左端付近で、追跡する溝を1回クリックする（または保存した`seeds`を使う）。
+3. `trackGroove`で、クリック位置から左右に1列ずつ追跡する。重心法と局所的最大値法は、同じクリック位置から別々に追跡する。
+4. `detrendTrackedShape`で写真ごとに多項式デトレンドし（既定9次、平均0）、`counts`でセグメントごとに分け直して、既存と同じ形の`ycoords`（80×1 cell）にする。写真どうしは、既存と同じく平均0にしたものをそのまま連結する。
+
+`trackGroove(pks,seed,xQuery,opts)`の追跡のしかた：
+
+- **初期化**：始点の列から右へ`InitLength`未満の列で、クリックのyに最も近い点（`SnapRadius`以内）を集め、その中央値を始点のyにする。クリックが少しずれても同じ溝から始まる。1点も無ければ`trackGroove:seedNotFound`でエラー。
+- **追跡**：各列で、最後に採った点からx方向に`FitLength`未満の採用点に直線をあてはめて（5点未満なら最後の点のy）その列のyを予測し、予測から`Tolerance`以内で最も近い点を採る。窓の基準を「今の列」ではなく「最後に採った点」にしているので、`FitLength`より長い欠損の後でも、欠損の前の点で予測を続けられる。
+- **欠損**：採れなかった列は`found=false`にし、`fillmissing(y,"linear")`で補間する。連続した欠損の長さ（欠損した列の数×列の間隔`median(diff(xQuery))`）が`MaxGapLength`を超えると`trackGroove:longGap`の警告を出す。
+
+| 引数 | 既定値 | 意味 |
+| --- | --- | --- |
+| `Tolerance` | 2 | 予測位置から採る点までの最大距離（y方向）[px] |
+| `FitLength` | 60 | 予測の直線あてはめに使う範囲（最後に採った点から）[px] |
+| `SnapRadius` | 10 | 初期化でクリックのyから探す範囲 [px] |
+| `InitLength` | 20 | 初期化に使う範囲（始点の列から右へ）[px] |
+| `MaxGapLength` | 40 | これより長く欠損が続いたら警告する [px] |
+
+**長さの引数はすべて元の画像のpxで指定する**（列の数ではない）。点群`[x y]`は高解像度化の有無によらず元の画像のpxで表されているので、`intpD`（`dInterp`で列の間隔が`step` pxになる）でも同じ値が溝に沿った同じ長さを表す。`mergeSegmentPoints`の`QueryStep`に`dInterp`の`step`を渡せば、`intpD`の列の並び（セグメントの中は`step`刻み、境目は1px）の`xQuery`が作れる。今の`grooveTrack_1cycle.m`は高解像度化なし（`QUERY_STEP = 1`）だけを扱う。
+
+```matlab
+ks = (iImg-1)*NUM_SEGMENTS + (1:NUM_SEGMENTS);
+[pksCnt, xQuery, counts] = mergeSegmentPoints(allPts_cnt(ks), QueryStep=QUERY_STEP);
+[ptsCnt, foundCnt, infoCnt] = trackGroove(pksCnt, seed, xQuery, FitLength=60);
+detCnt = detrendTrackedShape(ptsCnt, PolyDegree=9);
+ycoords_cnt(ks) = mat2cell(detCnt(:,2), counts);
+
+% 保存したクリック位置で再現する（新しい形式の seeds、または手動選択の p1）
+prev  = loadCycleResult(prevMatPath);
+seeds = trackingSeeds(prev.grooveSelection, NUM_SEGMENTS);   % (8 x 2)
+```
+
+結果は`saveCycleResult(..., GrooveSelection=gs, FileName="cycleResult_origD_track_"+date)`で`experiments/<日付>/cycleResult_origD_track_<日付>.mat`に保存する（同じ日に手動選択の`cycleResult_origD_<日付>.mat`を作っても重ならない）。`centroid`/`localMax`の形は既存と同じなので、`ycoords`・`y_comb`・`audio`を読む比較スクリプトはそのまま使える。`grooveSelection`に足すフィールドは「1周分の実験結果の保存」の表を参照。読み込むときは`cycleResultPath`が`_track`に対応していないので、`fullfile(experimentDir(root,date,Create=false),"cycleResult_origD_track_"+date+".mat")`でパスを作る。追跡で使わない`cycleConditions`の必須の引数（`ThHist`・`BinWidth`・`HPrl`・`Tol`）は`NaN`になっている。
 
 ## 1周分の実験結果の保存
 
@@ -144,7 +188,7 @@ figure; result.centroid.audio.plotSpectrogram(4096);
 | `allImg` | (TOTAL_SEGMENTS x 1) `ImageData`（`.img`は保存しない。下記参照） |
 | `centroid` / `localMax` | `.pts` (N x 1 `GroovePointCloud`)、`.xcoords`、`.ycoords`（各 N x 1 cell）、`.y_comb`、`.audio` (1x1 `AudioData`) |
 | `dValueFile` | `DarknessMap` を保存した.matのファイル名（未保存なら `""`） |
-| `grooveSelection` | `fitGroove` で選んだ点。`.p1`、`.p2` とも (TOTAL_SEGMENTS x 2)（渡さなかった場合は空の (0 x 2)） |
+| `grooveSelection` | `fitGroove` で選んだ点。`.p1`、`.p2` とも (TOTAL_SEGMENTS x 2)（渡さなかった場合は空の (0 x 2)）。自動追跡（`grooveTrack_1cycle.m`）の結果では、`.p1`/`.p2` は追跡した重心法の経路（補間済み・デトレンド前）の各セグメントの左端・右端の点で、さらに `.method`（`"tracking"`。無ければ手動選択）、`.seeds`（8×2、写真ごとのクリック位置。xは写真1枚分を連結した座標）、`.tracking`（追跡のパラメータ `tolerance`・`fitLength`・`snapRadius`・`initLength`・`maxGapLength`・`minFitPoints`・`queryStep`・`polyDegree`・`detrendScope`・`ampDivisor`（長さは元の画像のpx）と、写真ごとのデトレンド前のy座標 `yAbsCnt`/`yAbsMax`・点を採れた列 `foundCnt`/`foundMax`（8×1 cell））を持つ |
 
 `DarknessMap` の `dMat` は `origD` で約140MB、`rsmplD`(8x) で約1GB、`intpD`(step 0.25) で約2GBになるため、**既定では保存しない**。1セグメント分の `dMat` は `ginput` 無しで作り直せるので、通常は図の作成に不要。必要な場合は別ファイル（`..._dValue.mat`）に分けて保存する。
 
