@@ -32,6 +32,7 @@ An installed MATLAB is available through the `mcp__matlab__*` tools (static anal
   - [`docs/rules/coding.md`](docs/rules/coding.md): プログラムの書き方（命名、構造、引数、コメント、テスト、確認）
   - [`docs/rules/data.md`](docs/rules/data.md): 生データ（`data/`・`experiments/` 配下のすべてのファイル）の扱い、MATLABの実行
   - [`docs/rules/communication.md`](docs/rules/communication.md): ユーザーへの質問の仕方、受け渡しファイル、報告の書き方
+  - [`docs/rules/evaluation.md`](docs/rules/evaluation.md): 手法の評価の方法（溝形状の比べ方、正解の考え方、合格基準、受け入れテスト・評価スクリプトの置き場所）
 - **Open `Research.prj` first.** Scripts assume the MATLAB project is loaded and resolve paths from the project root:
   ```matlab
   proj = currentProject();

@@ -33,7 +33,7 @@ Claude（メインセッション・サブエージェントとも）がMATLAB�
 
 ## テスト
 
-- `test/unit/<名前>Test.m` に、`matlab.unittest` のクラスとして書く。
+- `test/unit/<名前>Test.m` に、`matlab.unittest` のクラスとして書く。受け入れテスト（`<名前>AcceptanceTest.m`）の扱いは [`evaluation.md`](evaluation.md) を参照。
 - 合成データを使い、実画像や `data/`・`experiments/` は読まない。
 - `TestClassSetup` で、`PathFixture` を使って `src/` をパスに追加する。
 - 図は `figure('Visible','off')` で作り、`addTeardown` で閉じる。
