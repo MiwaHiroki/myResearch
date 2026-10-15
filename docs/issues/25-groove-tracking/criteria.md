@@ -3,6 +3,7 @@
 - 作成日: 2026-10-13
 - 入力: issue #25（本文とコメント）、[`./plan.md`](./plan.md)（承認済み）、[`./README.md`](./README.md)
 - 状態: 承認済み（2026-10-13、ユーザー。Q-a・Q-bは推奨案で決定、5章）
+- 修正: 2026-10-15（main、ユーザー承認）。E6b・E6c・7章の差分の基準を `e1633aa` から `6e0adea`（受け入れテストを追加したコミット）に直した。`e1633aa` を基準にすると受け入れテストの追加そのものが差分に出るため（評価レポート1回目の指摘）。判定は変わらない。
 
 # #25 写真1枚の範囲で1本の溝を自動追跡する — 評価基準
 
@@ -107,8 +108,8 @@
 | E5e | 保存した `pts`・`seeds`・`tracking` のパラメータだけで `mergeSegmentPoints`→`trackGroove` を再実行した結果が、`tracking.yAbs*`・`found*` と同じ（両手法） | yの誤差 ≤ 1e-9、`found` の不一致 0列 | 要求「次回は ginput なしで再現できる」。experiments/ に新しいファイルを作らずに確かめる | 評価スクリプト |
 | **E6 触らないもの** | | | | |
 | E6a | 既存の cycleResult が変わっていない | SHA-256 が下の値と同じ | issue の制約、`docs/rules/data.md` | `sha256sum experiments/0731/*.mat` |
-| E6b | 変えてはいけないファイルの差分（`e1633aa` からの `git diff`）：`src/fitGroove.m`・`extractGrooveShape.m`・`detrendGrooveShape.m`・`extractGrooveWaveform.m`・`findGrooveCenter.m`・`loadCycleResult.m`・`cycleConditions.m`・`cycleMethodResult.m`・`DarknessMap.m`・`GrooveExtractor.m`・`GroovePointCloud.m`、既存の `scripts/`、`archive/` の下、`test/unit/GrooveTrackingAcceptanceTest.m` | 差分なし | issue の制約、plan.md 4.3 | `git diff e1633aa -- <ファイル>` |
-| E6c | `src/saveCycleResult.m` の差分 | コメント行だけ | plan.md 4.3（ヘルプの追記だけ） | `git diff e1633aa -- src/saveCycleResult.m` |
+| E6b | 変えてはいけないファイルの差分（`6e0adea` からの `git diff`）：`src/fitGroove.m`・`extractGrooveShape.m`・`detrendGrooveShape.m`・`extractGrooveWaveform.m`・`findGrooveCenter.m`・`loadCycleResult.m`・`cycleConditions.m`・`cycleMethodResult.m`・`DarknessMap.m`・`GrooveExtractor.m`・`GroovePointCloud.m`、既存の `scripts/`、`archive/` の下、`test/unit/GrooveTrackingAcceptanceTest.m` | 差分なし | issue の制約、plan.md 4.3 | `git diff 6e0adea -- <ファイル>` |
+| E6c | `src/saveCycleResult.m` の差分 | コメント行だけ | plan.md 4.3（ヘルプの追記だけ） | `git diff 6e0adea -- src/saveCycleResult.m` |
 | E6d | `results/0731/` の既存の図・wav が上書きされていない | 更新日時が 2026-10-13 より前のまま | plan.md 2.6 の注意点 | `ls -l results/0731/` |
 
 既存の cycleResult の SHA-256（2026-10-13 に記録）：
@@ -176,7 +177,7 @@ d182322e7f227049b50192f78acd4c260342223c268b222ed05734b031c41358  experiments/07
 ## 7. 評価（モードB）の手順
 
 1. `cd test; results = runAllTests;`（T1）。新しいファイルに `checkcode`（T2）。
-2. E6a・E6d：`sha256sum experiments/0731/*.mat`、`ls -l results/0731/`。E6b・E6c：`git diff e1633aa -- <ファイル>`。
+2. E6a・E6d：`sha256sum experiments/0731/*.mat`、`ls -l results/0731/`。E6b・E6c：`git diff 6e0adea -- <ファイル>`。
 3. 手動の再現を作る（plan.md 7.1 の手順。実行前に `experiments/<日付>/cycleResult_origD_<日付>.mat` と `results/<日付>/audio_(centroid_method)(original)*`・`audio_(local_maximum_method)(original)*` が無いことを確かめる）。P3 を確かめる。
 4. 追跡のファイルが無ければ、`scripts/grooveTrack_1cycle.m` を `PREV_RESULT_PATH = intpD_0731` で実行する（スクリプトの書き換えが要る場合はスクラッチパッドのコピーで行う）。実行ログで `trackGroove:longGap`・`saveCycleResult:fileExists` の警告を確かめる。
 5. `scripts/evaluation/grooveTracking/compareTrackingToManual.m` の `TRACK_DATE`・`MANUAL_DATE`・`OUT_DATE` を設定して実行する（リポジトリのファイルを書き換えずに済むよう、スクラッチパッドのコピーで日付の3行だけ変えて実行してよい）。P1・P2・E1〜E5 の表を得る。
