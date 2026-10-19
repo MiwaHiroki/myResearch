@@ -2,9 +2,11 @@
 - 作成者: main
 - 作成日: 2026-10-12
 - 入力: issue #25
-- 状態: 承認済み
+- 状態: 完了（2026-10-19、PRとともに `docs/issues/closed/` へ移動）
 
 # #25 写真1枚の範囲で1本の溝を自動追跡する
+
+**完了**：計画・評価基準・実装・評価の4段階を終え、評価1回目で合格（差し戻し0回）。振り返りは [`retrospective.md`](./retrospective.md)、続きのissueの案は [`follow-ups.md`](./follow-ups.md)。この進め方は `docs/staged-development.md` にまとめた。
 
 - issue: [#25 [feature] 写真1枚の範囲で1本の溝を自動追跡する（fitGroove＋extractGrooveShapeの代替）](https://github.com/MiwaHiroki/myResearch/issues/25)
 - ブランチ: `claude/groove-tracking`
@@ -22,6 +24,7 @@
 | 評価基準 | evaluator（A） | [`criteria.md`](./criteria.md)、受け入れテスト | 承認済み | 2026-10-13 |
 | 実装 | implementer | [`impl-report-1.md`](./impl-report-1.md) | 完了（1回で合格） | 2026-10-13 |
 | 評価 | evaluator（B） | [`eval-report-1.md`](./eval-report-1.md) | 合格（1回目） | 2026-10-15 |
+| 振り返り | main | [`retrospective.md`](./retrospective.md) | 確定（改善案A1〜A4をmasterに反映済み） | 2026-10-19 |
 
 ## 決定事項・申し送り（段階をまたぐもの）
 

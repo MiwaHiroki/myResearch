@@ -1,6 +1,6 @@
 % issue #25（写真1枚の範囲で1本の溝を自動追跡する）の受け入れテスト
 %
-% docs/issues/25-groove-tracking/plan.md 4.2 のインターフェースと要求仕様を、
+% docs/issues/closed/25-groove-tracking/plan.md 4.2 のインターフェースと要求仕様を、
 % 関数の外側から確かめる（trackGroove, detrendTrackedShape, mergeSegmentPoints,
 % trackingSeeds、および grooveSelection の追加フィールドの保存・読み込み）。
 % 内部の手順や途中の変数には依存させない（それは実装担当の unit テストの役目）。

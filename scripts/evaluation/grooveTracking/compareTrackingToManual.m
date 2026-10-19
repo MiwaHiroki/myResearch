@@ -2,7 +2,7 @@
 % issue #25 の評価スクリプト。溝の自動追跡（grooveTrack_1cycle.m）の結果と、
 % 今のコードで手動選択を再現した結果（pkCentroid_1cycle.m を intpD_0731 の
 % grooveSelection で再実行したもの）、正解（origD_0731）を溝形状で比べる。
-% 評価の項目・しきい値は docs/issues/25-groove-tracking/criteria.md（ID は同じ）。
+% 評価の項目・しきい値は docs/issues/closed/25-groove-tracking/criteria.md（ID は同じ）。
 %
 % - 3つのファイルは同じ loadCycleResult で読み、同じフィールド（ycoords・y_comb・audio）
 %   を比べる（要求「同じ比較スクリプトで読み込んで比べられる」の確認を兼ねる）。
