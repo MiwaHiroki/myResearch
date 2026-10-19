@@ -6,6 +6,8 @@
 
 小さなissue（1回のセッションで終わるもの）では作らなくてよい。
 
+サブエージェントで段階的に進めるときの全体の手順は [`../staged-development.md`](../staged-development.md) を参照。
+
 ## 構成
 
 ```
