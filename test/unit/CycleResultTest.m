@@ -223,6 +223,33 @@ classdef CycleResultTest < matlab.unittest.TestCase
             testCase.verifyEqual(result.grooveSelection.p2, p2);
         end
 
+        function testGrooveSelectionExtraFieldsRoundTrip(testCase)
+            % 自動追跡（issue #25）で足すフィールド（method・seeds・tracking）は、
+            % saveCycleResult が検証せずにそのまま保存し、読み込みでも残る
+            p1 = (1:testCase.N_SEG)' + [0 100];
+            p2 = (1:testCase.N_SEG)' + [0 200];
+            seeds = [1 100; 1 102];
+            trk = struct();
+            trk.fitLength = 60;
+            trk.tolerance = 2;
+            trk.detrendScope = "photo";
+            trk.yAbsCnt = {(1:3)'; (4:6)'};
+            trk.foundCnt = {true(3,1); [true; false; true]};
+
+            matPath = saveCycleResult(testCase.cond, testCase.allImg, testCase.resCnt, ...
+                GrooveSelection=struct('p1',p1,'p2',p2,'method',"tracking", ...
+                    'seeds',seeds,'tracking',trk));
+            result = loadCycleResult(matPath);
+
+            gs = result.grooveSelection;
+            testCase.verifyEqual(gs.p1, p1);
+            testCase.verifyEqual(gs.p2, p2);
+            testCase.verifyEqual(gs.method, "tracking");
+            testCase.verifyEqual(gs.seeds, seeds);
+            testCase.verifyEqual(gs.tracking.fitLength, 60);
+            testCase.verifyEqual(gs.tracking, trk);
+        end
+
         function testRejectsGrooveSelectionSizeMismatch(testCase)
             testCase.verifyError( ...
                 @() saveCycleResult(testCase.cond, testCase.allImg, testCase.resCnt, ...

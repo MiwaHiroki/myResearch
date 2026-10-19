@@ -36,7 +36,9 @@ function [matPath, dValuePath] = saveCycleResult(conditions, allImg, methodResul
 %   GrooveSelection    - fitGroove で選んだ点の記録。.p1, .p2 とも (TOTAL_SEGMENTS x 2)
 %                        の double（既定: 空）。fitGroove に P1=.../P2=... として渡せば
 %                        ginput なしで同じ溝を自動選択できる（result.grooveSelection
-%                        から読み込む）。
+%                        から読み込む）。検証するのは p1/p2 だけで、それ以外の
+%                        フィールド（溝の自動追跡の method・seeds・tracking など）も
+%                        そのまま保存される。
 %   SaveDir            - 保存先フォルダ。既定は conditions.experimentDir
 %                        （experiments/<日付>/）。conditions に
 %                        ExperimentDir を渡していない場合は conditions.saveDir
