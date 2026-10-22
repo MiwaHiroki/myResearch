@@ -22,7 +22,7 @@
 |---|---|---|---|---|
 | 計画 | planner | [`plan.md`](./plan.md) | 承認済み（main） | 2026-10-22 |
 | 評価基準 | evaluator（A） | [`criteria.md`](./criteria.md)、[`rehearsal/`](./rehearsal/README.md) | 承認済み（main） | 2026-10-22 |
-| 実装 | implementer | `impl-report-1.md` | 未着手 | |
+| 実装 | implementer | [`impl-report-1.md`](./impl-report-1.md)、[`skill-after.md`](./skill-after.md)、[`permission-rules-add.json`](./permission-rules-add.json) | 完了（1回目、`e1c33f0`） | 2026-10-22 |
 | 評価 | evaluator（B） | `eval-report-1.md` | 未着手 | |
 
 ## 決定事項・申し送り（段階をまたぐもの）
@@ -58,3 +58,6 @@
 - [`plan.md`](./plan.md)：計画（planner、2026-10-22 main承認）
 - [`criteria.md`](./criteria.md)：評価基準（evaluator モードA、2026-10-22 main承認）
 - [`rehearsal/`](./rehearsal/README.md)：砂場での予行のスクリプト（evaluator モードA）。実行の記録は worktree の `temp/rehearsal-27/`（gitの管理外）
+- [`skill-after.md`](./skill-after.md)：変更後のタスクのプロンプト（implementer。評価の後に、メインが本物の `SKILL.md` に反映する）
+- [`permission-rules-add.json`](./permission-rules-add.json)：タスクの許可設定に足すルール（implementer。反映はメイン）
+- [`impl-report-1.md`](./impl-report-1.md)：実装の報告 1回目（implementer、2026-10-22）
