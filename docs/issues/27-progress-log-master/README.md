@@ -21,7 +21,7 @@
 | 段階 | 担当 | 成果物 | 状態 | 承認日 |
 |---|---|---|---|---|
 | 計画 | planner | [`plan.md`](./plan.md) | 承認済み（main） | 2026-10-22 |
-| 評価基準 | evaluator（A） | `criteria.md` | 未着手 | |
+| 評価基準 | evaluator（A） | [`criteria.md`](./criteria.md)、[`rehearsal/`](./rehearsal/README.md) | 承認済み（main） | 2026-10-22 |
 | 実装 | implementer | `impl-report-1.md` | 未着手 | |
 | 評価 | evaluator（B） | `eval-report-1.md` | 未着手 | |
 
@@ -44,6 +44,10 @@
   - 過去の実行では、タスクのセッションはBashツールでgitを1コマンドずつ実行し、進捗ファイルはWriteツールで書いていた。
 - 2026-10-22（計画の承認、main）
   - `plan.md` を承認した。8章の Q1〜Q9 はすべて推奨どおり（plan.md 8章の冒頭に記録）。要点：タスク自身のコミットは日次ログに載せず「やること」にも数えない（Q1）、PRのマージは親の1行と中身の子の行（Q2）、masterでは `-- docs/progress/` のパス指定でコミットして続ける（Q3）、未追跡のファイルだけなら切り替える（Q4）、中断の記録は `git config progress-report.return-branch`（Q5）、次回予定日の手での更新はmasterのときだけ（Q6）、予行は砂場の `claude -p`（Q8）。
+- 2026-10-22（評価基準の承認、main）
+  - `criteria.md` を承認した。8章の 1〜4 はすべて推奨どおり：S16（作業ブランチで通知の記録だけをコミット）を必須に加える、C3p（品質）・C7n（計画）を足す、予行の許可設定の base はメインがコピーする、(iv) が済まないうちは予行の S2・S3a・S3b を代わりの根拠にしてissueを閉じ、(iv) を続きの確認として残す。
+  - 予行の base：メインのチェックアウトの `.claude/settings.local.json` を `temp/rehearsal-27/_inputs/base-settings.local.json` にコピーした（sha256 `1664c482223f93a2c486c410dc3541b662773afb04309d0f0dd6f559af034b1a`）。
+  - 仕組みの確認（S0）で分かったこと：ヘッドレスの `claude -p` で、完全一致のルール `Bash(git switch -)` は一致した（plan.md 9章 R1 は予行の上では解消）。Writeツールは `Edit(…)` のルールで許され、`Write(…)` だけのルールは効かなかった（本番で進捗ファイルを書けているのもEditのルールのおかげ。今回の範囲の外）。
 
 ## ファイル一覧
 
@@ -52,3 +56,5 @@
 - `README.md`（このファイル）
 - [`skill-before.md`](./skill-before.md)：変更前のタスクのプロンプト（`SKILL.md` の写し、main）
 - [`plan.md`](./plan.md)：計画（planner、2026-10-22 main承認）
+- [`criteria.md`](./criteria.md)：評価基準（evaluator モードA、2026-10-22 main承認）
+- [`rehearsal/`](./rehearsal/README.md)：砂場での予行のスクリプト（evaluator モードA）。実行の記録は worktree の `temp/rehearsal-27/`（gitの管理外）
