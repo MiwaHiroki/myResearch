@@ -23,7 +23,7 @@
 | 計画 | planner | [`plan.md`](./plan.md) | 承認済み（main） | 2026-10-22 |
 | 評価基準 | evaluator（A） | [`criteria.md`](./criteria.md)、[`rehearsal/`](./rehearsal/README.md) | 承認済み（main） | 2026-10-22 |
 | 実装 | implementer | [`impl-report-1.md`](./impl-report-1.md)、[`skill-after.md`](./skill-after.md)、[`permission-rules-add.json`](./permission-rules-add.json) | 完了（1回目、`e1c33f0`） | 2026-10-22 |
-| 評価 | evaluator（B） | `eval-report-1.md` | 未着手 | |
+| 評価 | evaluator（B） | [`eval-report-1.md`](./eval-report-1.md) | 合格（1回目。必須20回の予行すべてOK） | 2026-10-23 |
 
 ## 決定事項・申し送り（段階をまたぐもの）
 
@@ -61,3 +61,5 @@
 - [`skill-after.md`](./skill-after.md)：変更後のタスクのプロンプト（implementer。評価の後に、メインが本物の `SKILL.md` に反映する）
 - [`permission-rules-add.json`](./permission-rules-add.json)：タスクの許可設定に足すルール（implementer。反映はメイン）
 - [`impl-report-1.md`](./impl-report-1.md)：実装の報告 1回目（implementer、2026-10-22）
+- [`eval-report-1.md`](./eval-report-1.md)：評価レポート 1回目（evaluator モードB、2026-10-23。合格）
+- [`follow-ups.md`](./follow-ups.md)：続きの確認・課題の案（main）
