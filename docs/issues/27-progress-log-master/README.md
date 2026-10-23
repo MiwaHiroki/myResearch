@@ -2,9 +2,11 @@
 - 作成者: main
 - 作成日: 2026-10-22
 - 入力: issue #27
-- 状態: 作業中
+- 状態: 完了（2026-10-23、PRとともに `docs/issues/closed/` へ移動）
 
 # #27 進捗ログの自動更新を、常にmasterにコミットする
+
+**完了**：計画・評価基準・実装・評価の4段階を終え、評価1回目で合格（差し戻し0回）。本物のタスクのプロンプトと許可設定に反映し、本物の手動実行で確かめた。残りは、本物のアプリで作業ブランチのときの確認（[`follow-ups.md`](./follow-ups.md) の1）。振り返りは [`retrospective.md`](./retrospective.md)。
 
 - issue: [#27 [bug] 進捗ログの自動更新が、チェックアウト中の作業ブランチにコミットしてしまう](https://github.com/MiwaHiroki/myResearch/issues/27)
 - ブランチ: `claude/progress-log-master`（worktree `.claude/worktrees/progress-log-master/`。メインのチェックアウトは別のセッションが使っている）
@@ -24,6 +26,8 @@
 | 評価基準 | evaluator（A） | [`criteria.md`](./criteria.md)、[`rehearsal/`](./rehearsal/README.md) | 承認済み（main） | 2026-10-22 |
 | 実装 | implementer | [`impl-report-1.md`](./impl-report-1.md)、[`skill-after.md`](./skill-after.md)、[`permission-rules-add.json`](./permission-rules-add.json) | 完了（1回目、`e1c33f0`） | 2026-10-22 |
 | 評価 | evaluator（B） | [`eval-report-1.md`](./eval-report-1.md) | 合格（1回目。必須20回の予行すべてOK） | 2026-10-23 |
+| 反映・本物の実行 | main | 下の決定事項（2026-10-23） | 完了（(iv) は後日） | 2026-10-23 |
+| 振り返り | main | [`retrospective.md`](./retrospective.md) | 確定（改善案B1・B2の採否はユーザー） | 2026-10-23 |
 
 ## 決定事項・申し送り（段階をまたぐもの）
 
@@ -48,6 +52,17 @@
   - `criteria.md` を承認した。8章の 1〜4 はすべて推奨どおり：S16（作業ブランチで通知の記録だけをコミット）を必須に加える、C3p（品質）・C7n（計画）を足す、予行の許可設定の base はメインがコピーする、(iv) が済まないうちは予行の S2・S3a・S3b を代わりの根拠にしてissueを閉じ、(iv) を続きの確認として残す。
   - 予行の base：メインのチェックアウトの `.claude/settings.local.json` を `temp/rehearsal-27/_inputs/base-settings.local.json` にコピーした（sha256 `1664c482223f93a2c486c410dc3541b662773afb04309d0f0dd6f559af034b1a`）。
   - 仕組みの確認（S0）で分かったこと：ヘッドレスの `claude -p` で、完全一致のルール `Bash(git switch -)` は一致した（plan.md 9章 R1 は予行の上では解消）。Writeツールは `Edit(…)` のルールで許され、`Write(…)` だけのルールは効かなかった（本番で進捗ファイルを書けているのもEditのルールのおかげ。今回の範囲の外）。
+- 2026-10-23（評価の後、main）
+  - 評価1回目は合格。評価の未決事項は、Co-Authored-By のモデル名を続きの課題に（`follow-ups.md` の2）、予行の砂場（`temp/rehearsal-27/`、約1.5GB）は消さずに残す、と決めた。
+  - **反映**（criteria.md 6.1 の順番どおり、ルールが先）：
+    1. メインのチェックアウトの `.claude/settings.local.json` の `permissions.allow` に、`permission-rules-add.json` の16件を足した（足した後、16件すべてがあることを確かめた）。worktree の写しは変えていない。
+    2. `update_scheduled_task` で、プロンプトを `skill-after.md` に、説明を「毎日深夜3時にmasterのgitコミット履歴を読み、docs/progress/配下の進捗ログを更新してmasterにコミットする」に替えた。`SKILL.md` の本文（frontmatterの後）は `skill-after.md` と一致（sha256 `8a2eea5191948c16442a04ce123b5f3d66f980d4d39948aaed08c140e459d2d0`、T7）。
+    - 元に戻すときは、`skill-before.md` を `update_scheduled_task` の `prompt` に渡す（足したルールは残しても害はない）。
+  - 評価の後（00:29ごろ）から反映を終えるまでの間に、このセッションの操作が約14時間止まっていた（ツールの承認待ちとみられる）。その間の2026-10-23 03:07 に、**旧プロンプト**の定時実行が走った（メインのチェックアウトはmasterだったので、masterに `28e583a`「進捗ログ自動更新（2026-10-22分）」をコミット。`last_commit` = `ba9077d`）。
+  - **(iii) 本物の手動実行**（2026-10-23 14:29、`run_scheduled_task`、セッション `local_1edeeca2…`）：メインのチェックアウトはmaster、`git status --porcelain` は空、master = `28e583a`、`last_commit` = `ba9077d` の状態で実行した。
+    - 結果：承認待ちで止まらず25秒で成功（T1）。新しいコミットはタスク自身の `28e583a` だけで、次回予定日の質問も前回（10-21）から2日なので、**「やることが無い」と判断して何も変えずに終わった**（正しい動き。plan.md 手順2-5）。master は `28e583a` のまま、`last_commit` は `ba9077d` のまま（masterの鎖の上）、チェックアウトはmaster、`progress-report.return-branch` は `none`（T3・T5）。
+    - コミットする経路（T2・T4・T6）は、この実行では通らなかった。次に通るのは、2026-10-24 3時の定時実行（次回予定日の質問から3日 → 「通知の記録」のコミット）か、このPRのマージの後の実行。
+  - (iv)（作業ブランチでの本物の実行）は行っていない。criteria.md 8章の4のとおり、予行の S2・S3a・S3b を代わりの根拠としてissueを閉じ、(iv) は `follow-ups.md` の1に残した。
 
 ## ファイル一覧
 
@@ -63,3 +78,4 @@
 - [`impl-report-1.md`](./impl-report-1.md)：実装の報告 1回目（implementer、2026-10-22）
 - [`eval-report-1.md`](./eval-report-1.md)：評価レポート 1回目（evaluator モードB、2026-10-23。合格）
 - [`follow-ups.md`](./follow-ups.md)：続きの確認・課題の案（main）
+- [`retrospective.md`](./retrospective.md)：振り返り（main）
