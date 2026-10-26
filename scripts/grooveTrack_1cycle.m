@@ -75,7 +75,7 @@ ycoords_max = cell(TOTAL_SEGMENTS,1); % local maximum method
 allP1 = zeros(TOTAL_SEGMENTS,2); % 追跡した経路のセグメントの両端（古い再現スクリプト用）
 allP2 = zeros(TOTAL_SEGMENTS,2);
 
-seeds = zeros(NUM_IMAGES,2);          % 写真ごとのクリック位置（写真1枚分を連結した座標）
+seeds = zeros(NUM_IMAGES,2);          % 写真ごとの追跡の始点 [x y]（xは1列目に固定、yはクリック位置）
 yAbsCnt = cell(NUM_IMAGES,1);         % 写真ごとの補間済み・デトレンド前のy座標
 yAbsMax = cell(NUM_IMAGES,1);
 foundCnt = cell(NUM_IMAGES,1);        % 写真ごとの、点を採れた列
@@ -144,10 +144,15 @@ for iImg=1:NUM_IMAGES
         photoImg.showImage("fit");
         hold on;
         scatter(pksCnt(:,1), pksCnt(:,2), 2, "cyan", "filled");
-        title("写真" + iImg + "：左端付近で追跡する溝をクリック", "Interpreter", "none");
+        title("写真" + iImg + "：左端で追跡する溝をクリック（yだけを使う）", "Interpreter", "none");
         seed = ginput(1);
         close(fig);
     end
+    % 始点のxは、クリックした位置によらず写真の1列目に固定し、yだけを使う
+    % （fitGroove が平行四辺形の左端を [1, p1(2)] にしているのと同じ。クリックした
+    % xで始点の列が変わり、追跡の再現性が下がるのを防ぐため）。以前の結果から
+    % 再現するときも、保存されたxによらず同じ規則で1列目にする。
+    seed = [xQuery(1), seed(2)];
 
     [ptsCnt, fCnt, infoCnt] = trackGroove(pksCnt, seed, xQuery, Tolerance=TRACK_TOL, ...
         FitLength=FIT_LENGTH, SnapRadius=SNAP_RADIUS, InitLength=INIT_LENGTH, ...
