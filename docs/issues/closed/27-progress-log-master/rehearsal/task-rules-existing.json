@@ -1,0 +1,14 @@
+[
+  "Bash(git add docs/progress/*)",
+  "Bash(git mv docs/progress/*)",
+  "Bash(git commit -m *)",
+  "Bash(git commit -q -m *)",
+  "Bash(git log *)",
+  "Bash(git rev-parse *)",
+  "PowerShell(git add docs/progress/*)",
+  "PowerShell(git mv docs/progress/*)",
+  "PowerShell(git commit -m *)",
+  "PowerShell(git commit -q -m *)",
+  "PowerShell(git log *)",
+  "PowerShell(git rev-parse *)"
+]
