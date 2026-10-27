@@ -21,7 +21,7 @@
 
 | 段階 | 担当 | 成果物 | 状態 | 承認日 |
 |---|---|---|---|---|
-| 計画 | planner | `plan.md` | 未着手 | |
+| 計画 | planner | [`plan.md`](./plan.md) | 承認済み | 2026-10-27 |
 | 評価基準 | evaluator（A） | `criteria.md`、受け入れテスト | 未着手 | |
 | 実装 | implementer | `impl-report-<n>.md` | 未着手 | |
 | 正解データの作成 | ユーザー | `experiments/<日付>/` の cycleResult | 未着手 | |
@@ -36,8 +36,14 @@
   - issueの未決事項1〜4は、計画段階で決める。
   - 確認を省く範囲（`docs/staged-development.md` 3章）：**コミットの確認**と**エージェントを呼ぶ前の確認**は省く。**依頼文の事前の提示**は省かない（呼ぶ前に依頼文をユーザーに見せる）。必ず挟む確認（計画・評価基準の承認、ユーザーが判断する項目、issueに書かれていないデータの作成・削除・上書き、push、PRの作成）は今までどおり。
 
+- 2026-10-27（計画の承認、ユーザーの決定）
+  - issue の未決事項1〜4（plan.md の Q1〜Q4）は、すべて推奨どおり。`BIN_WIDTH = 1`・`BAND_TOL = 3`・`TH_HIST_RATIO = 0.3`、2本目以降も溝ごとに9次でデトレンド、`AMP_DIV = 1.5`、`cycleMethodResult` を広げて `ycoords` を 80×N にする。
+  - issue から変わる点も承認：帯の点の取り出しは新しい `extractGrooveBands`（A2）、正解データ用スクリプトに警告・`RECLICK_IMAGES`・`GUIDE_RESULT_PATH`・左端の拡大表示を足す（A4）。
+  - 周の順は数値では確かめられなかった（plan.md 2.3 の15）。評価でユーザーが試聴（U3）して確かめる。
+
 ## ファイル一覧
 
 作成されたら、相対パスのリンクで追記する（例: `./plan.md`）。
 
 - `README.md`（このファイル）
+- [`plan.md`](./plan.md)：計画（planner、2026-10-27 承認）
