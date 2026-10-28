@@ -22,7 +22,7 @@
 | 段階 | 担当 | 成果物 | 状態 | 承認日 |
 |---|---|---|---|---|
 | 計画 | planner | [`plan.md`](./plan.md) | 承認済み | 2026-10-27 |
-| 評価基準 | evaluator（A） | `criteria.md`、受け入れテスト | 未着手 | |
+| 評価基準 | evaluator（A） | [`criteria.md`](./criteria.md)、受け入れテスト | 承認済み | 2026-10-28 |
 | 実装 | implementer | `impl-report-<n>.md` | 未着手 | |
 | 正解データの作成 | ユーザー | `experiments/<日付>/` の cycleResult | 未着手 | |
 | 評価 | evaluator（B） | `eval-report-<n>.md` | 未着手 | |
@@ -40,6 +40,11 @@
   - issue の未決事項1〜4（plan.md の Q1〜Q4）は、すべて推奨どおり。`BIN_WIDTH = 1`・`BAND_TOL = 3`・`TH_HIST_RATIO = 0.3`、2本目以降も溝ごとに9次でデトレンド、`AMP_DIV = 1.5`、`cycleMethodResult` を広げて `ycoords` を 80×N にする。
   - issue から変わる点も承認：帯の点の取り出しは新しい `extractGrooveBands`（A2）、正解データ用スクリプトに警告・`RECLICK_IMAGES`・`GUIDE_RESULT_PATH`・左端の拡大表示を足す（A4）。
   - 周の順は数値では確かめられなかった（plan.md 2.3 の15）。評価でユーザーが試聴（U3）して確かめる。
+- 2026-10-28（評価基準の承認、ユーザーの決定）
+  - criteria.md の Q-a・Q-b は推奨どおり (a)：「計画」だけを満たさない場合も不合格にして実装に戻す。形状の一致の品質のしきい値は #25 の値（RMSE ≤ 0.15 px・相関 ≥ 0.80）。
+  - evaluator（モードA）の成果物は、この会話の記録に無い実行（2026-10-27 18:59〜19:26）で作られていた。ユーザーの判断で呼び直さずに使った（main が範囲外の変更が無いこと・`checkcode` 0件・受け入れテスト 40/41 失敗を確認）。
+  - 受け入れテストを追加したコミットは `2d06a8a`（criteria.md の E7b・E7c の差分の基準）。
+  - 実装担当への申し送り：plan.md 4.2 の `cycleMethodResult` の `y_comb` の長さの検証は、80×N では `sum(cellfun(@numel, ycoords), "all")` などにする必要がある（criteria.md 7章）。
 
 ## ファイル一覧
 
@@ -47,3 +52,4 @@
 
 - `README.md`（このファイル）
 - [`plan.md`](./plan.md)：計画（planner、2026-10-27 承認）
+- [`criteria.md`](./criteria.md)：評価基準（evaluator モードA、2026-10-28 承認）。受け入れテストは `test/unit/MultiGrooveAcceptanceTest.m`、評価スクリプトは `scripts/evaluation/multiGroove/compareHistToTracking.m`

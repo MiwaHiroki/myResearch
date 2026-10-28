@@ -145,8 +145,8 @@ plan.md の値とすべて一致した。
 | E6h | 整合 | 正解：保存した `seedsY` から `trackGroove` を実行し直した `yAbs`・`found`・`y0` | 誤差 ≤ 1e-9、不一致 0 | 正解データ用スクリプトの再現性 |
 | **E7 触らないもの** | | | | |
 | E7a | 整合 | `experiments/` の既存のファイルの SHA-256 | 下の値と同じ | `docs/rules/data.md` |
-| E7b | 整合 | `git diff --name-status <受け入れテストを追加したコミット> -- src scripts test` に出るファイル | plan.md 4.3 の「新規」「変更」のファイルだけ（`src/detrendTrackedShape.m`・`cycleMethodResult.m`・`saveCycleResult.m` の変更と、新しい `src/` 3つ・スクリプト2つ・unitテスト3つ、`DetrendTrackedShapeTest.m`・`CycleResultTest.m` の変更）。4.3 の「触らないもの」（`trackGroove.m`・`mergeSegmentPoints.m`・`trackingSeeds.m`・`extractGrooveShape.m`・`findGrooveCenter.m`・`fitGroove.m`・`detrendGrooveShape.m`・`extractGrooveWaveform.m`・`loadCycleResult.m`・`cycleConditions.m`・`DarknessMap.m`・`GrooveExtractor.m`・`GroovePointCloud.m`、既存のスクリプト、`archive/` の下、`test/unit/*AcceptanceTest.m`、`scripts/evaluation/`）は差分なし | issue の制約、plan.md 4.3 |
-| E7c | 整合 | `git diff <受け入れテストを追加したコミット> -- src/saveCycleResult.m` | コメント行だけ | plan.md 4.3（ヘルプの追記だけ） |
+| E7b | 整合 | `git diff --name-status 2d06a8a -- src scripts test` に出るファイル | plan.md 4.3 の「新規」「変更」のファイルだけ（`src/detrendTrackedShape.m`・`cycleMethodResult.m`・`saveCycleResult.m` の変更と、新しい `src/` 3つ・スクリプト2つ・unitテスト3つ、`DetrendTrackedShapeTest.m`・`CycleResultTest.m` の変更）。4.3 の「触らないもの」（`trackGroove.m`・`mergeSegmentPoints.m`・`trackingSeeds.m`・`extractGrooveShape.m`・`findGrooveCenter.m`・`fitGroove.m`・`detrendGrooveShape.m`・`extractGrooveWaveform.m`・`loadCycleResult.m`・`cycleConditions.m`・`DarknessMap.m`・`GrooveExtractor.m`・`GroovePointCloud.m`、既存のスクリプト、`archive/` の下、`test/unit/*AcceptanceTest.m`、`scripts/evaluation/`）は差分なし | issue の制約、plan.md 4.3 |
+| E7c | 整合 | `git diff 2d06a8a -- src/saveCycleResult.m` | コメント行だけ | plan.md 4.3（ヘルプの追記だけ） |
 | E7d | 整合 | 1014 の `tracking.yAbs*` に今の `detrendTrackedShape` をかけ、セグメントに分けたもの | 1014 の `ycoords` と `isequal`（8枚×2手法） | `detrendTrackedShape` の変更で、今の呼び出し方の結果が変わらない（plan.md 5章の 9-3 と同じ趣旨） |
 
 `experiments/` の既存のファイルの SHA-256（2026-10-27 に記録）：
@@ -221,7 +221,7 @@ ea471ebf29442c4565ccabc52f6c136233a93270adad7102739864c03132715f  experiments/ar
 ## 8. 評価（モードB）の手順
 
 1. `git status --porcelain` が空であることを確かめる。`cd test; results = runAllTests;`（T1）。新しい・変えた `.m` に `checkcode`（T2）。
-2. E7a：`sha256sum` で 4.3 の値と比べる。E7b・E7c：`git diff --name-status <受け入れテストを追加したコミット> -- src scripts test`、`git diff <受け入れテストを追加したコミット> -- src/saveCycleResult.m`。
+2. E7a：`sha256sum` で 4.3 の値と比べる。E7b・E7c：`git diff --name-status 2d06a8a -- src scripts test`、`git diff 2d06a8a -- src/saveCycleResult.m`。
 3. 正解（ユーザーが作ったもの。どのファイルを使うかはメインの指示）の `meta` と、`results/<D1>/grooveTrackN_img*.png` をユーザーが確かめたことを確認する（P1・U1 の正解）。
 4. 本実装のデータを作る：`scripts/grooveHist_Ncycle.m` を `temp/grooveHist_Ncycle_eval<D2>.m` にコピーし、`date = "<D2>"` と `PREV_RESULT_PATH`（＝正解）だけを変えて実行する。実行前に `experiments/<D2>/cycleResult_origD_hist5_<D2>.mat` と `results/<D2>/` の同名の図・wav が無いことを確かめる。実行ログの警告（`saveCycleResult:fileExists`、`trackGroove:longGap` など）を記録する。データを作り終えるまで、git で追跡される場所にファイルを作らない。
 5. `scripts/evaluation/multiGroove/compareHistToTracking.m` を `temp/` にコピーし、`GT_DATE`・`GT_FILE`（必要なら）・`HIST_DATE`・`OUT_DATE` だけを変えて実行する（約1分）。P・E1〜E7d の表を得る。
