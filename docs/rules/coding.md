@@ -54,11 +54,14 @@ Claude（メインセッション・サブエージェントとも）がMATLAB�
 - `TestClassSetup` で、`PathFixture` を使って `src/` をパスに追加する。
 - 図は `figure('Visible','off')` で作り、`addTeardown` で閉じる。
 - ファイルを出力するテストは、`TemporaryFolderFixture` の一時フォルダに書く。
+- CI（GitHub Actions、Linux・R2024b）でも動くように書く。ファイル名と呼び出しの大文字・小文字を一致させ、Windows固有のパスや関数を使わない。
+- Signal Processing Toolbox 以外のツールボックスをテストで使うときは、[`.github/workflows/matlab-tests.yml`](../../.github/workflows/matlab-tests.yml) の `products` に足す。
 
 ## 確認
 
 - 書いた・変えた `.m` ファイルは、`checkcode`（`mcp__matlab__check_matlab_code`）で警告が出ないことを確かめる。
 - `cd test; results = runAllTests;` がすべて通ることを確かめる。
+- PRでは、CI（MATLAB tests）が通っていることを確かめる。
 
 ## ドキュメント
 

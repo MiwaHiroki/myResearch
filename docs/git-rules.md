@@ -85,6 +85,7 @@ Agent: main
 
 - 作業ブランチでの変更が完了したらリモートへpushし、`gh pr create`でPRを作成する。push・PR作成はユーザーへの影響が及ぶ操作なので、実行前に一言確認してから行う（既存のグローバルルールの適用）。
 - PRのタイトル・本文はコミットメッセージと同じ基準（何を・なぜ）を満たす。本文には目的・背景を必ず書く。
+- PRを作ると、CI（[`.github/workflows/matlab-tests.yml`](../.github/workflows/matlab-tests.yml)）が`test/unit`を自動で実行する。マージ前に結果を確かめ、失敗していたら直す。段階的な開発（[`staged-development.md`](staged-development.md)）で、実装前の受け入れテストが失敗するのは想定どおり。
 - `docs/issues/<番号>-<slug>/` を使ったissueでは、PRの最後のコミットでそのフォルダを `docs/issues/closed/` へ`git mv`し、PR本文に`Closes #<番号>`を書く（[`issues/README.md`](issues/README.md)）。
 - PRの**マージはユーザーが行う**。Claudeは`gh pr merge`を実行しない。
 - マージ済みブランチの削除も、ユーザーの指示があってから行う（削除は破壊的操作のため）。
