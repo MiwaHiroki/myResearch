@@ -23,7 +23,7 @@
 |---|---|---|---|---|
 | 計画 | planner | [`plan.md`](./plan.md) | 承認済み | 2026-10-27 |
 | 評価基準 | evaluator（A） | [`criteria.md`](./criteria.md)、受け入れテスト | 承認済み | 2026-10-28 |
-| 実装 | implementer | `impl-report-<n>.md` | 未着手 | |
+| 実装 | implementer | [`impl-report-1.md`](./impl-report-1.md) | 完了（1回目） | 2026-10-28 |
 | 正解データの作成 | ユーザー | `experiments/<日付>/` の cycleResult | 未着手 | |
 | 評価 | evaluator（B） | `eval-report-<n>.md` | 未着手 | |
 | 振り返り | main | `retrospective.md` | 未着手 | |
@@ -53,3 +53,4 @@
 - `README.md`（このファイル）
 - [`plan.md`](./plan.md)：計画（planner、2026-10-27 承認）
 - [`criteria.md`](./criteria.md)：評価基準（evaluator モードA、2026-10-28 承認）。受け入れテストは `test/unit/MultiGrooveAcceptanceTest.m`、評価スクリプトは `scripts/evaluation/multiGroove/compareHistToTracking.m`
+- [`impl-report-1.md`](./impl-report-1.md)：実装の報告 1回目（implementer、2026-10-28）

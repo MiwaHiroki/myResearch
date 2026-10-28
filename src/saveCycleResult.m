@@ -37,8 +37,8 @@ function [matPath, dValuePath] = saveCycleResult(conditions, allImg, methodResul
 %                        の double（既定: 空）。fitGroove に P1=.../P2=... として渡せば
 %                        ginput なしで同じ溝を自動選択できる（result.grooveSelection
 %                        から読み込む）。検証するのは p1/p2 だけで、それ以外の
-%                        フィールド（溝の自動追跡の method・seeds・tracking など）も
-%                        そのまま保存される。
+%                        フィールド（溝の自動追跡の method・seeds・tracking、
+%                        複数本の溝の multiGroove（issue #30）など）もそのまま保存される。
 %   SaveDir            - 保存先フォルダ。既定は conditions.experimentDir
 %                        （experiments/<日付>/）。conditions に
 %                        ExperimentDir を渡していない場合は conditions.saveDir
@@ -59,7 +59,9 @@ function [matPath, dValuePath] = saveCycleResult(conditions, allImg, methodResul
 %   result.allImg      (N x 1) ImageData（.imgは保存しない。imgIDは残るので
 %                      必要ならreconstructImageで元の撮影画像から作り直せる）
 %   result.centroid    重心法の結果。.pts (N x 1 GroovePointCloud),
-%                      .xcoords, .ycoords (N x 1 cell), .y_comb, .audio (1x1 AudioData)
+%                      .xcoords, .ycoords (N x 1 cell), .y_comb, .audio (1x1 AudioData)。
+%                      N周分（複数本の溝。issue #30）では .xcoords, .ycoords が
+%                      (N_seg x N周) cell（j列目が j周目）で、.y_comb, .audio は N周分
 %   result.localMax    局所的最大値法の結果（渡した場合のみ）。音声を作っていない
 %                      手法では .xcoords/.ycoords/.y_comb/.audio は空になる
 %   result.dValueFile  DarknessMap を保存した.matのファイル名（未保存なら ""）

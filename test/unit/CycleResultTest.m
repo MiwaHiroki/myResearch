@@ -130,6 +130,43 @@ classdef CycleResultTest < matlab.unittest.TestCase
                 "cycleMethodResult:yCombLength");
         end
 
+        function testMethodResultMultiCycleRoundTrip(testCase)
+            % N周分（issue #30）：(N_SEG x 2) の xcoords・ycoords が保存・読み込みで残る
+            xc = [testCase.resCnt.xcoords, testCase.resCnt.xcoords];
+            yc = [testCase.resCnt.ycoords, cellfun(@(v) 2*v, testCase.resCnt.ycoords, ...
+                "UniformOutput", false)];
+            yComb = vertcat(yc{:});
+            res = cycleMethodResult("centroid", testCase.resCnt.pts, xc, yc, yComb, ...
+                AudioData("test audio multi", yComb, testCase.FS));
+
+            matPath = saveCycleResult(testCase.cond, testCase.allImg, res);
+            result = loadCycleResult(matPath);
+
+            testCase.verifySize(result.centroid.ycoords, [testCase.N_SEG 2]);
+            testCase.verifyEqual(result.centroid.ycoords, yc);
+            testCase.verifyEqual(result.centroid.xcoords, xc);
+            testCase.verifyEqual(result.centroid.y_comb, yComb);
+            % 2周目は1周目の後に続く
+            n1 = numel(vertcat(yc{:,1}));
+            testCase.verifyEqual(result.centroid.y_comb(n1+1:end), vertcat(yc{:,2}));
+        end
+
+        function testMethodResultRejectsColumnXcoordsWithMultiCycleY(testCase)
+            % xcoords が1周分（N_SEG x 1）、ycoords が2周分 → sizeMismatch
+            yc = [testCase.resCnt.ycoords, testCase.resCnt.ycoords];
+            yComb = vertcat(yc{:});
+            testCase.verifyError(@() cycleMethodResult("centroid", testCase.resCnt.pts, ...
+                testCase.resCnt.xcoords, yc, yComb, AudioData("a", yComb, testCase.FS)), ...
+                "cycleMethodResult:sizeMismatch");
+        end
+
+        function testMethodResultSingleCycleUnchanged(testCase)
+            % 1周分（N_SEG x 1）の結果は今までと同じ
+            testCase.verifySize(testCase.resCnt.ycoords, [testCase.N_SEG 1]);
+            testCase.verifySize(testCase.resCnt.xcoords, [testCase.N_SEG 1]);
+            testCase.verifyEqual(testCase.resCnt.y_comb, vertcat(testCase.resCnt.ycoords{:}));
+        end
+
         function testMethodResultRejectsPartialWaveform(testCase)
             testCase.verifyError( ...
                 @() cycleMethodResult("localMax", testCase.resCnt.pts, ...
