@@ -24,6 +24,8 @@ runtests('test/unit/DarknessMapTest.m', 'ProcedureName', 'testConstructorCompute
 
 Tests do **not** need a manual `addpath` — each test class adds `src/` in its `TestClassSetup` via `PathFixture`.
 
+CI: `.github/workflows/matlab-tests.yml` (GitHub Actions) runs `runAllTests` + `assertSuccess` on every PR and every push to `master` (changes touching only `docs/**` or `*.md` are skipped). It uses MATLAB R2024b on `ubuntu-24.04` with only Signal Processing Toolbox, and has no `data/`/`experiments/` — so tests must stay synthetic-data-only and Linux-safe (exact file-name case, no Windows paths).
+
 An installed MATLAB is available through the `mcp__matlab__*` tools (static analysis, running scripts/tests). MATLAB is visible to the user and figures render in its UI; prefer these tools over asking the user to run code by hand.
 
 ## Working conventions

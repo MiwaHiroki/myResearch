@@ -1,0 +1,34 @@
+# test/unit の単体テストを、MATLAB R2024b（手元と同じ版）で自動実行する。
+# テストは合成データだけで動くので、gitignoreされた data/・experiments/ が無いCIでも走る。
+name: MATLAB tests
+
+on:
+  push:
+    branches: [master]
+    # 進捗ログの自動コミット（docs/progress/）など、文書だけの変更では走らせない
+    paths-ignore: ['docs/**', '**.md']
+  pull_request:
+    paths-ignore: ['docs/**', '**.md']
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    # ubuntu-latest は 26.04 へ移行中で、R2024b の対応OSは 24.04 まで
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: matlab-actions/setup-matlab@v3
+        with:
+          release: R2024b
+          # findpeaks・resample・stft が使う。テストで別のツールボックスを使うときはここに足す
+          products: Signal_Processing_Toolbox
+          cache: true
+      - uses: matlab-actions/run-command@v3
+        with:
+          # runAllTests は結果を返すだけなので、assertSuccess で失敗をエラーにする
+          command: addpath("test"); results = runAllTests(); assertSuccess(results);
