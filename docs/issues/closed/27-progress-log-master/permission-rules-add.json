@@ -1,0 +1,18 @@
+[
+  "Bash(git status *)",
+  "PowerShell(git status *)",
+  "Bash(git show master:docs/progress/*)",
+  "PowerShell(git show master:docs/progress/*)",
+  "Bash(git merge-base *)",
+  "PowerShell(git merge-base *)",
+  "Bash(git config --get --default none progress-report.return-branch)",
+  "PowerShell(git config --get --default none progress-report.return-branch)",
+  "Bash(git config progress-report.return-branch *)",
+  "PowerShell(git config progress-report.return-branch *)",
+  "Bash(git config --unset progress-report.return-branch)",
+  "PowerShell(git config --unset progress-report.return-branch)",
+  "Bash(git switch master)",
+  "PowerShell(git switch master)",
+  "Bash(git switch -)",
+  "PowerShell(git switch -)"
+]

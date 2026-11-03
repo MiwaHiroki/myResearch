@@ -10,6 +10,8 @@ Claudeがこのリポジトリでgit操作を行う際、後から**いつ・ど
 
 コミットは常にユーザーから明示的な指示があった場合のみ行う（無断コミットはしない）。これは本ドキュメント固有の話ではなく既存のグローバルルールの確認。
 
+例外: `docs/progress/`配下の進捗ログ自動更新に限り、スケジュールタスク（`progress-report-daily`、毎日3時実行）による自動commitを許可する（2026-09-23、ユーザー承認）。このコミットは常に`master`に対して行う。そのため、作業ブランチをチェックアウトしているときは、タスクがメインのチェックアウトを一時的に`master`へ切り替え、コミットした後に元のブランチへ戻すことがある。追跡されているファイルに未コミットの変更があるときは切り替えず、その日は見送って通知する（2026-10-22、issue #27）。それ以外のファイル・コードの変更を無断commitすることは引き続き禁止。
+
 ## コミットのルール
 
 ### ルール1: 1コミット=1目的
@@ -47,16 +49,43 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
 
 Ollama経由のgemma4など、Claude以外のツール・エージェントが実際にファイルを書き換えた場合は、その旨をコミット本文に明記する。誰が（何が）どの範囲を担当したかを後から追えるようにするため。
 
+### ルール6: サブエージェントが関わったコミットには`Agent:`を付ける
+
+サブエージェント（`.claude/agents/`の`planner`・`evaluator`・`implementer`など）はコミットしない。各段階の成果物は、ユーザーの承認後にメインセッションがコミットする。そのコミットまでに関わったエージェントを、コミットメッセージ末尾の`Co-Authored-By:`の直前に1行ずつ書く。メインセッション自身が編集した場合は`Agent: main`と書く。
+
+```
+Agent: planner
+Agent: main
+```
+
+`git log --grep "Agent: planner"`で、そのエージェントが関わったコミットを検索できる。
+
 ## ブランチ運用
 
 - 指示内容が明確で影響範囲が小さい単純な変更（例: 1ファイルのリネーム、ドキュメント更新）は、これまで通り`master`に直接コミットしてよい。
 - Claudeが自律的に複数ファイル・複数ステップにまたがる変更を行う場合は、作業ブランチを切る。ユーザーがマージ前に差分をレビューできるようにするため。
 - ブランチ名は`claude/<内容を表す短い英語スラッグ>`とする（例: `claude/darkness-map-rename`）。既存の`feature/*`・`backup/*`と混在させず、Claude発の作業ブランチだと一目で分かるようにする。
+- ローカルの`master`には、進捗ログの自動更新のコミットが毎日入る。`master`をrebase・resetしない（`git pull --rebase`を含む）。`.state.json`の`last_commit`が`master`の履歴からたどれなくなり、タスクが止まるため（issue #27）。
+
+## worktreeでの並行作業
+
+複数のClaudeセッションを並行して走らせるときは、セッションごとにgit worktreeを使い、編集が衝突しないようにする。
+
+- **作り方**: デスクトップアプリでセッション開始時に「worktree」を選ぶ（CLIなら`claude --worktree <名前>`）。`.claude/worktrees/<名前>/`に作られ、`.claude/`ごとgitignore済み。分岐元はメインのチェックアウトの現在の`HEAD`（`.claude/settings.json`の`worktree.baseRef: "head"`。未pushのコミットも含めるため）。
+- **初期化は自動**: `core.hooksPath=.githooks`で有効化した`.githooks/post-checkout`が、worktree作成時に以下を行う（メインのチェックアウトでは何もしない）。
+  - `data/`・`experiments/`: メインへのジャンクションを張る。**中身はメインと共有**なので、worktree側で消すとメインからも消える。worktreeを削除してもリンクが消えるだけで、リンク先は残る（確認済み）。
+  - `.claude/settings.local.json`（許可設定）: メインからコピー（gitignoreされているため）。コピーなので、恒久的に直したい場合はメイン側を編集する。
+  - 失敗した・手動で`git worktree add`した場合は、worktree内で`sh .githooks/post-checkout`を実行すればやり直せる。別PCでは`git config core.hooksPath .githooks`を一度実行して有効化する。
+- **`results/`は共有しない**: worktreeの`results/`は独立。残したい出力はマージ前にメインへ移す。
+- **ブランチ**: worktreeのブランチもClaude発の作業ブランチとして扱い、下記「プルリクエスト運用」に従う。`master`はメインのチェックアウトが使っているため、worktree内で直接`master`にコミットはできない。worktreeで`master`をチェックアウトしない（進捗ログのタスクが、メインのチェックアウトを`master`に切り替えられなくなる。issue #27）。
+- **MATLAB**: MATLABは1つを全セッションで共有している。テスト（`test/unit/`）は自分のファイル位置から`src/`を足すので、worktreeのテストファイルを絶対パスで`runtests`すればworktree側のコードで走る。`currentProject()`に依存する`scripts/`は開いているプロジェクトのルートを使うため、worktree側で実行する場合はそのworktreeの`Research.prj`を開く必要があり、他のセッションに影響する。同時に複数セッションからスクリプトを走らせない。
+- **後片付け**: 作業が終わったworktreeは、ブランチをマージ（またはPR化）してから`git worktree remove`で削除する。削除はユーザーの指示があってから行う。
 
 ## プルリクエスト運用
 
 - 作業ブランチでの変更が完了したらリモートへpushし、`gh pr create`でPRを作成する。push・PR作成はユーザーへの影響が及ぶ操作なので、実行前に一言確認してから行う（既存のグローバルルールの適用）。
 - PRのタイトル・本文はコミットメッセージと同じ基準（何を・なぜ）を満たす。本文には目的・背景を必ず書く。
+- `docs/issues/<番号>-<slug>/` を使ったissueでは、PRの最後のコミットでそのフォルダを `docs/issues/closed/` へ`git mv`し、PR本文に`Closes #<番号>`を書く（[`issues/README.md`](issues/README.md)）。
 - PRの**マージはユーザーが行う**。Claudeは`gh pr merge`を実行しない。
 - マージ済みブランチの削除も、ユーザーの指示があってから行う（削除は破壊的操作のため）。
 - force-pushや履歴の書き換えは、共有ブランチに対しては行わない（既存のグローバルルールの適用）。

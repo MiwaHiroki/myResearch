@@ -1,0 +1,31 @@
+#!/bin/sh
+# git worktree 用の初期化フック（core.hooksPath=.githooks で有効化）
+#
+# linked worktree（git worktree add で作ったもの）でのみ動作し、メインの
+# チェックアウトでは何もしない。gitignoreされていて worktree に入らないものを補う:
+#   - data/, experiments/ : メインへのジャンクションを張る（大容量・作り直せないため共有）
+#   - .claude/settings.local.json : メインからコピー（無いときだけ、許可設定の引き継ぎ用）
+# 何度実行しても安全。手動でやり直すときは worktree 内で `sh .githooks/post-checkout`。
+
+git_dir=$(git rev-parse --absolute-git-dir) || exit 0
+common_dir=$(git rev-parse --path-format=absolute --git-common-dir) || exit 0
+[ "$git_dir" = "$common_dir" ] && exit 0
+
+main_root=$(dirname "$common_dir")
+wt_root=$(git rev-parse --show-toplevel)
+
+for d in data experiments; do
+    [ -d "$main_root/$d" ] || continue
+    [ -e "$wt_root/$d" ] && continue
+    MSYS_NO_PATHCONV=1 cmd /c mklink /J "$(cygpath -w "$wt_root/$d")" "$(cygpath -w "$main_root/$d")" >/dev/null \
+        && echo "worktree: linked $d -> $main_root/$d"
+done
+
+for f in .claude/settings.local.json; do
+    [ -f "$main_root/$f" ] || continue
+    [ -e "$wt_root/$f" ] && continue
+    mkdir -p "$(dirname "$wt_root/$f")"
+    cp "$main_root/$f" "$wt_root/$f" && echo "worktree: copied $f"
+done
+
+exit 0

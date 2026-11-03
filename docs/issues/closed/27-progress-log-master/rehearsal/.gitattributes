@@ -1,0 +1,4 @@
+# 予行のスクリプトはbash・nodeで実行するのでLF固定（core.autocrlf=true の環境でCRLFにしない）
+*.sh text eol=lf
+*.js text eol=lf
+*.json text eol=lf

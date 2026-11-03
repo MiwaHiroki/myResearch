@@ -23,5 +23,7 @@
 # AI 
 /.agents/*
 /.claude/*
+# サブエージェントの定義は他PCと共有するため追跡対象にする
+!/.claude/agents/
 
 
