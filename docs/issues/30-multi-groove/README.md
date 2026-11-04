@@ -63,13 +63,15 @@
 | 2026-11-04 | ユーザー | 正解データを作る（40回クリック）。`scripts/grooveTrack_Ncycle.m` を `temp/grooveTrack_Ncycle_1104.m` にコピーし、`date = "1104"` と `GUIDE_RESULT_PATH`（1014 の追跡）の2行だけを変えて実行した | `experiments/1104/cycleResult_origD_track5_1104.mat`、`results/1104/grooveTrackN_img1〜8.png`、`results/1104/` の `(tracking_5_cycles)` の wav・図 |
 | 2026-11-04 | main | 記録を確かめる：`meta.gitCommit = b9c5db0`（実装 `560e085` の後で、`src/`・`scripts/`・`test/` に差分なし）、`meta.gitDirty = false`、`_2` 付きのファイルなし、`ycoords` 80×5。<br>1周目は 1014 の `ycoords` と両手法とも `isequal`（P3）。重心法の隣どうしの始点の差は 25.1〜28.5 px（同じ溝の2回クリック・溝の飛ばしなし。P2b の目安 ≥ 13 px） | — |
 
-### 評価 — 未着手
+### 評価 — 作業中（1回目、ユーザー確認待ち）
 
 | 日付 | 担当 | 内容 | 成果物 |
 |---|---|---|---|
 | 2026-10-26 | ユーザー | **決定** 評価に使う溝の本数は N=5 | — |
 | 2026-10-27 | ユーザー | **決定** 周の順は数値では確かめられなかった（plan.md 2.3 の15）。評価でユーザーが試聴（U3）して確かめる | — |
 | 2026-11-04 | ユーザー | **決定** 正解データの図 `results/1104/grooveTrackN_img1〜8.png` を確かめ、5本とも飛び移りなし（U1 の正解の部分。評価の前提）。<br>正解データは `experiments/1104/cycleResult_origD_track5_1104.mat`（D1 = `1104`）、本実装の日付も D2 = `1104`（`results/1104/` に重なる名前が無いため） | — |
+| 2026-11-04 | evaluator（B） | 1回目。判定は**ユーザー確認待ち**（不合格の項目なし）。前提・テスト（217件通過、`checkcode` 0件）・数値の項目 46/46・E7a〜E7c をすべて満たす。<br>2〜5本目の64本のうち63本が正解と完全に一致、残り1本（重心法・写真8・5本目）は x=2314 の1列だけの違い（RMSE 0.0177 px・相関 0.9981）。5周分の `y_comb` は重心法 RMSE 0.002832 px・相関 0.999940、局所的最大値法は一致。<br>残りは U1（本実装の部分）・U2・U3 | [`eval-report-1.md`](./eval-report-1.md)、`experiments/1104/cycleResult_origD_hist5_1104.mat`（`meta.gitCommit = 569e327`・`gitDirty = false`）、`results/1104/` の `grooveHist_*`・`(hist_5_cycles)`・`evalMulti_*` |
+| 2026-11-04 | main | 範囲の外のファイルが変わっていないことを確かめ、本実装の `meta` と5周分の `y_comb` の RMSE・相関を MATLAB で計算し直して、レポートと一致することを確かめる | — |
 
 ### 振り返り — 未着手
 ### 続きのissue — 未着手
@@ -82,3 +84,4 @@
 - [`plan.md`](./plan.md)：計画
 - [`criteria.md`](./criteria.md)：評価基準
 - [`impl-report-1.md`](./impl-report-1.md)：実装の報告（1回目）
+- [`eval-report-1.md`](./eval-report-1.md)：評価レポート（1回目）
