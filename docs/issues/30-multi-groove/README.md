@@ -82,6 +82,7 @@
 | 2026-11-04 | main | 振り返りを書く。サブエージェントの合計は約84分・約116万トークン、差し戻し0回。#25 の改善案 A1〜A5 の効果と、新しい改善案 C1〜C4（正解に依らない確かめ方、ユーザーの判断の手段、ユーザーがデータを作る段階、既存の成果物の確認）を書く | [`retrospective.md`](./retrospective.md) |
 | 2026-11-04 | ユーザー | **決定** 改善案 C1・C2・C4 を採用する。C3 は、必要になる場合と書き換える内容を確かめてから決める。master のルールの更新は、C3 が決まってから行う | [`retrospective.md`](./retrospective.md) 7.1 |
 | 2026-11-04 | ユーザー | **決定** 改善案 C3 を、main が示した内容（手順書の3章・5.2・新しい5.5、`planner.md`、`evaluation.md` に1文）で採用する | [`retrospective.md`](./retrospective.md) 7.1 |
+| 2026-11-04 | main | C1〜C4 を master で反映し（`docs/rules/evaluation.md`・`docs/staged-development.md`・`.claude/agents/evaluator.md`・`.claude/agents/planner.md`）、作業ブランチに取り込む。手順書の評価の節は 5.6 になった | `4bdee62`（master）、`70d07ed`（取り込み） |
 
 ### 続きのissue — 下書き（作るタイミングはユーザーが決める）
 
