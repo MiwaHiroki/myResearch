@@ -56,7 +56,12 @@
 | 2026-10-28 | implementer | 1回目。`plan.md` 5章の手順0〜10をすべて終える。`runAllTests` 217件すべて通過（受け入れテスト 41/41）、`checkcode` 0件。`experiments/` には保存していない。<br>正解データ用の `scripts/grooveTrack_Ncycle.m` もこのとき作った（ユーザーが正解データを `experiments/<日付>/` の cycleResult として作るときに使う） | [`impl-report-1.md`](./impl-report-1.md) |
 | 2026-10-28 | main | 報告を確かめ、実装をコミットする | `560e085` |
 
-### 正解データの作成 — 未着手
+### 正解データの作成 — 完了
+
+| 日付 | 担当 | 内容 | 成果物 |
+|---|---|---|---|
+| 2026-11-04 | ユーザー | 正解データを作る（40回クリック）。`scripts/grooveTrack_Ncycle.m` を `temp/grooveTrack_Ncycle_1104.m` にコピーし、`date = "1104"` と `GUIDE_RESULT_PATH`（1014 の追跡）の2行だけを変えて実行した | `experiments/1104/cycleResult_origD_track5_1104.mat`、`results/1104/grooveTrackN_img1〜8.png`、`results/1104/` の `(tracking_5_cycles)` の wav・図 |
+| 2026-11-04 | main | 記録を確かめる：`meta.gitCommit = b9c5db0`（実装 `560e085` の後で、`src/`・`scripts/`・`test/` に差分なし）、`meta.gitDirty = false`、`_2` 付きのファイルなし、`ycoords` 80×5。<br>1周目は 1014 の `ycoords` と両手法とも `isequal`（P3）。重心法の隣どうしの始点の差は 25.1〜28.5 px（同じ溝の2回クリック・溝の飛ばしなし。P2b の目安 ≥ 13 px） | — |
 
 ### 評価 — 未着手
 
