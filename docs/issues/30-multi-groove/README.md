@@ -84,12 +84,13 @@
 | 2026-11-04 | ユーザー | **決定** 改善案 C3 を、main が示した内容（手順書の3章・5.2・新しい5.5、`planner.md`、`evaluation.md` に1文）で採用する | [`retrospective.md`](./retrospective.md) 7.1 |
 | 2026-11-04 | main | C1〜C4 を master で反映し（`docs/rules/evaluation.md`・`docs/staged-development.md`・`.claude/agents/evaluator.md`・`.claude/agents/planner.md`）、作業ブランチに取り込む。手順書の評価の節は 5.6 になった | `4bdee62`（master）、`70d07ed`（取り込み） |
 
-### 続きのissue — 下書き（作るタイミングはユーザーが決める）
+### 続きのissue — 完了（issueはユーザーが別のセッションで作る）
 
 | 日付 | 担当 | 内容 | 成果物 |
 |---|---|---|---|
 | 2026-11-04 | ユーザー | **決定** 自動追跡のパラメータの再考（振幅が1付近になる外れ値）は、別のissueで検討する | — |
 | 2026-11-04 | main | 続きのissueの案を書く：A 自動追跡のパラメータの再考、B 高解像度化した画像でのN本の抽出、C 周の順を針で再生した音と比べる。issue の「提案」のうち採用しなかったもの（P1〜P3・P5）も参考に書く | [`follow-ups.md`](./follow-ups.md) |
+| 2026-11-05 | ユーザー | **決定** 続きのissue（案A〜C）は、このissueを閉じた後に、ユーザーが Claude との別のセッションで作る。このissueの中では作らない | [`follow-ups.md`](./follow-ups.md) |
 
 ### 解決のまとめ — 未着手
 ### 仕上げ（closed/ へ移動・PR） — 未着手
