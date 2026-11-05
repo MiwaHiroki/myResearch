@@ -1,6 +1,6 @@
 % issue #30（写真ごとに1回のクリックからN本の溝を抽出し、N周分の音声を作る）の受け入れテスト
 %
-% docs/issues/30-multi-groove/plan.md 4.2 のインターフェースと要求仕様を、関数の外側から
+% docs/issues/closed/30-multi-groove/plan.md 4.2 のインターフェースと要求仕様を、関数の外側から
 % 確かめる（findGrooveCenters, extractGrooveBands, extractMultiGroove,
 % detrendTrackedShape の2つ目の出力, cycleMethodResult の (TOTAL_SEGMENTS x N),
 % 保存・読み込みでの 80xN と grooveSelection.multiGroove）。

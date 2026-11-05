@@ -24,7 +24,7 @@ issue #30（写真ごとに1回のクリックからN本の溝を抽出し、N�
 
 - ラベル: `feature`
 - ゴール: `dInterp`・`dResample` で高解像度化した画像でも、`grooveHist_Ncycle.m` と同じ方法でN周分を作れるようにする。
-- 背景: #30 では高解像度化なし（origD）だけを扱った（issue の「将来は `rsmplD`・`intpD` でも同じ実験をする」）。#25 の [`follow-ups.md`](../closed/25-groove-tracking/follow-ups.md) の案B（1本の自動追跡の高解像度化）も、まだissueになっていない。関数は長さの引数をpxで持つので、高解像度化した画像にも使える前提で設計してある。
+- 背景: #30 では高解像度化なし（origD）だけを扱った（issue の「将来は `rsmplD`・`intpD` でも同じ実験をする」）。#25 の [`follow-ups.md`](../25-groove-tracking/follow-ups.md) の案B（1本の自動追跡の高解像度化）も、まだissueになっていない。関数は長さの引数をpxで持つので、高解像度化した画像にも使える前提で設計してある。
 - 未決事項の候補: #25 の案Bとまとめるか、`BIN_WIDTH`・`BAND_TOL` を高解像度化した画像で決め直すか、正解データ（`grooveTrack_Ncycle.m`）も高解像度化して作るか。
 - 作るタイミング: 案Aの後がよい（追跡のパラメータが変わると、高解像度化した画像での値も決め直しになるため）。
 

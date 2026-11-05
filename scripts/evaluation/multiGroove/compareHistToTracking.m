@@ -4,7 +4,7 @@
 % trackGroove で別々に追跡した正解データ（grooveTrack_Ncycle.m の
 % cycleResult_origD_track<N>_<日付>.mat）と比べる。1本目は #25 の1周分
 % （experiments/1014/cycleResult_origD_track_1014.mat）とも比べる。
-% 評価の項目・しきい値は docs/issues/30-multi-groove/criteria.md（ID は同じ）。
+% 評価の項目・しきい値は docs/issues/closed/30-multi-groove/criteria.md（ID は同じ）。
 %
 % - 比べ方は docs/rules/evaluation.md に従う（RMSE[px]・相関係数、写真×溝ごと・溝（周）ごと・
 %   全体）。本実装（帯の点を補間）と正解（追跡）はどちらも仕組みの上で欠損しないので、

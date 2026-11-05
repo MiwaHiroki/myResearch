@@ -2,19 +2,19 @@
 - 作成者: main
 - 作成日: 2026-10-26
 - 入力: issue #30
-- 状態: 作業中
+- 状態: 完了（2026-11-05、PRとともに `docs/issues/closed/` へ移動）
 
 # #30 写真ごとに1回のクリックからN本の溝を抽出し、N周分の音声を作る
 
 - issue: [#30 [feature] 写真ごとに1回のクリックからN本の溝を抽出し、N周分の音声を作る（ヒストグラムによる溝の選択）](https://github.com/MiwaHiroki/myResearch/issues/30)
 - ブランチ: `claude/multi-groove`
-- PR: （作ったら書く）
+- PR: [#33 写真ごとに1回のクリックからN本の溝を抽出し、N周分の音声を作る #30](https://github.com/MiwaHiroki/myResearch/pull/33)
 - 進め方: `docs/staged-development.md`、受け渡しフォルダの運用: `docs/issues/README.md`
 
 ## 解決のまとめ
 
 - 書いた日: 2026-11-05（summarizer が下書き、main が確認）
-- 対象のコード: `7fcdc39`（この時点の `claude/multi-groove` の先頭）（PRは未作成）。`src/`・`scripts/`・`test/` は実装のコミット `560e085` から変わっていない
+- 対象のコード: `7fcdc39`（この時点の `claude/multi-groove` の先頭。PR #33）。`src/`・`scripts/`・`test/` は実装のコミット `560e085` から変わっていない（この後、closed/ へ移すコミットでコメントのパスだけを書き換えた。5節）
 
 ### 1. 結論
 
@@ -99,6 +99,7 @@
 - 確認用の図：日本語のラベルは `"Interpreter","none"` にした（`setDefaultIntrpr` で LaTeX になっているため）。ヒストグラムの図は y の小さい側を上にし、範囲は `[centers(N)-20, centers(1)+20]` とした（plan.md 4.5 の書き方の解釈。仮定 B）。どちらも数値の出力は変わらない。
 - `grooveTrack_Ncycle:noSeeds` は、`seedsY` の列の数に加えて行の数も確かめる。また、両スクリプトとも、`vertcat(shapes{:})` と `vertcat(ycoords{:})` が違えば `<スクリプト名>:orderMismatch` で止まる。
 - `.gitignore` に `/.vscode` を足した（plan.md 4.3 には無い）。未追跡の `.vscode/settings.json` があると `meta.gitDirty` が true になり、評価のデータをきれいな作業ツリーで作ったと示せなくなるため（`a806634` のコミットメッセージ、retrospective.md 3章）。
+- 仕上げ（closed/ へ移すコミット）で、`scripts/evaluation/multiGroove/compareHistToTracking.m`・`test/unit/MultiGrooveAcceptanceTest.m` の先頭のコメントにある受け渡しフォルダのパスを `docs/issues/closed/30-multi-groove/` に書き換えた（main）。コメントだけで、動作は変わらない。
 
 ### 6. 評価の結果
 
@@ -250,7 +251,14 @@
 | 2026-11-05 | summarizer | 「解決のまとめ」を書く（1回目）。対象のコードは `7fcdc39`、差分の範囲は `master...HEAD` | この README の「解決のまとめ」 |
 | 2026-11-05 | main | 節の外が変わっていないことを確かめる。報告の「記録の抜け・食い違い」に対応する：リポジトリの外の変更は「なし」に直す。`.gitignore` の変更（`a806634`）を作業履歴の実装に足す。follow-ups.md の P3 の値に、評価での最大（1本目を含む 0.500 px）を足す。<br>impl-report-1.md 1章の「12ファイル」は、`git diff --name-only 2d06a8a 560e085 -- '*.m'` では13ファイル（実装担当の本文なので直さない）。`temp/` のコピーの名前が plan.md 7.1 の案（`_gt<D1>`）と違う点は、結果に影響しないので直さない | この README、[`follow-ups.md`](./follow-ups.md) |
 
-### 仕上げ（closed/ へ移動・PR） — 未着手
+### 仕上げ（closed/ へ移動・PR） — 完了
+
+| 日付 | 担当 | 内容 | 成果物 |
+|---|---|---|---|
+| 2026-11-05 | ユーザー | **決定** master と作業ブランチを push し、`temp/pr-multi-groove.md` の本文で PR を作る | — |
+| 2026-11-05 | main | master（`4bdee62` まで）と `claude/multi-groove` を push し、PR #33 を作る（`Closes #30`） | [PR #33](https://github.com/MiwaHiroki/myResearch/pull/33) |
+| 2026-11-05 | main | Auto-fix を有効にしようとしたが、権限の確認で止められた（`mcp__ccd_pr__set_monitor`）。ユーザーに伝える | — |
+| 2026-11-05 | main | PR番号を書き入れ、`docs/issues/closed/30-multi-groove` へ移す。フォルダの外から旧パスを指すコメント2か所（`compareHistToTracking.m`・`MultiGrooveAcceptanceTest.m`）と、follow-ups.md の #25 への相対リンクを書き換える | この README、[`follow-ups.md`](./follow-ups.md) |
 
 ## ファイル一覧
 
