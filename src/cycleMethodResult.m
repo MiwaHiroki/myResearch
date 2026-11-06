@@ -22,6 +22,11 @@ function res = cycleMethodResult(method, pts, xcoords, ycoords, y_comb, audio)
 %   y_comb  - ycoords を縦に連結した1周分のy座標
 %   audio   - (1x1) AudioData
 %
+% N周分（複数本の溝。issue #30）のときは xcoords・ycoords を (TOTAL_SEGMENTS x N) にする。
+% j列目が j周目。y_comb = vertcat(ycoords{:}) が再生順になる（列の順に連結されるため）。
+% pts は (TOTAL_SEGMENTS x 1) のまま。行の cell（1 x TOTAL_SEGMENTS）は1周分とみなして
+% 列に直す。
+%
 % xcoords 以降は省略できる（その手法では音声を作っていない場合）。
 % 省略するときは4つすべてを省略する。
 %
@@ -30,8 +35,8 @@ function res = cycleMethodResult(method, pts, xcoords, ycoords, y_comb, audio)
     arguments
         method (1,1) string {mustBeMember(method,["centroid","localMax"])}
         pts (:,1) GroovePointCloud
-        xcoords (:,1) cell = {}
-        ycoords (:,1) cell = {}
+        xcoords (:,:) cell = {}
+        ycoords (:,:) cell = {}
         y_comb (:,1) double = []
         audio (:,1) AudioData = AudioData.empty(0,1)
     end
@@ -59,17 +64,27 @@ function res = cycleMethodResult(method, pts, xcoords, ycoords, y_comb, audio)
             numel(audio));
     end
 
-    nSeg = numel(ycoords);
-    if numel(xcoords) ~= nSeg
-        error("cycleMethodResult:sizeMismatch", ...
-            "xcoords(%d) と ycoords(%d) の要素数が一致しません。", numel(xcoords), nSeg);
+    % ベクトル（1周分）は、以前の (:,1) の検証と同じく列に直す
+    if isvector(xcoords)
+        xcoords = xcoords(:);
     end
-    if numel(pts) ~= nSeg
-        error("cycleMethodResult:sizeMismatch", ...
-            "pts(%d) と ycoords(%d) の要素数が一致しません。", numel(pts), nSeg);
+    if isvector(ycoords)
+        ycoords = ycoords(:);
     end
 
-    nComb = sum(cellfun(@numel, ycoords));
+    if ~isequal(size(xcoords), size(ycoords))
+        error("cycleMethodResult:sizeMismatch", ...
+            "xcoords(%s) と ycoords(%s) の大きさが一致しません。", ...
+            mat2str(size(xcoords)), mat2str(size(ycoords)));
+    end
+    nSeg = size(ycoords, 1);
+    if numel(pts) ~= nSeg
+        error("cycleMethodResult:sizeMismatch", ...
+            "pts(%d) と ycoords の行の数(%d) が一致しません。", numel(pts), nSeg);
+    end
+
+    % N周分でも全周の長さで確かめる（sum だけでは周ごとの 1xN になる）
+    nComb = sum(cellfun(@numel, ycoords), "all");
     if numel(y_comb) ~= nComb
         error("cycleMethodResult:yCombLength", ...
             "y_comb の長さ(%d)が ycoords の合計長(%d)と一致しません。" + ...
