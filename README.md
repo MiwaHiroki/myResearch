@@ -62,6 +62,8 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 - **`extractMultiGroove`**: 写真1枚分の点群と1回のクリックから、N本の溝の形状を返す（`trackGroove`→`detrendTrackedShape`→`findGrooveCenters`→`extractGrooveBands`→溝ごとに`detrendTrackedShape`）。詳細は「複数本の溝の抽出（N周分）」
 - **`trackingSeeds`**: cycleResultの`grooveSelection`から写真ごとの追跡の始点（8×2）を返す。新しい形式（`.seeds`）ならそれを、手動選択の古い形式（`.p1`が80×2）なら各写真の最初のセグメントの`p1`を返す
 - **`createFigure`**: サイズ指定でfigureを作成
+- **`saveFigure`**: 作業用・進捗用の図を png（と fig）で保存する。保存の前に `checkFigureName` で名前を確かめる。同じ名前のファイルがあれば保存せずにエラー（`saveFigure:fileExists`。`Overwrite=true` で上書き）
+- **`saveSlideFigure`** / **`savePaperFigure`**: スライド用（png 300 dpi）・原稿用（pdf・png 600 dpi・fig）の図を、指定の大きさ[cm]にそろえて保存する。どちらも保存の前に `checkFigureName` で名前を確かめる
 - **`checkFigureName`**: 図のファイル名が命名規則（[`docs/rules/figures.md`](docs/rules/figures.md)）に沿っているかを確かめ、外れていれば理由を返して警告（`checkFigureName:invalidName`）を出す。確かめるのは使える文字・語彙表の語・並び順・使わない語だけで、条件の書き漏れは確かめられない
 - **`figureVocabulary`**: 図のファイル名に使う語の一覧（`figures.md` の語彙表と同じ内容。`FigureNameTest` が一致を確かめる）
 - **`soundCheck`**: 波形・FFT・スペクトログラムをまとめて描画・保存

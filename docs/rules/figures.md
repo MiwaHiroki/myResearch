@@ -8,14 +8,15 @@ Claude（メインセッション・サブエージェントとも）が図を�
 
 | 用途 | スクリプト | 出力先 | git | タイトル | 大きさ・文字 | 保存 |
 |---|---|---|---|---|---|---|
-| 作業用（実験・評価） | `scripts/`、`scripts/evaluation/<テーマ>/` | `results/<MMDD>/`（`mkdirFromDate`、実行した日） | 管理外 | 付ける | 自由 | png（後で拡大して見たい図は fig も） |
-| 進捗報告用 | `scripts/progress/` | `results/figures/progress/` | 管理する | 付ける | 自由 | png・fig |
+| 作業用（実験・評価） | `scripts/`、`scripts/evaluation/<テーマ>/` | `results/<MMDD>/`（`mkdirFromDate`、実行した日） | 管理外 | 付ける | 自由 | `saveFigure`（png・fig） |
+| 進捗報告用 | `scripts/progress/` | `results/figures/progress/` | 管理する | 付ける | 自由 | `saveFigure`（png・fig） |
 | スライド用 | `scripts/slides/<YYYYMM><会議略称>/` | `results/figures/slides/<同じ名前>/` | 管理する | 付けない | [スライド用](#スライド用) | `saveSlideFigure` |
 | 原稿用 | `scripts/paper/<YYYYMM><会議略称>/` | `results/figures/paper/<同じ名前>/` | 管理外 | 付けない | [原稿用](#原稿用) | `savePaperFigure` |
 
 - 出力先は `currentProject().RootFolder` から組み立てる。スライド用・原稿用は `mkdirFromDate` の日付フォルダを使わない。
 - 会議のフォルダ名は `202609asj` のように、年月と会議の略称をつなげる。
-- 同じ名前のファイルがあれば上書きしない（[`data.md`](data.md) の「出力の上書き」）。
+- 図は、用途の保存関数（`saveFigure`・`saveSlideFigure`・`savePaperFigure`）で保存する。`exportgraphics`・`saveas` を直接呼ばない。保存関数は、保存の前に名前を確かめる（[名前の確かめ方](#名前の確かめ方)）。
+- 同じ名前のファイルがあれば上書きしない（[`data.md`](data.md) の「出力の上書き」）。`saveFigure` は、同じ名前のファイルがあると保存せずにエラー（`saveFigure:fileExists`）を出す。進捗報告用の図を作り直すときのように、上書きしてよいときだけ `Overwrite=true` にする。
 
 ## ファイル名
 
@@ -68,6 +69,7 @@ Claude（メインセッション・サブエージェントとも）が図を�
 
   ```matlab
   figName = "waveform_manualVsTrack_" + UPSAMPLING + "_" + METHOD + "_" + DATE;
+  saveFigure(fig, saveDir, figName);
   ```
 
 - `AudioData.filename`（`audio_(centroid_method)(original)_...` の形）を図の名前に使わない。
@@ -75,7 +77,7 @@ Claude（メインセッション・サブエージェントとも）が図を�
 
 ### 名前の確かめ方
 
-`checkFigureName(name)` が、名前がこのルールに沿っているかを確かめる。外れていれば、理由を並べた警告（`checkFigureName:invalidName`）を出す（エラーにはしない）。`issues = checkFigureName(name, Warn=false)` で、理由だけを受け取ることもできる。
+`checkFigureName(name)` が、名前がこのルールに沿っているかを確かめる。外れていれば、理由を並べた警告（`checkFigureName:invalidName`）を出す（エラーにはしない。保存もする）。保存関数はすべて、保存の前にこれを呼ぶ。`issues = checkFigureName(name, Warn=false)` で、理由だけを受け取ることもできる。
 
 確かめるのは、使える文字、語彙表の語か、並び順、使わない語だけ。図が依存する条件をすべて書いたか、データの日付が読み込んだデータと合っているかは確かめられないので、名前を決める人が確かめる。
 
