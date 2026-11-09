@@ -4,7 +4,7 @@
 %   track : 自動追跡（grooveTrack_1cycle.m）  experiments/<DATE>/cycleResult_origD_track_<DATE>.mat
 % どちらも高解像度化なし（origD）の重心法（centroid）の音声（result.centroid.audio）を使う。
 % 全時間の図1枚と、時間を切り出した図（T_WINDOWS）を、png と fig の両方で
-% results/figures/progress/ に保存する。凡例をクリックすると線の表示を切り替えられる
+% results/figures/progress/grooveTracking/ に保存する。凡例をクリックすると線の表示を切り替えられる
 % （togglevisibility）。
 %
 % 前提：Research.prj を開いていること。
@@ -21,10 +21,13 @@ METHOD = "centroid"; % 溝底の抽出法（"centroid" または "localMax"）
 Y_VIEW_FULL = [-1 1];              % 全時間の図のAmplitudeの範囲
 T_WINDOWS = [0 0.020; 0.590 0.630; 0.710 0.720]; % 切り出す時間[s]（1行が1枚）
 
-FIG_SIZE = [14.8 11.1]; % 図の大きさ[cm]（既存の図 compare_..._track_and_manual.fig と同じ）
+FIG_SIZE = [14.8 11.1]; % 図の大きさ[cm]（以前の図 compare_..._track_and_manual.fig と同じ）
 RESOLUTION = 300;       % pngの解像度[dpi]
 
-saveDir = fullfile(rootFolder,"results","figures","progress");
+saveDir = fullfile(rootFolder,"results","figures","progress","grooveTracking");
+if ~isfolder(saveDir)
+    mkdir(saveDir);
+end
 
 %% 読み込み
 manualPath = cycleResultPath(rootFolder,"origD",DATE);
