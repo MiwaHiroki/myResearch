@@ -85,7 +85,7 @@ imagesc(ax,img(yRange,xRange),XData=xRange([1 end]),YData=yRange([1 end]));
 colormap(ax,gray); clim(ax,[0 255]);
 axis(ax,"image");
 hold(ax,"on");
-scatter(ax,pks(inView,1),pks(inView,2),MARKER_SIZE,"cyan","o");
+scatter(ax,pks(inView,1),pks(inView,2),MARKER_SIZE,"cyan","filled","o");
 hold(ax,"off");
 xlabel(ax,"$x$ [px]");
 ylabel(ax,"$y$ [px]");
