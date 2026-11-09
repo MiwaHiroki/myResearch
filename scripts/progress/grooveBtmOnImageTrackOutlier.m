@@ -80,9 +80,9 @@ inView = pks(:,1) >= xRange(1) & pks(:,1) <= xRange(end) & ...
 fig = createFigure([0 0 FIG_SIZE]);
 ax = axes(fig);
 imagesc(ax,img(yRange,xRange),XData=xRange([1 end]),YData=yRange([1 end]));
-% 濃淡の範囲は切り出した部分の最小〜最大に合わせる（clim [0 255] だとコントラストが低く、
-% 溝底点を引っぱった暗い点が見えにくい）
-colormap(ax,gray);
+% 濃淡の範囲は画素値の全範囲 [0 255] に固定する。切り出した範囲に合わせて
+% コントラストを変えると、実験データ（撮影画像）を改変したことになるため
+colormap(ax,gray); clim(ax,[0 255]);
 axis(ax,"image");
 hold(ax,"on");
 scatter(ax,pks(inView,1),pks(inView,2),MARKER_SIZE,"cyan","o");
