@@ -24,8 +24,9 @@
 # AI 
 /.agents/*
 /.claude/*
-# サブエージェントの定義は他PCと共有するため追跡対象にする
+# サブエージェントの定義とskillは他PCと共有するため追跡対象にする
 !/.claude/agents/
+!/.claude/skills/
 
 # editor
 # VS Code の設定は個人の好み（表示など）なので追跡しない
