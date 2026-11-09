@@ -85,7 +85,7 @@ function [fig,ax] = plotManualVsTrack(tManual,yManual,tTrack,yTrack,figSize,titl
     xlabel(ax,"$t$ [s]");
     ylabel(ax,"Amplitude");
     title(ax,titleStr);
-    lgd = legend(ax,Location="northoutside",Orientation="horizontal");
+    lgd = legend(ax,Location="northeast"); % プロット領域内（波形にかぶってもよい）
     lgd.ItemHitFcn = @togglevisibility;
 end
 
