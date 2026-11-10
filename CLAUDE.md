@@ -35,6 +35,7 @@ An installed MATLAB is available through the `mcp__matlab__*` tools (static anal
   - [`docs/rules/data.md`](docs/rules/data.md): 生データ（`data/`・`experiments/` 配下のすべてのファイル）の扱い、MATLABの実行
   - [`docs/rules/communication.md`](docs/rules/communication.md): ユーザーへの質問の仕方、受け渡しファイル、報告の書き方
   - [`docs/rules/evaluation.md`](docs/rules/evaluation.md): 手法の評価の方法（溝形状の比べ方、正解の考え方、合格基準、受け入れテスト・評価スクリプトの置き場所）
+  - [`docs/rules/figures.md`](docs/rules/figures.md): 図の置き場所・ファイル名・タイトル・凡例・軸ラベル、スライド用・原稿用の図の大きさと保存（ファイル名とタイトルの語は語彙表から選ぶ）
 - **Open `Research.prj` first.** Scripts assume the MATLAB project is loaded and resolve paths from the project root:
   ```matlab
   proj = currentProject();
@@ -58,7 +59,7 @@ An installed MATLAB is available through the `mcp__matlab__*` tools (static anal
 ## MATLAB の規約
 - フォルダを MATLAB プロジェクトの恒久パスに追加しない。各スクリプトが必要なフォルダを `addpath` する。
 - 定数は UPPER_SNAKE_CASE（例：`W_TH`）。変数は camelCase で、`iImg` のようなインデックス接頭辞を付ける。
-- スライド用の図は、特に指定がなければ 8x8 cm。図を変更したら、MATLAB MCP 経由でスクリプトを実行し、書き出した PNG を目視で確認する（凡例とマーカーの重なりも含む）。
+- 図の置き場所・名前・大きさは [`docs/rules/figures.md`](docs/rules/figures.md) に従う。図を変更したら、MATLAB MCP 経由でスクリプトを実行し、書き出した PNG を目視で確認する（凡例とマーカーの重なりも含む）。
 - MATLAB プロジェクトが閉じていたら、スクリプトを実行する前に開き直す。
 - scripts/ の現行の命名規則に従い、新しいスクリプトに名前を付ける前に既存ファイルを確認する。
 

@@ -6,6 +6,7 @@ function savePaperFigure(fig,saveDir,name,w,h,opts)
 % 出力の物理サイズはw x hとほぼ一致する
 % 実際の出力サイズをコマンドウィンドウに表示するので、目標寸法とずれていないか
 % 確認し、ずれていればw,hを調整する
+% 名前が命名規則（docs/rules/figures.md）から外れていれば、checkFigureNameが警告を出す
 % (u)pLaTeX+dvipdfmxで挿入する場合は、extractbbでpdfから.xbbを作らないと
 % no BoundingBoxエラーになる（pdfLaTeX/LuaLaTeXなら不要）
 arguments
@@ -23,6 +24,8 @@ if ~isempty(regexp(name,"[^A-Za-z0-9_\-]","once"))
         "figure名 '%s' にLaTeXで扱えない文字が含まれています。" + ...
         "英数字と-_のみを使ってください。",name);
 end
+% LaTeXで扱えない文字以外の外れ（語彙表に無い語、並び順など）は警告にとどめる
+checkFigureName(name);
 
 RESOLUTION = 600; % png解像度[dpi]
 
