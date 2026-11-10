@@ -1,6 +1,6 @@
 % multiGrooveOnePhoto.m
 % 進捗報告用。写真1枚（1/8周分）から取り出した NUM_GROOVES 本の溝について、次の4枚の図を作り、
-% すべて results/figures/progress/multiGroove/ に保存する。
+% すべて results/figures/progress/multiGroove/ に保存する。IMG_INDICES の写真ごとに4枚ずつ作る。
 %   1-1. NUM_GROOVES 本すべてを自動追跡した溝を写真に重ねた図（grooveTrack_Ncycle.m の結果。
 %        複数本の溝の抽出を比べるための正解データ）
 %   1-2. 1本目を自動追跡し、2本目以降をヒストグラムで取り出した溝を写真に重ねた図
@@ -26,7 +26,7 @@ DATE = "1104";        % 読み込む結果の日付（experiments/<DATE>/）
 UPSAMPLING = "origD"; % 高解像度化（今は origD の結果だけがある）
 METHOD = "centroid";  % 溝底の抽出法（"centroid" または "localMax"）
 NUM_GROOVES = 5;      % 溝の本数（cycleResult_<UPSAMPLING>_track<N>/_hist<N>_<DATE>.mat の N）
-IMG_INDEX = 1;        % 図にする写真の番号（1〜8）
+IMG_INDICES = [1 2];  % 図にする写真の番号（1〜8）。写真2は溝の曲がりが大きく、デトレンドの効果が分かりやすい
 
 FIG_SIZE_IMAGE = [30 7];   % 写真に溝を重ねた図の大きさ[cm]（写真は横に長い）
 FIG_SIZE_POINTS = [30 10]; % デトレンドした点の図の大きさ[cm]
@@ -61,94 +61,98 @@ mgTrack = trackRes.grooveSelection.multiGroove;
 mgHist = histRes.grooveSelection.multiGroove;
 
 numSegments = histRes.conditions.numSegments;
-ks = (IMG_INDEX-1)*numSegments + (1:numSegments);
 queryStep = histRes.grooveSelection.tracking.queryStep;
-[pks,xQuery] = mergeSegmentPoints(histRes.(METHOD).pts(ks),QueryStep=queryStep);
-
-imgs = reconstructImage(histRes.conditions,IMG_INDEX);
-photoImg = ImageData([imgs.img],[IMG_INDEX;0]); % 高さは同じなので横に連結できる
 
 % 名前・タイトルに共通の部分
 condName = UPSAMPLING + "_" + METHOD;
 condTitle = LABEL.(UPSAMPLING) + ", " + LABEL.(METHOD);
-partName = "_" + DATE + "_img" + IMG_INDEX;
-partTitle = "data " + DATE + ", photo " + IMG_INDEX;
 
-%% 1-1. すべてを自動追跡した溝
-yAbsTrack = [mgTrack.("yAbs" + suffix){IMG_INDEX,:}];
-seedsTrack = [xQuery(1)*ones(NUM_GROOVES,1), mgTrack.seedsY(IMG_INDEX,:)'];
-fig = plotGroovesOnImage(photoImg,xQuery,yAbsTrack,seedsTrack,FIG_SIZE_IMAGE, ...
-    "Groove on image (" + condTitle + ", " + LABEL.track + ", " + NUM_GROOVES + " cycles, " + partTitle + ")");
-saveFigure(fig,saveDirMulti, ...
-    "grooveOnImage_" + condName + "_track_" + NUM_GROOVES + "cyc" + partName,Overwrite=OVERWRITE);
+for iImg = IMG_INDICES
+    ks = (iImg-1)*numSegments + (1:numSegments);
+    [pks,xQuery] = mergeSegmentPoints(histRes.(METHOD).pts(ks),QueryStep=queryStep);
 
-%% 1-2. 1本目を自動追跡し、2本目以降をヒストグラムで取り出した溝
-yAbsHist = [mgHist.("yAbs" + suffix){IMG_INDEX,:}];
-seedHist = histRes.grooveSelection.seeds(IMG_INDEX,:);
-fig = plotGroovesOnImage(photoImg,xQuery,yAbsHist,seedHist,FIG_SIZE_IMAGE, ...
-    "Groove on image (" + condTitle + ", " + LABEL.hist + ", " + NUM_GROOVES + " cycles, " + partTitle + ")");
-saveFigure(fig,saveDirMulti, ...
-    "grooveOnImage_" + condName + "_hist_" + NUM_GROOVES + "cyc" + partName,Overwrite=OVERWRITE);
+    imgs = reconstructImage(histRes.conditions,iImg);
+    photoImg = ImageData([imgs.img],[iImg;0]); % 高さは同じなので横に連結できる
 
-%% 2. 1本目の溝の多項式でデトレンドした溝底点
-trend = mgHist.("trend" + suffix){IMG_INDEX};
-yTrend = polyval(trend.p,pks(:,1),trend.S,trend.mu);
-yShift = polyval(trend.p,xQuery(1),trend.S,trend.mu); % 左端での多項式の値
-yCor = pks(:,2) - yTrend;   % extractMultiGroove と同じ補正（1本目が y≈0）
-yDet = yCor + yShift;       % 左端の点の y が変わらないようにした補正
-yLimPoints = [min(yDet) max(yDet)];
+    partName = "_" + DATE + "_img" + iImg;
+    partTitle = "data " + DATE + ", photo " + iImg;
 
-fig = createFigure([0 0 FIG_SIZE_POINTS]);
-ax = axes(fig);
-scatter(ax,pks(:,1),yDet,MARKER_SIZE_POINTS,"blue","filled");
-axis(ax,"tight");
-ylim(ax,yLimPoints);
-set(ax,"YDir","reverse","Box","on");
-xlabel(ax,"$x$ [px]");
-ylabel(ax,"$y$ [px]");
-title(ax,"Groove-bottom points (" + condTitle + ", " + LABEL.hist + ", " + partTitle + ")");
-saveFigure(fig,saveDirMulti,"pointCloud_" + condName + "_hist" + partName,Overwrite=OVERWRITE);
+    %% 1-1. すべてを自動追跡した溝
+    yAbsTrack = [mgTrack.("yAbs" + suffix){iImg,:}];
+    seedsTrack = [xQuery(1)*ones(NUM_GROOVES,1), mgTrack.seedsY(iImg,:)'];
+    fig = plotGroovesOnImage(photoImg,xQuery,yAbsTrack,seedsTrack,FIG_SIZE_IMAGE, ...
+        "Groove on image (" + condTitle + ", " + LABEL.track + ", " + NUM_GROOVES + " cycles, " + partTitle + ")");
+    saveFigure(fig,saveDirMulti, ...
+        "grooveOnImage_" + condName + "_track_" + NUM_GROOVES + "cyc" + partName,Overwrite=OVERWRITE);
 
-%% 3. デトレンドした点の y のヒストグラム
-% extractMultiGroove と同じ引数で findGrooveCenters を呼び直し、保存した山の中心と同じかを確かめる
-minPeakHeight = mgHist.thHistRatio * numel(xQuery);
-[centers,infoHist] = findGrooveCenters([pks(:,1) yCor],NUM_GROOVES, ...
-    BinWidth=mgHist.binWidth,MinPeakHeight=minPeakHeight);
-savedCenters = mgHist.("centers" + suffix)(IMG_INDEX,:)';
-if max(abs(centers - savedCenters)) > 1e-9
-    error("multiGrooveOnePhoto:centersMismatch", ...
-        "呼び直した山の中心 %s が、保存した値 %s と違います。", ...
-        mat2str(centers',4),mat2str(savedCenters',4));
+    %% 1-2. 1本目を自動追跡し、2本目以降をヒストグラムで取り出した溝
+    yAbsHist = [mgHist.("yAbs" + suffix){iImg,:}];
+    seedHist = histRes.grooveSelection.seeds(iImg,:);
+    fig = plotGroovesOnImage(photoImg,xQuery,yAbsHist,seedHist,FIG_SIZE_IMAGE, ...
+        "Groove on image (" + condTitle + ", " + LABEL.hist + ", " + NUM_GROOVES + " cycles, " + partTitle + ")");
+    saveFigure(fig,saveDirMulti, ...
+        "grooveOnImage_" + condName + "_hist_" + NUM_GROOVES + "cyc" + partName,Overwrite=OVERWRITE);
+
+    %% 2. 1本目の溝の多項式でデトレンドした溝底点
+    trend = mgHist.("trend" + suffix){iImg};
+    yTrend = polyval(trend.p,pks(:,1),trend.S,trend.mu);
+    yShift = polyval(trend.p,xQuery(1),trend.S,trend.mu); % 左端での多項式の値
+    yCor = pks(:,2) - yTrend;   % extractMultiGroove と同じ補正（1本目が y≈0）
+    yDet = yCor + yShift;       % 左端の点の y が変わらないようにした補正
+    yLimPoints = [min(yDet) max(yDet)];
+
+    fig = createFigure([0 0 FIG_SIZE_POINTS]);
+    ax = axes(fig);
+    scatter(ax,pks(:,1),yDet,MARKER_SIZE_POINTS,"blue","filled");
+    axis(ax,"tight");
+    ylim(ax,yLimPoints);
+    set(ax,"YDir","reverse","Box","on");
+    xlabel(ax,"$x$ [px]");
+    ylabel(ax,"$y$ [px]");
+    title(ax,"Groove-bottom points (" + condTitle + ", " + LABEL.hist + ", " + partTitle + ")");
+    saveFigure(fig,saveDirMulti,"pointCloud_" + condName + "_hist" + partName,Overwrite=OVERWRITE);
+
+    %% 3. デトレンドした点の y のヒストグラム
+    % extractMultiGroove と同じ引数で findGrooveCenters を呼び直し、保存した山の中心と同じかを確かめる
+    minPeakHeight = mgHist.thHistRatio * numel(xQuery);
+    [centers,infoHist] = findGrooveCenters([pks(:,1) yCor],NUM_GROOVES, ...
+        BinWidth=mgHist.binWidth,MinPeakHeight=minPeakHeight);
+    savedCenters = mgHist.("centers" + suffix)(iImg,:)';
+    if max(abs(centers - savedCenters)) > 1e-9
+        error("multiGrooveOnePhoto:centersMismatch", ...
+            "写真%d：呼び直した山の中心 %s が、保存した値 %s と違います。", ...
+            iImg,mat2str(centers',4),mat2str(savedCenters',4));
+    end
+    binEdges = [infoHist.binCenters - mgHist.binWidth/2, infoHist.binCenters(end) + mgHist.binWidth/2];
+
+    fig = createFigure([0 0 FIG_SIZE_HIST]);
+    ax = axes(fig);
+    histogram(ax,BinEdges=binEdges + yShift,BinCounts=infoHist.counts,Orientation="horizontal", ...
+        FaceColor="blue",FaceAlpha=1,EdgeColor="none",HandleVisibility="off");
+    hold(ax,"on");
+    % 選んだ山（findGrooveCenters の peakCenters の、1本目から y の小さい側へ NUM_GROOVES 個）の
+    % 頂点に〇を描く。1本目（追跡した溝の位置の山）と、2本目以降（ヒストグラムで選んだ山）で色を変える
+    selIdx = infoHist.firstIdx:-1:infoHist.firstIdx-NUM_GROOVES+1;
+    peakX = infoHist.peakHeights(selIdx);
+    peakY = infoHist.peakCenters(selIdx) + yShift;
+    hFirst = plot(ax,peakX(1),peakY(1),"o",Color="black",MarkerSize=MARKER_SIZE_PEAK);
+    hOthers = plot(ax,peakX(2:end),peakY(2:end),"o",Color="red",MarkerSize=MARKER_SIZE_PEAK);
+    hold(ax,"off");
+    ylim(ax,yLimPoints);
+    set(ax,"YDir","reverse","Box","on");
+    xlabel(ax,"Number of points");
+    ylabel(ax,"$y$ [px]");
+    % 図の幅に収まらないので2行に分ける（書く情報と順はほかの図と同じ）
+    title(ax,["Groove histogram", "(" + condTitle + ", " + LABEL.hist + ", " + NUM_GROOVES + " cycles, " + partTitle + ")"]);
+    legend(ax,[hFirst hOthers], ...
+        ["groove 1 (" + LABEL.track + ")", sprintf("grooves 2-%d (%s)",NUM_GROOVES,LABEL.hist)], ...
+        Location="southeast");
+    saveFigure(fig,saveDirMulti, ...
+        "grooveHistogram_" + condName + "_hist_" + NUM_GROOVES + "cyc" + partName,Overwrite=OVERWRITE);
+
+    fprintf("写真%d：左端での多項式の値 yShift = %.2f px、溝の位置（デトレンド後）= %s px\n", ...
+        iImg,yShift,mat2str([yShift; centers(2:end) + yShift]',5));
 end
-binEdges = [infoHist.binCenters - mgHist.binWidth/2, infoHist.binCenters(end) + mgHist.binWidth/2];
-
-fig = createFigure([0 0 FIG_SIZE_HIST]);
-ax = axes(fig);
-histogram(ax,BinEdges=binEdges + yShift,BinCounts=infoHist.counts,Orientation="horizontal", ...
-    FaceColor="blue",FaceAlpha=1,EdgeColor="none",HandleVisibility="off");
-hold(ax,"on");
-% 選んだ山（findGrooveCenters の peakCenters の、1本目から y の小さい側へ NUM_GROOVES 個）の
-% 頂点に〇を描く。1本目（追跡した溝の位置の山）と、2本目以降（ヒストグラムで選んだ山）で色を変える
-selIdx = infoHist.firstIdx:-1:infoHist.firstIdx-NUM_GROOVES+1;
-peakX = infoHist.peakHeights(selIdx);
-peakY = infoHist.peakCenters(selIdx) + yShift;
-hFirst = plot(ax,peakX(1),peakY(1),"o",Color="black",MarkerSize=MARKER_SIZE_PEAK);
-hOthers = plot(ax,peakX(2:end),peakY(2:end),"o",Color="red",MarkerSize=MARKER_SIZE_PEAK);
-hold(ax,"off");
-ylim(ax,yLimPoints);
-set(ax,"YDir","reverse","Box","on");
-xlabel(ax,"Number of points");
-ylabel(ax,"$y$ [px]");
-% 図の幅に収まらないので2行に分ける（書く情報と順はほかの図と同じ）
-title(ax,["Groove histogram", "(" + condTitle + ", " + LABEL.hist + ", " + NUM_GROOVES + " cycles, " + partTitle + ")"]);
-legend(ax,[hFirst hOthers], ...
-    ["groove 1 (" + LABEL.track + ")", sprintf("grooves 2-%d (%s)",NUM_GROOVES,LABEL.hist)], ...
-    Location="southeast");
-saveFigure(fig,saveDirMulti, ...
-    "grooveHistogram_" + condName + "_hist_" + NUM_GROOVES + "cyc" + partName,Overwrite=OVERWRITE);
-
-fprintf("写真%d：左端での多項式の値 yShift = %.2f px、溝の位置（デトレンド後）= %s px\n", ...
-    IMG_INDEX,yShift,mat2str([yShift; centers(2:end) + yShift]',5));
 
 
 %% ローカル関数
