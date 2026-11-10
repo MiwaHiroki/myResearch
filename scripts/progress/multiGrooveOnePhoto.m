@@ -1,13 +1,12 @@
 % multiGrooveOnePhoto.m
-% 進捗報告用。写真1枚（1/8周分）から取り出した NUM_GROOVES 本の溝について、次の4枚の図を作る。
-%   1-1. NUM_GROOVES 本すべてを自動追跡した溝を写真に重ねた図（grooveTrack_Ncycle.m の結果）
-%        → results/figures/progress/grooveTracking/
+% 進捗報告用。写真1枚（1/8周分）から取り出した NUM_GROOVES 本の溝について、次の4枚の図を作り、
+% すべて results/figures/progress/multiGroove/ に保存する。
+%   1-1. NUM_GROOVES 本すべてを自動追跡した溝を写真に重ねた図（grooveTrack_Ncycle.m の結果。
+%        複数本の溝の抽出を比べるための正解データ）
 %   1-2. 1本目を自動追跡し、2本目以降をヒストグラムで取り出した溝を写真に重ねた図
-%        （grooveHist_Ncycle.m の結果）                     → results/figures/progress/multiGroove/
+%        （grooveHist_Ncycle.m の結果）
 %   2.   写真のすべての溝底点を、1本目の溝の多項式でデトレンドした点（scatter）
-%                                                           → results/figures/progress/multiGroove/
-%   3.   2 の点の y のヒストグラムと、1本目の溝の位置・ヒストグラムから推定した2本目以降の位置
-%                                                           → results/figures/progress/multiGroove/
+%   3.   2 の点の y のヒストグラムに、選んだ山（1本目と、2本目以降）の頂点を〇で示した図
 % 2・3 のデトレンドでは、多項式の値そのものではなく、写真の左端（xQuery(1)）での多項式の値との
 % 差を引く。左端の溝底点の y は変わらず、点は元の画像の y の近くに残る。
 % （extractMultiGroove は多項式の値そのものを引くので、1本目が y≈0 になる。ここでの y は、
@@ -32,15 +31,13 @@ IMG_INDEX = 1;        % 図にする写真の番号（1〜8）
 FIG_SIZE_IMAGE = [30 7];   % 写真に溝を重ねた図の大きさ[cm]（写真は横に長い）
 FIG_SIZE_POINTS = [30 10]; % デトレンドした点の図の大きさ[cm]
 FIG_SIZE_HIST = [10 10];   % ヒストグラムの図の大きさ[cm]（高さを点の図とそろえる）
-MARKER_SIZE_POINTS = 2;    % デトレンドした点の大きさ（scatterのSizeData）
+MARKER_SIZE_POINTS = 1;    % デトレンドした点の大きさ（scatterのSizeData）
+MARKER_SIZE_PEAK = 6;      % ヒストグラムの山の頂点の〇の大きさ（grooveHist_Ncycle.m の図と同じ）
 OVERWRITE = true;          % 進捗報告用の図なので、作り直したときは上書きする
 
-saveDirTrack = fullfile(rootFolder,"results","figures","progress","grooveTracking");
 saveDirMulti = fullfile(rootFolder,"results","figures","progress","multiGroove");
-for d = [saveDirTrack saveDirMulti]
-    if ~isfolder(d)
-        mkdir(d);
-    end
+if ~isfolder(saveDirMulti)
+    mkdir(saveDirMulti);
 end
 
 % タイトル・凡例の表記（docs/rules/figures.md の語彙表の「表記」の列）
@@ -82,7 +79,7 @@ yAbsTrack = [mgTrack.("yAbs" + suffix){IMG_INDEX,:}];
 seedsTrack = [xQuery(1)*ones(NUM_GROOVES,1), mgTrack.seedsY(IMG_INDEX,:)'];
 fig = plotGroovesOnImage(photoImg,xQuery,yAbsTrack,seedsTrack,FIG_SIZE_IMAGE, ...
     "Groove on image (" + condTitle + ", " + LABEL.track + ", " + NUM_GROOVES + " cycles, " + partTitle + ")");
-saveFigure(fig,saveDirTrack, ...
+saveFigure(fig,saveDirMulti, ...
     "grooveOnImage_" + condName + "_track_" + NUM_GROOVES + "cyc" + partName,Overwrite=OVERWRITE);
 
 %% 1-2. 1本目を自動追跡し、2本目以降をヒストグラムで取り出した溝
@@ -128,11 +125,15 @@ binEdges = [infoHist.binCenters - mgHist.binWidth/2, infoHist.binCenters(end) + 
 fig = createFigure([0 0 FIG_SIZE_HIST]);
 ax = axes(fig);
 histogram(ax,BinEdges=binEdges + yShift,BinCounts=infoHist.counts,Orientation="horizontal", ...
-    FaceColor=[0.6 0.6 0.6],EdgeColor="none",HandleVisibility="off");
+    FaceColor="blue",FaceAlpha=1,EdgeColor="none",HandleVisibility="off");
 hold(ax,"on");
-% 1本目は追跡した溝の位置（デトレンド後の1本目は平均 yShift）、2本目以降はヒストグラムの山の中心
-hFirst = yline(ax,yShift,"-",Color=[0 0.4470 0.7410],LineWidth=1);
-hOthers = yline(ax,centers(2:end) + yShift,"--",Color="red",LineWidth=1);
+% 選んだ山（findGrooveCenters の peakCenters の、1本目から y の小さい側へ NUM_GROOVES 個）の
+% 頂点に〇を描く。1本目（追跡した溝の位置の山）と、2本目以降（ヒストグラムで選んだ山）で色を変える
+selIdx = infoHist.firstIdx:-1:infoHist.firstIdx-NUM_GROOVES+1;
+peakX = infoHist.peakHeights(selIdx);
+peakY = infoHist.peakCenters(selIdx) + yShift;
+hFirst = plot(ax,peakX(1),peakY(1),"o",Color="black",MarkerSize=MARKER_SIZE_PEAK);
+hOthers = plot(ax,peakX(2:end),peakY(2:end),"o",Color="red",MarkerSize=MARKER_SIZE_PEAK);
 hold(ax,"off");
 ylim(ax,yLimPoints);
 set(ax,"YDir","reverse","Box","on");
@@ -140,7 +141,7 @@ xlabel(ax,"Number of points");
 ylabel(ax,"$y$ [px]");
 % 図の幅に収まらないので2行に分ける（書く情報と順はほかの図と同じ）
 title(ax,["Groove histogram", "(" + condTitle + ", " + LABEL.hist + ", " + NUM_GROOVES + " cycles, " + partTitle + ")"]);
-legend(ax,[hFirst hOthers(1)], ...
+legend(ax,[hFirst hOthers], ...
     ["groove 1 (" + LABEL.track + ")", sprintf("grooves 2-%d (%s)",NUM_GROOVES,LABEL.hist)], ...
     Location="southeast");
 saveFigure(fig,saveDirMulti, ...
