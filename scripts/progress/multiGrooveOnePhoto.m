@@ -1,12 +1,14 @@
 % multiGrooveOnePhoto.m
-% 進捗報告用。写真1枚（1/8周分）から取り出した NUM_GROOVES 本の溝について、次の4枚の図を作り、
-% すべて results/figures/progress/multiGroove/ に保存する。IMG_INDICES の写真ごとに4枚ずつ作る。
+% 進捗報告用。写真1枚（1/8周分）から取り出した NUM_GROOVES 本の溝について、次の図を作り、
+% すべて results/figures/progress/multiGroove/ に保存する。IMG_INDICES の写真ごとに 1-1〜3 の4枚を作る。
 %   1-1. NUM_GROOVES 本すべてを自動追跡した溝を写真に重ねた図（grooveTrack_Ncycle.m の結果。
 %        複数本の溝の抽出を比べるための正解データ）
 %   1-2. 1本目を自動追跡し、2本目以降をヒストグラムで取り出した溝を写真に重ねた図
 %        （grooveHist_Ncycle.m の結果）
 %   2.   写真のすべての溝底点を、1本目の溝の多項式でデトレンドした点（scatter）
 %   3.   2 の点の y のヒストグラムに、選んだ山（1本目と、2本目以降）の頂点を〇で示した図
+%   4.   写真に、すべての溝底点（デトレンド前）を重ねた図（IMG_INDICES_POINTS_ON_IMAGE の写真だけ。
+%        表示の仕方は grooveBtmOnImageTrackOutlier.m の図と同じ）
 % 2・3 のデトレンドでは、多項式の値そのものではなく、写真の左端（xQuery(1)）での多項式の値との
 % 差を引く。左端の溝底点の y は変わらず、点は元の画像の y の近くに残る。
 % （extractMultiGroove は多項式の値そのものを引くので、1本目が y≈0 になる。ここでの y は、
@@ -27,12 +29,15 @@ UPSAMPLING = "origD"; % 高解像度化（今は origD の結果だけがある�
 METHOD = "centroid";  % 溝底の抽出法（"centroid" または "localMax"）
 NUM_GROOVES = 5;      % 溝の本数（cycleResult_<UPSAMPLING>_track<N>/_hist<N>_<DATE>.mat の N）
 IMG_INDICES = [1 2];  % 図にする写真の番号（1〜8）。写真2は溝の曲がりが大きく、デトレンドの効果が分かりやすい
+IMG_INDICES_POINTS_ON_IMAGE = 2; % 4（写真にすべての溝底点を重ねた図）を作る写真（IMG_INDICES の中から）
 
 FIG_SIZE_IMAGE = [30 7];   % 写真に溝を重ねた図の大きさ[cm]（写真は横に長い）
 FIG_SIZE_POINTS = [30 10]; % デトレンドした点の図の大きさ[cm]
 FIG_SIZE_HIST = [10 10];   % ヒストグラムの図の大きさ[cm]（高さを点の図とそろえる）
 MARKER_SIZE_POINTS = 1;    % デトレンドした点の大きさ（scatterのSizeData）
 MARKER_SIZE_PEAK = 6;      % ヒストグラムの山の頂点の〇の大きさ（grooveHist_Ncycle.m の図と同じ）
+MARKER_SIZE_ON_IMAGE = 1;  % 写真に重ねる溝底点の大きさ（scatterのSizeData）。写真全体を描くので
+                           % grooveBtmOnImageTrackOutlier.m（切り出し、15）より小さくする
 OVERWRITE = true;          % 進捗報告用の図なので、作り直したときは上書きする
 
 saveDirMulti = fullfile(rootFolder,"results","figures","progress","multiGroove");
@@ -152,6 +157,24 @@ for iImg = IMG_INDICES
 
     fprintf("写真%d：左端での多項式の値 yShift = %.2f px、溝の位置（デトレンド後）= %s px\n", ...
         iImg,yShift,mat2str([yShift; centers(2:end) + yShift]',5));
+
+    %% 4. 写真にすべての溝底点を重ねた図
+    if ismember(iImg,IMG_INDICES_POINTS_ON_IMAGE)
+        fig = createFigure([0 0 FIG_SIZE_IMAGE]);
+        tl = tiledlayout(fig,1,1,Padding="compact");
+        ax = nexttile(tl);
+        imagesc(ax,photoImg.img);
+        % 撮影画像の表示範囲は [0 255] に固定する（docs/rules/figures.md「撮影画像の表示」）
+        colormap(ax,gray); clim(ax,[0 255]);
+        axis(ax,"image");
+        hold(ax,"on");
+        scatter(ax,pks(:,1),pks(:,2),MARKER_SIZE_ON_IMAGE,"cyan","filled","o");
+        hold(ax,"off");
+        xlabel(ax,"$x$ [px]");
+        ylabel(ax,"$y$ [px]");
+        title(ax,"Groove on image (" + condTitle + ", " + partTitle + ")");
+        saveFigure(fig,saveDirMulti,"grooveOnImage_" + condName + partName,Overwrite=OVERWRITE);
+    end
 end
 
 
