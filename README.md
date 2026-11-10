@@ -23,7 +23,7 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 - **`scripts/`**: 溝底抽出・音声生成の実行スクリプト群（旧版は `archive/`、針再生の評価は `evaluation/`）
 - **`data/`**: 入力データ（`pictures/` は盤面写真、`stylus playback/` は針再生の音源）
 - **`experiments/`**: 1周分の解析結果の`.mat`（日付ごと。旧版・失敗した試行は `archive/`）
-- **`results/`**: 図・音声の出力先（日付ごと。原稿用の図は `figures/paper/<会議名>/`）
+- **`results/`**: 図・音声の出力先（日付ごと。原稿用の図は `figures/paper/<会議名>/`。図の置き場所と名前の付け方は [`docs/rules/figures.md`](docs/rules/figures.md)）
 - **`test/`**: テストコード（`unit/` が `runAllTests` の対象。廃止したクラスのテストは `archive/`）
 
 `experiments/` と `results/` は寿命が違うので分けている。`results/` の図・音声は `experiments/` の`.mat`から何度でも作り直せるが、`.mat` 自体は `fitGroove` の手動操作を80セグメント分やり直さないと作れない。**バックアップの対象は `data/` と `experiments/` の2つ**で、`results/` は消してよい。どちらもgit管理外。
@@ -62,6 +62,10 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 - **`extractMultiGroove`**: 写真1枚分の点群と1回のクリックから、N本の溝の形状を返す（`trackGroove`→`detrendTrackedShape`→`findGrooveCenters`→`extractGrooveBands`→溝ごとに`detrendTrackedShape`）。詳細は「複数本の溝の抽出（N周分）」
 - **`trackingSeeds`**: cycleResultの`grooveSelection`から写真ごとの追跡の始点（8×2）を返す。新しい形式（`.seeds`）ならそれを、手動選択の古い形式（`.p1`が80×2）なら各写真の最初のセグメントの`p1`を返す
 - **`createFigure`**: サイズ指定でfigureを作成
+- **`saveFigure`**: 作業用・進捗用の図を png（と fig）で保存する。保存の前に `checkFigureName` で名前を確かめる。同じ名前のファイルがあれば保存せずにエラー（`saveFigure:fileExists`。`Overwrite=true` で上書き）
+- **`saveSlideFigure`** / **`savePaperFigure`**: スライド用（png 300 dpi）・原稿用（pdf・png 600 dpi・fig）の図を、指定の大きさ[cm]にそろえて保存する。どちらも保存の前に `checkFigureName` で名前を確かめる
+- **`checkFigureName`**: 図のファイル名が命名規則（[`docs/rules/figures.md`](docs/rules/figures.md)）に沿っているかを確かめ、外れていれば理由を返して警告（`checkFigureName:invalidName`）を出す。確かめるのは使える文字・語彙表の語・並び順・使わない語だけで、条件の書き漏れは確かめられない
+- **`figureVocabulary`**: 図のファイル名に使う語の一覧（`figures.md` の語彙表と同じ内容。`FigureNameTest` が一致を確かめる）
 - **`soundCheck`**: 波形・FFT・スペクトログラムをまとめて描画・保存
 - **`mkdirFromDate`**: 図・音声の出力先 `results/<日付>/` を作成しパスを返す
 - **`experimentDir`**: 実験結果`.mat`の保存先 `experiments/<日付>/` を作成しパスを返す（`Create=false` でパスを組むだけ）
