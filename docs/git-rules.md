@@ -69,7 +69,7 @@ Agent: main
 - 指示内容が明確で影響範囲が小さい単純な変更（例: 1ファイルのリネーム、ドキュメント更新）は、これまで通り`master`に直接コミットしてよい。
 - Claudeが自律的に複数ファイル・複数ステップにまたがる変更を行う場合は、作業ブランチを切る。ユーザーがマージ前に差分をレビューできるようにするため。
 - ブランチ名は`claude/<内容を表す短い英語スラッグ>`とする（例: `claude/darkness-map-rename`）。既存の`feature/*`・`backup/*`と混在させず、Claude発の作業ブランチだと一目で分かるようにする。
-- ローカルの`master`には、進捗ログの自動更新のコミットが毎日入る。`master`をrebase・resetしない（`git pull --rebase`を含む）。`.state.json`の`last_commit`が`master`の履歴からたどれなくなり、タスクが止まるため（issue #27）。
+- ローカルの`master`には、進捗ログの自動更新のコミットが毎日入る。`master`をrebase・resetしない（`git pull --rebase`を含む）。コミットのハッシュが変わり、進捗ログに同じ作業が二重に載ったり、`.state.json`の`seen_tips`のコミットが消えてタスクが止まったりするため（issue #27）。作業ブランチも、進捗ログに載った後のrebaseは避ける（同じ理由）。
 
 ## worktreeでの並行作業
 
