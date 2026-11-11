@@ -8,7 +8,7 @@ function vocab = figureVocabulary()
 % 戻り値 vocab のフィールド（すべて string の列ベクトル）。"<N>" は1桁以上の数字を表す。
 %   types         種類の語
 %   conditions    条件の語。表の上からの順が、ファイル名に並べる順
-%   conditionCats conditions と同じ長さの分類（画像・抽出法・溝の選び方・音源・周数）
+%   conditionCats conditions と同じ長さの分類（画像・溝底の判定・抽出法・溝の選び方・音源・周数）
 %   parts         部分の語。並べる順
 %   displays      表示の語
 %   forbidden     使わない語
@@ -38,6 +38,8 @@ function vocab = figureVocabulary()
         "画像",       "intpD<N>x"
         "画像",       "photoshop8x"
         "画像",       "bilateralK<N>"
+        "溝底の判定", "exclBound"
+        "溝底の判定", "inclBound"
         "抽出法",     "centroid"
         "抽出法",     "localMax"
         "溝の選び方", "manual"

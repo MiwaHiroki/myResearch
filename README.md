@@ -95,6 +95,7 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 - **`bilateral/bilateral8x_centroid.m`**: Photoshopで8xに高解像度化した画像(`*-8x.png`)の一部にバイラテラルフィルタをかけ、重心法の溝底点を表示する版（画像が大きいため元画像座標で指定した窓を切り出して処理する）。
 - **`bilateral/bilateralOri_centroid_1cycle.m`**: 高解像度化していない画像にバイラテラルフィルタ（カーネル3通り＋フィルタなし）をかけ、条件ごとに1周分の音声を重心法で作成して波形・FFT・スペクトログラムを比較する。溝の選択は過去の`cycleResult`の`grooveSelection`を再利用するので`ginput`は不要。動作確認用のため実験結果`.mat`は保存しない。
 - **`evaluation/stylus/sound_from_stylus.m`**: 針で再生した音源を切り出し・フィルタ処理し、復元音声と比較・評価する。
+- **`evaluation/grooveBottomDetection/compareInclBoundToExclBound.m`**: 溝底の判定で境界値を含めない（`exclBound`：`D > D_THRESH`・幅 `< W_TH`。コミット`ad46b44`（2026-08-14）より前のコードで、0731のデータはこれで作った）か、含める（`inclBound`：`D >= D_THRESH`・幅 `<= W_TH`。今の`DarknessMap`・`GrooveExtractor`）かで、写真1枚の溝底点（重心法）がどう変わるかを数え、片方だけにある点の色を変えて写真全体と1区間に重ねた図を`results/<日付>/`に保存する。`exclBound`の判定は今の`src/`に無いので、スクリプトのローカル関数で書き直している。`inclBound`の点が保存済みのcycleResultの点と一致することも確かめる。
 
 ## 溝の選択（fitGroove）
 

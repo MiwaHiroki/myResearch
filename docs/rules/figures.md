@@ -31,7 +31,7 @@ Claude（メインセッション・サブエージェントとも）が図を�
 | `fig<番号>` | 原稿の図番号（`fig2`、`fig2-1`）。原稿用だけ | 任意 |
 | 種類 | 何を描いた図か（`waveform`、`spectrogram` など） | 必須 |
 | 比較 | 2つ以上を重ねたり並べたりした図だけ。違う条件の語を `Vs` でつなぐ（`manualVsTrack`） | 比べた図では必須 |
-| 条件 | 図が依存する条件を、語彙表の順（画像 → 抽出法 → 溝の選び方 → 周数）に並べる | 依存するものはすべて |
+| 条件 | 図が依存する条件を、語彙表の順（画像 → 溝底の判定 → 抽出法 → 溝の選び方 → 周数）に並べる | 依存するものはすべて |
 | データの日付 | 読み込んだ `experiments/<MMDD>/` の `MMDD` | cycleResult を使う図では必須 |
 | 部分・範囲・表示 | 写真・区間・溝の番号、時間・周波数の範囲、表示の違い。この順に並べる | 任意 |
 
@@ -149,6 +149,8 @@ Claude（メインセッション・サブエージェントとも）が図を�
 | 画像 | `intpD<N>x` | interpolated (Nx) | `intpD` の倍率を変えて比べるとき | |
 | 画像 | `photoshop8x` | Photoshop 8x | Photoshop で8倍に拡大した写真 | `photoshop`、`photoshopHighRes` |
 | 画像 | `bilateralK<N>` | bilateral (k=N) | バイラテラルフィルタ（`NeighborhoodSize` が N） | `bilateral_k05`、`k05` |
+| 溝底の判定 | `exclBound` | exclusive bounds | 溝底の判定で境界値を含めない（暗さ `D > D_THRESH`、区間の幅 `< W_TH`）。コミット `ad46b44`（2026-08-14）より前のコード（0731のデータなど） | |
+| 溝底の判定 | `inclBound` | inclusive bounds | 溝底の判定で境界値を含める（暗さ `D >= D_THRESH`、区間の幅 `<= W_TH`）。`ad46b44` 以降の `DarknessMap`・`GrooveExtractor` | |
 | 抽出法 | `centroid` | centroid | 重心法 | `centroid_method`、`cnt` |
 | 抽出法 | `localMax` | local maximum | 局所的最大値法 | `local_maximum_method`、`local_max`、`max` |
 | 溝の選び方 | `manual` | manual | `fitGroove`（区間ごとにクリックで選ぶ） | （書かれていない） |
