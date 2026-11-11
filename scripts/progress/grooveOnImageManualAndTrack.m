@@ -1,11 +1,13 @@
 % grooveOnImageManualAndTrack.m
-% 進捗報告用。1周分の結果について、写真1枚（1/8周分）ごとに次の3枚の図を作り、
+% 進捗報告用。1周分の結果について、写真1枚（1/8周分）ごとに次の2枚の図を作り、
 % results/figures/progress/grooveTracking/ に保存する。
-%   1.   写真に、すべての溝底点を重ねた図
-%   2-1. 1 の上に、従来法（manual。fitGroove で区間ごとにクリックして溝を選ぶ。1周で80回以上の
-%        ginput）で取り出した溝底点を重ねた図
-%   2-2. 1 の上に、自動追跡（track。trackGroove。写真1枚につき1回のクリック）で取り出した
-%        溝底点を重ねた図
+%   1. 写真に、すべての溝底点を重ねた図（MAKE_POINTS_FIG が true のときだけ）
+%   2. 1 の上に、次の2通りで取り出した溝底点を色を変えて重ねた図。凡例のクリックで、
+%      点の表示を切り替えられる（togglevisibility）
+%      - 従来法（manual。fitGroove で区間ごとにクリックして溝を選ぶ。1周で80回以上の ginput）
+%      - 自動追跡（track。trackGroove。写真1枚につき1回のクリック）
+%      2つの点はほとんど同じ位置にあり、後に描く track が上に来る。manual だけにある点は
+%      manual の色で見える。
 % 2 の点は、音声に使った点のうち、実際に検出した点だけ（欠損を補間した列の点は描かない）。
 %   manual: experiments/<DATE>/cycleResult_<UPSAMPLING>_<DATE>.mat       （pkCentroid_1cycle.m）
 %           保存したクリック位置 grooveSelection.p1/p2 で fitGroove を ginput なしで呼び直し、
@@ -34,12 +36,14 @@ BOUND = "inclBound";   % 溝底の判定。1014のデータは ad46b44 以降の
                        % 境界値を含める判定（meta.gitCommit で確かめた）
 METHOD = "centroid";   % 溝底の抽出法（"centroid" または "localMax"）
 IMG_INDICES = 1:8;     % 図にする写真の番号（1〜8）
+MAKE_POINTS_FIG = false; % 1（すべての溝底点だけの図）も作るか。2026/11/11 に作成済みなので、
+                         % 作り直すときだけ true にする
 
 FIG_SIZE = [30 7];     % 図の大きさ[cm]（写真は横に長い。grooveOnImage_origD_centroid_1104_img2 と同じ）
 MARKER_SIZE = 1;       % 溝底点の大きさ（scatterのSizeData。grooveOnImage_origD_centroid_1104_img2 と同じ）
-MARKER_SIZE_LEGEND = 20; % 凡例の点の大きさ（MARKER_SIZE のままだと凡例で見えないので、凡例用の点を別に描く）
+                       % 凡例の点は SizeData によらず見える大きさで描かれる
 COLOR_ALL = "cyan";    % すべての溝底点の色
-COLOR_SELECTED = "red"; % 取り出した溝底点の色
+COLOR_SELECTION = struct("manual","yellow","track","magenta"); % 取り出した溝底点の色（溝の選び方ごと）
 OVERWRITE = true;      % 進捗報告用の図なので、作り直したときは上書きする
 
 saveDir = fullfile(rootFolder,"results","figures","progress","grooveTracking");
@@ -133,35 +137,31 @@ for iImg = IMG_INDICES
     partTitle = "data " + DATE + ", photo " + iImg;
 
     %% 1. すべての溝底点
-    fig = plotPointsOnImage(photoImg,pks,FIG_SIZE,MARKER_SIZE,COLOR_ALL, ...
-        "Groove on image (" + condTitle + ", " + partTitle + ")");
-    saveFigure(fig,saveDir,"grooveOnImage_" + condName + partName,Overwrite=OVERWRITE);
-    close(fig);
-
-    %% 2. 1 の上に、取り出した溝底点
-    selections = ["manual","track"];
-    pksSelected = {pksManual,pksTrack};
-    for iSel = 1:numel(selections)
-        selection = selections(iSel);
-        fig = plotPointsOnImage(photoImg,pks,FIG_SIZE,MARKER_SIZE,COLOR_ALL, ...
-            "Groove on image (" + condTitle + ", " + LABEL.(selection) + ", " + partTitle + ")");
-        ax = fig.CurrentAxes;
-        hold(ax,"on");
-        scatter(ax,pksSelected{iSel}(:,1),pksSelected{iSel}(:,2),MARKER_SIZE,COLOR_SELECTED,"filled","o");
-        % 凡例用の点（描画領域には現れない）
-        hAll = scatter(ax,NaN,NaN,MARKER_SIZE_LEGEND,COLOR_ALL,"filled","o");
-        hSel = scatter(ax,NaN,NaN,MARKER_SIZE_LEGEND,COLOR_SELECTED,"filled","o");
-        hold(ax,"off");
-        legend(ax,[hAll hSel],["all groove-bottom points", "extracted (" + LABEL.(selection) + ")"], ...
-            Location="northeast");
-        saveFigure(fig,saveDir,"grooveOnImage_" + condName + "_" + selection + partName,Overwrite=OVERWRITE);
+    if MAKE_POINTS_FIG
+        titlePoints = "Groove on image (" + condTitle + ", " + partTitle + ")"; %#ok<UNRCH> MAKE_POINTS_FIG で切り替える
+        fig = plotPointsOnImage(photoImg,pks,FIG_SIZE,MARKER_SIZE,COLOR_ALL,titlePoints);
+        saveFigure(fig,saveDir,"grooveOnImage_" + condName + partName,Overwrite=OVERWRITE);
         close(fig);
     end
+
+    %% 2. 1 の上に、従来法と自動追跡で取り出した溝底点
+    [fig,hAll] = plotPointsOnImage(photoImg,pks,FIG_SIZE,MARKER_SIZE,COLOR_ALL, ...
+        "Groove on image: " + LABEL.manual + " vs " + LABEL.track + " (" + condTitle + ", " + partTitle + ")");
+    ax = fig.CurrentAxes;
+    hold(ax,"on");
+    hManual = scatter(ax,pksManual(:,1),pksManual(:,2),MARKER_SIZE,COLOR_SELECTION.manual,"filled","o");
+    hTrack = scatter(ax,pksTrack(:,1),pksTrack(:,2),MARKER_SIZE,COLOR_SELECTION.track,"filled","o");
+    hold(ax,"off");
+    lgd = legend(ax,[hAll hManual hTrack],["all groove-bottom points", LABEL.manual, LABEL.track], ...
+        Location="northeast");
+    lgd.ItemHitFcn = @togglevisibility;
+    saveFigure(fig,saveDir,"grooveOnImage_manualVsTrack_" + condName + partName,Overwrite=OVERWRITE);
+    close(fig);
 end
 
 
 %% ローカル関数
-function fig = plotPointsOnImage(img,pks,figSize,markerSize,color,titleStr)
+function [fig,hPoints] = plotPointsOnImage(img,pks,figSize,markerSize,color,titleStr)
 % 写真に溝底点を重ねる。写真の表示範囲は [0 255] に固定する（docs/rules/figures.md「撮影画像の表示」）
     fig = createFigure([0 0 figSize]);
     tl = tiledlayout(fig,1,1,Padding="compact");
@@ -170,7 +170,7 @@ function fig = plotPointsOnImage(img,pks,figSize,markerSize,color,titleStr)
     colormap(ax,gray); clim(ax,[0 255]);
     axis(ax,"image");
     hold(ax,"on");
-    scatter(ax,pks(:,1),pks(:,2),markerSize,color,"filled","o");
+    hPoints = scatter(ax,pks(:,1),pks(:,2),markerSize,color,"filled","o");
     hold(ax,"off");
     xlabel(ax,"$x$ [px]");
     ylabel(ax,"$y$ [px]");
