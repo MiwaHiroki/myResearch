@@ -12,7 +12,7 @@
 
 | スクリプト | 図 |
 |---|---|
-| [`scripts/progress/grooveOnImageManualAndTrack.m`](../scripts/progress/grooveOnImageManualAndTrack.m) | 1周分の従来法と自動追跡。①②を、写真全体と、外れた時刻の切り出しで作る |
+| [`scripts/progress/grooveOnImageManualAndTrack.m`](../scripts/progress/grooveOnImageManualAndTrack.m) | 1周分の従来法と自動追跡。①②を、写真全体と、外れた時刻の切り出しで作る。切り出しでは、①の上に溝底範囲と自動追跡の点を重ねた図も作る |
 | [`scripts/progress/multiGrooveOnePhoto.m`](../scripts/progress/multiGrooveOnePhoto.m) | N周分。写真全体の①と、取り出した溝を線で描いた図 |
 | [`scripts/evaluation/grooveBottomDetection/compareInclBoundToExclBound.m`](../scripts/evaluation/grooveBottomDetection/compareInclBoundToExclBound.m) | 溝底の判定の違い（`exclBound`・`inclBound`）で、片方だけにある溝底点の色を変えた図 |
 
@@ -87,6 +87,23 @@ ptsManual = [segPks(inGroove,1) + xOffsets(jSegment), segPks(inGroove,2)]; % 補
 - 点を選ぶ式は、`extractGrooveShape` と同じにする（`abs(y - c) <= tol` にすると、浮動小数点の丸めで結果が変わることがある）。
 - **選んだ点が、音声に使った点と同じかを確かめる。** 同じ点から `extractGrooveShape` → `detrendGrooveShape`（`PolyDegree=cond.polyDegree`）で y を作り直し、保存した `ycoords{k}` との差が 1e-9 以下であることを確かめる。違えば止める。
 
+**溝底範囲を重ねるとき**：溝底点が、なぜその y になったのかを見たいときは、各列で溝底とみなした区間（暗さが `cond.dThresh` 以上の区間のうち、幅が `cond.wTh` 以下のもの）の始めと終わりも重ねる。重心法の点は、この区間の中の暗さの重心なので、区間が隣の暗い所とつながって広がると、点がずれる。区間は cycleResult に保存していないので、区間の写真から、`_1cycle` スクリプトと同じ処理で求め直す。
+
+```matlab
+map = DarknessMap(imgs(jSegment));         % 手順2の区間の ImageData
+map = map.setDiffTF(cond.dThresh);
+extractor = GrooveExtractor(map);
+for x = 1:map.nCols
+    [firstIdx,lastIdx] = extractor.findThresholdIntervals(map,x);
+    extractor = extractor.findGrooveBottomIntervals(map,x,firstIdx,lastIdx,cond.wTh);
+end
+rangeStart = vertcat(extractor.startIdxCells{:});  % [x 始めの行]。区間の中の座標
+rangeEnd = vertcat(extractor.endIdxCells{:});      % [x 終わりの行]
+% 高解像度化したときは、行を (idx - 1)/map.scaleFactor.row + 1 で元の画像の y に戻す
+```
+
+- **求め直した区間が、音声に使った区間と同じかを確かめる。** 列ごとに `extractByCentroid`（または `extractByLocalMax`）で点を計算し、保存した `pts(k).peakCells{x}` との差が 1e-9 以下であることを確かめる。今のコードは `inclBound` なので、`exclBound` の結果では一致しない。
+
 ### 5. 描く範囲を決める
 
 | 範囲 | 座標 | 図の大きさ | 点の大きさ（`SizeData`） |
@@ -116,7 +133,8 @@ lgd = legend(ax,[hAll hManual hTrack],["all groove-bottom points","manual","trac
 lgd.ItemHitFcn = @togglevisibility;        % 凡例のクリックで表示を切り替える
 ```
 
-- **色**：すべての溝底点は cyan。取り出した点は、従来法が yellow、自動追跡が magenta（2026/11/11 時点の仮の色）。ヒストグラムの色はまだ決めていない。
+- **色**：すべての溝底点は cyan。取り出した点は、従来法が yellow、自動追跡が magenta（2026/11/11 時点の仮の色）。ヒストグラムの色はまだ決めていない。溝底範囲は、始めが red、終わりが yellow（スライドの `darknessProfile_grooveBtmRange.png` と同じ）。従来法の yellow と同じなので、従来法の点と同じ図には描かない。
+- **溝底範囲を重ねる順**：写真 → すべての溝底点 → 溝底範囲の始め → 終わり → 取り出した点。始めと終わりが同じ行（幅0の区間）のときは、終わりの yellow だけが見え、その下の溝底点も隠れる。
 - **重なり**：同じ位置の点は、後に描いた色だけが見える。今は自動追跡を後に描くので、2つの手法が同じ点を選んだ所は magenta、従来法だけの点は yellow に見える。隠れた点は、凡例のクリックで上の点を消して確かめる。
 - **凡例**：描画領域の中に置く（[`rules/figures.md`](rules/figures.md) の「凡例」）。凡例には実際の点のハンドルを渡す。`SizeData` が1でも、凡例の点は見える大きさで描かれる。凡例用に別の点を描くと、`togglevisibility` がその点だけを切り替え、実際の点が消えなくなる。凡例が点を隠すときは `Location="best"` にする（切り出しの図では、右上だと上隣の溝の点を隠した）。
 - **タイトル**：[`rules/figures.md`](rules/figures.md) の「タイトル」の形で書く。切り出しの図のように幅に収まらないときは、`["Groove on image: manual vs tracking", "(original, ...)"]` のように2行に分ける。
@@ -132,8 +150,10 @@ lgd.ItemHitFcn = @togglevisibility;        % 凡例のクリックで表示を�
 | ②（1つの手法）、写真全体 | `grooveOnImage_origD_inclBound_centroid_track_1014_img1` |
 | ①、切り出し | `grooveOnImage_origD_inclBound_centroid_1014_img8_seg5_715-716ms` |
 | ②（2つの手法）、切り出し | `grooveOnImage_manualVsTrack_origD_inclBound_centroid_1014_img8_seg5_715-716ms` |
+| ②（1つの手法）＋溝底範囲、切り出し | `grooveOnImage_origD_inclBound_centroid_track_1014_img8_seg5_715-716ms` |
 
 - ①は溝の選び方に依らないので、選び方を書かない。
+- 溝底範囲を描いたことは、名前に書いていない（語彙表の「表示」に合う語が無いため）。同じ条件で、溝底範囲の有る図と無い図を両方作るときは、語彙表に語を足して区別する。
 - 保存は用途の保存関数で行う。保存した後、PNG を開いて、点が溝底に乗っているか、凡例が見たい点を隠していないか、タイトルが切れていないかを確かめる。
 - **容量**：写真全体の図は、fig が1枚あたり約5 MB、png が約1 MB ある（溝底点が1枚に約7万点あるため）。`results/figures/progress/` のように git で管理する場所に、写真8枚分を何度も作り直すと、履歴が大きくなる。作成済みの図を作り直さないよう、スクリプトに作るかどうかのパラメータ（`MAKE_PHOTO_FIGS` など）を設ける。
 

@@ -8,10 +8,16 @@
 %      - 自動追跡（track。trackGroove。写真1枚につき1回のクリック）
 %      2つの点はほとんど同じ位置にあり、後に描く track が上に来る。manual だけにある点は
 %      manual の色で見える。
-% 1・2 をそれぞれ、次の2つの範囲で作る。
+%   3. 1 の上に、溝底範囲（各列で溝底とみなした区間の始めと終わり）と、自動追跡で取り出した溝底点を
+%      この順に重ねた図（切り出しだけ）。凡例は 2 と同じく togglevisibility。
+%      溝底範囲は cycleResult に保存していないので、写真から _1cycle スクリプトと同じ処理で求め直し、
+%      そこから計算した溝底点が、保存した溝底点と一致することを確かめる。始めと終わりの色は、
+%      results/figures/slides/202609asj/darknessProfile_grooveBtmRange.png（darknessProfile.m）と同じ。
+% 1・2 をそれぞれ、次の2つの範囲で作る（3 は切り出しだけ）。
 %   写真全体  ：IMG_INDICES の写真（1/8周分）ごと（MAKE_PHOTO_FIGS が true のときだけ）
 %   切り出し  ：T_WINDOWS の時間ごとに、|track − manual| が最大のサンプルが来た列と、追跡した y を
-%               中心に切り出した範囲（grooveBtmOnImageTrackOutlier.m の図と同じ範囲。座標は区間の中の px）
+%               中心に切り出した範囲（grooveBtmOnImageTrackOutlier.m の図と同じ範囲。座標は区間の中の px）。
+%               MAKE_CROP_FIGS で、作る図を選ぶ
 % 2 の点は、音声に使った点のうち、実際に検出した点だけ（欠損を補間した列の点は描かない）。
 %   manual: experiments/<DATE>/cycleResult_<UPSAMPLING>_<DATE>.mat       （pkCentroid_1cycle.m）
 %           保存したクリック位置 grooveSelection.p1/p2 で fitGroove を ginput なしで呼び直し、
@@ -29,6 +35,7 @@
 % 前提：Research.prj を開いていること（撮影画像が MATLAB のパス上にあること。
 %       reconstructImage で読み直す）。
 % 2026/11/11作成
+% 2026/11/12 3 の図を追加
 
 setDefaultIntrpr();
 proj = currentProject();
@@ -54,10 +61,13 @@ Y_HALF = 32;               % 切り出す高さの半分[px]（追跡したyを�
 FIG_SIZE_CROP = [14.8 11.1]; % 図の大きさ[cm]
 MARKER_SIZE_CROP = 15;     % 溝底点の大きさ（scatterのSizeData）
 LEGEND_LOCATION_CROP = "best"; % 凡例の位置。右上だと上隣の溝の点を隠すので、点の少ない所に置く
+% 作る図（上の 1・2・3）。1・2 は 2026/11/11 に作成済みなので、作り直すときだけ true にする
+MAKE_CROP_FIGS = struct("allPoints",false,"manualVsTrack",false,"trackWithRange",true);
 
 % 凡例の点は SizeData によらず見える大きさで描かれる
 COLOR_ALL = "cyan";    % すべての溝底点の色
 COLOR_SELECTION = struct("manual","yellow","track","magenta"); % 取り出した溝底点の色（溝の選び方ごと）
+COLOR_RANGE = struct("start","red","end","yellow"); % 溝底範囲の始めと終わりの色（darknessProfile.m と同じ）
 OVERWRITE = true;      % 進捗報告用の図なので、作り直したときは上書きする
 
 saveDir = fullfile(rootFolder,"results","figures","progress","grooveTracking");
@@ -81,6 +91,7 @@ else
     suffix = "Max";
 end
 condManual = manual.conditions;
+condTrack = track.conditions;
 selManual = manual.grooveSelection;
 trk = track.grooveSelection.tracking;
 numSegments = condManual.numSegments;
@@ -89,7 +100,7 @@ numSegments = condManual.numSegments;
 condName = UPSAMPLING + "_" + BOUND + "_" + METHOD;
 condTitle = LABEL.(UPSAMPLING) + ", " + LABEL.(BOUND) + ", " + LABEL.(METHOD);
 vsTitle = "Groove on image: " + LABEL.manual + " vs " + LABEL.track; % 2 のタイトルの、種類と比較
-style = struct("colorAll",COLOR_ALL,"colorSelection",COLOR_SELECTION,"label",LABEL);
+style = struct("colorAll",COLOR_ALL,"colorSelection",COLOR_SELECTION,"colorRange",COLOR_RANGE,"label",LABEL);
 
 %% 切り出す範囲（grooveBtmOnImageTrackOutlier.m と同じ求め方）
 % audio.signal は vertcat(ycoords{:}) を並べたものなので、セグメントごとの列数の累積和で
@@ -224,17 +235,31 @@ for iImg = imgList
 
         % タイトルは図の幅に収まらないので2行に分ける（書く情報と順は写真全体の図と同じ）
         % 1. すべての溝底点
-        fig = plotPointsOnImage(segImg,xRange,yRange,toSegment(pks),FIG_SIZE_CROP,MARKER_SIZE_CROP, ...
-            COLOR_ALL,["Groove on image", "(" + condTitle + ", " + partTitle + ")"]);
-        saveFigure(fig,saveDir,"grooveOnImage_" + condName + partName,Overwrite=OVERWRITE);
-        close(fig);
+        if MAKE_CROP_FIGS.allPoints
+            fig = plotPointsOnImage(segImg,xRange,yRange,toSegment(pks),FIG_SIZE_CROP,MARKER_SIZE_CROP, ...
+                COLOR_ALL,["Groove on image", "(" + condTitle + ", " + partTitle + ")"]);
+            saveFigure(fig,saveDir,"grooveOnImage_" + condName + partName,Overwrite=OVERWRITE);
+            close(fig);
+        end
 
         % 2. 1 の上に、従来法と自動追跡で取り出した溝底点
-        fig = plotManualVsTrack(segImg,xRange,yRange,toSegment(pks),toSegment(pksManual), ...
-            toSegment(pksTrack),FIG_SIZE_CROP,MARKER_SIZE_CROP,style,LEGEND_LOCATION_CROP, ...
-            [vsTitle, "(" + condTitle + ", " + partTitle + ")"]);
-        saveFigure(fig,saveDir,"grooveOnImage_manualVsTrack_" + condName + partName,Overwrite=OVERWRITE);
-        close(fig);
+        if MAKE_CROP_FIGS.manualVsTrack
+            fig = plotManualVsTrack(segImg,xRange,yRange,toSegment(pks),toSegment(pksManual), ...
+                toSegment(pksTrack),FIG_SIZE_CROP,MARKER_SIZE_CROP,style,LEGEND_LOCATION_CROP, ...
+                [vsTitle, "(" + condTitle + ", " + partTitle + ")"]);
+            saveFigure(fig,saveDir,"grooveOnImage_manualVsTrack_" + condName + partName,Overwrite=OVERWRITE);
+            close(fig);
+        end
+
+        % 3. 1 の上に、溝底範囲と、自動追跡で取り出した溝底点
+        if MAKE_CROP_FIGS.trackWithRange
+            [rangeStart,rangeEnd] = grooveBottomRange(imgs(j),condTrack,track.(METHOD).pts(ks(j)),METHOD);
+            fig = plotTrackWithRange(segImg,xRange,yRange,toSegment(pks),rangeStart,rangeEnd, ...
+                toSegment(pksTrack),FIG_SIZE_CROP,MARKER_SIZE_CROP,style,LEGEND_LOCATION_CROP, ...
+                ["Groove on image", "(" + condTitle + ", " + LABEL.track + ", " + partTitle + ")"]);
+            saveFigure(fig,saveDir,"grooveOnImage_" + condName + "_track" + partName,Overwrite=OVERWRITE);
+            close(fig);
+        end
     end
 end
 
@@ -274,6 +299,55 @@ function fig = plotManualVsTrack(img,xRange,yRange,pks,pksManual,pksTrack,figSiz
     lgd = legend(ax,[hAll hManual hTrack],["all groove-bottom points", label.manual, label.track], ...
         Location=legendLocation);
     lgd.ItemHitFcn = @togglevisibility;
+end
+
+function fig = plotTrackWithRange(img,xRange,yRange,pks,rangeStart,rangeEnd,pksTrack,figSize,markerSize, ...
+    style,legendLocation,titleStr)
+% plotPointsOnImage の図に、溝底範囲の始めと終わり、自動追跡で取り出した溝底点をこの順に重ね、
+% 凡例のクリックで表示を切り替えられるようにする
+    label = style.label;
+    [fig,hAll] = plotPointsOnImage(img,xRange,yRange,pks,figSize,markerSize,style.colorAll,titleStr);
+    ax = fig.CurrentAxes;
+    hold(ax,"on");
+    rangeStart = pointsInView(rangeStart,xRange,yRange);
+    rangeEnd = pointsInView(rangeEnd,xRange,yRange);
+    pksTrack = pointsInView(pksTrack,xRange,yRange);
+    hStart = scatter(ax,rangeStart(:,1),rangeStart(:,2),markerSize,style.colorRange.start,"filled","o");
+    hEnd = scatter(ax,rangeEnd(:,1),rangeEnd(:,2),markerSize,style.colorRange.end,"filled","o");
+    hTrack = scatter(ax,pksTrack(:,1),pksTrack(:,2),markerSize,style.colorSelection.track,"filled","o");
+    hold(ax,"off");
+    lgd = legend(ax,[hAll hStart hEnd hTrack], ...
+        ["all groove-bottom points", "groove-bottom range: start", "groove-bottom range: end", label.track], ...
+        Location=legendLocation);
+    lgd.ItemHitFcn = @togglevisibility;
+end
+
+function [rangeStart,rangeEnd] = grooveBottomRange(imgData,cond,segPts,method)
+% 区間の写真 imgData から、各列の溝底範囲（暗さが cond.dThresh 以上の区間のうち、幅が cond.wTh 以下の
+% もの）の始めと終わりの点 [x y] を求め直す（_1cycle スクリプトと同じ処理）。
+% 求めた範囲から溝底点を計算し直し、保存した溝底点 segPts と一致することを確かめる
+    map = DarknessMap(imgData);
+    map = map.setDiffTF(cond.dThresh);
+    extractor = GrooveExtractor(map);
+    for x = 1:map.nCols
+        [firstIdx,lastIdx] = extractor.findThresholdIntervals(map,x);
+        extractor = extractor.findGrooveBottomIntervals(map,x,firstIdx,lastIdx,cond.wTh);
+        if method == "centroid"
+            y = extractor.extractByCentroid(map,x);
+        else
+            y = extractor.extractByLocalMax(map,x);
+        end
+        ySaved = segPts.peakCells{x}(:,2);
+        if numel(y) ~= numel(ySaved) || any(abs(y - ySaved) > 1e-9)
+            error("grooveOnImageManualAndTrack:rangeMismatch", ...
+                "%d列目：求め直した溝底範囲から計算した溝底点が、保存した溝底点と違います。",x);
+        end
+    end
+    rangeStart = vertcat(extractor.startIdxCells{:});
+    rangeEnd = vertcat(extractor.endIdxCells{:});
+    % dMat の行番号を、元の写真の y に戻す（高解像度化しないときは同じ値）
+    rangeStart(:,2) = (rangeStart(:,2) - 1)/map.scaleFactor.row + 1;
+    rangeEnd(:,2) = (rangeEnd(:,2) - 1)/map.scaleFactor.row + 1;
 end
 
 function pks = pointsInView(pks,xRange,yRange)
