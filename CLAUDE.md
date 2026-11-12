@@ -36,6 +36,7 @@ An installed MATLAB is available through the `mcp__matlab__*` tools (static anal
   - [`docs/rules/communication.md`](docs/rules/communication.md): ユーザーへの質問の仕方、受け渡しファイル、報告の書き方
   - [`docs/rules/evaluation.md`](docs/rules/evaluation.md): 手法の評価の方法（溝形状の比べ方、正解の考え方、合格基準、受け入れテスト・評価スクリプトの置き場所）
   - [`docs/rules/figures.md`](docs/rules/figures.md): 図の置き場所・ファイル名・タイトル・凡例・軸ラベル、スライド用・原稿用の図の大きさと保存（ファイル名とタイトルの語は語彙表から選ぶ）
+  - [`docs/rules/writing.md`](docs/rules/writing.md): 文章の書き方（文、番号の付け方、箇条書きのまとめ方）。文書・報告のすべてに効くので、毎回読み込む。ユーザーから文章の書き方を指摘されたら、このファイルに書き足す。読み込み： @docs/rules/writing.md
 - **Open `Research.prj` first.** Scripts assume the MATLAB project is loaded and resolve paths from the project root:
   ```matlab
   proj = currentProject();

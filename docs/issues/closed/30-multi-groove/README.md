@@ -29,13 +29,13 @@
 処理の流れ（写真 i = 1〜8 ごと。手法ごとに別々に行う）
 1. 10セグメントで溝底の点を検出する（`grooveTrack_1cycle.m` と同じ）。`mergeSegmentPoints` で、写真1枚分の点群 `pks`（`[x y]`、元の画像のpx）、列の座標 `xQuery`、セグメントごとの列の数 `counts` を得る。
 2. クリック（または `PREV_RESULT_PATH` に保存したクリックを `trackingSeeds` で再現したもの）の y だけを使い、始点を `seed = [xQuery(1), y]` にする。
-3. `extractMultiGroove` で、次の (a)〜(f) を行う。
-   - (a) `trackGroove` で1本目を追跡する。
-   - (b) `detrendTrackedShape` で9次デトレンドし、あてはめた多項式 `trend` を得る。
-   - (c) 全点の y から `trend` を引く。1本目が y≈0 に水平になる。
-   - (d) `findGrooveCenters` で、補正後の y のヒストグラムから、0 に最も近い山と、y の小さい側の N−1 個の山を選ぶ。
-   - (e) `extractGrooveBands` で、各山の ±`BAND_TOL` の帯の点を取り出し、補正前の y で並べて線形補間する。
-   - (f) 2本目以降も、溝ごとに9次デトレンドする。
+3. `extractMultiGroove` で、次の (1)〜(6) を順に行う。
+   - (1) `trackGroove` で1本目を追跡する。
+   - (2) `detrendTrackedShape` で9次デトレンドし、あてはめた多項式 `trend` を得る。
+   - (3) 全点の y から `trend` を引く。1本目が y≈0 に水平になる。
+   - (4) `findGrooveCenters` で、補正後の y のヒストグラムから、0 に最も近い山と、y の小さい側の N−1 個の山を選ぶ。
+   - (5) `extractGrooveBands` で、各山の ±`BAND_TOL` の帯の点を取り出し、補正前の y で並べて線形補間する。
+   - (6) 2本目以降も、溝ごとに9次デトレンドする。
 4. 形状を `shapesCnt{i,j}`・`shapesMax{i,j}`（8×N cell。i枚目の写真の j本目の溝、各 `[xQuery, y]`）に入れる。`mat2cell(..., counts)` で 80×N の `ycoords` に分ける。
 5. `y_comb = vertcat(ycoords{:})` で連結する（列の順。j本目の写真8の次に j+1本目の写真1が続くので、そのまま再生順になる）。`fs = round(1周分のサンプル数/(60/78))`（41729 Hz）、`amp = (y_comb − mean(y_comb))/AMP_DIV` とする。そのあと `AudioData`・wav・図を作り、`cycleMethodResult`・`saveCycleResult` で保存する。
 

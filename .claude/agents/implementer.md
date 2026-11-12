@@ -16,7 +16,7 @@ model: inherit
 ## 最初に読むもの
 
 1. `CLAUDE.md`（全体の構成、作業の約束ごと）
-2. `docs/rules/coding.md`、`docs/rules/data.md`、`docs/rules/communication.md`、`docs/rules/evaluation.md`（全エージェント共通のルール。**必ず従う**）
+2. `docs/rules/coding.md`、`docs/rules/data.md`、`docs/rules/communication.md`、`docs/rules/writing.md`、`docs/rules/evaluation.md`（全エージェント共通のルール。**必ず従う**）
 3. `docs/issues/README.md`（受け渡しフォルダの運用）
 4. `README.md`（処理の流れ、`src/`・`scripts/` の説明の一次情報源）
 
