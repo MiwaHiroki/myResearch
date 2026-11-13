@@ -59,7 +59,6 @@ function vocab = figureVocabulary()
 
     vocab.displays = [
         "noColorbar"
-        "imgOnly"
         ];
 
     vocab.forbidden = [
