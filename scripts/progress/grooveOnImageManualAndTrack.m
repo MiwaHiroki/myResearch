@@ -20,7 +20,10 @@
 %      溝底点を描かないので、種類は grooveOnImage ではなく image にし、写真が依存しない条件
 %      （溝底の判定・抽出法）は書かない。切り出す場所は、データの日付と時間の範囲で示す
 %      （docs/rules/figures.md「種類と条件は、描いたものに合わせる」）。
-% 1・2 をそれぞれ、次の2つの範囲で作る（3〜5 は切り出しだけ）。
+%   6. 1 の上に、従来法で取り出した溝底点だけを重ねた図（切り出しだけ）。2 では、従来法と自動追跡が
+%      同じ点を選んだ所に自動追跡の色が上に来るので、従来法が選んだ点だけを隠さずに見るため。
+%      比べていないので、名前とタイトルでは、溝の選び方 manual を条件の位置に書く。
+% 1・2 をそれぞれ、次の2つの範囲で作る（3〜6 は切り出しだけ）。
 %   写真全体  ：IMG_INDICES の写真（1/8周分）ごと（MAKE_PHOTO_FIGS が true のときだけ）
 %   切り出し  ：T_WINDOWS の時間ごとに、|track − manual| が最大のサンプルが来た列と、追跡した y を
 %               中心に切り出した範囲（grooveBtmOnImageTrackOutlier.m の図と同じ範囲。座標は区間の中の px）。
@@ -43,7 +46,7 @@
 %       reconstructImage で読み直す）。
 % 2026/11/11作成
 % 2026/11/12 3 の図を追加
-% 2026/11/13 4・5 の図を追加
+% 2026/11/13 4・5・6 の図を追加
 
 setDefaultIntrpr();
 proj = currentProject();
@@ -69,10 +72,10 @@ Y_HALF = 32;               % 切り出す高さの半分[px]（追跡したyを�
 FIG_SIZE_CROP = [14.8 11.1]; % 図の大きさ[cm]
 MARKER_SIZE_CROP = 15;     % 溝底点の大きさ（scatterのSizeData）
 LEGEND_LOCATION_CROP = "best"; % 凡例の位置。右上だと上隣の溝の点を隠すので、点の少ない所に置く
-% 作る図（上の 1〜5）。1・2 は 2026/11/11、3 は 2026/11/12、4 は 2026/11/13 に作成済みなので、
+% 作る図（上の 1〜6）。1・2 は 2026/11/11、3 は 2026/11/12、4・5 は 2026/11/13 に作成済みなので、
 % 作り直すときだけ true にする
 MAKE_CROP_FIGS = struct("allPoints",false,"manualVsTrack",false,"trackWithRange",false, ...
-    "allPointsWithRange",false,"image",true);
+    "allPointsWithRange",false,"image",false,"manual",true);
 
 % 凡例の点は SizeData によらず見える大きさで描かれる
 COLOR_ALL = "cyan";    % すべての溝底点の色
@@ -291,6 +294,15 @@ for iImg = imgList
             saveFigure(fig,saveDir,"image" + partName,Overwrite=OVERWRITE);
             close(fig);
         end
+
+        % 6. 1 の上に、従来法で取り出した溝底点だけ（2 から自動追跡の点を除いた図）
+        if MAKE_CROP_FIGS.manual
+            fig = plotOneSelection(segImg,xRange,yRange,toSegment(pks),toSegment(pksManual),"manual", ...
+                FIG_SIZE_CROP,MARKER_SIZE_CROP,style,LEGEND_LOCATION_CROP, ...
+                ["Groove on image", "(" + condTitle + ", " + LABEL.manual + ", " + partTitle + ")"]);
+            saveFigure(fig,saveDir,"grooveOnImage_" + condName + "_manual" + partName,Overwrite=OVERWRITE);
+            close(fig);
+        end
     end
 end
 
@@ -318,6 +330,21 @@ function [fig,hPoints] = plotPointsOnImage(img,xRange,yRange,pks,figSize,markerS
     pks = pointsInView(pks,xRange,yRange);
     hPoints = scatter(ax,pks(:,1),pks(:,2),markerSize,color,"filled","o");
     hold(ax,"off");
+end
+
+function fig = plotOneSelection(img,xRange,yRange,pks,pksSel,selection,figSize,markerSize,style, ...
+    legendLocation,titleStr)
+% plotPointsOnImage の図に、1つの溝の選び方 selection（"manual" または "track"）で取り出した
+% 溝底点 pksSel を重ね、凡例のクリックで表示を切り替えられるようにする
+    [fig,hAll] = plotPointsOnImage(img,xRange,yRange,pks,figSize,markerSize,style.colorAll,titleStr);
+    ax = fig.CurrentAxes;
+    hold(ax,"on");
+    pksSel = pointsInView(pksSel,xRange,yRange);
+    hSel = scatter(ax,pksSel(:,1),pksSel(:,2),markerSize,style.colorSelection.(selection),"filled","o");
+    hold(ax,"off");
+    lgd = legend(ax,[hAll hSel],["all groove-bottom points", style.label.(selection)], ...
+        Location=legendLocation);
+    lgd.ItemHitFcn = @togglevisibility;
 end
 
 function fig = plotManualVsTrack(img,xRange,yRange,pks,pksManual,pksTrack,figSize,markerSize,style, ...

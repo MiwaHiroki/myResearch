@@ -12,7 +12,7 @@
 
 | スクリプト | 図 |
 |---|---|
-| [`scripts/progress/grooveOnImageManualAndTrack.m`](../scripts/progress/grooveOnImageManualAndTrack.m) | 1周分の従来法と自動追跡。①②を、写真全体と、外れた時刻の切り出しで作る。切り出しでは、①の上に溝底範囲と自動追跡の点を重ねた図、①の上に溝底範囲だけを重ねた図、同じ範囲の写真だけの図も作る |
+| [`scripts/progress/grooveOnImageManualAndTrack.m`](../scripts/progress/grooveOnImageManualAndTrack.m) | 1周分の従来法と自動追跡。①②を、写真全体と、外れた時刻の切り出しで作る。切り出しでは、①の上に溝底範囲と自動追跡の点を重ねた図、①の上に溝底範囲だけを重ねた図、同じ範囲の写真だけの図、①の上に従来法の点だけを重ねた図も作る |
 | [`scripts/progress/multiGrooveOnePhoto.m`](../scripts/progress/multiGrooveOnePhoto.m) | N周分。写真全体の①と、取り出した溝を線で描いた図 |
 | [`scripts/evaluation/grooveBottomDetection/compareInclBoundToExclBound.m`](../scripts/evaluation/grooveBottomDetection/compareInclBoundToExclBound.m) | 溝底の判定の違い（`exclBound`・`inclBound`）で、片方だけにある溝底点の色を変えた図 |
 
@@ -148,6 +148,7 @@ lgd.ItemHitFcn = @togglevisibility;        % 凡例のクリックで表示を�
 | ①、写真全体 | `grooveOnImage_origD_inclBound_centroid_1014_img1` |
 | ②（2つの手法）、写真全体 | `grooveOnImage_manualVsTrack_origD_inclBound_centroid_1014_img1` |
 | ②（1つの手法）、写真全体 | `grooveOnImage_origD_inclBound_centroid_track_1014_img1` |
+| ②（1つの手法）、切り出し | `grooveOnImage_origD_inclBound_centroid_manual_1014_img8_seg5_715-716ms` |
 | ①、切り出し | `grooveOnImage_origD_inclBound_centroid_1014_img8_seg5_715-716ms` |
 | ②（2つの手法）、切り出し | `grooveOnImage_manualVsTrack_origD_inclBound_centroid_1014_img8_seg5_715-716ms` |
 | ②（1つの手法）＋溝底範囲、切り出し | `grooveOnImage_origD_inclBound_centroid_track_1014_img8_seg5_715-716ms` |
