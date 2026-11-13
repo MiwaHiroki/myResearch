@@ -13,7 +13,14 @@
 %      溝底範囲は cycleResult に保存していないので、写真から _1cycle スクリプトと同じ処理で求め直し、
 %      そこから計算した溝底点が、保存した溝底点と一致することを確かめる。始めと終わりの色は、
 %      results/figures/slides/202609asj/darknessProfile_grooveBtmRange.png（darknessProfile.m）と同じ。
-% 1・2 をそれぞれ、次の2つの範囲で作る（3 は切り出しだけ）。
+%   4. 3 から自動追跡の点を除いた図（切り出しだけ）。溝底範囲が実際の溝底より広く求まり、溝底点が
+%      ずれていることを、取り出した点に隠されずに見るため（issue #35 の資料）。
+%      1 と同じ条件なので、名前の最後に表示の語 grooveBtmRange を付けて区別する。
+%   5. 1〜4 と同じ範囲の写真だけの図（切り出しだけ）。点に隠されずに写真の濃淡を見るため。
+%      溝底点を描かないので、種類は grooveOnImage ではなく image にし、写真が依存しない条件
+%      （溝底の判定・抽出法）は書かない。切り出す場所は、データの日付と時間の範囲で示す
+%      （docs/rules/figures.md「種類と条件は、描いたものに合わせる」）。
+% 1・2 をそれぞれ、次の2つの範囲で作る（3〜5 は切り出しだけ）。
 %   写真全体  ：IMG_INDICES の写真（1/8周分）ごと（MAKE_PHOTO_FIGS が true のときだけ）
 %   切り出し  ：T_WINDOWS の時間ごとに、|track − manual| が最大のサンプルが来た列と、追跡した y を
 %               中心に切り出した範囲（grooveBtmOnImageTrackOutlier.m の図と同じ範囲。座標は区間の中の px）。
@@ -36,6 +43,7 @@
 %       reconstructImage で読み直す）。
 % 2026/11/11作成
 % 2026/11/12 3 の図を追加
+% 2026/11/13 4・5 の図を追加
 
 setDefaultIntrpr();
 proj = currentProject();
@@ -61,8 +69,10 @@ Y_HALF = 32;               % 切り出す高さの半分[px]（追跡したyを�
 FIG_SIZE_CROP = [14.8 11.1]; % 図の大きさ[cm]
 MARKER_SIZE_CROP = 15;     % 溝底点の大きさ（scatterのSizeData）
 LEGEND_LOCATION_CROP = "best"; % 凡例の位置。右上だと上隣の溝の点を隠すので、点の少ない所に置く
-% 作る図（上の 1・2・3）。1・2 は 2026/11/11 に作成済みなので、作り直すときだけ true にする
-MAKE_CROP_FIGS = struct("allPoints",false,"manualVsTrack",false,"trackWithRange",true);
+% 作る図（上の 1〜5）。1・2 は 2026/11/11、3 は 2026/11/12、4 は 2026/11/13 に作成済みなので、
+% 作り直すときだけ true にする
+MAKE_CROP_FIGS = struct("allPoints",false,"manualVsTrack",false,"trackWithRange",false, ...
+    "allPointsWithRange",false,"image",true);
 
 % 凡例の点は SizeData によらず見える大きさで描かれる
 COLOR_ALL = "cyan";    % すべての溝底点の色
@@ -251,13 +261,34 @@ for iImg = imgList
             close(fig);
         end
 
+        if MAKE_CROP_FIGS.trackWithRange || MAKE_CROP_FIGS.allPointsWithRange
+            [rangeStart,rangeEnd] = grooveBottomRange(imgs(j),condTrack,track.(METHOD).pts(ks(j)),METHOD);
+        end
+
         % 3. 1 の上に、溝底範囲と、自動追跡で取り出した溝底点
         if MAKE_CROP_FIGS.trackWithRange
-            [rangeStart,rangeEnd] = grooveBottomRange(imgs(j),condTrack,track.(METHOD).pts(ks(j)),METHOD);
             fig = plotTrackWithRange(segImg,xRange,yRange,toSegment(pks),rangeStart,rangeEnd, ...
                 toSegment(pksTrack),FIG_SIZE_CROP,MARKER_SIZE_CROP,style,LEGEND_LOCATION_CROP, ...
                 ["Groove on image", "(" + condTitle + ", " + LABEL.track + ", " + partTitle + ")"]);
             saveFigure(fig,saveDir,"grooveOnImage_" + condName + "_track" + partName,Overwrite=OVERWRITE);
+            close(fig);
+        end
+
+        % 4. 1 の上に、溝底範囲だけ（3 から自動追跡の点を除いた図）
+        if MAKE_CROP_FIGS.allPointsWithRange
+            fig = plotPointsWithRange(segImg,xRange,yRange,toSegment(pks),rangeStart,rangeEnd, ...
+                FIG_SIZE_CROP,MARKER_SIZE_CROP,style,LEGEND_LOCATION_CROP, ...
+                ["Groove on image", "(" + condTitle + ", " + partTitle + ")"]);
+            saveFigure(fig,saveDir,"grooveOnImage_" + condName + partName + "_grooveBtmRange", ...
+                Overwrite=OVERWRITE);
+            close(fig);
+        end
+
+        % 5. 写真だけ（1〜4 と同じ範囲）。溝底点を描かないので種類は image にし、条件は書かない。
+        % タイトルは1行に収まるが、1〜4 と描画領域の大きさをそろえるために2行にする
+        if MAKE_CROP_FIGS.image
+            fig = plotImageInRange(segImg,xRange,yRange,FIG_SIZE_CROP,["Image", "(" + partTitle + ")"]);
+            saveFigure(fig,saveDir,"image" + partName,Overwrite=OVERWRITE);
             close(fig);
         end
     end
@@ -265,8 +296,8 @@ end
 
 
 %% ローカル関数
-function [fig,hPoints] = plotPointsOnImage(img,xRange,yRange,pks,figSize,markerSize,color,titleStr)
-% 写真 img の yRange 行・xRange 列を、座標 xRange・yRange で描き、その範囲の溝底点を重ねる。
+function fig = plotImageInRange(img,xRange,yRange,figSize,titleStr)
+% 写真 img の yRange 行・xRange 列を、座標 xRange・yRange で描く。
 % 写真の表示範囲は [0 255] に固定する（docs/rules/figures.md「撮影画像の表示」）
     fig = createFigure([0 0 figSize]);
     tl = tiledlayout(fig,1,1,Padding="compact");
@@ -274,13 +305,19 @@ function [fig,hPoints] = plotPointsOnImage(img,xRange,yRange,pks,figSize,markerS
     imagesc(ax,img(yRange,xRange),XData=xRange([1 end]),YData=yRange([1 end]));
     colormap(ax,gray); clim(ax,[0 255]);
     axis(ax,"image");
+    xlabel(ax,"$x$ [px]");
+    ylabel(ax,"$y$ [px]");
+    title(ax,titleStr);
+end
+
+function [fig,hPoints] = plotPointsOnImage(img,xRange,yRange,pks,figSize,markerSize,color,titleStr)
+% plotImageInRange の図に、その範囲の溝底点を重ねる
+    fig = plotImageInRange(img,xRange,yRange,figSize,titleStr);
+    ax = fig.CurrentAxes;
     hold(ax,"on");
     pks = pointsInView(pks,xRange,yRange);
     hPoints = scatter(ax,pks(:,1),pks(:,2),markerSize,color,"filled","o");
     hold(ax,"off");
-    xlabel(ax,"$x$ [px]");
-    ylabel(ax,"$y$ [px]");
-    title(ax,titleStr);
 end
 
 function fig = plotManualVsTrack(img,xRange,yRange,pks,pksManual,pksTrack,figSize,markerSize,style, ...
@@ -301,24 +338,36 @@ function fig = plotManualVsTrack(img,xRange,yRange,pks,pksManual,pksTrack,figSiz
     lgd.ItemHitFcn = @togglevisibility;
 end
 
-function fig = plotTrackWithRange(img,xRange,yRange,pks,rangeStart,rangeEnd,pksTrack,figSize,markerSize, ...
-    style,legendLocation,titleStr)
-% plotPointsOnImage の図に、溝底範囲の始めと終わり、自動追跡で取り出した溝底点をこの順に重ね、
-% 凡例のクリックで表示を切り替えられるようにする
-    label = style.label;
+function [fig,hPoints,labels] = plotPointsWithRange(img,xRange,yRange,pks,rangeStart,rangeEnd,figSize, ...
+    markerSize,style,legendLocation,titleStr)
+% plotPointsOnImage の図に、溝底範囲の始めと終わりをこの順に重ね、凡例のクリックで表示を
+% 切り替えられるようにする。hPoints・labels は凡例に渡した点のハンドルと名前（点を足すときに使う）
     [fig,hAll] = plotPointsOnImage(img,xRange,yRange,pks,figSize,markerSize,style.colorAll,titleStr);
     ax = fig.CurrentAxes;
     hold(ax,"on");
     rangeStart = pointsInView(rangeStart,xRange,yRange);
     rangeEnd = pointsInView(rangeEnd,xRange,yRange);
-    pksTrack = pointsInView(pksTrack,xRange,yRange);
     hStart = scatter(ax,rangeStart(:,1),rangeStart(:,2),markerSize,style.colorRange.start,"filled","o");
     hEnd = scatter(ax,rangeEnd(:,1),rangeEnd(:,2),markerSize,style.colorRange.end,"filled","o");
+    hold(ax,"off");
+    hPoints = [hAll hStart hEnd];
+    labels = ["all groove-bottom points", "groove-bottom range: start", "groove-bottom range: end"];
+    lgd = legend(ax,hPoints,labels,Location=legendLocation);
+    lgd.ItemHitFcn = @togglevisibility;
+end
+
+function fig = plotTrackWithRange(img,xRange,yRange,pks,rangeStart,rangeEnd,pksTrack,figSize,markerSize, ...
+    style,legendLocation,titleStr)
+% plotPointsWithRange の図に、自動追跡で取り出した溝底点を重ね、凡例のクリックで表示を
+% 切り替えられるようにする
+    [fig,hPoints,labels] = plotPointsWithRange(img,xRange,yRange,pks,rangeStart,rangeEnd,figSize, ...
+        markerSize,style,legendLocation,titleStr);
+    ax = fig.CurrentAxes;
+    hold(ax,"on");
+    pksTrack = pointsInView(pksTrack,xRange,yRange);
     hTrack = scatter(ax,pksTrack(:,1),pksTrack(:,2),markerSize,style.colorSelection.track,"filled","o");
     hold(ax,"off");
-    lgd = legend(ax,[hAll hStart hEnd hTrack], ...
-        ["all groove-bottom points", "groove-bottom range: start", "groove-bottom range: end", label.track], ...
-        Location=legendLocation);
+    lgd = legend(ax,[hPoints hTrack],[labels style.label.track],Location=legendLocation);
     lgd.ItemHitFcn = @togglevisibility;
 end
 

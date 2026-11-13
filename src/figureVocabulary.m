@@ -59,6 +59,7 @@ function vocab = figureVocabulary()
 
     vocab.displays = [
         "noColorbar"
+        "grooveBtmRange"
         ];
 
     vocab.forbidden = [

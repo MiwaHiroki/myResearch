@@ -12,7 +12,7 @@
 
 | スクリプト | 図 |
 |---|---|
-| [`scripts/progress/grooveOnImageManualAndTrack.m`](../scripts/progress/grooveOnImageManualAndTrack.m) | 1周分の従来法と自動追跡。①②を、写真全体と、外れた時刻の切り出しで作る。切り出しでは、①の上に溝底範囲と自動追跡の点を重ねた図も作る |
+| [`scripts/progress/grooveOnImageManualAndTrack.m`](../scripts/progress/grooveOnImageManualAndTrack.m) | 1周分の従来法と自動追跡。①②を、写真全体と、外れた時刻の切り出しで作る。切り出しでは、①の上に溝底範囲と自動追跡の点を重ねた図、①の上に溝底範囲だけを重ねた図、同じ範囲の写真だけの図も作る |
 | [`scripts/progress/multiGrooveOnePhoto.m`](../scripts/progress/multiGrooveOnePhoto.m) | N周分。写真全体の①と、取り出した溝を線で描いた図 |
 | [`scripts/evaluation/grooveBottomDetection/compareInclBoundToExclBound.m`](../scripts/evaluation/grooveBottomDetection/compareInclBoundToExclBound.m) | 溝底の判定の違い（`exclBound`・`inclBound`）で、片方だけにある溝底点の色を変えた図 |
 
@@ -151,9 +151,12 @@ lgd.ItemHitFcn = @togglevisibility;        % 凡例のクリックで表示を�
 | ①、切り出し | `grooveOnImage_origD_inclBound_centroid_1014_img8_seg5_715-716ms` |
 | ②（2つの手法）、切り出し | `grooveOnImage_manualVsTrack_origD_inclBound_centroid_1014_img8_seg5_715-716ms` |
 | ②（1つの手法）＋溝底範囲、切り出し | `grooveOnImage_origD_inclBound_centroid_track_1014_img8_seg5_715-716ms` |
+| ①＋溝底範囲、切り出し | `grooveOnImage_origD_inclBound_centroid_1014_img8_seg5_715-716ms_grooveBtmRange` |
+| 写真だけ、切り出し | `image_1014_img8_seg5_715-716ms` |
 
 - ①は溝の選び方に依らないので、選び方を書かない。
-- 溝底範囲を描いたことは、名前に書いていない（語彙表の「表示」に合う語が無いため）。同じ条件で、溝底範囲の有る図と無い図を両方作るときは、語彙表に語を足して区別する。
+- 写真だけの図は、溝底点を描かないので、種類を `image` にし、溝底の判定・抽出法を書かない。切り出す場所は、データの日付と時間の範囲で示す。
+- 溝底範囲を描いたことは、表示の語 `grooveBtmRange` で名前の最後に書く。①と同じ条件の図になり、名前で区別する必要があるため。②＋溝底範囲の図は、この語を足す前（2026/11/12）に作ったので、名前に書いていない。
 - 保存は用途の保存関数で行う。保存した後、PNG を開いて、点が溝底に乗っているか、凡例が見たい点を隠していないか、タイトルが切れていないかを確かめる。
 - **容量**：写真全体の図は、fig が1枚あたり約5 MB、png が約1 MB ある（溝底点が1枚に約7万点あるため）。`results/figures/progress/` のように git で管理する場所に、写真8枚分を何度も作り直すと、履歴が大きくなる。作成済みの図を作り直さないよう、スクリプトに作るかどうかのパラメータ（`MAKE_PHOTO_FIGS` など）を設ける。
 
