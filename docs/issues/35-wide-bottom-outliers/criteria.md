@@ -174,10 +174,12 @@
 
 | ID | 指標 | しきい値 | 根拠 | 確かめる方法 |
 |---|---|---|---|---|
-| D1 | `git diff --name-status <受け入れテストを追加したコミット> -- src scripts test docs/rules README.md CLAUDE.md` に出るファイル | `scripts/grooveTrack_1cycle.m`・`scripts/grooveHist_Ncycle.m`・`scripts/grooveTrack_Ncycle.m`・`src/figureVocabulary.m`・`docs/rules/figures.md`・`test/unit/FigureNameTest.m`・`README.md` の変更だけ。ほか（`src/` の `figureVocabulary.m` 以外、従来法のスクリプト、`scripts/progress/`・`scripts/evaluation/`、`archive/`、受け入れテスト、`CLAUDE.md`）は差分なし | plan-2.md 4.4、ユーザーの決定（共通関数を作らない） | `git diff` |
-| D2 | 3つのスクリプトの差分（`git diff -U0 <受け入れテストを追加したコミット> -- <3つのスクリプト>`） | コメントでない変わった行は、`WIDTH_THRESH = 4;` の行だけ。ほかはコメント（パラメータの行のコメント、作成日の下の変更の1行） | plan-2.md 4.2 の「ほかの行は変えない」 | `git diff`（`%` で始まらない `+`・`-` の行を数える） |
+| D1 | `git diff --name-status c557c33 -- src scripts test docs/rules README.md CLAUDE.md` に出るファイル | `scripts/grooveTrack_1cycle.m`・`scripts/grooveHist_Ncycle.m`・`scripts/grooveTrack_Ncycle.m`・`src/figureVocabulary.m`・`docs/rules/figures.md`・`test/unit/FigureNameTest.m`・`README.md` の変更だけ。ほか（`src/` の `figureVocabulary.m` 以外、従来法のスクリプト、`scripts/progress/`・`scripts/evaluation/`、`archive/`、受け入れテスト、`CLAUDE.md`）は差分なし | plan-2.md 4.4、ユーザーの決定（共通関数を作らない） | `git diff` |
+| D2 | 3つのスクリプトの差分（`git diff -U0 c557c33 -- <3つのスクリプト>`） | コメントでない変わった行は、`WIDTH_THRESH = 4;` の行だけ。ほかはコメント（パラメータの行のコメント、作成日の下の変更の1行） | plan-2.md 4.2 の「ほかの行は変えない」 | `git diff`（`%` で始まらない `+`・`-` の行を数える） |
 | D3 | 図の語：`docs/rules/figures.md` と `src/figureVocabulary.m` に、新しい分類「溝底区間の幅」が「溝底の判定」のすぐ下にあり、語 `wTh<N>` が入っている。並び順の文と、`figureVocabulary.m` の冒頭の分類の一覧にも足してある。評価スクリプトが保存する図の名前に `checkFigureName:invalidName` の警告が出ない | すべて満たす | ユーザーの決定 Q10、plan-2.md 4.3 | ファイルを読む、評価スクリプトの実行ログ |
 | D4 | `experiments/` の既存のファイルの SHA-256 | 下の値と同じ。新しいファイルが無い | issue の制約、`docs/rules/data.md` | `sha256sum` |
+
+- D1 の補足（2026-11-17、main）：`c557c33` の後に、ユーザーの指示で master の `docs/rules/writing.md` を直し、作業ブランチに取り込む（文章の書き方のルールで、実装とは関係しない）。master から取り込んだコミットの変更は、D1 の差分から除く。除く範囲は、`git diff --name-status c557c33 <取り込んだ master のコミット>` に出るファイルとする。
 
 `experiments/` の既存のファイルの SHA-256（2026-11-14 に記録。`experiments/1026/`・`experiments/1110/` は空のフォルダ）：
 
@@ -267,7 +269,7 @@ ea471ebf29442c4565ccabc52f6c136233a93270adad7102739864c03132715f  experiments/ar
 1. 作業ツリーを確かめる。目的は、どのコードを評価したかを記録すること。
    - (1) `git status --porcelain` が空であることを確かめ、`git log --oneline -1` を記録する。
    - (2) `cd test; results = runAllTests;` を実行する（T1）。変えた `.m` に `checkcode` をかける（T2）。
-2. 差分を確かめる（D1〜D3）。`git diff --name-status <受け入れテストを追加したコミット> -- src scripts test docs/rules README.md CLAUDE.md` と、3つのスクリプトの `git diff -U0` を見る。`docs/rules/figures.md` と `src/figureVocabulary.m` の語を読む。
+2. 差分を確かめる（D1〜D3）。`git diff --name-status c557c33 -- src scripts test docs/rules README.md CLAUDE.md` と、3つのスクリプトの `git diff -U0` を見る。`docs/rules/figures.md` と `src/figureVocabulary.m` の語を読む。
 3. `sha256sum` で `experiments/` を 4.5 の値と比べる（D4）。
 4. 直した3つのスクリプトを、`temp/` のコピーで実データに通す（R5）。目的は、スクリプトの書き換えの全体を、評価スクリプトの「直した後」と照らすこと。`experiments/` には何も作らない。
    - (1) `results/<OUT_DATE>/` に、各スクリプトが出す wav・`_amp`・`_fft`・`_stft` の図と同じ名前のファイルが無いことを確かめる（`saveas` は上書きするため）。
