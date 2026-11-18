@@ -44,6 +44,7 @@ classdef FigureNameTest < matlab.unittest.TestCase
                 "grooveShape_intpD_bilateralK5_centroid_manual_0924_img2_seg3"
                 "spectrogram_origD_centroid_track_1014_0-5kHz_noColorbar"
                 "grooveOnImage_origD_localMax_hist_5cyc_1104_img1_groove2"
+                "grooveOnImage_wTh8VsWTh4_origD_inclBound_centroid_hist_5cyc_1104_img5_groove4" % 溝底区間の幅の比較と、溝底の判定の条件
                 ];
             for name = names'
                 testCase.verifyEmpty(checkFigureName(name, Warn=false), name);

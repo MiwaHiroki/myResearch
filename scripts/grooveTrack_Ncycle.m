@@ -10,6 +10,7 @@
 % GUIDE_RESULT_PATH に以前の結果（例：1014 の追跡）を指定すると、その1本目の始点の y を
 % クリックの図に黄色の三角で示す（1本目を #25 と同じ溝にするため）。
 % 2026/10/28作成
+% 2026/11/17：溝底区間の幅の上限 WIDTH_THRESH を 8 から 4 に変えた（issue #35）
 
 setDefaultIntrpr();
 proj = currentProject();
@@ -25,7 +26,9 @@ end
 
 L_MASK = 20;        % Maskを取るためのluminanceのthreshold, 0付近に設定する（pkCentroid_1cycle.m と同じ）
 D_THRESH = 0.6;     % 暗さのしきい値（pkCentroid_1cycle.m と同じ）
-WIDTH_THRESH = 8;   % 溝底区間の幅のしきい値[px]（pkCentroid_1cycle.m と同じ）
+WIDTH_THRESH = 4;   % 溝底区間の幅（最後の行 − 最初の行）の上限[px]。pkCentroid_1cycle.m の 8 より狭い。
+                    % 幅5以上の区間は、溝底の線に、溝の斜面と考えられる薄暗い行（暗さがしきい値すれすれ）が
+                    % つながったもので、重心が溝底の線から1〜2 px ずれて音声の外れ値になるため（issue #35）
 QUERY_STEP = 1;     % 列の間隔[px]。今回は高解像度化なし（origD）なので1
 RPM = 78;           % 回転数[rpm]。1周分のサンプル数から標本化周波数を決める
 
