@@ -33,6 +33,11 @@
 #let copy-label-size = 14pt
 #let cover-title-size = 52pt // 表紙の「進捗報告」
 #let cover-info-size = 28pt // 表紙の日付と氏名
+#let subhead-size = 24pt // 本文の中の小見出し（「完了」「実装案」など。`= 完了` と書く）
+
+// タイトルの文字の縁取り。BIZ UDPゴシックの太字は細めなので、縁取りを足して、
+// Google Slides のタイトル（MS Pゴシックに縁取りを足して太くしたもの）と同じくらいの太さにする。
+#let title-stroke = 0.6pt
 
 // 線の太さ（Google Slides の 1px・2px・4px）
 #let thin = 0.75pt
@@ -96,6 +101,14 @@
     it
   }
   set enum(indent: 0pt, body-indent: 6pt, spacing: para-gap)
+  // 小見出し（`= 完了`）：太字で少し大きくし、前後は段落の間と同じだけ空ける。
+  // PDF のしおりと目次には入れない。
+  set heading(outlined: false, bookmarked: false)
+  show heading: it => block(above: para-gap, below: para-gap, text(
+    size: subhead-size,
+    weight: "bold",
+    it.body,
+  ))
   body
 }
 
@@ -319,7 +332,7 @@
   pagebreak(weak: true)
   if title != none {
     at(24.5pt, 20pt, box(width: 671pt, height: 48.5pt, inset: (left: 6.8pt), align(left + horizon, {
-      text(size: title-size, weight: "bold", title)
+      text(size: title-size, weight: "bold", stroke: title-stroke + black, title)
       if title-note != none { text(size: title-size, weight: "regular", [ #title-note]) }
     })))
     at(24.6pt, 75pt, line(length: 670.8pt, stroke: thin + rule-color))
