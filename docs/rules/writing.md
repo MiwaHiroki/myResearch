@@ -2,7 +2,7 @@
 
 Claude（メインセッション・サブエージェントとも）が、人が読む文章を書くときのルール。対象は、リポジトリに残す文書（`docs/`、受け渡しファイル、`README.md`、issue・PR の本文、コミットメッセージの本文）と、ユーザーへの報告。
 
-ほかに決まりがあるものは、それにも従う（報告の項目は [`communication.md`](communication.md)、図の文字は [`figures.md`](figures.md)、issue の「解決のまとめ」は `.claude/agents/summarizer.md`）。このファイルは `CLAUDE.md` から毎回読み込まれるので、短く保つ。
+ほかに決まりがあるものは、それにも従う（報告の項目は [`communication.md`](communication.md)、図の文字は [`figures.md`](figures.md)、issue の「解決のまとめ」は `.claude/agents/summarizer.md`）。進捗報告のスライドの文言は [`slides.md`](slides.md) の「文言」に従い、このファイルの「文」の節とぶつかるときは `slides.md` を優先する（スライドでは、名詞で終える行や「左：…」の書き方を使うため）。このファイルは `CLAUDE.md` から毎回読み込まれるので、短く保つ。
 
 ## 全体
 

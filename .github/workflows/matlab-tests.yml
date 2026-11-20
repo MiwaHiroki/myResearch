@@ -5,10 +5,11 @@ name: MATLAB tests
 on:
   push:
     branches: [master]
-    # 進捗ログの自動コミット（docs/progress/）など、文書だけの変更では走らせない
-    paths-ignore: ['docs/**', '**.md']
+    # 進捗ログの自動コミット（docs/progress/）など、文書だけの変更や、
+    # 進捗報告のスライド（slides/、Typst）だけの変更では走らせない
+    paths-ignore: ['docs/**', '**.md', 'slides/**']
   pull_request:
-    paths-ignore: ['docs/**', '**.md']
+    paths-ignore: ['docs/**', '**.md', 'slides/**']
   workflow_dispatch:
 
 concurrency:
