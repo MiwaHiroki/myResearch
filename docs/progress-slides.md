@@ -1,5 +1,7 @@
 # 進捗報告のスライド（Typst）
 
+進捗報告は、成果を見せるためだけの場ではなく、今考えていることを指導教員に伝え、一緒に考察して研究の方向を決めるための場である（[`rules/slides.md`](rules/slides.md) の「進捗報告の目的」）。
+
 進捗報告のスライドは Typst で書き、PDF にして Google Drive に上げる。Claude は、報告のフォルダ、スライドの下書き、PDF を用意する。ユーザーは、図と文言を直し、Drive にアップロードする。Google Drive と Claude は連携しない。
 
 この文書には、フォルダの構成、作業の流れと分担、ユーザー向けの Typst の書き方、テンプレートの中身をまとめる。Claude が守るルールは [`rules/slides.md`](rules/slides.md) に、Claude の手順は skill `make-progress-slides` に書いてある。
@@ -10,6 +12,7 @@
 slides/
   template/progress.typ    テンプレート（見た目をすべて決める）
   diagrams/                PowerPoint で作った図（.pptx と、書き出した .png）
+  reference/               参考スライド（Google Slides で作った 11/03・11/17 の回と、自作テンプレートの PDF）
   progress/<YYYY-MMDD>/    報告ごとのフォルダ（名前は報告日）
     <YYYYMMDD>.typ         スライドの本体
     <YYYYMMDD>.pdf         できあがったスライド

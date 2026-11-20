@@ -1,10 +1,10 @@
 // 2026/11/17 の進捗報告。
-// Google Slides で作った 20261117.pdf を、テンプレートの試しとして Typst で作り直したもの。
+// Google Slides で作った slides/reference/20261117.pdf を、テンプレートの試しとして Typst で作り直したもの。
 // PDF を作るには、リポジトリの直下で次を実行する（同じフォルダに 20261117.pdf ができる）。
 //   typst compile --root slides slides/progress/2026-1117/20261117.typ
 //
 // 素材の出どころ
-// - copied/1103_p*.pdf：11/03 のスライドをコピーしたページ。20261117.pdf の p.3・p.4・p.6・p.8 を切り出した
+// - copied/1103_p*.pdf：11/03 のスライドをコピーしたページ。slides/reference/20261117.pdf の p.3・p.4・p.6・p.8 を切り出した
 //   （ファイル名の番号は 11/03 のスライドでのページ番号。p.16 はコピーした後に文言を直してある）。
 // - figures/compare_(centroid_method)(original)_amp_track_and_manual_710-720ms.png：
 //   results/figures/progress/ から削除済みの図を、git の履歴（84dac9f の親）から取り出した。
