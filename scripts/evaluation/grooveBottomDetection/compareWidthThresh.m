@@ -3,7 +3,7 @@
 % grooveTrack_Ncycle.m）で、溝底区間の幅（最後の行 − 最初の行）の上限 WIDTH_THRESH を 8（直す前）から
 % 4（直した後）にしたときに、正規化した振幅が1付近の外れ値（溝底点の跳び）が消えるか、外れ値でない
 % 点を変えていないかを、保存したクリック位置で ginput なしに作り直して比べる。
-% 評価の項目・しきい値は docs/issues/35-wide-bottom-outliers/criteria.md（ID は同じ）。
+% 評価の項目・しきい値は docs/issues/closed/35-wide-bottom-outliers/criteria.md（ID は同じ）。
 %
 % 比べるデータ（どれも読むだけ。experiments/ には何も書かない）
 %   t1014：experiments/1014/cycleResult_origD_track_1014.mat（grooveTrack_1cycle.m、1周）
