@@ -55,7 +55,7 @@ An installed MATLAB is available through the `mcp__matlab__*` tools (static anal
 ## Git ブランチの安全確認
 - 毎回のコミット前に `git branch --show-current` を実行し、返信の中でブランチ名を明記する。
 - 「master/main にコミットして」と言われたら、そこへ直接コミットする。基本的には、頼まれない限り新しいブランチは作らない。
-- フィーチャーブランチは最新の master からのみ作る（`git fetch && git switch -c <name> origin/master`）。
+- フィーチャーブランチは最新の master からのみ作る（`git fetch && git switch --no-track -c <name> origin/master`）。`--no-track` は、新しいブランチの上流が `origin/master` にならないようにするために付ける。
 - 前回確認したときからブランチが変わっていないと決めつけない。進捗ログの定期タスクや並行する worktree によって、セッション中にブランチが切り替わったり master が進んだりすることがある。
 
 
