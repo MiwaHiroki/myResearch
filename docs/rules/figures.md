@@ -1,6 +1,6 @@
 # 図の置き場所・名前・書式
 
-Claude（メインセッション・サブエージェントとも）が図を作って保存するときのルール。ユーザーが作る図も、できるだけこの形にそろえる。Claude が図を作るときの手順は、skill `make-figure`（[`.claude/skills/make-figure/SKILL.md`](../../.claude/skills/make-figure/SKILL.md)）にまとめてある。
+Claude（メインセッション・サブエージェントとも）が図を作って保存するときのルール。ユーザーが作る図も、できるだけこの形にそろえる。Claude が図を作るときの手順は、skill `make-figure`（[`.claude/skills/make-figure/SKILL.md`](../../.claude/skills/make-figure/SKILL.md)）にまとめてある。issue の作業中に、進捗報告で使う図を用意する手順は、skill `progress-material`（[`.claude/skills/progress-material/SKILL.md`](../../.claude/skills/progress-material/SKILL.md)）にある。
 
 目的は、**ファイル名を見れば、何の図かが誤解なく分かるようにすること**。図のファイルだけを別の場所（スライド、Drive など）に移しても分かるようにする。そのために、条件を表す語を下の[語彙表](#語彙表)で1つに決め、ファイル名・タイトル・凡例で同じ語を使う。
 
@@ -9,14 +9,21 @@ Claude（メインセッション・サブエージェントとも）が図を�
 | 用途 | スクリプト | 出力先 | git | タイトル | 大きさ・文字 | 保存 |
 |---|---|---|---|---|---|---|
 | 作業用（実験・評価） | `scripts/`、`scripts/evaluation/<テーマ>/` | `results/<MMDD>/`（`mkdirFromDate`、実行した日） | 管理外 | 付ける | 自由 | `saveFigure`（png・fig） |
-| 進捗報告用 | `scripts/progress/` | `results/figures/progress/` | 管理する | 付ける | 自由 | `saveFigure`（png・fig） |
+| 進捗報告用 | `scripts/progress/` | `results/figures/progress/<テーマ>/` | 管理する | 付ける | 自由 | `saveFigure`（png・fig） |
 | スライド用 | `scripts/slides/<YYYYMM><会議略称>/` | `results/figures/slides/<同じ名前>/` | 管理する | 付けない | [スライド用](#スライド用) | `saveSlideFigure` |
 | 原稿用 | `scripts/paper/<YYYYMM><会議略称>/` | `results/figures/paper/<同じ名前>/` | 管理外 | 付けない | [原稿用](#原稿用) | `savePaperFigure` |
 
 - 出力先は `currentProject().RootFolder` から組み立てる。スライド用・原稿用は `mkdirFromDate` の日付フォルダを使わない。
 - 会議のフォルダ名は `202609asj` のように、年月と会議の略称をつなげる。
+- 進捗報告用の `<テーマ>` は、研究の話題を表す英語の camelCase にする（`grooveTracking`、`multiGroove` など）。評価スクリプトのテーマ（`scripts/evaluation/<テーマ>/`）があれば、同じ名前にする。
 - 図は、用途の保存関数（`saveFigure`・`saveSlideFigure`・`savePaperFigure`）で保存する。`exportgraphics`・`saveas` を直接呼ばない。保存関数は、保存の前に名前を確かめる（[名前の確かめ方](#名前の確かめ方)）。
 - 同じ名前のファイルがあれば上書きしない（[`data.md`](data.md) の「出力の上書き」）。`saveFigure` は、同じ名前のファイルがあると保存せずにエラー（`saveFigure:fileExists`）を出す。進捗報告用の図を作り直すときのように、上書きしてよいときだけ `Overwrite=true` にする。
+- 進捗報告用の図は、作業用の図を写して用意してもよい（issue の進捗報告の素材を用意するとき）。作業用の出力先は git の管理外なので、写しておかないと、ほかの PC で図を見られないためである。写してよいのは、次の3つをすべて満たす図だけである。
+  - git で管理しているスクリプトが作った図である。日付や読み込むパスだけを変えた `temp/` のコピーで実行したものも含む。
+  - 名前がこのルールに沿っている（`checkFigureName` で警告が出ない）。
+  - 名前とタイトルが、描いたものと合っている（[種類と条件は、描いたものに合わせる](#種類と条件は描いたものに合わせる)）。
+
+  写すときは、png と fig を、名前を変えずに写す。どのスクリプトで、いつ作った図かを、受け渡しフォルダの `progress-material.md` に書く（[`../issues/README.md`](../issues/README.md) の「progress-material.md の書き方」）。
 
 ## ファイル名
 
