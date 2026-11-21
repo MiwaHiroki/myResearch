@@ -35,7 +35,7 @@ slides/
 2. Claude が、報告日を `docs/progress/.state.json` の次回の報告日から決め、報告のフォルダを作る。報告日が未定なら、日付を `MMDD` のままにして作る。
 3. Claude が、スライドの下書きを作る。
    - (1) 前回のスライドの最後の1枚（次回までの ToDo）を、2枚目にコピーする。
-   - (2) 進捗ログ（`docs/progress/`）と進捗報告用の図（`results/figures/progress/`）から、詳細のスライドを作る。
+   - (2) 進捗ログ（`docs/progress/`）、進捗報告用の図（`results/figures/progress/`）、issue の進捗報告の素材（受け渡しフォルダの `progress-material.md`）から、詳細のスライドを作る。素材は、issue の作業中に Claude が出した図の候補から、ユーザーが選んで用意したものである（skill `progress-material`）。
    - (3) 最後に、次回までの ToDo を書くスライドを、空のまま置く。
 4. ユーザーが、コピーする過去のスライドを決める。
    - (a) Google Slides で作った回は、そのスライドの画像（PNG）か1ページの PDF を、`copied/<MMDD>_p<ページ番号>.png` の名前で置く。
