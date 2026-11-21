@@ -9,7 +9,7 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 1. 盤面画像（8分割撮影の8枚）を読み込み、各画像をさらに横方向に10分割して細長い画像（`img_small`）にする（計80セグメント）。
 2. `omitMask` で左右の無効領域（マスク）を除去する。
 3. `ImageData` → `DarknessMap` を作り、暗さ行列 `dMat = 1 - img/255` を得る。必要に応じて `dResample`（リサンプル）や `dInterp`（interp2内挿）で高解像度化する。
-4. `DarknessMap` の `setDiffTF` でしきい値 `D_THRESH` を超える領域の立ち上がり／立ち下がりを求め、`GrooveExtractor` で各xの溝底候補の区間（`findThresholdIntervals`）と幅の狭い溝底区間（`findGrooveBottomIntervals`）を特定する。
+4. `DarknessMap` の `setDiffTF` でしきい値 `D_THRESH` を超える領域の立ち上がり／立ち下がりを求め、`GrooveExtractor` で各xの溝底候補の区間（`findThresholdIntervals`）と幅の狭い溝底区間（`findGrooveBottomIntervals`）を特定する。溝底区間とみなす幅（最後の行 − 最初の行）の上限 `WIDTH_THRESH` は、自動追跡の3つのスクリプト（`grooveTrack_1cycle.m`・`grooveHist_Ncycle.m`・`grooveTrack_Ncycle.m`）では 4 px、従来法のスクリプト（`pkCentroid_1cycle.m` など）では 8 px である（理由は「溝の自動追跡（trackGroove）」の「溝底区間の幅の上限」）。
 5. `GrooveExtractor` の `extractByCentroid`（重心法）／`extractByLocalMax`（局所的最大値法）で溝底のy座標を求め、`GroovePointCloud` に格納する。
 6. `fitGroove` で選択した平行四辺形内の点群を直線近似し、溝の傾きを補正する（詳細は「溝の選択（fitGroove）」）。
 7. `findGrooveCenter` でヒストグラムのピークから追跡対象の溝1本を選び、`extractGrooveShape` でその中心付近（`Tolerance`／`TOL_DISTANCE`／`tol`）の点だけを抽出して欠損を `fillmissing` で補間し、`detrendGrooveShape` で多項式デトレンドする（3つをまとめて呼ぶ `extractGrooveWaveform` を使うのが基本）。`grooveTrack_1cycle.m` では、6・7の代わりに写真1枚ごとに `mergeSegmentPoints` → `trackGroove` → `detrendTrackedShape` を使う（詳細は「溝の自動追跡（trackGroove）」）。`grooveHist_Ncycle.m` では、さらに1回のクリックから内側の溝も含めて N 本を取り出し、N周分の音声を作る（`extractMultiGroove`。詳細は「複数本の溝の抽出（N周分）」）。
@@ -82,9 +82,9 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 
 - **`pkCentroid_resample_1cycle.m`**: リサンプルしたデータに重心法を適用し、1周分の音声を生成する基本スクリプト。末尾で `saveCycleResult` により `cycleResult_rsmplD_<日付>.mat` を保存。
 - **`pkCentroid_interp2_1cycle.m`**: 上記を内挿（`dInterp`）ベースに置き換えた版。1周分の音声を生成し、`cycleResult_intpD_<日付>.mat` を保存。
-- **`grooveTrack_1cycle.m`**: 高解像度化していない画像で、写真1枚につき1回のクリックから溝1本を自動追跡し（`trackGroove`）、写真ごとに多項式デトレンド（`detrendTrackedShape`、9次）をかけて、重心法・局所的最大値法の1周分の音声を作る。`pkCentroid_1cycle.m`の`fitGroove`＋`extractGrooveWaveform`（1周80回の`ginput`）を置き換えたもの（1周8回）。`cycleResult_origD_track_<日付>.mat`を保存する。`PREV_RESULT_PATH`に以前の結果.matを指定すると、保存したクリック位置（または手動選択の`p1`）で`ginput`なしに再現する。`date`は`"MMDD"`のままだとエラーで止まるので、実行日に書き換える。詳細は「溝の自動追跡（trackGroove）」
-- **`grooveHist_Ncycle.m`**: 写真1枚につき1回のクリックから`NUM_GROOVES`本（既定5）の溝を取り出し（`extractMultiGroove`。1本目は追跡、2本目以降はヒストグラムの山と帯）、重心法・局所的最大値法のN周分の音声を作る。`cycleResult_origD_hist<N>_<日付>.mat`を保存する。図は`grooveHist_img<i>.png`（N本の経路）・`grooveHist_histogram_img<i>.png`（補正後のyのヒストグラム）。`PREV_RESULT_PATH`の扱いと`date`は`grooveTrack_1cycle.m`と同じ。詳細は「複数本の溝の抽出（N周分）」
-- **`grooveTrack_Ncycle.m`**: `grooveHist_Ncycle.m`を評価するための正解データを作る。写真ごとにN本をクリックし（8×N回の`ginput`）、それぞれを`trackGroove`→`detrendTrackedShape`で別々に追跡してN周分の音声を作り、`cycleResult_origD_track<N>_<日付>.mat`を保存する。図は`grooveTrackN_img<i>.png`。詳細は「複数本の溝の抽出（N周分）」
+- **`grooveTrack_1cycle.m`**: 高解像度化していない画像で、写真1枚につき1回のクリックから溝1本を自動追跡し（`trackGroove`）、写真ごとに多項式デトレンド（`detrendTrackedShape`、9次）をかけて、重心法・局所的最大値法の1周分の音声を作る。`pkCentroid_1cycle.m`の`fitGroove`＋`extractGrooveWaveform`（1周80回の`ginput`）を置き換えたもの（1周8回）。`cycleResult_origD_track_<日付>.mat`を保存する。`PREV_RESULT_PATH`に以前の結果.matを指定すると、保存したクリック位置（または手動選択の`p1`）で`ginput`なしに再現する。`date`は`"MMDD"`のままだとエラーで止まるので、実行日に書き換える。溝底区間の幅の上限`WIDTH_THRESH`は4 pxで、`pkCentroid_1cycle.m`の8 pxより狭い（issue #35）。詳細は「溝の自動追跡（trackGroove）」
+- **`grooveHist_Ncycle.m`**: 写真1枚につき1回のクリックから`NUM_GROOVES`本（既定5）の溝を取り出し（`extractMultiGroove`。1本目は追跡、2本目以降はヒストグラムの山と帯）、重心法・局所的最大値法のN周分の音声を作る。`cycleResult_origD_hist<N>_<日付>.mat`を保存する。図は`grooveHist_img<i>.png`（N本の経路）・`grooveHist_histogram_img<i>.png`（補正後のyのヒストグラム）。`PREV_RESULT_PATH`の扱い、`date`、溝底区間の幅の上限（4 px）は`grooveTrack_1cycle.m`と同じ。詳細は「複数本の溝の抽出（N周分）」
+- **`grooveTrack_Ncycle.m`**: `grooveHist_Ncycle.m`を評価するための正解データを作る。写真ごとにN本をクリックし（8×N回の`ginput`）、それぞれを`trackGroove`→`detrendTrackedShape`で別々に追跡してN周分の音声を作り、`cycleResult_origD_track<N>_<日付>.mat`を保存する。図は`grooveTrackN_img<i>.png`。溝底区間の幅の上限（4 px）は`grooveTrack_1cycle.m`と同じ。詳細は「複数本の溝の抽出（N周分）」
 - **`pkCentroidAndLocalMax_resample_1cycle.m`**: 重心法と局所的最大値法、リサンプルの有無（計4パターン）で1周分の音声を作り比較。移動平均・移動中央値による平滑化や針再生との比較も含む。
 - **`pkCentroid_resample.m`**: 画像1枚（1セグメント）について、リサンプルの有無×2手法の溝底検出結果を比較する検討用スクリプト。
 - **`pkCentroid_interp2.m`**: 画像1枚について、元データ・リサンプル・内挿の溝底検出結果を比較する検討用スクリプト。
@@ -157,6 +157,18 @@ seed  = [xQuery(1), seeds(iImg,2)];                          % xは1列目に固
 ```
 
 結果は`saveCycleResult(..., GrooveSelection=gs, FileName="cycleResult_origD_track_"+date)`で`experiments/<日付>/cycleResult_origD_track_<日付>.mat`に保存する（同じ日に手動選択の`cycleResult_origD_<日付>.mat`を作っても重ならない）。`centroid`/`localMax`の形は既存と同じなので、`ycoords`・`y_comb`・`audio`を読む比較スクリプトはそのまま使える。`grooveSelection`に足すフィールドは「1周分の実験結果の保存」の表を参照。読み込むときは`cycleResultPath`が`_track`に対応していないので、`fullfile(experimentDir(root,date,Create=false),"cycleResult_origD_track_"+date+".mat")`でパスを作る。追跡で使わない`cycleConditions`の必須の引数（`ThHist`・`BinWidth`・`HPrl`・`Tol`）は`NaN`になっている。
+
+**溝底区間の幅の上限**：自動追跡の3つのスクリプト（`grooveTrack_1cycle.m`・`grooveHist_Ncycle.m`・`grooveTrack_Ncycle.m`）は、幅が 4 px を超える溝底区間から溝底点を作らない（`WIDTH_THRESH = 4`。issue #35）。従来法の`pkCentroid_1cycle.m`などの 8 px より狭い。重心法と局所的最大値法の両方に、同じ上限を使う。ここで溝底区間は、各列で暗さが`D_THRESH`以上の行が続く範囲で、幅はその最後の行 − 最初の行である。
+
+- 理由
+  - 溝底の暗い線のすぐ隣に、暗さがしきい値すれすれの行が続いていることがある。この行は、溝の斜面と考えられる所である。
+  - この行がしきい値をわずかに上回ると、溝底区間がそこまでつながり、幅が 5 px 以上になる。つまり、溝の斜面と考えられる所が、溝底として検出される。
+  - 重心法では、しきい値すれすれの行も溝底の行とほぼ同じ重みで効く。そのため、溝底点が溝底の線から 1〜2 px ずれる。
+  - 追跡が許す範囲（`Tolerance`の 2 px）も、2本目以降を取り出す帯（±3 px）も、このずれより広い。そのため、ずれた点が選ばれ、正規化した振幅が 1 付近の外れ値（クリックのような音）になっていた。
+  - 1104 の5周分のデータでは、前後21列の中央値から 1 px を超えてずれた点が26点あり、すべて幅 5 px 以上の点だった。上限を 4 px にすると、こうした点は無くなった。
+- 欠点
+  - 溝底区間が広く、かつ取り出した点が正しく溝底の上にあるときも、その点を溝底点にせず、前後の列からの補間に置き換えてしまう場合がある。1104 では、幅 5 px 以上で外れ値でない78点が補間に置き換わった（y の変化の中央値 0.45 px）。暗さがしきい値以上の範囲を溝底とするこの方法では、避けられない部分である。
+  - ほかのレコードや撮影条件で、溝底の線そのものが幅 5 px 以上になると、溝底点が大量に消える。そのときは`trackGroove:longGap`の警告が出るので、上限を見直す。
 
 ## 複数本の溝の抽出（N周分）
 
