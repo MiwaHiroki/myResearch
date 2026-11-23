@@ -9,11 +9,12 @@
 %   M8：1104 の本実装、4本目・写真5、2718-2719 ms の切り出しと、2717-2720 ms の波形
 %       （溝底の線そのものの下がりが残る所）
 %   M9：1014、写真8、671-672 ms の切り出し（外れ値でない幅の広い点が、補間に置き換わった所）
-% 評価の図との違いは、点と文字の大きさだけである（ユーザーの決定、2026-11-23）。切り出しの図の点は、
-% すべての種類を同じ大きさ（MARKER_SIZE）にし、文字は MATLAB の既定（目盛り 9 pt、軸ラベルとタイトル
-% 9.9 pt、凡例 8.1 pt）にした。評価スクリプトはこれらの値を関数の中に書いていて、temp/ のコピーの冒頭を
-% 変えるだけでは作れないので、要るローカル関数（溝底点の検出、溝の選択のやり直し、列ごとの表、切り出す
-% 範囲の決め方、図）を、このスクリプトの末尾に写した。評価スクリプトは変えていない。
+% 評価の図との違いは、点と文字の大きさと、凡例の位置だけである（ユーザーの決定、2026-11-23）。切り出しの
+% 図の点は、すべての種類を同じ大きさ（MARKER_SIZE）にし、文字は MATLAB の既定（目盛り 9 pt、軸ラベルと
+% タイトル 9.9 pt、凡例 8.1 pt）にした。凡例は、描画領域の右上（LEGEND_LOCATION）に置いた。
+% 評価スクリプトはこれらの値を関数の中に書いていて、temp/ のコピーの冒頭を変えるだけでは作れないので、
+% 要るローカル関数（溝底点の検出、溝の選択のやり直し、列ごとの表、切り出す範囲の決め方、図）を、
+% このスクリプトの末尾に写した。評価スクリプトは変えていない。
 % 手順
 %   1. 写真を reconstructImage で読み直し、幅の上限 8 と 4 で、溝底点（重心法）と点ごとの溝底区間の幅を
 %      求める。幅の上限 8 の点が、保存した溝底点（pts）と一致することを確かめる（評価の R1）。
@@ -29,6 +30,8 @@
 %
 % 前提：Research.prj を開いていること（撮影画像が MATLAB のパス上にあること）。
 % 2026/11/23作成
+% 2026/11/23 ユーザーの決定で、凡例の位置を "best" から右上（"northeast"）にそろえた。OVERWRITE=true で
+%            5枚を作り直した
 
 setDefaultIntrpr();
 proj = currentProject();
@@ -81,8 +84,10 @@ WAVE_MARGIN_MS = 1;     % 波形の、区間の両端から外への時間 [ms]
 % 評価の図から変えた値（ユーザーの決定、2026-11-23）
 MARKER_SIZE = 18;       % 切り出しの図の点の大きさ（すべての種類。評価の図は、すべての溝底点だけ 9）
 FONT_SIZE = 9;          % 目盛りの文字 [pt]。軸ラベル・タイトルはその 1.1 倍、凡例は 0.9 倍（MATLAB の既定）
+LEGEND_LOCATION = "northeast"; % 凡例の位置（描画領域の右上。評価の図は "best"）
 STYLE = struct("figSizeCrop", [16 13], "figSizeWave", [16 8], "markerSize", MARKER_SIZE, ...
-    "fontSize", FONT_SIZE, "colorAll", "cyan", "colorBefore", "yellow", "colorAfter", "magenta", ...
+    "fontSize", FONT_SIZE, "legendLocation", LEGEND_LOCATION, ...
+    "colorAll", "cyan", "colorBefore", "yellow", "colorAfter", "magenta", ...
     "colorWaveBefore", [0.85 0.33 0.10], "colorWaveAfter", [0 0.45 0.74]);
 OVERWRITE = false;      % 同じ名前の図を上書きするか（作り直すときだけ true にする）
 
@@ -513,7 +518,7 @@ function fig = plotCrop(photo, xr, yr, pksAll, selB, selA, pathA, style, label, 
     hold(ax, "off");
     xlabel(ax, "$x$ [px]");
     lgd = legend(ax, h, ["all groove-bottom points", label.before, label.after, ...
-        label.after + " (interpolated)"], Location="best", NumColumns=2, FontSize=style.fontSize*0.9);
+        label.after + " (interpolated)"], Location=style.legendLocation, NumColumns=2, FontSize=style.fontSize*0.9);
     lgd.ItemHitFcn = @togglevisibility;
 end
 
@@ -553,7 +558,7 @@ function fig = plotWave(B, A, tr, exact, style, label, titleLines)
     xlabel(ax, "Time [ms]");
     ylabel(ax, "Amplitude");
     title(ax, titleLines);
-    legend(ax, h, names, Location="best", FontSize=style.fontSize*0.9);
+    legend(ax, h, names, Location=style.legendLocation, FontSize=style.fontSize*0.9);
     ax.Toolbar.Visible = "off";
 end
 

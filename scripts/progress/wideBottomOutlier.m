@@ -24,6 +24,8 @@
 % 2026/11/23 ユーザーの決定で、この試行の図の体裁をそろえた。文字を MATLAB の既定（目盛り 9 pt、軸ラベルと
 %            タイトル 9.9 pt、凡例 8.1 pt）にし、M2 の点をすべて 18 にした（15 から）。OVERWRITE=true で
 %            M2・M3 を作り直した
+% 2026/11/23 ユーザーの決定で、凡例の位置を右上（northeast）にそろえ、OVERWRITE=true で M2 だけを作り直した
+%            （MAKE_FIGS.profile=false）。M3 は右上にすると凡例が折れ線の山を隠すので、右下のまま残した
 
 setDefaultIntrpr();
 proj = currentProject();
@@ -46,14 +48,15 @@ X_HALF = 35;              % 切り出す幅の半分 [px]（外れ値の列の�
 Y_HALF = 14;              % 切り出す高さの半分 [px]（中心の列の選んだ y から、溝を横切る方向。隣の溝の手前まで）
 FIG_SIZE_CROP = [16 13];  % 図の大きさ [cm]
 MARKER_SIZE = 18;         % 点の大きさ（scatter の SizeData。すべての種類で同じ。ユーザーの決定、2026-11-23）
-LEGEND_LOCATION_CROP = "north"; % 凡例の位置（溝の上の、点の無い所）
+LEGEND_LOCATION_CROP = "northeast"; % 凡例の位置（描画領域の右上。ユーザーの決定、2026-11-23）
 
 % M3：暗さの分布
 PROFILE_X = [1861 1862 1865]; % 暗さの分布を描く列（写真の中の px）。1861 は幅3のふつうの列
 PROFILE_Y = [280 295];        % 描く y の範囲 [px]
 D_LIM = [0.35 0.8];           % 暗さの軸の範囲
 FIG_SIZE_PROFILE = [16 10];   % 図の大きさ [cm]
-LEGEND_LOCATION_PROFILE = "southeast"; % 凡例の位置（線の下の、線の無い所）
+LEGEND_LOCATION_PROFILE = "southeast"; % 凡例の位置。右上にすると、3本の折れ線の山（y=286〜288、暗さ
+                                       % 0.71〜0.74）を隠すので、右下のまま（2026-11-23、ユーザーに確認中）
 
 % 色（docs/groove-on-image.md と同じ。幅の広い選んだ点の色だけ、このスクリプトで決めた）
 COLOR_ALL = "cyan";                                  % すべての溝底点
@@ -61,6 +64,7 @@ COLOR_RANGE = struct("start","red","end","yellow");  % 溝底範囲の始めと�
 COLOR_TRACK = "magenta";                             % 自動追跡で選んだ溝底点（幅が WIDE_MIN 未満）
 COLOR_WIDE = "green";                                % 自動追跡で選んだ溝底点（幅が WIDE_MIN 以上）
 FONT_SIZE = 9;          % 目盛りの文字 [pt]。軸ラベル・タイトルはその 1.1 倍、凡例は 0.9 倍（MATLAB の既定）
+MAKE_FIGS = struct("crop",true,"profile",true); % 作る図（crop は M2、profile は M3）。片方だけ作り直すときに使う
 OVERWRITE = false;      % 同じ名前の図を上書きするか（作り直すときだけ true にする）
 
 THEME = "grooveBottomDetection";
@@ -149,15 +153,17 @@ fprintf("切り出しの中の選んだ点：%d 点（幅%d以上 %d 点：x = %
 style = struct("figSize",FIG_SIZE_CROP,"markerSize",MARKER_SIZE,"colorAll",COLOR_ALL, ...
     "colorRange",COLOR_RANGE,"colorTrack",COLOR_TRACK,"colorWide",COLOR_WIDE, ...
     "legendLocation",LEGEND_LOCATION_CROP,"fontSize",FONT_SIZE);
-labels =["all groove-bottom points", "groove-bottom range: start", "groove-bottom range: end", ...
+labels = ["all groove-bottom points", "groove-bottom range: start", "groove-bottom range: end", ...
     LABEL.(SELECTION) + ", width $\leq$ " + (WIDE_MIN - 1), LABEL.(SELECTION) + ", width $\geq$ " + WIDE_MIN];
-% タイトルは図の幅に収まらないので2行に分ける
-fig = plotCrop(photoImg,xRange,yRange,det,pksSel(~isWide,:),pksSel(isWide,:),style,labels, ...
-    ["Groove on image", "(" + condTitle + ", " + LABEL.(SELECTION) + ", data " + DATE + ...
-    ", photo " + I_IMG + sprintf(", %d-%d ms)",msRange)]);
-saveFigure(fig,saveDir,"grooveOnImage_" + condName + "_" + SELECTION + "_" + DATE + "_img" + I_IMG + ...
-    sprintf("_%d-%dms",msRange) + "_grooveBtmRange",Overwrite=OVERWRITE);
-close(fig);
+if MAKE_FIGS.crop
+    % タイトルは図の幅に収まらないので2行に分ける
+    fig = plotCrop(photoImg,xRange,yRange,det,pksSel(~isWide,:),pksSel(isWide,:),style,labels, ...
+        ["Groove on image", "(" + condTitle + ", " + LABEL.(SELECTION) + ", data " + DATE + ...
+        ", photo " + I_IMG + sprintf(", %d-%d ms)",msRange)]);
+    saveFigure(fig,saveDir,"grooveOnImage_" + condName + "_" + SELECTION + "_" + DATE + "_img" + I_IMG + ...
+        sprintf("_%d-%dms",msRange) + "_grooveBtmRange",Overwrite=OVERWRITE);
+    close(fig);
+end
 
 %% M3：列ごとの暗さの分布に、しきい値と重心を重ねる
 % 各列で、選んだ溝底点の溝底区間（始め・終わり・幅・重心）を取り出す
@@ -182,11 +188,13 @@ disp(array2table([yProfile, darkness(yProfile,PROFILE_X)],'VariableNames',["y", 
 msRange = msRangeOf(PROFILE_X);
 styleProfile = struct("figSize",FIG_SIZE_PROFILE,"dLim",D_LIM,"legendLocation",LEGEND_LOCATION_PROFILE, ...
     "fontSize",FONT_SIZE);
-fig = plotProfiles(darkness,yProfile,info,cond.dThresh,styleProfile, ...
-    ["Darkness profile", "(" + condTitle + ", data " + DATE + ", photo " + I_IMG + sprintf(", %d-%d ms)",msRange)]);
-saveFigure(fig,saveDir,"darknessProfile_" + condName + "_" + DATE + "_img" + I_IMG + ...
-    sprintf("_%d-%dms",msRange),Overwrite=OVERWRITE);
-close(fig);
+if MAKE_FIGS.profile
+    fig = plotProfiles(darkness,yProfile,info,cond.dThresh,styleProfile, ...
+        ["Darkness profile", "(" + condTitle + ", data " + DATE + ", photo " + I_IMG + sprintf(", %d-%d ms)",msRange)]);
+    saveFigure(fig,saveDir,"darknessProfile_" + condName + "_" + DATE + "_img" + I_IMG + ...
+        sprintf("_%d-%dms",msRange),Overwrite=OVERWRITE);
+    close(fig);
+end
 
 
 %% ローカル関数

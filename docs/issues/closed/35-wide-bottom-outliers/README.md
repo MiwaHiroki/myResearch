@@ -259,7 +259,9 @@
 | 2026-11-23 | illustrator | M2・M3・M6・M8・M9 の7枚を作り直す（続きの依頼）。M2・M3 は `wideBottomOutlier.m` を直して上書きした。M6・M8・M9 は、評価スクリプトの計算と図の関数を写した新しいスクリプトで、評価の図と同じ名前・同じ中身に作った。<br>直す前の結果は保存した結果と差0で、直した後の値は `eval-report-1.md` と同じだった。元の図との違いは、点と文字の大きさと、それに伴う凡例の位置（M6・M9）だけ | [`progress-material.md`](./progress-material.md)、`scripts/progress/wideBottomOutlier.m`、`scripts/progress/wideBottomOutlierWidthThresh.m`、`results/figures/progress/grooveBottomDetection/`（図7枚） |
 | 2026-11-23 | main | 書いてよい範囲の外が変わっていないことを確かめた。8枚とも、目盛り 9 pt、軸ラベルとタイトル 9.9 pt、凡例 8.1 pt、切り出しの点 18 であることを fig から測って確かめ、凡例の位置が変わった M6・M9 を目で確かめた。<br>M9 の「直した後の線との差は小さい」を、評価の表の値（y の変化の最大 0.323 px、振幅の絶対値の最大 0.080 → 0.285）に書き直した | [`progress-material.md`](./progress-material.md)、`79a147c` |
 | 2026-11-23 | ユーザー | **決定** 切り出しの図（grooveOnImage）は、図によって凡例の位置が違うので、そろえる。<br>**決定** 進捗報告の資料では、凡例の位置を原則として描画領域の右上（northeast）にし、表示しているデータに大きく重なってしまうときは、ユーザーに確かめる | — |
-| 2026-11-23 | main | 方針に合わせ、切り出しの4枚（M2・M6・M8・M9）を右上にし、位置を自動で選んでいる波形の2枚（M6・M8）も右上と明示する。今は右下にある M3 は、右上で折れ線に大きく重なるなら、保存せずにユーザーに確かめる。M2・M3・M6・M8・M9 を「依頼」に戻した | [`progress-material.md`](./progress-material.md) |
+| 2026-11-23 | main | 方針に合わせ、切り出しの4枚（M2・M6・M8・M9）を右上にし、位置を自動で選んでいる波形の2枚（M6・M8）も右上と明示する。今は右下にある M3 は、右上で折れ線に大きく重なるなら、保存せずにユーザーに確かめる。M2・M3・M6・M8・M9 を「依頼」に戻した | [`progress-material.md`](./progress-material.md)、`4bb8e69` |
+| 2026-11-23 | illustrator | 凡例を右上にして、M2、M6（2枚）、M8（2枚）、M9 を作り直した（上書き）。凡例は写真の上か波形の無い所にかかり、点・経路・線には重ならない。途中で利用の上限に達して止まり、main が続きを頼んで再開した。<br>M3 は、右上にすると凡例が折れ線の山（溝底の暗い線、y=286〜288、暗さ 0.71〜0.74）を隠すので、保存しなかった（右下のまま）。試しの図は `temp/35-progress-material/trial3/` にある | [`progress-material.md`](./progress-material.md)、`scripts/progress/wideBottomOutlier.m`、`scripts/progress/wideBottomOutlierWidthThresh.m`、`results/figures/progress/grooveBottomDetection/`（図6枚） |
+| 2026-11-23 | main | 書いてよい範囲の外が変わっていないことと、8枚の凡例の位置（M3 だけ右下、ほかは右上）と文字の大きさが変わっていないことを fig から確かめた。M3 の試しの図を見て、山が隠れることを確かめた | — |
 ### 振り返り — 完了
 
 | 日付 | 担当 | 内容 | 成果物 |
