@@ -236,7 +236,7 @@
 | 2026-11-18 | main | 報告と図を確かめ、U1〜U4 の代表の図4枚と観点をユーザーに送る | — |
 | 2026-11-20 | ユーザー | **決定** U1〜U4 の図を見て、評価を合格とした。気になる点の指摘は無かった（2717〜2720 ms に残る持ち上がりを含む） | — |
 | 2026-11-20 | main | 確認の結果を eval-report-1.md の先頭に書き（評価担当の本文は変えない）、評価の報告をコミットする | [`eval-report-1.md`](./eval-report-1.md)、`5b03692` |
-### 進捗報告の素材 — 作業中
+### 進捗報告の素材 — 完了
 
 | 日付 | 担当 | 内容 | 成果物 |
 |---|---|---|---|
@@ -267,7 +267,9 @@
 | 2026-11-23 | illustrator | M3 を、凡例を右上・縦軸の上限 0.95 で試した。凡例は折れ線・点・しきい値の線にはかからないが、重心の破線3本の上の部分（暗さ 0.79〜0.93）にかかるので、保存しなかった。<br>参考に、凡例を1列・上限 1.0 にした図も試し、こちらはどの線にもかからなかった。試しの図は `temp/35-progress-material/trial4/`・`trial5/` にある。スクリプトには、目盛りの間隔を決める値を足した（今の図は変わらない） | [`progress-material.md`](./progress-material.md)、`scripts/progress/wideBottomOutlier.m`、`f7e8d88` |
 | 2026-11-23 | ユーザー | **決定** M3 は、凡例を右上に2列で置き、暗さの軸を 0.35〜1.0 にする。2列にするのは、同じ色の折れ線と重心の破線が同じ行に並び、色（列の x 座標）の対応が分かりやすいためである。凡例が重心の破線の上の部分にかかるのは受け入れる（ユーザーは、いったん1列を選び、すぐに2列に直した） | `07a9378` |
 | 2026-11-23 | illustrator | M3 を、凡例を右上の2列・暗さの軸 0.35〜1.0 にして作り直した（上書き）。凡例の下端は暗さ 0.851 で、折れ線の最大（0.741）より上にある | [`progress-material.md`](./progress-material.md)、`scripts/progress/wideBottomOutlier.m`、`results/figures/progress/grooveBottomDetection/`（図1枚） |
-| 2026-11-23 | main | 書いてよい範囲の外が変わっていないことと、凡例の位置・列の数・縦軸の範囲を fig から確かめた | — |
+| 2026-11-23 | main | 書いてよい範囲の外が変わっていないことと、凡例の位置・列の数・縦軸の範囲を fig から確かめた | `d1ba896` |
+| 2026-11-23 | ユーザー | **決定** M3 はこのままでよい | — |
+| 2026-11-23 | main | 素材ファイルを見直した。M1〜M10 はすべて「確認済み」で、「依頼」や「作成済み」のまま残った素材は無い。メタデータの状態を「完了」にし、M10 の出典に書いた案の状態（issue を作っていないこと）を消した。<br>振り返り `progress-material-trial.md` を書いた（問題と学び26項目、改善案 T1〜T11。改善案はユーザーが決める） | [`progress-material.md`](./progress-material.md)、[`progress-material-trial.md`](./progress-material-trial.md) |
 ### 振り返り — 完了
 
 | 日付 | 担当 | 内容 | 成果物 |
@@ -307,3 +309,4 @@
 - [`retrospective.md`](./retrospective.md)：振り返り
 - [`follow-ups.md`](./follow-ups.md)：続きのissueの案
 - [`progress-material.md`](./progress-material.md)：進捗報告の素材（issue を閉じた後に、素材の仕組みを試して作った）
+- [`progress-material-trial.md`](./progress-material-trial.md)：進捗報告の素材の仕組みを試した振り返り
