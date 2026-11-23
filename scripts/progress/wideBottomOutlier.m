@@ -21,6 +21,9 @@
 %
 % 前提：Research.prj を開いていること（撮影画像が MATLAB のパス上にあること。reconstructImage で読み直す）。
 % 2026/11/23作成
+% 2026/11/23 ユーザーの決定で、この試行の図の体裁をそろえた。文字を MATLAB の既定（目盛り 9 pt、軸ラベルと
+%            タイトル 9.9 pt、凡例 8.1 pt）にし、M2 の点をすべて 18 にした（15 から）。OVERWRITE=true で
+%            M2・M3 を作り直した
 
 setDefaultIntrpr();
 proj = currentProject();
@@ -42,7 +45,7 @@ TARGET_X = [1862 1865]; % 外れ値の列の範囲（写真の中の px）。切
 X_HALF = 35;              % 切り出す幅の半分 [px]（外れ値の列の中心から、溝に平行な方向）
 Y_HALF = 14;              % 切り出す高さの半分 [px]（中心の列の選んだ y から、溝を横切る方向。隣の溝の手前まで）
 FIG_SIZE_CROP = [16 13];  % 図の大きさ [cm]
-MARKER_SIZE = 15;         % 点の大きさ（scatter の SizeData。docs/groove-on-image.md の切り出しの値）
+MARKER_SIZE = 18;         % 点の大きさ（scatter の SizeData。すべての種類で同じ。ユーザーの決定、2026-11-23）
 LEGEND_LOCATION_CROP = "north"; % 凡例の位置（溝の上の、点の無い所）
 
 % M3：暗さの分布
@@ -57,6 +60,7 @@ COLOR_ALL = "cyan";                                  % すべての溝底点
 COLOR_RANGE = struct("start","red","end","yellow");  % 溝底範囲の始めと終わり
 COLOR_TRACK = "magenta";                             % 自動追跡で選んだ溝底点（幅が WIDE_MIN 未満）
 COLOR_WIDE = "green";                                % 自動追跡で選んだ溝底点（幅が WIDE_MIN 以上）
+FONT_SIZE = 9;          % 目盛りの文字 [pt]。軸ラベル・タイトルはその 1.1 倍、凡例は 0.9 倍（MATLAB の既定）
 OVERWRITE = false;      % 同じ名前の図を上書きするか（作り直すときだけ true にする）
 
 THEME = "grooveBottomDetection";
@@ -144,8 +148,8 @@ fprintf("切り出しの中の選んだ点：%d 点（幅%d以上 %d 点：x = %
 
 style = struct("figSize",FIG_SIZE_CROP,"markerSize",MARKER_SIZE,"colorAll",COLOR_ALL, ...
     "colorRange",COLOR_RANGE,"colorTrack",COLOR_TRACK,"colorWide",COLOR_WIDE, ...
-    "legendLocation",LEGEND_LOCATION_CROP);
-labels = ["all groove-bottom points", "groove-bottom range: start", "groove-bottom range: end", ...
+    "legendLocation",LEGEND_LOCATION_CROP,"fontSize",FONT_SIZE);
+labels =["all groove-bottom points", "groove-bottom range: start", "groove-bottom range: end", ...
     LABEL.(SELECTION) + ", width $\leq$ " + (WIDE_MIN - 1), LABEL.(SELECTION) + ", width $\geq$ " + WIDE_MIN];
 % タイトルは図の幅に収まらないので2行に分ける
 fig = plotCrop(photoImg,xRange,yRange,det,pksSel(~isWide,:),pksSel(isWide,:),style,labels, ...
@@ -176,7 +180,8 @@ fprintf("暗さ（行 = y、列 = x）\n");
 disp(array2table([yProfile, darkness(yProfile,PROFILE_X)],'VariableNames',["y", "x" + PROFILE_X]));
 
 msRange = msRangeOf(PROFILE_X);
-styleProfile = struct("figSize",FIG_SIZE_PROFILE,"dLim",D_LIM,"legendLocation",LEGEND_LOCATION_PROFILE);
+styleProfile = struct("figSize",FIG_SIZE_PROFILE,"dLim",D_LIM,"legendLocation",LEGEND_LOCATION_PROFILE, ...
+    "fontSize",FONT_SIZE);
 fig = plotProfiles(darkness,yProfile,info,cond.dThresh,styleProfile, ...
     ["Darkness profile", "(" + condTitle + ", data " + DATE + ", photo " + I_IMG + sprintf(", %d-%d ms)",msRange)]);
 saveFigure(fig,saveDir,"darknessProfile_" + condName + "_" + DATE + "_img" + I_IMG + ...
@@ -243,9 +248,10 @@ function fig = plotCrop(photoImg,xRange,yRange,det,pksNarrow,pksWide,style,label
         imagesc(ax,photoImg(yRange,xRange),XData=xRange([1 end]),YData=yRange([1 end]));
         colormap(ax,gray); clim(ax,[0 255]);
         axis(ax,"image");
+        ax.FontSize = style.fontSize;   % tiledlayout が小さくしないように、目盛りの大きさを決める
         ylabel(ax,"$y$ [px]");
     end
-    title(tl,titleLines,Interpreter="latex",FontSize=11);   % 図の幅に収まる大きさ（M3 のタイトルと同じ）
+    title(tl,titleLines,Interpreter="latex",FontSize=style.fontSize*1.1);   % 軸のタイトルと同じ大きさ
     hold(ax,"on");
     h = gobjects(5,1);
     pts = pointsInView(det.pks,xRange,yRange);
@@ -260,7 +266,7 @@ function fig = plotCrop(photoImg,xRange,yRange,det,pksNarrow,pksWide,style,label
     h(5) = scatter(ax,pts(:,1),pts(:,2),style.markerSize,style.colorWide,"filled","o");
     hold(ax,"off");
     xlabel(ax,"$x$ [px]");
-    lgd = legend(ax,h,labels,Location=style.legendLocation,NumColumns=3,FontSize=8);
+    lgd = legend(ax,h,labels,Location=style.legendLocation,NumColumns=3,FontSize=style.fontSize*0.9);
     lgd.ItemHitFcn = @togglevisibility;
 end
 
@@ -270,6 +276,7 @@ function fig = plotProfiles(darkness,yProfile,info,dThresh,style,titleLines)
     fig = createFigure([0 0 style.figSize]);
     tl = tiledlayout(fig,1,1,Padding="compact");
     ax = nexttile(tl);
+    ax.FontSize = style.fontSize;
     colors = ax.ColorOrder;
     numCols = height(info);
     hLine = gobjects(numCols,1);
@@ -293,7 +300,7 @@ function fig = plotProfiles(darkness,yProfile,info,dThresh,style,titleLines)
     centroidNames = compose("centroid %.2f",info.centroid);
     lgd = legend(ax,[hLine; hThresh; hCentroid], ...
         [lineNames; "$D_\mathrm{th}$ = " + dThresh; centroidNames], ...
-        Location=style.legendLocation,NumColumns=2,FontSize=8);
+        Location=style.legendLocation,NumColumns=2,FontSize=style.fontSize*0.9);
     lgd.ItemHitFcn = @togglevisibility;
 end
 
