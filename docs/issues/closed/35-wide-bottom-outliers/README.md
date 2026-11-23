@@ -252,7 +252,8 @@
 | 2026-11-23 | main | 書いてよい範囲の外が変わっていないことと、図（ピーク、凡例、名前）を確かめた | `93719ff` |
 | 2026-11-23 | main | 評価の区切り（`eval-report-1.md`）で、素材の候補を5つ出した（直す前と後の 715 ms の図、数値の表、限界の図2つ、残った問題の表）。あわせて、M4・M5 の表の確認を頼んだ | — |
 | 2026-11-23 | ユーザー | **決定** M4・M5 はこのままでよい。<br>**決定** 評価の区切りの候補を5つとも作る（M6〜M10）。5周分の例（3794〜3798 ms）は足さない | — |
-| 2026-11-23 | main | 決定を `progress-material.md` に書く（M4・M5 は「確認済み」、M6〜M10 は「依頼」）。M6・M8・M9 は評価の図を写すだけ、M7・M10 は表なので、illustrator を呼ばずに main が用意する | [`progress-material.md`](./progress-material.md) |
+| 2026-11-23 | main | 決定を `progress-material.md` に書く（M4・M5 は「確認済み」、M6〜M10 は「依頼」）。M6・M8・M9 は評価の図を写すだけ、M7・M10 は表なので、illustrator を呼ばずに main が用意する | [`progress-material.md`](./progress-material.md)、`d4087cc` |
+| 2026-11-23 | main | M6〜M10 を用意した。写した5枚（png・fig）は、git で管理する評価スクリプトが 2026-11-18 に作った図で、`checkFigureName` の警告は0件、名前とタイトルは描いたものと合っていた。M7・M10 の表は `eval-report-1.md`・README の解決のまとめ・`follow-ups.md` から写した | [`progress-material.md`](./progress-material.md)、`results/figures/progress/grooveBottomDetection/`（図5枚） |
 ### 振り返り — 完了
 
 | 日付 | 担当 | 内容 | 成果物 |
