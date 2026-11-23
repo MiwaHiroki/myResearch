@@ -161,7 +161,7 @@
 ## 7. 仕上げ（段階5）
 
 1. **振り返り**：`retrospective.md` に、経過（所要時間・トークン）、うまくいったこと、問題と学び、ルール・定義の改善案を書く。改善案はユーザーが決め、採用したものはmasterで反映して作業ブランチに取り込む。小さなissueでは簡単でよい。
-2. **続きのissue**：作業中に出た案を `follow-ups.md` などにメモし、作るタイミングとあわせてユーザーに確かめる。
+2. **続きのissue**：作業中に出た案を `follow-ups.md` に書き、作るタイミングとあわせてユーザーに確かめる。書き方は [`issues/README.md`](issues/README.md) の「follow-ups.md の書き方」。案からissueを作ったら、閉じた後でも、元の案の状態を更新する（[`issue-guide.md`](issue-guide.md) の「Claudeがissueを作るときの手順」）。
 3. **解決のまとめ（summarizer）**：`closed/` の README だけを読めばissueをどう解決したかが分かるように、README の「解決のまとめ」の節を書いてもらう。書き方は [`issues/README.md`](issues/README.md) の「README.md の書き方」。
    - 呼ぶ前：`retrospective.md`・`follow-ups.md`・作業履歴が最新であることを確かめる。会話で決めて作業履歴に書いていないことがあれば、先に書く（summarizer は会話を知らず、記録だけから書くため）。`git status --porcelain` が空であることを確かめる。
    - 呼んだ後：`git diff` で、README の「解決のまとめ」の節の外が変わっていないことを確かめる。報告の「記録の抜け・食い違い」をユーザーに確かめ、作業履歴かまとめに書き足す。まとめをユーザーに見せる。コミットする（`#<番号> の解決のまとめを README に書く`、`Agent: summarizer`・`Agent: main`）。
