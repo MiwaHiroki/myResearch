@@ -243,7 +243,9 @@
 | 2026-11-23 | ユーザー | **決定** issue を閉じた後に、進捗報告の素材の仕組み（skill `progress-material`、エージェント `illustrator`）をこのissueで試す。素材は 2026-12-08 の進捗報告で使う。<br>実装と評価はやり直さず、計画の区切りの成果物を `plan-2.md`、評価の区切りの成果物を `eval-report-1.md` とする。呼ぶサブエージェントは illustrator だけにする。<br>`closed/` の中身を変えない決まりの例外として、`progress-material.md` と振り返り `progress-material-trial.md` を置き、この見出しとファイル一覧を更新することを認めた。作業ブランチは `claude/35-progress-material-trial`（`origin/master` の `3def424` から） | — |
 | 2026-11-23 | main | 計画の区切り（`plan-2.md`）で、素材の候補を5つ出した（症状の波形、写真に溝底範囲を重ねた図、1列の暗さの分布、幅ごとのずれの表、案の比較の表） | — |
 | 2026-11-23 | ユーザー | **決定** 5つとも作る（M1〜M5）。溝底点の抽出法はすべて重心法とし、局所的最大値法の図・表は作らない。<br>M5 の案は、採用した案（幅の上限を4にする）、当初想定していたがうまくいかなかった案（追跡のパラメータを変える、溝底点を選んだ後で除く）、代替案（重心の計算し直し）、さらなる実装案（重みの変更）の順に並べる。「溝底点を選んだ後で除く」とほぼ同じ案は、前の進捗報告でも挙がっていた（このissueの作業中には、Claude に伝わっていなかった） | — |
-| 2026-11-23 | main | 決定を `progress-material.md` に書く（M1〜M5、状態「依頼」）。<br>仮定：「溝底点を選んだ後で除く」は、plan.md 3章の案B（溝を選んだ後で、局所的なずれが 1 px を超える点を除いて補間する）とする | [`progress-material.md`](./progress-material.md) |
+| 2026-11-23 | main | 決定を `progress-material.md` に書く（M1〜M5、状態「依頼」）。<br>仮定：「溝底点を選んだ後で除く」は、plan.md 3章の案B（溝を選んだ後で、局所的なずれが 1 px を超える点を除いて補間する）とする | [`progress-material.md`](./progress-material.md)、`6899231` |
+| 2026-11-23 | illustrator | M2・M3 を作る（1回目）。新しいスクリプトで、1014 の保存した結果（幅の上限 8）を読み、溝底点と溝底区間を写真から求め直して描いた。求め直した溝底点は、保存したものと一致した（差 0）。<br>M3 の数値の確かめで、x=1862・y=290 の暗さが、plan.md 2.2 の 0.605 ではなく 0.6039（画素値 101）だった。plan.md の丸めの誤りと判断して、図を作った（依頼では、合わなければ作らないとしていた） | [`progress-material.md`](./progress-material.md)、`scripts/progress/wideBottomOutlier.m`、`results/figures/progress/grooveBottomDetection/`（図2枚） |
+| 2026-11-23 | main | 書いてよい範囲の外が変わっていないことと、図（凡例の位置、写真の表示範囲、名前）を確かめた。0.6039 を MATLAB で確かめた。<br>M1・M4・M5 を書いた。M1 は進捗報告用の置き場所にある既存の図を使う。その名前は今の図のルールより前の形で、`checkFigureName` の警告が1つ出る | [`progress-material.md`](./progress-material.md) |
 ### 振り返り — 完了
 
 | 日付 | 担当 | 内容 | 成果物 |
