@@ -263,7 +263,8 @@
 | 2026-11-23 | illustrator | 凡例を右上にして、M2、M6（2枚）、M8（2枚）、M9 を作り直した（上書き）。凡例は写真の上か波形の無い所にかかり、点・経路・線には重ならない。途中で利用の上限に達して止まり、main が続きを頼んで再開した。<br>M3 は、右上にすると凡例が折れ線の山（溝底の暗い線、y=286〜288、暗さ 0.71〜0.74）を隠すので、保存しなかった（右下のまま）。試しの図は `temp/35-progress-material/trial3/` にある | [`progress-material.md`](./progress-material.md)、`scripts/progress/wideBottomOutlier.m`、`scripts/progress/wideBottomOutlierWidthThresh.m`、`results/figures/progress/grooveBottomDetection/`（図6枚） |
 | 2026-11-23 | main | 書いてよい範囲の外が変わっていないことと、8枚の凡例の位置（M3 だけ右下、ほかは右上）と文字の大きさが変わっていないことを fig から確かめた。M3 の試しの図を見て、山が隠れることを確かめた | `af94170` |
 | 2026-11-23 | ユーザー | **決定** M2・M6・M8・M9 の6枚はこのままでよい。<br>**決定** M3 は凡例を右上にし、暗さの軸の上限を 0.8 から上げて（0.95 くらい）、凡例が山にかからないようにする | — |
-| 2026-11-23 | main | M2・M6・M8・M9 を「確認済み」にし、M3 の決定を素材ファイルに書いた | [`progress-material.md`](./progress-material.md) |
+| 2026-11-23 | main | M2・M6・M8・M9 を「確認済み」にし、M3 の決定を素材ファイルに書いた | [`progress-material.md`](./progress-material.md)、`e218ade` |
+| 2026-11-23 | illustrator | M3 を、凡例を右上・縦軸の上限 0.95 で試した。凡例は折れ線・点・しきい値の線にはかからないが、重心の破線3本の上の部分（暗さ 0.79〜0.93）にかかるので、保存しなかった。<br>参考に、凡例を1列・上限 1.0 にした図も試し、こちらはどの線にもかからなかった。試しの図は `temp/35-progress-material/trial4/`・`trial5/` にある。スクリプトには、目盛りの間隔を決める値を足した（今の図は変わらない） | [`progress-material.md`](./progress-material.md)、`scripts/progress/wideBottomOutlier.m` |
 ### 振り返り — 完了
 
 | 日付 | 担当 | 内容 | 成果物 |

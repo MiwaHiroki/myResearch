@@ -26,6 +26,9 @@
 %            M2・M3 を作り直した
 % 2026/11/23 ユーザーの決定で、凡例の位置を右上（northeast）にそろえ、OVERWRITE=true で M2 だけを作り直した
 %            （MAKE_FIGS.profile=false）。M3 は右上にすると凡例が折れ線の山を隠すので、右下のまま残した
+% 2026/11/23 M3 の凡例を右上にし、暗さの軸の上限を 0.95 に上げる試しを temp/ のコピーで作った。凡例が
+%            3本の破線の上の部分にかかるので、M3 は保存せず、パラメータを右下・上限 0.8 に戻した。暗さの軸の
+%            目盛りの間隔（D_TICK）を決めるようにした（上限 0.8 では、前と同じ目盛りになる）
 
 setDefaultIntrpr();
 proj = currentProject();
@@ -53,10 +56,13 @@ LEGEND_LOCATION_CROP = "northeast"; % 凡例の位置（描画領域の右上。
 % M3：暗さの分布
 PROFILE_X = [1861 1862 1865]; % 暗さの分布を描く列（写真の中の px）。1861 は幅3のふつうの列
 PROFILE_Y = [280 295];        % 描く y の範囲 [px]
-D_LIM = [0.35 0.8];           % 暗さの軸の範囲
+D_LIM = [0.35 0.8];           % 暗さの軸の範囲（凡例を右上にするなら、上限を上げる。下の LEGEND_LOCATION_PROFILE）
+D_TICK = 0.05;                % 暗さの軸の目盛りの間隔（上限を上げても、この間隔のままにする）
 FIG_SIZE_PROFILE = [16 10];   % 図の大きさ [cm]
-LEGEND_LOCATION_PROFILE = "southeast"; % 凡例の位置。右上にすると、3本の折れ線の山（y=286〜288、暗さ
-                                       % 0.71〜0.74）を隠すので、右下のまま（2026-11-23、ユーザーに確認中）
+LEGEND_LOCATION_PROFILE = "southeast"; % 凡例の位置。右上にして D_LIM の上限を 0.95 にすると、折れ線の山
+                                       % （y=286〜288、暗さ 0.71〜0.74）は避けられるが、3本の破線（重心）の上の
+                                       % 部分（暗さ 0.79〜0.93）にかかる。そのため右下のまま（2026-11-23、
+                                       % ユーザーに確認中。試しの図は temp/35-progress-material/trial4・trial5）
 
 % 色（docs/groove-on-image.md と同じ。幅の広い選んだ点の色だけ、このスクリプトで決めた）
 COLOR_ALL = "cyan";                                  % すべての溝底点
@@ -186,7 +192,7 @@ fprintf("暗さ（行 = y、列 = x）\n");
 disp(array2table([yProfile, darkness(yProfile,PROFILE_X)],'VariableNames',["y", "x" + PROFILE_X]));
 
 msRange = msRangeOf(PROFILE_X);
-styleProfile = struct("figSize",FIG_SIZE_PROFILE,"dLim",D_LIM,"legendLocation",LEGEND_LOCATION_PROFILE, ...
+styleProfile = struct("figSize",FIG_SIZE_PROFILE,"dLim",D_LIM,"dTick",D_TICK,"legendLocation",LEGEND_LOCATION_PROFILE, ...
     "fontSize",FONT_SIZE);
 if MAKE_FIGS.profile
     fig = plotProfiles(darkness,yProfile,info,cond.dThresh,styleProfile, ...
@@ -301,6 +307,7 @@ function fig = plotProfiles(darkness,yProfile,info,dThresh,style,titleLines)
     xlim(ax,yProfile([1 end]));
     xticks(ax,yProfile);
     ylim(ax,style.dLim);
+    yticks(ax,style.dLim(1):style.dTick:style.dLim(2));
     xlabel(ax,"$y$ [px]");
     ylabel(ax,"Darkness $D$");
     title(ax,titleLines);
