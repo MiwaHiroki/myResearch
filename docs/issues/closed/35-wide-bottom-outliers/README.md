@@ -247,7 +247,9 @@
 | 2026-11-23 | illustrator | M2・M3 を作る（1回目）。新しいスクリプトで、1014 の保存した結果（幅の上限 8）を読み、溝底点と溝底区間を写真から求め直して描いた。求め直した溝底点は、保存したものと一致した（差 0）。<br>M3 の数値の確かめで、x=1862・y=290 の暗さが、plan.md 2.2 の 0.605 ではなく 0.6039（画素値 101）だった。plan.md の丸めの誤りと判断して、図を作った（依頼では、合わなければ作らないとしていた） | [`progress-material.md`](./progress-material.md)、`scripts/progress/wideBottomOutlier.m`、`results/figures/progress/grooveBottomDetection/`（図2枚） |
 | 2026-11-23 | main | 書いてよい範囲の外が変わっていないことと、図（凡例の位置、写真の表示範囲、名前）を確かめた。0.6039 を MATLAB で確かめた。<br>M1・M4・M5 を書いた。M1 は進捗報告用の置き場所にある既存の図を使う。その名前は今の図のルールより前の形で、`checkFigureName` の警告が1つ出る | [`progress-material.md`](./progress-material.md)、`0600670` |
 | 2026-11-23 | ユーザー | **決定** M2・M3 はこのままでよい（M2 で、すべての溝底点が隠れて見えないことは、スライドで断る）。M3 は、画素値から求めた 0.604 を書いて使う（plan.md と解決のまとめの 0.605 は直さない）。<br>**決定** M1 は、今の図のルールで作り直す（illustrator）。<br>**決定** M5 の「溝底点を選んだ後で除く」は案B でよい | — |
-| 2026-11-23 | main | M2・M3 を「確認済み」、M1 を「依頼」に戻した。M4・M5 は、ユーザーが表の中身を見たかを確かめていないので「作成済み」のままにした | [`progress-material.md`](./progress-material.md) |
+| 2026-11-23 | main | M2・M3 を「確認済み」、M1 を「依頼」に戻した。M4・M5 は、ユーザーが表の中身を見たかを確かめていないので「作成済み」のままにした | [`progress-material.md`](./progress-material.md)、`b7c0d75` |
+| 2026-11-23 | illustrator | M1 を作り直す（続きの依頼）。既存の図と同じ中身を、今の図のルールの名前・タイトル・凡例で作った。時間の軸を ms にし、1を超えるピークが見切れないよう振幅の範囲を ±1.1 にした。M2・M3 のスクリプトに足すと、作り直したときに M2・M3 の保存でエラーになるので、別のスクリプトにした | [`progress-material.md`](./progress-material.md)、`scripts/progress/wideBottomOutlierWaveform.m`、`results/figures/progress/grooveBottomDetection/`（図1枚） |
+| 2026-11-23 | main | 書いてよい範囲の外が変わっていないことと、図（ピーク、凡例、名前）を確かめた | — |
 ### 振り返り — 完了
 
 | 日付 | 担当 | 内容 | 成果物 |
