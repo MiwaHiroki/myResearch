@@ -236,6 +236,42 @@
 | 2026-11-18 | main | 報告と図を確かめ、U1〜U4 の代表の図4枚と観点をユーザーに送る | — |
 | 2026-11-20 | ユーザー | **決定** U1〜U4 の図を見て、評価を合格とした。気になる点の指摘は無かった（2717〜2720 ms に残る持ち上がりを含む） | — |
 | 2026-11-20 | main | 確認の結果を eval-report-1.md の先頭に書き（評価担当の本文は変えない）、評価の報告をコミットする | [`eval-report-1.md`](./eval-report-1.md)、`5b03692` |
+### 進捗報告の素材 — 完了
+
+| 日付 | 担当 | 内容 | 成果物 |
+|---|---|---|---|
+| 2026-11-23 | ユーザー | **決定** issue を閉じた後に、進捗報告の素材の仕組み（skill `progress-material`、エージェント `illustrator`）をこのissueで試す。素材は 2026-12-08 の進捗報告で使う。<br>実装と評価はやり直さず、計画の区切りの成果物を `plan-2.md`、評価の区切りの成果物を `eval-report-1.md` とする。呼ぶサブエージェントは illustrator だけにする。<br>`closed/` の中身を変えない決まりの例外として、`progress-material.md` と振り返り `progress-material-trial.md` を置き、この見出しとファイル一覧を更新することを認めた。作業ブランチは `claude/35-progress-material-trial`（`origin/master` の `3def424` から） | — |
+| 2026-11-23 | main | 計画の区切り（`plan-2.md`）で、素材の候補を5つ出した（症状の波形、写真に溝底範囲を重ねた図、1列の暗さの分布、幅ごとのずれの表、案の比較の表） | — |
+| 2026-11-23 | ユーザー | **決定** 5つとも作る（M1〜M5）。溝底点の抽出法はすべて重心法とし、局所的最大値法の図・表は作らない。<br>M5 の案は、採用した案（幅の上限を4にする）、当初想定していたがうまくいかなかった案（追跡のパラメータを変える、溝底点を選んだ後で除く）、代替案（重心の計算し直し）、さらなる実装案（重みの変更）の順に並べる。「溝底点を選んだ後で除く」とほぼ同じ案は、前の進捗報告でも挙がっていた（このissueの作業中には、Claude に伝わっていなかった） | — |
+| 2026-11-23 | main | 決定を `progress-material.md` に書く（M1〜M5、状態「依頼」）。<br>仮定：「溝底点を選んだ後で除く」は、plan.md 3章の案B（溝を選んだ後で、局所的なずれが 1 px を超える点を除いて補間する）とする | [`progress-material.md`](./progress-material.md)、`6899231` |
+| 2026-11-23 | illustrator | M2・M3 を作る（1回目）。新しいスクリプトで、1014 の保存した結果（幅の上限 8）を読み、溝底点と溝底区間を写真から求め直して描いた。求め直した溝底点は、保存したものと一致した（差 0）。<br>M3 の数値の確かめで、x=1862・y=290 の暗さが、plan.md 2.2 の 0.605 ではなく 0.6039（画素値 101）だった。plan.md の丸めの誤りと判断して、図を作った（依頼では、合わなければ作らないとしていた） | [`progress-material.md`](./progress-material.md)、`scripts/progress/wideBottomOutlier.m`、`results/figures/progress/grooveBottomDetection/`（図2枚） |
+| 2026-11-23 | main | 書いてよい範囲の外が変わっていないことと、図（凡例の位置、写真の表示範囲、名前）を確かめた。0.6039 を MATLAB で確かめた。<br>M1・M4・M5 を書いた。M1 は進捗報告用の置き場所にある既存の図を使う。その名前は今の図のルールより前の形で、`checkFigureName` の警告が1つ出る | [`progress-material.md`](./progress-material.md)、`0600670` |
+| 2026-11-23 | ユーザー | **決定** M2・M3 はこのままでよい（M2 で、すべての溝底点が隠れて見えないことは、スライドで断る）。M3 は、画素値から求めた 0.604 を書いて使う（plan.md と解決のまとめの 0.605 は直さない）。<br>**決定** M1 は、今の図のルールで作り直す（illustrator）。<br>**決定** M5 の「溝底点を選んだ後で除く」は案B でよい | — |
+| 2026-11-23 | main | M2・M3 を「確認済み」、M1 を「依頼」に戻した。M4・M5 は、ユーザーが表の中身を見たかを確かめていないので「作成済み」のままにした | [`progress-material.md`](./progress-material.md)、`b7c0d75` |
+| 2026-11-23 | illustrator | M1 を作り直す（続きの依頼）。既存の図と同じ中身を、今の図のルールの名前・タイトル・凡例で作った。時間の軸を ms にし、1を超えるピークが見切れないよう振幅の範囲を ±1.1 にした。M2・M3 のスクリプトに足すと、作り直したときに M2・M3 の保存でエラーになるので、別のスクリプトにした | [`progress-material.md`](./progress-material.md)、`scripts/progress/wideBottomOutlierWaveform.m`、`results/figures/progress/grooveBottomDetection/`（図1枚） |
+| 2026-11-23 | main | 書いてよい範囲の外が変わっていないことと、図（ピーク、凡例、名前）を確かめた | `93719ff` |
+| 2026-11-23 | main | 評価の区切り（`eval-report-1.md`）で、素材の候補を5つ出した（直す前と後の 715 ms の図、数値の表、限界の図2つ、残った問題の表）。あわせて、M4・M5 の表の確認を頼んだ | — |
+| 2026-11-23 | ユーザー | **決定** M4・M5 はこのままでよい。<br>**決定** 評価の区切りの候補を5つとも作る（M6〜M10）。5周分の例（3794〜3798 ms）は足さない | — |
+| 2026-11-23 | main | 決定を `progress-material.md` に書く（M4・M5 は「確認済み」、M6〜M10 は「依頼」）。M6・M8・M9 は評価の図を写すだけ、M7・M10 は表なので、illustrator を呼ばずに main が用意する | [`progress-material.md`](./progress-material.md)、`d4087cc` |
+| 2026-11-23 | main | M6〜M10 を用意した。写した5枚（png・fig）は、git で管理する評価スクリプトが 2026-11-18 に作った図で、`checkFigureName` の警告は0件、名前とタイトルは描いたものと合っていた。M7・M10 の表は `eval-report-1.md`・README の解決のまとめ・`follow-ups.md` から写した | [`progress-material.md`](./progress-material.md)、`results/figures/progress/grooveBottomDetection/`（図5枚）、`e0e3226` |
+| 2026-11-23 | ユーザー | **決定** M1 はこのままでよい。M7・M10 の表にも直しは無い。<br>**決定** 図の体裁をほかの図とそろえる。M6 の切り出しでは、すべての溝底点（水色）の点がほかの点より小さいので、ほかの点の大きさに合わせる。図によってタイトルと凡例の文字の大きさが違うので、そろえる。<br>進捗報告用の図の文字の大きさには基準が無い（`docs/rules/figures.md` で「自由」）ことを main が伝え、ユーザーは、いったん MATLAB の既定（目盛り 9 pt、軸ラベルとタイトル 9.9 pt、凡例 8.1 pt）で作ると決めた。見やすさは、進捗報告の資料を作るときに、スライドに図を貼って確かめる。<br>**決定** 切り出しの図の点の大きさは、すべての種類を 18 にそろえる（M2 も 15 から 18 にする） | — |
+| 2026-11-23 | main | 8枚の文字と点の大きさを fig から測った。タイトルは 9.9・11・13 pt、凡例は 7・8・8.1 pt、目盛りは 8.5・9 pt で、評価から写した切り出し3枚は水色の点が 9（ほかは 18）だった。既定の値に合うのは M1 だけだった（M3 と評価の波形2枚は凡例が 8 pt）。<br>評価スクリプトは点の大きさと凡例の文字を関数の中に書いているので、`temp/` のコピーで冒頭を変えるだけでは直せない。そこで、写した5枚（png・fig）を外し、illustrator が新しい進捗報告用のスクリプトで作り直すことにした。M2・M3 は、この試行で作った `wideBottomOutlier.m` を直して作り直す。<br>M1・M7・M10 を「確認済み」、M2・M3・M6・M8・M9 を「依頼」にした | [`progress-material.md`](./progress-material.md)、`a3c5f27` |
+| 2026-11-23 | illustrator | M2・M3・M6・M8・M9 の7枚を作り直す（続きの依頼）。M2・M3 は `wideBottomOutlier.m` を直して上書きした。M6・M8・M9 は、評価スクリプトの計算と図の関数を写した新しいスクリプトで、評価の図と同じ名前・同じ中身に作った。<br>直す前の結果は保存した結果と差0で、直した後の値は `eval-report-1.md` と同じだった。元の図との違いは、点と文字の大きさと、それに伴う凡例の位置（M6・M9）だけ | [`progress-material.md`](./progress-material.md)、`scripts/progress/wideBottomOutlier.m`、`scripts/progress/wideBottomOutlierWidthThresh.m`、`results/figures/progress/grooveBottomDetection/`（図7枚） |
+| 2026-11-23 | main | 書いてよい範囲の外が変わっていないことを確かめた。8枚とも、目盛り 9 pt、軸ラベルとタイトル 9.9 pt、凡例 8.1 pt、切り出しの点 18 であることを fig から測って確かめ、凡例の位置が変わった M6・M9 を目で確かめた。<br>M9 の「直した後の線との差は小さい」を、評価の表の値（y の変化の最大 0.323 px、振幅の絶対値の最大 0.080 → 0.285）に書き直した | [`progress-material.md`](./progress-material.md)、`79a147c` |
+| 2026-11-23 | ユーザー | **決定** 切り出しの図（grooveOnImage）は、図によって凡例の位置が違うので、そろえる。<br>**決定** 進捗報告の資料では、凡例の位置を原則として描画領域の右上（northeast）にし、表示しているデータに大きく重なってしまうときは、ユーザーに確かめる | — |
+| 2026-11-23 | main | 方針に合わせ、切り出しの4枚（M2・M6・M8・M9）を右上にし、位置を自動で選んでいる波形の2枚（M6・M8）も右上と明示する。今は右下にある M3 は、右上で折れ線に大きく重なるなら、保存せずにユーザーに確かめる。M2・M3・M6・M8・M9 を「依頼」に戻した | [`progress-material.md`](./progress-material.md)、`4bb8e69` |
+| 2026-11-23 | illustrator | 凡例を右上にして、M2、M6（2枚）、M8（2枚）、M9 を作り直した（上書き）。凡例は写真の上か波形の無い所にかかり、点・経路・線には重ならない。途中で利用の上限に達して止まり、main が続きを頼んで再開した。<br>M3 は、右上にすると凡例が折れ線の山（溝底の暗い線、y=286〜288、暗さ 0.71〜0.74）を隠すので、保存しなかった（右下のまま）。試しの図は `temp/35-progress-material/trial3/` にある | [`progress-material.md`](./progress-material.md)、`scripts/progress/wideBottomOutlier.m`、`scripts/progress/wideBottomOutlierWidthThresh.m`、`results/figures/progress/grooveBottomDetection/`（図6枚） |
+| 2026-11-23 | main | 書いてよい範囲の外が変わっていないことと、8枚の凡例の位置（M3 だけ右下、ほかは右上）と文字の大きさが変わっていないことを fig から確かめた。M3 の試しの図を見て、山が隠れることを確かめた | `af94170` |
+| 2026-11-23 | ユーザー | **決定** M2・M6・M8・M9 の6枚はこのままでよい。<br>**決定** M3 は凡例を右上にし、暗さの軸の上限を 0.8 から上げて（0.95 くらい）、凡例が山にかからないようにする | — |
+| 2026-11-23 | main | M2・M6・M8・M9 を「確認済み」にし、M3 の決定を素材ファイルに書いた | [`progress-material.md`](./progress-material.md)、`e218ade` |
+| 2026-11-23 | illustrator | M3 を、凡例を右上・縦軸の上限 0.95 で試した。凡例は折れ線・点・しきい値の線にはかからないが、重心の破線3本の上の部分（暗さ 0.79〜0.93）にかかるので、保存しなかった。<br>参考に、凡例を1列・上限 1.0 にした図も試し、こちらはどの線にもかからなかった。試しの図は `temp/35-progress-material/trial4/`・`trial5/` にある。スクリプトには、目盛りの間隔を決める値を足した（今の図は変わらない） | [`progress-material.md`](./progress-material.md)、`scripts/progress/wideBottomOutlier.m`、`f7e8d88` |
+| 2026-11-23 | ユーザー | **決定** M3 は、凡例を右上に2列で置き、暗さの軸を 0.35〜1.0 にする。2列にするのは、同じ色の折れ線と重心の破線が同じ行に並び、色（列の x 座標）の対応が分かりやすいためである。凡例が重心の破線の上の部分にかかるのは受け入れる（ユーザーは、いったん1列を選び、すぐに2列に直した） | `07a9378` |
+| 2026-11-23 | illustrator | M3 を、凡例を右上の2列・暗さの軸 0.35〜1.0 にして作り直した（上書き）。凡例の下端は暗さ 0.851 で、折れ線の最大（0.741）より上にある | [`progress-material.md`](./progress-material.md)、`scripts/progress/wideBottomOutlier.m`、`results/figures/progress/grooveBottomDetection/`（図1枚） |
+| 2026-11-23 | main | 書いてよい範囲の外が変わっていないことと、凡例の位置・列の数・縦軸の範囲を fig から確かめた | `d1ba896` |
+| 2026-11-23 | ユーザー | **決定** M3 はこのままでよい | — |
+| 2026-11-23 | main | 素材ファイルを見直した。M1〜M10 はすべて「確認済み」で、「依頼」や「作成済み」のまま残った素材は無い。メタデータの状態を「完了」にし、M10 の出典に書いた案の状態（issue を作っていないこと）を消した。<br>振り返り `progress-material-trial.md` を書いた（問題と学び26項目、改善案 T1〜T11。改善案はユーザーが決める） | [`progress-material.md`](./progress-material.md)、[`progress-material-trial.md`](./progress-material-trial.md) |
+| 2026-11-24 | ユーザー | **決定** 振り返りの改善案は、T8 以外（T1〜T7、T9〜T11）を採用する。採用したものは master で反映し、このブランチを push して PR を作る | — |
+| 2026-11-24 | main | 採用した改善案を master で反映した（このブランチには入れていない）。振り返りの5章に決定と、反映したときに案に足したことを書き、状態を「完了」にした | `1497c05`（master）、[`progress-material-trial.md`](./progress-material-trial.md) |
 ### 振り返り — 完了
 
 | 日付 | 担当 | 内容 | 成果物 |
@@ -274,3 +310,5 @@
 - [`eval-report-1.md`](./eval-report-1.md)：評価の報告（1回目）
 - [`retrospective.md`](./retrospective.md)：振り返り
 - [`follow-ups.md`](./follow-ups.md)：続きのissueの案
+- [`progress-material.md`](./progress-material.md)：進捗報告の素材（issue を閉じた後に、素材の仕組みを試して作った）
+- [`progress-material-trial.md`](./progress-material-trial.md)：進捗報告の素材の仕組みを試した振り返り
