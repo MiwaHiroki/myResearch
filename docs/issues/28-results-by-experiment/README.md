@@ -41,8 +41,14 @@
 | 2026-11-24 | evaluator（A） | `criteria.md` を書き、受け入れテスト（42件）と評価スクリプトを作る（1回目）。途中で利用上限により止まり、同じエージェントを再開して仕上げた。<br>数値の項目は、テスト T1・T2、計画どおりかの確認 P1〜P8、品質の基準 Q1〜Q13（Q3・Q6 は a・b に分ける）、変えてはいけないもの D1〜D4。ユーザーが判断する項目は U1〜U3（移した後の `results/` の並び、実データの `runInfo.json`、README の節）。<br>移す前の `results/`・`experiments/` の817ファイルのパス・大きさ・SHA-256 を `manifestBeforeMigration.csv` に記録した。数え直した数は計画の見込み（603・55・52・92・144）とすべて同じ。<br>仕様どおりの使い捨ての試作で42件すべてが通り、誤りを入れた試作18通りはすべて落ちることを確かめた。未決事項 Q-a | [`criteria.md`](./criteria.md)、`test/unit/ResultLayoutAcceptanceTest.m`、`scripts/evaluation/resultsLayout/` |
 | 2026-11-24 | main | 受け入れテストを実行し、3件が通り39件が失敗することを確かめる（関数がまだ無いので正常）。評価基準・受け入れテスト・評価スクリプトを確認待ちでコミットする | `0e60754` |
 | 2026-11-24 | ユーザー | **決定** criteria.md を承認した。Q-a は (a)（「計画」だけを満たさないときも不合格にし、実装に戻す） | — |
-| 2026-11-24 | main | 決定を criteria.md 7章に書き、状態を「承認済み」にする。受け入れテストを追加したコミット `0e60754` を criteria.md の先頭と 2.2 に書き入れてコミットする | [`criteria.md`](./criteria.md) |
-### 実装 — 未着手
+| 2026-11-24 | main | 決定を criteria.md 7章に書き、状態を「承認済み」にする。受け入れテストを追加したコミット `0e60754` を criteria.md の先頭と 2.2 に書き入れてコミットする | [`criteria.md`](./criteria.md)、`84942d5` |
+
+### 実装 — ユーザー確認待ち（承認A）
+
+| 日付 | 担当 | 内容 | 成果物 |
+|---|---|---|---|
+| 2026-11-24 | implementer | 前半（`plan.md` 5.1 の手順1〜11）。`resultDir`・`runConditions`・`figureDir`・`collectMeta`・`gitState` を `src/` に作り、`saveCycleResult` から `collectMeta`・`gitState` を使う形にした。`cycleConditions` に新しい呼び方を足し、`scripts/migration/migrateResults.m` を作った。unit テスト6クラス（46件）を書き、README に「結果の置き場所と実行記録」の節を作った。<br>`runAllTests` は346件すべて通過（受け入れテスト 42/42）。書いた・変えた `.m` 19個の `checkcode` の警告は0件。<br>計画との違いは細部の5つ（`migrateResults` の CSV の確かめ方を厳しくした、識別子 `migrateResults:moveFailed` を足した、README に小節を足したなど）。未決事項 Q1（`kind` に無い高解像度化のパラメータを渡したときの扱い） | [`impl-report-1a.md`](./impl-report-1a.md) |
+| 2026-11-24 | main | 差分を確かめる。変えたファイルは計画の前半の範囲だけで、説明だけを直す5つの `src/` は、コメントの行だけが変わっていた。`runAllTests` を実行し、346件すべての通過を確かめる | — |
 ### 評価 — 未着手
 ### 振り返り — 未着手
 ### 続きのissue — 未着手
@@ -55,3 +61,4 @@
 - [`plan.md`](./plan.md)：計画
 - [`mapping-draft.md`](./mapping-draft.md)：既存のフォルダの対応表の案（計画の付属）
 - [`criteria.md`](./criteria.md)：評価基準
+- [`impl-report-1a.md`](./impl-report-1a.md)：実装の報告（1回目の前半）

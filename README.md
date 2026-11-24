@@ -67,10 +67,14 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 - **`checkFigureName`**: 図のファイル名が命名規則（[`docs/rules/figures.md`](docs/rules/figures.md)）に沿っているかを確かめ、外れていれば理由を返して警告（`checkFigureName:invalidName`）を出す。確かめるのは使える文字・語彙表の語・並び順・使わない語だけで、条件の書き漏れは確かめられない
 - **`figureVocabulary`**: 図のファイル名に使う語の一覧（`figures.md` の語彙表と同じ内容。`FigureNameTest` が一致を確かめる）
 - **`soundCheck`**: 波形・FFT・スペクトログラムをまとめて描画・保存
-- **`mkdirFromDate`**: 図・音声の出力先 `results/<日付>/` を作成しパスを返す
+- **`resultDir`**: 実行フォルダ `results/<実験名>/<YYYY-MMDD>[_<説明>]/` を作り、実行記録 `runInfo.json` を書いて、そのパス（末尾に区切り文字が付く）を返す。同じ名前のフォルダがあれば `_2`、`_3`… を付けて警告（`resultDir:folderExists`）し、日付が `"YYYY-MMDD"` のままならエラー（`resultDir:dateNotSet`）で止める。詳細は「結果の置き場所と実行記録」
+- **`runConditions`**: スクリプトの冒頭の定数を、実験条件の決まった入れ子の struct（`runInfo.json` の `conditions` と同じ形）にまとめる。出力は `resultDir` と、1周分のスクリプトでは `cycleConditions` にも渡す
+- **`figureDir`**: 完成した図の置き場所（進捗報告用は `results/figures/progress/<テーマ>/`、スライド用・原稿用は `results/figures/<発表名>/{slides,paper}/`）を作り、パスを返す（末尾に区切り文字は付けない）。発表名が「年月6桁と略称」の形でなければエラー（`figureDir:invalidVenue`）
+- **`collectMeta`** / **`gitState`**: 実行した環境（日時・スクリプト名・MATLAB の版・PC の名前・git のコミット・未コミットの変更の有無・ブランチ）を集める。`saveCycleResult`（cycleResult の `meta`）と `resultDir`（`runInfo.json` の `meta`）が使う。git が無い場所でもエラーにならない
+- **`mkdirFromDate`**: 古い形の出力先 `results/<日付>/` を作成しパスを返す。新しいコードでは `resultDir` を使う（`scripts/archive/` の古いスクリプトが使うので残している）
 - **`experimentDir`**: 実験結果`.mat`の保存先 `experiments/<日付>/` を作成しパスを返す（`Create=false` でパスを組むだけ）
 - **`setDefaultIntrpr`**: 描画のインタプリタをLaTeXに設定
-- **`cycleConditions`**: 1周分の音声を作成したときの実験条件（定数・日付・保存先・高解像度化のパラメータ）をstructにまとめる。必須の定数が欠けていればエラーになる
+- **`cycleConditions`**: 1周分の音声を作成したときの実験条件（定数・日付・保存先・高解像度化のパラメータ）をstructにまとめる。必須の定数が欠けていればエラーになる。`runConditions` の出力を受け取る呼び方（`cycleConditions(runCond, Date=..., SaveDir=..., ...)`。実行ごとに変わるものだけを name-value で渡す）と、すべてを name-value で渡す今までの呼び方があり、どちらでも同じ struct になる
 - **`cycleMethodResult`**: 溝底抽出手法1つ分の1周データ（`GroovePointCloud`配列・x/y座標・`y_comb`・`AudioData`）をstructにまとめる。要素数の整合性をここで検証する。N周分のときは`xcoords`・`ycoords`を (TOTAL_SEGMENTS × N) cell にする（j列目が j周目、`pts`は (TOTAL_SEGMENTS × 1) のまま）
 - **`saveCycleResult`**: 上記2つをまとめて `experiments/<日付>/cycleResult_<条件>_<日付>.mat` に保存する（詳細は下記「1周分の実験結果の保存」）
 - **`loadCycleResult`**: `saveCycleResult` で保存した結果を読み込む
@@ -95,6 +99,7 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 - **`bilateral/bilateral8x_centroid.m`**: Photoshopで8xに高解像度化した画像(`*-8x.png`)の一部にバイラテラルフィルタをかけ、重心法の溝底点を表示する版（画像が大きいため元画像座標で指定した窓を切り出して処理する）。
 - **`bilateral/bilateralOri_centroid_1cycle.m`**: 高解像度化していない画像にバイラテラルフィルタ（カーネル3通り＋フィルタなし）をかけ、条件ごとに1周分の音声を重心法で作成して波形・FFT・スペクトログラムを比較する。溝の選択は過去の`cycleResult`の`grooveSelection`を再利用するので`ginput`は不要。動作確認用のため実験結果`.mat`は保存しない。
 - **`evaluation/stylus/sound_from_stylus.m`**: 針で再生した音源を切り出し・フィルタ処理し、復元音声と比較・評価する。
+- **`migration/migrateResults.m`**: 対応表（CSV）を1行ずつ読み、日付だけの名前の古い形の `results/`・`experiments/` のフォルダとファイルを、新しい形の名前（「結果の置き場所と実行記録」）へ移す関数（issue #28）。既定は試し（`DryRun=true`）で、移す内容を表にして返すだけで、何も動かさない。全部の行を先に確かめ、行き先にすでにあるものがあれば何も動かさずに止める。移し終えた行は飛ばすので、途中で止まっても、もう一度呼べば続きを移せる。`scripts/migration/` は MATLAB プロジェクトのパスに入っていないので、`addpath` してから呼ぶ。
 - **`evaluation/grooveBottomDetection/compareInclBoundToExclBound.m`**: 溝底の判定で境界値を含めない（`exclBound`：`D > D_THRESH`・幅 `< W_TH`。コミット`ad46b44`（2026-08-14）より前のコードで、0731のデータはこれで作った）か、含める（`inclBound`：`D >= D_THRESH`・幅 `<= W_TH`。今の`DarknessMap`・`GrooveExtractor`）かで、写真1枚の溝底点（重心法）がどう変わるかを数え、片方だけにある点の色を変えて写真全体と1区間に重ねた図を`results/<日付>/`に保存する。`exclBound`の判定は今の`src/`に無いので、スクリプトのローカル関数で書き直している。`inclBound`の点が保存済みのcycleResultの点と一致することも確かめる。
 
 ## 溝の選択（fitGroove）
@@ -280,6 +285,197 @@ result  = loadCycleResult(matPath);   % result.grooveSelection.p1/.p2 に入る
 ```
 
 既存の結果ファイルは既定では上書きせず `..._2.mat` のように連番を付けて保存する（`Overwrite=true` で上書き）。
+
+## 結果の置き場所と実行記録
+
+実験の図・音声は、実験名と実行した日で名前を付けたフォルダに出力する。フォルダ名を見れば、いつ・何の実験かが分かるようにするためである。出力先を作るときには、読んだ入力と実験条件を書いた実行記録も自動で残す。どのスクリプト・コード・入力・条件で作ったかを、後からたどれるようにするためである（issue #28）。
+
+### 言葉
+
+- **実験名**：研究上の問い（何を試して比べたか）ごとに付ける、英語の camelCase の名前（例：`grooveTracking`）。`results/` の直下のフォルダ名になる。
+- **実行フォルダ**：スクリプトを1回実行したときの出力を置くフォルダ。`results/<実験名>/<YYYY-MMDD>[_<説明>[_<詳細>]][_<N>]/` の形にする。
+- **説明**：実行フォルダの日付の後ろに付ける、短い英語の camelCase の語（例：`evaluation`）。付けなくてもよい。
+- **実行記録**：実行フォルダに置く `runInfo.json`。何の実行か、読んだ入力、実験条件、実行した環境を書く。
+- **実験条件**：処理のしかたを決めるパラメータ（使う画像、高解像度化の方法、溝底の検出のしきい値、溝の選び方、デトレンドの次数など）。
+
+### 置き場所
+
+```
+results/<実験名>/<YYYY-MMDD>[_<説明>[_<詳細>]][_<N>]/       実行フォルダ（図・音声と runInfo.json）
+    例: results/grooveTracking/2026-1014_evaluation/
+        results/bilateralFilter/2026-0924_1cycle/
+experiments/<YYYY-MMDD>/cycleResult_<条件>_<YYYY-MMDD>.mat    1周分の実験結果（日付ごとに分ける形は今までと同じ）
+results/figures/progress/<テーマ>/                           進捗報告用の図（git で追跡する）
+results/figures/<発表名>/slides/                             スライド用の図（git で追跡する）
+results/figures/<発表名>/paper/                              原稿用の図（git では追跡しない）
+```
+
+- 実行フォルダは `resultDir` が作る。`experiments/` の日付のフォルダは、今までと同じく `experimentDir` が作る。
+- `experiments/` には実行記録を作らない。cycleResult の `conditions` と `meta` に、同じ情報があるためである。
+- 図のフォルダは `figureDir` が作る。完成品の置き場所なので、日付で分けず、実行記録も作らない。発表名は、年月6桁と略称をつなげる（例：`202609asj`、修士論文なら `202702thesis` のような形）。図の名前の付け方は [`docs/rules/figures.md`](docs/rules/figures.md) にある。
+
+### 実験名の一覧
+
+| 実験名 | 内容 | 主なスクリプト | 関連 issue |
+| --- | --- | --- | --- |
+| `upsampling` | 高解像度化（リサンプル・内挿）と、溝底の検出法（重心法・局所的最大値法）の比較 | `pkCentroid_1cycle.m`、`pkCentroid_resample_1cycle.m`、`pkCentroid_interp2_1cycle.m`、`pkCentroidAndLocalMax_resample_1cycle.m`、`pkCentroid_resample.m`、`pkCentroid_interp2.m`、`darkness3d.m` | — |
+| `photoshopUpscaling` | Photoshop で8倍に拡大した写真での溝底の抽出（従来法） | `photoshop_centroid_1cycle.m`、`photoshop_localMax_1cycle.m`、`progress/showPhotoshopGrooveExtraction.m` | — |
+| `bilateralFilter` | バイラテラルフィルタ | `bilateral/` の5本 | — |
+| `digitalNeedle` | 先行研究 DigitalNeedle の溝の追跡の再現 | master には無い（マージしていないブランチ `claude/DigitalNeedle-reproduction` の `scripts/digitalNeedle/compareGrooveShapeAccuracy.m`） | — |
+| `grooveTracking` | 1本の溝の自動追跡 | `grooveTrack_1cycle.m`、`evaluation/grooveTracking/compareTrackingToManual.m` | #25 |
+| `multiGroove` | 複数本の溝の抽出（N周分） | `grooveHist_Ncycle.m`、`grooveTrack_Ncycle.m`、`evaluation/multiGroove/compareHistToTracking.m` | #30 |
+| `grooveBottomDetection` | 溝底の判定（境界値を含めるか、溝底区間の幅の上限） | `evaluation/grooveBottomDetection/` の2本 | #35 |
+| `stylus` | 針で再生した音との比較 | `evaluation/stylus/sound_from_stylus.m` | — |
+
+新しく実験名を作ったら、この表に行を足す。
+
+### 実験名の決め方
+
+- 新しい手法・処理を試し始めたら、新しい実験名を作る（例：バイラテラルフィルタ、溝の自動追跡）。
+- パラメータの変更、やり直し、評価、図の作り直しは、既存の実験名の下に実行フォルダを足す。
+- 2つの実験名にまたがるときは、その実験を始めたきっかけのほうに置く。
+- issue があるときは、issue の slug に名前を合わせる（例：#25 の `groove-tracking` は `grooveTracking`、#30 の `multi-groove` は `multiGroove`）。進捗報告用の図のテーマ（`results/figures/progress/<テーマ>/`）とも同じ名前にする。
+- issue の slug が、すでにある進捗報告用の図のテーマや評価スクリプトの置き場所の名前と違うときは、すでにある名前に合わせる（例：#35 の `wide-bottom-outliers` は `grooveBottomDetection`）。
+- `figures` は図の置き場所なので、実験名に使わない。
+
+### 実行フォルダの名前の決め方
+
+- 日付には、出力を作った日（実行した日）を `YYYY-MMDD` の形で書く（`docs/progress/` のファイル名と同じ形）。スクリプトには `date = "YYYY-MMDD"` と書いておき、実行する人が実行した日に書き換える。書き換えずに実行すると、`resultDir` がエラー（`resultDir:dateNotSet`）で止める。形の違う日付や暦に無い日付も、エラー（`resultDir:invalidDate`）にする。
+- 説明は、同じ日に同じ実験名で別の実験をするときや、中身を名前で示したいときに付ける。長くなるときは、`_` で区切って詳細を足す（例：`2026-1014_evaluation_polyDegree`）。`_` で区切った各部分は英数字だけにし、数字だけの部分は作らない。末尾に付く `_2` などの番号と見分けるためである。
+- 同じ名前のフォルダがすでにあれば、`resultDir` が `_2`、`_3`… を自動で付けて、警告（`resultDir:folderExists`）を出す。過去の出力を上書きしないためである（`saveCycleResult` が既存のファイルを上書きしないのと同じ考え方）。
+- 出力先は、1回の実行で1回だけ、スクリプトの冒頭で作る。
+
+### スクリプトでの使い方
+
+1. スクリプトの冒頭で、実験名（`EXPERIMENT_NAME`）、実行した日（`date`）、説明（`LABEL`）を決める。実行する人が書き換える場所を1か所にまとめるためである。
+2. パラメータの定数が決まった直後に `runConditions` を1回呼び、実験条件を決まった入れ子の struct にまとめる。渡すのはスクリプトの冒頭の定数だけにし、スクリプトの中に直接書いた値（回転数の `78` など）は渡さない。どのグループにも入らない条件（評価のしきい値など）は、`Other` に、定数名を camelCase にしたキーで入れる。
+3. `resultDir` で実行フォルダを作り、`runInfo.json` を書く。戻り値の末尾には区切り文字が付くので、`outDir + "grooveHist_img1.png"` のように保存に使える。
+4. 1周分のスクリプトでは、手順2と同じ `runConditions` の出力を `cycleConditions` にも渡す。画像の数やしきい値などを2回書かないためである。cycleResult に保存する `conditions` の形は、今までと同じになる。
+
+```matlab
+EXPERIMENT_NAME = "multiGroove";   % results/ の下の実験名（上の一覧から選ぶ）
+date  = "YYYY-MMDD";               % 実行した日（例 "2026-1124"）。書き換えないと resultDir が止める
+LABEL = "hist5";                   % 説明（付けないなら ""）
+
+runCond = runConditions(NumImages=NUM_IMAGES, NumSegments=NUM_SEGMENTS, LMask=L_MASK, ...
+    Upsampling="origD", Methods=["centroid","localMax"], DThresh=D_THRESH, WidthThresh=WIDTH_THRESH, ...
+    Selection="histogram", ReplayFrom=PREV_RESULT_PATH, ...
+    Tracking=struct(tolerance=TRACK_TOL, fitLength=FIT_LENGTH, snapRadius=SNAP_RADIUS, ...
+                    initLength=INIT_LENGTH, maxGapLength=MAX_GAP_LENGTH, minFitPoints=MIN_FIT_POINTS), ...
+    Histogram=struct(numGrooves=NUM_GROOVES, binWidth=BIN_WIDTH, thHistRatio=TH_HIST_RATIO, bandTol=BAND_TOL), ...
+    PolyDegree=POLY_DEGREE, DetrendScope="photo", Rpm=RPM, AmpDiv=AMP_DIV);
+outDir = resultDir(proj.RootFolder, EXPERIMENT_NAME, date, runCond, Label=LABEL, ...
+    ScriptName="grooveHist_Ncycle", Images=filenames_new, InputFiles=PREV_RESULT_PATH);
+expDir = experimentDir(proj.RootFolder, date);   % 1周分のスクリプトだけ
+
+% ...（処理）...
+
+cond = cycleConditions(runCond, Date=date, SaveDir=outDir, ExperimentDir=expDir, ...
+    Filenames=filenames_new, ScriptName="grooveHist_Ncycle");
+```
+
+### `runInfo.json` の項目
+
+`resultDir` は、実行記録を次のように書く。
+
+- 何の実行か（`experiment`・`run`・`script`・`note`）、読んだ入力（`inputs`）、実験条件（`conditions`）、実行した環境（`meta`）の順に、上から読む順に並べる。普段読むのは上の3つで、`meta` は後からコードをたどるときに使う。
+- MATLAB の `jsonencode`（`PrettyPrint=true`）で、UTF-8（BOM なし）で書く。`jsondecode` で読み戻せる。
+- 値は `"fitLength": 60` のようにそのまま書き、`{"value": 60}` のようには包まない。
+- 一覧は、要素が1つでも配列（`["..."]`）で書く。`NaN` は `null` になる。
+- パスは、プロジェクトのルートからの `/` 区切りの相対パスで書く（`conditions` の中のパスも同じ）。
+- `conditions` は、処理の順に並べた決まったグループに分ける。渡さなかった引数のグループは書かない。
+- キーの名前は、スクリプトの定数名を camelCase にしたもの（`D_THRESH` なら `dThresh`）にする。`trackGroove` などの関数の引数に当たる値は、引数名に合わせる（`TRACK_TOL` なら `tolerance`）。普段見ている定数と、そのまま対応させるためである。
+- 入れ子は3段（`conditions.grooveSelection.tracking`）までにする。長さの単位は、元の画像の px である。
+- JSON に書ききれない複雑な実験条件（手順の意図、試行錯誤の経緯など）は、別の文書にまとめる。`note` には、その文書への参照や一言の説明を書いてよい。
+
+表の「元の引数」は、`resultDir`・`runConditions`・`collectMeta` の引数と、そこへ渡すスクリプトの定数である。
+
+| キー | 型 | 意味・単位 | 元の引数（スクリプトの定数） | 書く条件 |
+| --- | --- | --- | --- | --- |
+| `schemaVersion` | 数 | 実行記録の形の版（下の「版ごとの違い」）。最初は 1 | — | いつも |
+| `experiment` | 文字列 | 実験名 | `resultDir` の第2引数（`EXPERIMENT_NAME`） | いつも |
+| `run` | 文字列 | 実行フォルダの名前（`_<N>` を含む） | — | いつも |
+| `script` | 文字列 | スクリプトのルートからのパス（`scripts/` の下で見つからなければ名前だけ） | `ScriptName` | いつも（渡さなければ `""`） |
+| `note` | 文字列 | 一言の説明、別の文書への参照 | `Note` | いつも |
+| `inputs.images` | 一覧 | 撮影画像のファイル名（拡張子なし） | `Images`（`filenames_new`） | いつも |
+| `inputs.files` | 一覧 | 読んだファイルのルートからのパス | `InputFiles`（`PREV_RESULT_PATH` など。`""` は除く） | いつも |
+| `conditions.region.*` | 数・一覧 | 写真の番号、セグメント、行・列の範囲 [px] など（キーは定数名の camelCase。例 `imgIndex`・`jSegment`） | `Region` | 渡したとき |
+| `conditions.segmentation.numImages` | 数 | 写真の枚数 | `NumImages`（`NUM_IMAGES`。既定 8） | segmentation の引数を1つでも渡したとき |
+| `conditions.segmentation.numSegments` | 数 | 写真を横に分ける数 | `NumSegments`（`NUM_SEGMENTS`。既定 10） | 同上 |
+| `conditions.segmentation.lMask` | 数 | マスクの輝度のしきい値（0〜255） | `LMask`（`L_MASK`） | 渡したとき |
+| `conditions.preprocessing.bilateral.kernelSizes` | 一覧 | バイラテラルフィルタの近傍の大きさ [px] | `Bilateral`（`KERNEL_SIZES`） | `Bilateral` を渡したとき |
+| `conditions.preprocessing.bilateral.spatialSigmas` | 一覧 | 空間方向の標準偏差 [px] | `Bilateral`（`SPATIAL_SIGMAS`） | 同上 |
+| `conditions.preprocessing.bilateral.degreeOfSmoothing` | 数 | 平滑化の度合い（輝度の2乗） | `Bilateral`（`DEGREE_OF_SMOOTHING`） | 同上 |
+| `conditions.upsampling.kind` | 一覧 | `"origD"`・`"rsmplD"`・`"intpD"`。比べるスクリプトでは2つ以上 | `Upsampling` | 渡したとき |
+| `conditions.upsampling.p`・`q` | 数 | リサンプルの倍率 p/q | `PRsmpl`・`QRsmpl`（`P_RSMPL`・`Q_RSMPL`） | `kind` に `rsmplD` があるとき（必須）。ほかのときも、渡せば書く |
+| `conditions.upsampling.queryStep` | 数 | 内挿の間隔 [px] | `QueryStep`（`QUERY_STEP`） | `kind` に `intpD` があるとき（必須）。ほかのときも、渡せば書く |
+| `conditions.upsampling.interpMethod` | 文字列 | `interp2` の方法 | `InterpMethod`（`INTERP_METHOD`） | 同上 |
+| `conditions.grooveBottom.methods` | 一覧 | `"centroid"`・`"localMax"` | `Methods` | 渡したとき |
+| `conditions.grooveBottom.dThresh` | 数 | 暗さのしきい値（0〜1） | `DThresh`（`D_THRESH`） | 渡したとき |
+| `conditions.grooveBottom.widthThresh` | 数 | 溝底区間の幅の上限 [px] | `WidthThresh`（`WIDTH_THRESH`） | 渡したとき |
+| `conditions.grooveSelection.method` | 文字列 | 溝の選び方。`"manual"`（`fitGroove` の手動選択）・`"tracking"`（自動追跡）・`"histogram"`（ヒストグラム） | `Selection` | 渡したとき |
+| `conditions.grooveSelection.replayFrom` | 文字列 | 選択を再現した結果のルートからのパス | `ReplayFrom`（`PREV_RESULT_PATH`） | 空でないとき |
+| `conditions.grooveSelection.tracking.tolerance`・`fitLength`・`snapRadius`・`initLength`・`maxGapLength` | 数 | `trackGroove` の引数 [px]（「溝の自動追跡（trackGroove）」の表） | `Tracking`（`TRACK_TOL`・`FIT_LENGTH`・`SNAP_RADIUS`・`INIT_LENGTH`・`MAX_GAP_LENGTH`） | `Tracking` を渡したとき |
+| `conditions.grooveSelection.tracking.minFitPoints` | 数 | 直線のあてはめに要る点の数 | `Tracking`（`MIN_FIT_POINTS`） | 同上 |
+| `conditions.grooveSelection.tracking.numGrooves`・`minSeedGap`・`reclickImages` | 数・数・一覧 | 本数、始点の間隔の下限 [px]、もう一度クリックする写真の番号 | `Tracking`（`NUM_GROOVES`・`MIN_SEED_GAP`・`RECLICK_IMAGES`。`grooveTrack_Ncycle.m`） | 同上 |
+| `conditions.grooveSelection.histogram.numGrooves`・`binWidth`・`thHistRatio`・`bandTol` | 数 | 本数、ビンの幅 [px]、山の高さ（列の数に対する割合）、帯の半分の幅 [px] | `Histogram`（`NUM_GROOVES`・`BIN_WIDTH`・`TH_HIST_RATIO`・`BAND_TOL`） | `Histogram` を渡したとき |
+| `conditions.grooveSelection.manual.thHist`・`tol`・`binWidth`・`hPrl` | 数 | ヒストグラムの山の高さ [点]、溝に含める距離 [px]、ビンの幅 [px]、平行四辺形の高さ [px] | `Manual`（`TH_HIST`・`tol`・`binWidth`・`h_prl`） | `Manual` を渡したとき |
+| `conditions.detrend.polyDegree` | 数 | デトレンドの多項式の次数 | `PolyDegree`（`POLY_DEGREE`） | 渡したとき |
+| `conditions.detrend.scope` | 文字列 | `"photo"`（写真ごと）・`"segment"`（セグメントごと） | `DetrendScope` | 渡したとき |
+| `conditions.audio.rpm` | 数 | 回転数 [rpm]（既定 78） | `Rpm`（`RPM`） | audio の引数を1つでも渡したとき |
+| `conditions.audio.ampDiv` | 数 | 振幅の正規化 [px] | `AmpDiv`（`AMP_DIV`） | 渡したとき |
+| `conditions.other.*` | 数・文字列・一覧 | ほかに入らないもの（評価のしきい値など。キーは定数名の camelCase） | `Other` | 渡したとき |
+| `meta.createdAt` | 文字列 | 作った日時 `yyyy-MM-ddTHH:mm:ss`（その PC の時刻） | `collectMeta` の `savedAt` | いつも |
+| `meta.git.commit` | 文字列 | コミット（短い形） | `collectMeta` の `gitCommit` | いつも |
+| `meta.git.branch` | 文字列 | ブランチ | `collectMeta` の `gitBranch` | いつも |
+| `meta.git.dirty` | 真偽 | 未コミットの変更があったか（未追跡のファイルも含む） | `collectMeta` の `gitDirty` | いつも |
+| `meta.matlabRelease` | 文字列 | MATLAB の版（`R2024b` の形） | `collectMeta` の `matlabRelease` | いつも |
+| `meta.computerName` | 文字列 | PC の名前 | `collectMeta` の `computerName` | いつも |
+
+`segmentation` と `audio` は、そのグループの引数を1つでも渡したときだけ書き、書くときは省いた値を既定値（8・10・78）で埋める。音声を作らないスクリプトに `audio.rpm` を書かないためである。`runConditions` の引数の型の間違い、表に無いキー（`runConditions:unknownField`）、深すぎる入れ子（`runConditions:tooDeep`）、高解像度化に要る引数の不足（`runConditions:missingArgument`）は、エラーで止まる。
+
+例（`grooveHist_Ncycle.m` の定数の場合。実際のファイルは、配列の要素を1行に1つ書く）：
+
+```json
+{
+  "schemaVersion": 1,
+  "experiment": "multiGroove",
+  "run": "2026-1028_hist5",
+  "script": "scripts/grooveHist_Ncycle.m",
+  "note": "",
+  "inputs": {
+    "images": ["DSC1111-00001-ori", "...（8つ）"],
+    "files": ["experiments/2026-1014/cycleResult_origD_track_2026-1014.mat"]
+  },
+  "conditions": {
+    "segmentation": { "numImages": 8, "numSegments": 10, "lMask": 20 },
+    "upsampling": { "kind": ["origD"] },
+    "grooveBottom": { "methods": ["centroid", "localMax"], "dThresh": 0.6, "widthThresh": 4 },
+    "grooveSelection": {
+      "method": "histogram",
+      "replayFrom": "experiments/2026-1014/cycleResult_origD_track_2026-1014.mat",
+      "tracking": { "tolerance": 2, "fitLength": 60, "snapRadius": 10, "initLength": 20, "maxGapLength": 40, "minFitPoints": 5 },
+      "histogram": { "numGrooves": 5, "binWidth": 1, "thHistRatio": 0.3, "bandTol": 3 }
+    },
+    "detrend": { "polyDegree": 9, "scope": "photo" },
+    "audio": { "rpm": 78, "ampDiv": 1.5 }
+  },
+  "meta": {
+    "createdAt": "2026-10-28T14:02:11",
+    "git": { "commit": "c7d2460", "branch": "claude/results-by-experiment", "dirty": false },
+    "matlabRelease": "R2024b",
+    "computerName": "（PC の名前）"
+  }
+}
+```
+
+#### 版ごとの違い
+
+`schemaVersion` は、実行記録の形の版である。キーの名前や入れ子の形を変えたら1つ上げ、この表に行を足す。後で形を変えても、古いファイルと見分けられるようにするためである。パラメータが既定値かどうかを示す仕組みは、まだ無い（別の issue で決める。そのときも、今のキーは変えずに足す）。
+
+| 版 | 使い始め | 変えたこと |
+| --- | --- | --- |
+| 1 | 2026-11（issue #28） | 最初の形 |
 
 ## 基本的な使用方法
 

@@ -6,16 +6,16 @@ function dirPath = experimentDir(rootFolder, date, opts)
 % 寿命の違うものとしてフォルダを分けており、バックアップの対象は data/ と
 % experiments/ の2つになる。
 %
-% 使い方:
+% 使い方（日付は "YYYY-MMDD" の形）:
 %   proj = currentProject();
-%   expDir = experimentDir(proj.RootFolder, "0731");                % 無ければ作る
-%   expDir = experimentDir(proj.RootFolder, "0731", Create=false);  % パスを組むだけ
+%   expDir = experimentDir(proj.RootFolder, "2026-0731");                % 無ければ作る
+%   expDir = experimentDir(proj.RootFolder, "2026-0731", Create=false);  % パスを組むだけ
 %
 % name-value 引数:
 %   Create - true（既定）ならフォルダが無いときに作る。読み込み側で
 %            パスを組むだけのときは false にして空フォルダを作らない。
 %
-% 関連: mkdirFromDate, cycleResultPath, saveCycleResult
+% 関連: resultDir, cycleResultPath, saveCycleResult
 
     arguments
         rootFolder (1,1) string

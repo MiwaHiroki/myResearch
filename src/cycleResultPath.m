@@ -9,7 +9,7 @@ function [matPath, dValuePath] = cycleResultPath(rootFolder, upsampling, date)
 %
 % 使い方:
 %   proj = currentProject();
-%   matPath = cycleResultPath(proj.RootFolder, "intpD", "0731");
+%   matPath = cycleResultPath(proj.RootFolder, "intpD", "2026-0731");
 %   result  = loadCycleResult(matPath);
 %
 % 出力:
