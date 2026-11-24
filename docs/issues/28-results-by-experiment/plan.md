@@ -2,11 +2,15 @@
 - 作成者: planner
 - 作成日: 2026-11-24
 - 入力: issue #28、`docs/issues/28-results-by-experiment/README.md`（作業履歴の「準備・全体」の決定）、main の依頼文（issue 作成後にユーザーと決めたこと）
-- 状態: 下書き
+- 状態: 承認済み（2026-11-24、ユーザー。Q1〜Q5 は推奨どおり。Q6 は (a) に、実験名の決め方の規則を1行足す。8章の「決定事項」）
 
 # #28 計画：結果の保存先を results/<実験名>/<YYYY-MMDD_説明>/ にし、実行記録を残す
 
 付属の文書：[`mapping-draft.md`](./mapping-draft.md)（既存のフォルダの対応表の案）
+
+## 修正の履歴
+
+- 2026-11-24（main）：ユーザーの回答を8章の「決定事項」に書き、状態を「承認済み」にした。Q6 の決定に合わせて、5.1 の手順9に、README に書く実験名の決め方の規則の1行を足した。ほかの設計は変えていない。
 
 ## 1. 結論
 
@@ -538,6 +542,7 @@ README の「`runInfo.json` の項目」の表は、この表から作る（承�
 7. `scripts/migration/migrateResults.m` を作る（4.2.6）。CSV はまだ作らない。
 8. 6章の unit テストを書く。
 9. README に「結果の置き場所と実行記録」の節を作り、「実験名の一覧」（`mapping-draft.md` 1章。承認された名前）、「実行フォルダの名前の決め方」（issue の「あるべき姿」1）、「`runInfo.json` の項目」（4.3 の表と、版の表）を書く。`src/` と `scripts/` の一覧にも足す。
+   - 実験名の決め方には、issue の規則に次の1行を足す（8章の Q6 の決定）。「issue の slug が、すでにある進捗報告用の図のテーマや評価スクリプトの置き場所の名前と違うときは、すでにある名前に合わせる（例：#35 の `wide-bottom-outliers` は `grooveBottomDetection`）。」
 10. 書いた・変えた `.m` に `checkcode` をかけ、`runAllTests` を通す（受け入れテストのうち、前半の関数のものを含む）。
 11. `impl-report-1a.md` を書く。ここで止め、main が承認A を取る。
 
@@ -668,7 +673,22 @@ main が行う順番：
 - `experiments/` に新しく作るデータは無い。評価の出力は `results/bilateralFilter/`・`results/grooveTracking/` の実行フォルダと `temp/` に置く。
 - `ginput` が要るデータは無い（ユーザーが作るデータは無い）。
 
-## 8. 未決事項
+## 8. 決定事項と未決事項
+
+### 決定事項（2026-11-24、ユーザーの回答）
+
+- **Q1：(a)。** `experiments/` は評価の直前（同じ日）に改名する。マージまでは、master のスクリプトで `experiments/` を読まない。
+- **Q2：(a)。** 移行は main が行う。承認B・C のたびに試しの表を見せ、ユーザーが了承してから実行する。
+- **Q3：(a)。** `runInfo.json` の形は 4.3 の表のとおりにする。
+- **Q4：(a)。** `Histogram` があれば、`tol` に `bandTol`、`binWidth` に `binWidth` を写し、ほかは `NaN` にする。
+- **Q5：(a)。** ループの中の定数は値を変えずに冒頭へ移す。`pkCentroid_interp2_1cycle.m` は `cycleResult_intpD_2026-0731.mat` を読む。`photoshop_localMax_1cycle.m` には `WidthThresh=NaN` を渡し、`ScriptName` を直す。今ある `checkcode` の警告は直さず、変更で警告を増やさない。
+- **Q6：(a) に1行を足す。** 実験名は8つ（`upsampling`・`photoshopUpscaling`・`bilateralFilter`・`digitalNeedle`・`grooveTracking`・`multiGroove`・`grooveBottomDetection`・`stylus`）にする。README に書く実験名の決め方には、「issue の slug が、すでにある進捗報告用の図のテーマや評価スクリプトの置き場所の名前と違うときは、すでにある名前に合わせる」を足す（5.1 の手順9）。
+  - ユーザーは、issue の規則のうち「slug に合わせる」と「図のテーマと同じ名前にする」が #35 でぶつかることを確かめたうえで、こう決めた。
+- **仮定：承認。** 否定されなかったので、8章末尾の2つの仮定のとおりに進める。
+- **まだ決めていないこと**
+  - `mapping-draft.md` の M1〜M5 と、M6 のうち説明（`LABEL`）の最終案は、移す直前（承認B）に決める。
+
+以下は、決める前の検討の記録。
 
 計画の承認のときに、次の Q1〜Q6 を決めてほしい。`mapping-draft.md` の M1〜M5 は、移す直前（承認B）までに決めればよい（M6 は Q6 と同じ）。
 

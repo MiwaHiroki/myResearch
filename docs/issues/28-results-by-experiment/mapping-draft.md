@@ -173,6 +173,7 @@ CSV の列：
   - (a) `grooveTracking/2026-1110/` に移す（推奨）。消してよいかを決める材料が無いので、ほかと同じく残す。
   - (b) 消す。途中の出力で使い道が無いが、issue で消してよいのは空の `0710/` だけである。
 - **M6 実験名と説明の最終案**（1章と2章の表）
+  - 実験名は、計画の承認で (a) の8つに決まった（2026-11-24、`plan.md` 8章の Q6）。説明は、承認B で決める。
   - (a) 表のとおりにする（推奨）。#35 は、slug ではなく、すでにある評価スクリプトと進捗報告用の図のテーマ `grooveBottomDetection` に合わせる。
   - (b) #35 の実験名を slug に合わせて `wideBottomOutliers` にする。issue の規則には合うが、`scripts/evaluation/grooveBottomDetection/`・`results/figures/progress/grooveBottomDetection/` と名前が違ってしまう。
   - ほかに、名前や説明を変えたいもの（例：`2026-1111_exclBoundVsInclBound` を `2026-1111_evaluation` にする）があれば、指定してほしい。

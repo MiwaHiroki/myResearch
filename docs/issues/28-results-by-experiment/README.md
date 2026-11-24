@@ -25,11 +25,14 @@
 | 2026-11-23 | ユーザー | **決定** 進め方：各サブエージェントが段階の作業を終えるたびに、main がその内容と未決事項をユーザーに報告する。ユーザーが承認したら、次の段階に進む。<br>**決定** 確認を省く範囲：承認を次の段階の開始の合図とし、エージェントを呼ぶ前の確認と依頼文の事前の提示は省く。手順書どおりの段階ごとのコミット（確認待ち・決定の反映）も、確認なしで main が行う。push・PR の作成・`experiments/` の改名は、そのつどユーザーに確かめる | — |
 | 2026-11-23 | ユーザー | **決定** 進捗報告の素材は作らない。結果フォルダの構成と実行記録の整理で、研究の内容（溝の抽出や音声の品質）には関わらないため | — |
 
-### 計画 — ユーザー確認待ち
+### 計画 — 承認済み
 
 | 日付 | 担当 | 内容 | 成果物 |
 |---|---|---|---|
-| 2026-11-24 | planner | `plan.md` を書く（1回目）。推奨は、`resultDir`・`runConditions`・`figureDir`・`collectMeta`・`gitState` を `src/` に作り、スクリプト55本は出力先・日付・実験条件の行だけを差し替える案。既存のフォルダは、対応表の CSV を読む `scripts/migration/migrateResults.m` で移す。<br>実装を前半（関数・テスト・README の表。承認A）と後半（スクリプト・文書・`.gitignore`）に分け、移行は main が承認B（対応表）・承認C（バックアップ）を取って行う。`experiments/` の改名は評価の直前。<br>未決事項 Q1〜Q6、対応表の未決事項 M1〜M5。<br>対応表の案は `mapping-draft.md` に分けた（main が依頼文で認めた例外。planner が書いてよいのは本来 `plan.md` だけ） | [`plan.md`](./plan.md)、[`mapping-draft.md`](./mapping-draft.md) |
+| 2026-11-24 | planner | `plan.md` を書く（1回目）。推奨は、`resultDir`・`runConditions`・`figureDir`・`collectMeta`・`gitState` を `src/` に作り、スクリプト55本は出力先・日付・実験条件の行だけを差し替える案。既存のフォルダは、対応表の CSV を読む `scripts/migration/migrateResults.m` で移す。<br>実装を前半（関数・テスト・README の表。承認A）と後半（スクリプト・文書・`.gitignore`）に分け、移行は main が承認B（対応表）・承認C（バックアップ）を取って行う。`experiments/` の改名は評価の直前。<br>未決事項 Q1〜Q6、対応表の未決事項 M1〜M5。<br>対応表の案は `mapping-draft.md` に分けた（main が依頼文で認めた例外。planner が書いてよいのは本来 `plan.md` だけ） | [`plan.md`](./plan.md)、[`mapping-draft.md`](./mapping-draft.md)、`48798a3` |
+| 2026-11-24 | ユーザー | **決定** 承認。Q1〜Q5 は推奨どおり。`experiments/` は評価の直前に改名し、マージまで master のスクリプトで読まない。移行は main が承認B・C を取って行う。`runInfo.json` は 4.3 の表のとおり。`Histogram` があれば `tol`・`binWidth` を写す。既存のスクリプトの不具合は推奨のとおりに扱い、今ある警告は直さない | — |
+| 2026-11-24 | ユーザー | **決定** Q6：実験名は (a) の8つ。#35 の実験は `grooveBottomDetection`。<br>issue の規則の「slug に合わせる」と「図のテーマと同じ名前にする」が #35 でぶつかるので、README に書く実験名の決め方に「issue の slug が、すでにある図のテーマや評価スクリプトの置き場所の名前と違うときは、すでにある名前に合わせる」を足す | — |
+| 2026-11-24 | main | 決定を `plan.md` 8章（と 5.1 の手順9）・`mapping-draft.md` の M6 に書き、状態を「承認済み」にしてコミットする。M1〜M5 と説明の最終案は承認B で決める | [`plan.md`](./plan.md) |
 ### 評価基準 — 未着手
 ### 実装 — 未着手
 ### 評価 — 未着手
