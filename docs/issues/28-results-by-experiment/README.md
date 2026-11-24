@@ -32,8 +32,14 @@
 | 2026-11-24 | planner | `plan.md` を書く（1回目）。推奨は、`resultDir`・`runConditions`・`figureDir`・`collectMeta`・`gitState` を `src/` に作り、スクリプト55本は出力先・日付・実験条件の行だけを差し替える案。既存のフォルダは、対応表の CSV を読む `scripts/migration/migrateResults.m` で移す。<br>実装を前半（関数・テスト・README の表。承認A）と後半（スクリプト・文書・`.gitignore`）に分け、移行は main が承認B（対応表）・承認C（バックアップ）を取って行う。`experiments/` の改名は評価の直前。<br>未決事項 Q1〜Q6、対応表の未決事項 M1〜M5。<br>対応表の案は `mapping-draft.md` に分けた（main が依頼文で認めた例外。planner が書いてよいのは本来 `plan.md` だけ） | [`plan.md`](./plan.md)、[`mapping-draft.md`](./mapping-draft.md)、`48798a3` |
 | 2026-11-24 | ユーザー | **決定** 承認。Q1〜Q5 は推奨どおり。`experiments/` は評価の直前に改名し、マージまで master のスクリプトで読まない。移行は main が承認B・C を取って行う。`runInfo.json` は 4.3 の表のとおり。`Histogram` があれば `tol`・`binWidth` を写す。既存のスクリプトの不具合は推奨のとおりに扱い、今ある警告は直さない | — |
 | 2026-11-24 | ユーザー | **決定** Q6：実験名は (a) の8つ。#35 の実験は `grooveBottomDetection`。<br>issue の規則の「slug に合わせる」と「図のテーマと同じ名前にする」が #35 でぶつかるので、README に書く実験名の決め方に「issue の slug が、すでにある図のテーマや評価スクリプトの置き場所の名前と違うときは、すでにある名前に合わせる」を足す | — |
-| 2026-11-24 | main | 決定を `plan.md` 8章（と 5.1 の手順9）・`mapping-draft.md` の M6 に書き、状態を「承認済み」にしてコミットする。M1〜M5 と説明の最終案は承認B で決める | [`plan.md`](./plan.md) |
-### 評価基準 — 未着手
+| 2026-11-24 | main | 決定を `plan.md` 8章（と 5.1 の手順9）・`mapping-draft.md` の M6 に書き、状態を「承認済み」にしてコミットする。M1〜M5 と説明の最終案は承認B で決める | [`plan.md`](./plan.md)、`ef39e86` |
+
+### 評価基準 — ユーザー確認待ち
+
+| 日付 | 担当 | 内容 | 成果物 |
+|---|---|---|---|
+| 2026-11-24 | evaluator（A） | `criteria.md` を書き、受け入れテスト（42件）と評価スクリプトを作る（1回目）。途中で利用上限により止まり、同じエージェントを再開して仕上げた。<br>数値の項目は、テスト T1・T2、計画どおりかの確認 P1〜P8、品質の基準 Q1〜Q13（Q3・Q6 は a・b に分ける）、変えてはいけないもの D1〜D4。ユーザーが判断する項目は U1〜U3（移した後の `results/` の並び、実データの `runInfo.json`、README の節）。<br>移す前の `results/`・`experiments/` の817ファイルのパス・大きさ・SHA-256 を `manifestBeforeMigration.csv` に記録した。数え直した数は計画の見込み（603・55・52・92・144）とすべて同じ。<br>仕様どおりの使い捨ての試作で42件すべてが通り、誤りを入れた試作18通りはすべて落ちることを確かめた。未決事項 Q-a | [`criteria.md`](./criteria.md)、`test/unit/ResultLayoutAcceptanceTest.m`、`scripts/evaluation/resultsLayout/` |
+| 2026-11-24 | main | 受け入れテストを実行し、3件が通り39件が失敗することを確かめる（関数がまだ無いので正常） | — |
 ### 実装 — 未着手
 ### 評価 — 未着手
 ### 振り返り — 未着手
@@ -46,3 +52,4 @@
 - `README.md`：このファイル
 - [`plan.md`](./plan.md)：計画
 - [`mapping-draft.md`](./mapping-draft.md)：既存のフォルダの対応表の案（計画の付属）
+- [`criteria.md`](./criteria.md)：評価基準
