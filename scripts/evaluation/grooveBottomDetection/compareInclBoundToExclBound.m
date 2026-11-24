@@ -8,7 +8,8 @@
 %              で、1104のデータ（grooveHist_Ncycle.m など）はこれで作った
 % パラメータの値（L_MASK・D_THRESH・WIDTH_THRESH）はどちらも同じにする。
 % 同じ列で y の差が MATCH_TOL 未満の点を「両方にある点」とし、片方だけにある点の色を変えて
-% 写真に重ねる。写真全体の図と、区間 SEG_INDEX を切り出した図を results/<date>/ に保存する。
+% 写真に重ねる。写真全体の図と、区間 SEG_INDEX を切り出した図を実行フォルダ
+% （results/grooveBottomDetection/<YYYY-MMDD>_evaluation/）に保存する。
 % 前提：Research.prj を開いていること（撮影画像が MATLAB のパス上にあること）。
 % 2026/11/11作成
 
@@ -28,8 +29,8 @@ MATCH_TOL = 0.5;        % 同じ列で y の差がこれ未満なら「両方に
 MAX_WIDTH_SHOWN = 19;   % 区間の幅の分布を表示する最大の幅[px]
 
 % inclBound の点が保存済みの cycleResult の点と一致するかを確かめる（"" なら確かめない）
-CHECK_RESULT_FILE = "cycleResult_origD_hist5_1104.mat";
-CHECK_DATE = "1104";
+CHECK_RESULT_FILE = "cycleResult_origD_hist5_2026-1104.mat";
+CHECK_DATE = "2026-1104";
 
 FIG_SIZE_PHOTO = [30 7];    % 写真全体の図の大きさ[cm]（写真は横に長い）
 FIG_SIZE_SEG = [16 19];     % 区間を切り出した図の大きさ[cm]
@@ -43,10 +44,24 @@ COLOR_BOTH = "cyan";
 COLOR_EXCL = "yellow";
 COLOR_INCL = "red";
 
-% 保存用
-date = "1111";          % 実行日。図は results/<日付>/
-OVERWRITE = false;      % results/<日付>/ に同じ名前の図があるときに上書きするか
-outDir = mkdirFromDate(rootFolder,date);
+% 保存用（実行する人が書き換える場所）
+EXPERIMENT_NAME = "grooveBottomDetection";   % results/ の下の実験名（README の「実験名の一覧」から選ぶ）
+date = "YYYY-MMDD";         % 実行した日（例 "2026-1124"）。書き換えないと resultDir がエラーで止める
+RUN_LABEL = "evaluation";   % 実行フォルダの説明（付けないなら ""）。LABEL は下で図の表記に使うので別の名前にする
+OVERWRITE = false;          % 実行フォルダに同じ名前の図があるときに上書きするか
+
+checkFiles = strings(0,1);  % 照らす cycleResult（runInfo.json の inputs.files に書く）
+if CHECK_RESULT_FILE ~= ""
+    checkFiles = fullfile(experimentDir(rootFolder,CHECK_DATE,Create=false),CHECK_RESULT_FILE);
+end
+runCond = runConditions( ...      % 冒頭の定数を実験条件にまとめる（runInfo.json に書く）
+    Region=struct(imgIndex=IMG_INDEX), ...
+    NumImages=NUM_IMAGES, NumSegments=NUM_SEGMENTS, LMask=L_MASK, ...
+    Upsampling="origD", Methods="centroid", DThresh=D_THRESH, WidthThresh=WIDTH_THRESH, ...
+    Other=struct(matchTol=MATCH_TOL));
+outDir = resultDir(rootFolder, EXPERIMENT_NAME, date, runCond, Label=RUN_LABEL, ...
+    ScriptName="compareInclBoundToExclBound", Images="DSC1111-0000"+num2str(IMG_INDEX)+"-ori", ...
+    InputFiles=checkFiles);
 
 % タイトル・凡例の表記（docs/rules/figures.md の語彙表の「表記」の列）
 LABEL = struct("origD","original","centroid","centroid", ...

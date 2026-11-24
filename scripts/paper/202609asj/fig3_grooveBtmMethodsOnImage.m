@@ -8,10 +8,7 @@
 setDefaultIntrpr();
 
 proj = currentProject();
-saveDir = fullfile(proj.RootFolder,"results","figures","paper","202609asj");
-if ~isfolder(saveDir)
-    mkdir(saveDir);
-end
+saveDir = figureDir(proj.RootFolder, "paper", "202609asj");
 figName = "fig3_grooveBtmMethodsOnImage";
 
 %% パラメータ

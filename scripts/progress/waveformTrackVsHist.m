@@ -18,7 +18,8 @@ proj = currentProject();
 rootFolder = proj.RootFolder;
 
 %% パラメータ
-DATE = "1104";        % 読み込む結果の日付（experiments/<DATE>/）
+DATE = "2026-1104";   % 読み込む結果の日付（experiments/<DATE>/）
+DATE_MMDD = extractAfter(DATE, "-");   % 図の名前とタイトルに書くデータの日付（MMDD。docs/rules/figures.md）
 UPSAMPLING = "origD"; % 高解像度化（今は origD の結果だけがある）
 METHOD = "centroid";  % 溝底の抽出法（"centroid" または "localMax"）
 NUM_GROOVES = 5;      % 溝の本数（cycleResult_..._track<N>/_hist<N>_... の N）
@@ -28,10 +29,7 @@ T_HALF_WINDOW = 0.005;  % 切り出す時間の半分[s]（差が最大の時刻
 FIG_SIZE = [14.8 11.1]; % 図の大きさ[cm]（waveformManualVsTrack.m の図と同じ）
 OVERWRITE = true;       % 進捗報告用の図なので、作り直したときは上書きする
 
-saveDir = fullfile(rootFolder,"results","figures","progress","multiGroove");
-if ~isfolder(saveDir)
-    mkdir(saveDir);
-end
+saveDir = figureDir(rootFolder, "progress", "multiGroove");
 
 % タイトル・凡例の表記（docs/rules/figures.md の語彙表の「表記」の列）
 LABEL = struct("origD","original","centroid","centroid","localMax","local maximum", ...
@@ -55,8 +53,8 @@ fs = audioTrack.fs;
 t = (1:numel(audioTrack.signal))' / fs; % AudioData.plotWaveformと同じ時刻
 
 % 名前・タイトルに共通の部分
-baseName = "waveform_trackVsHist_" + UPSAMPLING + "_" + METHOD + "_" + NUM_GROOVES + "cyc_" + DATE;
-condTitle = LABEL.(UPSAMPLING) + ", " + LABEL.(METHOD) + ", " + NUM_GROOVES + " cycles, data " + DATE;
+baseName = "waveform_trackVsHist_" + UPSAMPLING + "_" + METHOD + "_" + NUM_GROOVES + "cyc_" + DATE_MMDD;
+condTitle = LABEL.(UPSAMPLING) + ", " + LABEL.(METHOD) + ", " + NUM_GROOVES + " cycles, data " + DATE_MMDD;
 compTitle = "Waveform: " + LABEL.track + " vs " + LABEL.hist;
 
 %% 1. 全時間

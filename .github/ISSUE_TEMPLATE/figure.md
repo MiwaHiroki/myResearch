@@ -42,7 +42,7 @@ labels: ["figure"]
 
 ## スクリプトと出力先
 - スクリプト: `scripts/{paper,slides}/<会議名>/`
-- 出力: `results/figures/{paper,slides}/<会議名>/`
+- 出力: `results/figures/<発表名>/{paper,slides}/`（`figureDir` で作る。発表名は年月6桁と略称。例 `202609asj`）
 - ファイル名: 
 
 ## 制約・触らないもの

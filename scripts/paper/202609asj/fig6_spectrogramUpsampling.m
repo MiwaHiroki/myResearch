@@ -25,19 +25,16 @@
 setDefaultIntrpr();
 
 proj = currentProject();
-saveDir = fullfile(proj.RootFolder,"results","figures","paper","202609asj");
-if ~isfolder(saveDir)
-    mkdir(saveDir);
-end
+saveDir = figureDir(proj.RootFolder, "paper", "202609asj");
 figName = "fig6_spectrogramUpsampling";
 
 %% パラメータ
 % 読み込む結果.mat（experiments/<日付>/cycleResult_<条件>_<日付>.mat）
-DATE = "0731";
+DATE = "2026-0731";
 UPSAMPLINGS = ["rsmplD","intpD"]; % 中央がrsmplD、右がintpD
 METHOD = "centroid";              % 溝底抽出の手法は固定して高解像度化だけを比べる
 
-CONV_DATE = "0802";
+CONV_DATE = "2026-0802";
 % 従来法の音声。AudioDataを1つ入れた.matを想定している
 % =======================================
 % ユーザーによる追記: 従来法の結果は，cycleResultのフォーマットで記録された
@@ -49,7 +46,7 @@ CONV_DATE = "0802";
 
 % 2026/08/03追記
 % 従来法に対しても重心法を使用することとした。
-% データはexperiments/0802/cycleResult_origD_0802.matである
+% データはexperiments/2026-0802/cycleResult_origD_2026-0802.matである
 % 局所的最大値法のデータを消してしまった...
 % 意外と結果が変わらない。びっくり
 

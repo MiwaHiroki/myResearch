@@ -10,15 +10,12 @@
 setDefaultIntrpr();
 
 proj = currentProject();
-saveDir = fullfile(proj.RootFolder,"results","figures","paper","202609asj");
-if ~isfolder(saveDir)
-    mkdir(saveDir);
-end
+saveDir = figureDir(proj.RootFolder, "paper", "202609asj");
 figName = "fig_waveformComparisonOrigD";
 
 %% パラメータ
 % 読み込む結果.mat（experiments/<日付>/cycleResult_<条件>_<日付>.mat）
-DATE = "0731";
+DATE = "2026-0731";
 UPSAMPLING = "origD";
 
 Y_VIEW = [-1 1]; % 表示するAmplitudeの範囲

@@ -11,10 +11,7 @@
 setDefaultIntrpr();
 
 proj = currentProject();
-saveDir = fullfile(proj.RootFolder,"results","figures","slides","202609asj");
-if ~isfolder(saveDir)
-    mkdir(saveDir);
-end
+saveDir = figureDir(proj.RootFolder, "slides", "202609asj");
 figName = "grooveShape3d";
 
 %% パラメータ（grooveBtmOn3d.mと同じ表示範囲・視点・図サイズ）

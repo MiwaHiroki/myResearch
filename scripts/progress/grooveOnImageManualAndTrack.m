@@ -12,7 +12,7 @@
 %      この順に重ねた図（切り出しだけ）。凡例は 2 と同じく togglevisibility。
 %      溝底範囲は cycleResult に保存していないので、写真から _1cycle スクリプトと同じ処理で求め直し、
 %      そこから計算した溝底点が、保存した溝底点と一致することを確かめる。始めと終わりの色は、
-%      results/figures/slides/202609asj/darknessProfile_grooveBtmRange.png（darknessProfile.m）と同じ。
+%      results/figures/202609asj/slides/darknessProfile_grooveBtmRange.png（darknessProfile.m）と同じ。
 %   4. 3 から自動追跡の点を除いた図（切り出しだけ）。溝底範囲が実際の溝底より広く求まり、溝底点が
 %      ずれていることを、取り出した点に隠されずに見るため（issue #35 の資料）。
 %      1 と同じ条件なので、名前の最後に表示の語 grooveBtmRange を付けて区別する。
@@ -53,7 +53,8 @@ proj = currentProject();
 rootFolder = proj.RootFolder;
 
 %% パラメータ
-DATE = "1014";         % 読み込む結果の日付（experiments/<DATE>/）
+DATE = "2026-1014";    % 読み込む結果の日付（experiments/<DATE>/）
+DATE_MMDD = extractAfter(DATE, "-");   % 図の名前とタイトルに書くデータの日付（MMDD。docs/rules/figures.md）
 UPSAMPLING = "origD";  % 高解像度化（自動追跡は origD だけ）
 BOUND = "inclBound";   % 溝底の判定。1014のデータは ad46b44 以降のコード（3261e62）で作ったので、
                        % 境界値を含める判定（meta.gitCommit で確かめた）
@@ -83,10 +84,7 @@ COLOR_SELECTION = struct("manual","yellow","track","magenta"); % 取り出した
 COLOR_RANGE = struct("start","red","end","yellow"); % 溝底範囲の始めと終わりの色（darknessProfile.m と同じ）
 OVERWRITE = true;      % 進捗報告用の図なので、作り直したときは上書きする
 
-saveDir = fullfile(rootFolder,"results","figures","progress","grooveTracking");
-if ~isfolder(saveDir)
-    mkdir(saveDir);
-end
+saveDir = figureDir(rootFolder, "progress", "grooveTracking");
 
 % タイトル・凡例の表記（docs/rules/figures.md の語彙表の「表記」の列）
 LABEL = struct("origD","original","inclBound","inclusive bounds","exclBound","exclusive bounds", ...
@@ -215,8 +213,8 @@ for iImg = imgList
 
     %% 写真全体の図
     if MAKE_PHOTO_FIGS && ismember(iImg,IMG_INDICES)
-        partName = "_" + DATE + "_img" + iImg; %#ok<UNRCH> MAKE_PHOTO_FIGS で切り替える
-        partTitle = "data " + DATE + ", photo " + iImg;
+        partName = "_" + DATE_MMDD + "_img" + iImg; %#ok<UNRCH> MAKE_PHOTO_FIGS で切り替える
+        partTitle = "data " + DATE_MMDD + ", photo " + iImg;
         xRange = 1:size(photoImg,2);
         yRange = 1:size(photoImg,1);
 
@@ -243,8 +241,8 @@ for iImg = imgList
         toSegment = @(p) [p(:,1) - xOffsets(j), p(:,2)]; % 写真1枚分の座標から、区間の中の座標へ
 
         rangeMs = round(crop.tWin*1e3);
-        partName = sprintf("_%s_img%d_seg%d_%d-%dms",DATE,iImg,j,rangeMs);
-        partTitle = sprintf("data %s, photo %d, segment %d, %d-%d ms",DATE,iImg,j,rangeMs);
+        partName = sprintf("_%s_img%d_seg%d_%d-%dms",DATE_MMDD,iImg,j,rangeMs);
+        partTitle = sprintf("data %s, photo %d, segment %d, %d-%d ms",DATE_MMDD,iImg,j,rangeMs);
 
         % タイトルは図の幅に収まらないので2行に分ける（書く情報と順は写真全体の図と同じ）
         % 1. すべての溝底点

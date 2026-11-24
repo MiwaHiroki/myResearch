@@ -18,10 +18,7 @@
 setDefaultIntrpr();
 
 proj = currentProject();
-saveDir = fullfile(proj.RootFolder,"results","figures","slides","202609asj");
-if ~isfolder(saveDir)
-    mkdir(saveDir);
-end
+saveDir = figureDir(proj.RootFolder, "slides", "202609asj");
 
 %% パラメータ
 IMG_FILE = "DSC1111-00008-ori.png";

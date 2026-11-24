@@ -22,16 +22,32 @@ L_MASK = 20; % Maskを取るためのluminanceのthreshold, 0付近に設定す�
 TH_HIST = 150; % threshold of the peak height in the histogram
 
 D_THRESH = 0.6;
+WIDTH_THRESH = 8; % 溝底区間の幅の上限 [px]
+h_prl = 8; % 平行四辺形の底辺（fitGroove で溝を選ぶ平行四辺形の高さ）[px]
+tol = 3; % 溝に含める距離 [px]
+binWidth = 5; % ヒストグラムのビンの幅 [px]
+P_RSMPL = 8; Q_RSMPL = 1; % dResample のリサンプルの倍率 P_RSMPL/Q_RSMPL
 
-% 保存用
-date = "0807";
-dir = mkdirFromDate(proj.RootFolder,date);          % 図・音声の出力先
-expDir = experimentDir(proj.RootFolder,date);       % 実験結果.matの保存先
+% 保存用（実行する人が書き換える場所）
+EXPERIMENT_NAME = "upsampling";   % results/ の下の実験名（README の「実験名の一覧」から選ぶ）
+date = "YYYY-MMDD";               % 実行した日（例 "2026-1124"）。書き換えないと resultDir がエラーで止める
+LABEL = "";                       % 実行フォルダの説明（付けないなら ""）
 
 % 以前保存したp1,p2で溝を自動選択する場合は、その結果.matのパスを指定する
 % （空文字なら手動でginputにより選択する。詳細はREADMEの「溝の選択（fitGroove）」）
 PREV_RESULT_PATH = "";
-% PREV_RESULT_PATH = fullfile(proj.RootFolder,"experiments","0807","cycleResult_rsmplD_0807.mat");
+% PREV_RESULT_PATH = fullfile(proj.RootFolder,"experiments","2026-0807","cycleResult_rsmplD_2026-0807.mat");
+
+runCond = runConditions( ...      % 冒頭の定数を実験条件にまとめる（runInfo.json と cycleConditions の両方に使う）
+    NumImages=NUM_IMAGES, NumSegments=NUM_SEGMENTS, LMask=L_MASK, ...
+    Upsampling="rsmplD", PRsmpl=P_RSMPL, QRsmpl=Q_RSMPL, ...
+    Methods=["centroid","localMax"], DThresh=D_THRESH, WidthThresh=WIDTH_THRESH, ...
+    Selection="manual", ReplayFrom=PREV_RESULT_PATH, ...
+    Manual=struct(thHist=TH_HIST, tol=tol, binWidth=binWidth, hPrl=h_prl));
+dir = resultDir(proj.RootFolder, EXPERIMENT_NAME, date, runCond, Label=LABEL, ...
+    ScriptName="pkCentroid_resample_1cycle", Images=filenames_new, InputFiles=PREV_RESULT_PATH);   % 図・音声の出力先
+expDir = experimentDir(proj.RootFolder,date);       % 実験結果.matの保存先
+
 if PREV_RESULT_PATH ~= ""
     prevResult = loadCycleResult(PREV_RESULT_PATH);
     grooveSelection = prevResult.grooveSelection;
@@ -86,7 +102,6 @@ for iImg=1:NUM_IMAGES
         origD = DarknessMap(origImg);
         origD = origD.setDiffTF(D_THRESH);
 
-        P_RSMPL = 8; Q_RSMPL = 1;
         rsmplD = dResample(origD,P_RSMPL,Q_RSMPL);
         rsmplD = rsmplD.setDiffTF(D_THRESH);
 
@@ -102,8 +117,6 @@ for iImg=1:NUM_IMAGES
         % pksCell_r = cell(1,newWidth);
         % sIdxC_r = cell(1,newWidth);
         % eIdxC_r = cell(1,newWidth);
-        
-        WIDTH_THRESH = 8;
 
         rsmplExtractor = GrooveExtractor(rsmplD);
         for x=1:origImg.width
@@ -162,7 +175,6 @@ for iImg=1:NUM_IMAGES
         % pks_r(:,2) = 1 + (pks_r(:,2)-1)/rRatio;
 
         w_prl = origWidth; % 平行四辺形の高さ
-        h_prl = 8; % 平行四辺形の底辺
 
         % local maximum method, centroid method 共通の溝選択
         % 1回の選択でpks_max_r,pks_cnt_rの両方の傾きを補正したpksCorCellを得る
@@ -184,9 +196,6 @@ for iImg=1:NUM_IMAGES
 
         allP1(kImgSmall,:) = p1;
         allP2(kImgSmall,:) = p2;
-
-        tol = 3;
-        binWidth = 5; % BinWidth
 
         % local maximum method
         points_fit = extractGrooveWaveform(pks_max_cor, p1(2), (1:rsmplD.nCols)', ...
@@ -273,12 +282,7 @@ rsmplCntAudio.saveAudio(dir);
 %%
 % 実験結果の保存
 % 図の作成スクリプトは loadCycleResult でこの.matを読むだけにする
-cond = cycleConditions( ...
-    Upsampling="rsmplD", Date=date, SaveDir=dir, ExperimentDir=expDir, ...
-    NumImages=NUM_IMAGES, NumSegments=NUM_SEGMENTS, ...
-    LMask=L_MASK, ThHist=TH_HIST, DThresh=D_THRESH, WTh=WIDTH_THRESH, ...
-    Tol=tol, BinWidth=binWidth, HPrl=h_prl, ...
-    PRsmpl=P_RSMPL, QRsmpl=Q_RSMPL, ...
+cond = cycleConditions(runCond, Date=date, SaveDir=dir, ExperimentDir=expDir, ...
     Filenames=filenames_new, ScriptName="pkCentroid_resample_1cycle");
 
 res_max = cycleMethodResult("localMax", allPts_max_rsmplD, xcoords, ycoords_max, y_comb_max, rsmplMaxAudio);

@@ -6,10 +6,7 @@
 setDefaultIntrpr();
 
 proj = currentProject();
-saveDir = fullfile(proj.RootFolder,"results","figures","paper","202609asj");
-if ~isfolder(saveDir)
-    mkdir(saveDir);
-end
+saveDir = figureDir(proj.RootFolder, "paper", "202609asj");
 % 出力ファイル名。LaTeXで扱えるよう英数字と-_のみを使う
 FIG_NAME_PROFILE = "fig2-1_darknessProfile";       % x=X_Cの断面
 FIG_NAME_IMAGE_BTM = "fig2-2_grooveBtmRangeOnImage";   % 画像上の区間始点・終点

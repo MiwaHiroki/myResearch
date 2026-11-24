@@ -18,19 +18,16 @@
 setDefaultIntrpr();
 
 proj = currentProject();
-saveDir = fullfile(proj.RootFolder,"results","figures","paper","202609asj");
-if ~isfolder(saveDir)
-    mkdir(saveDir);
-end
+saveDir = figureDir(proj.RootFolder, "paper", "202609asj");
 figName = "fig_waveformUpsampling";
 
 %% パラメータ
 % 読み込む結果.mat（experiments/<日付>/cycleResult_<条件>_<日付>.mat）
-DATE = "0731";
+DATE = "2026-0731";
 UPSAMPLINGS = ["rsmplD","intpD"]; % 中央がrsmplD、右がintpD
 METHOD = "centroid";              % 溝底抽出の手法は固定して高解像度化だけを比べる
 
-CONV_DATE = "0802";
+CONV_DATE = "2026-0802";
 % 従来法の音声。AudioDataを1つ入れた.matを想定している
 % ユーザーによる追記: 従来法の音声についてはスクリプト冒頭を参照のこと
 CONV_MAT = fullfile(proj.RootFolder,"experiments",CONV_DATE, ...

@@ -29,9 +29,15 @@ D_THRESH = 0.6;
 
 proj = currentProject();
 
-% 保存用
-date = "0615";
-dir = mkdirFromDate(proj.RootFolder,date);
+% 保存用（実行する人が書き換える場所）
+EXPERIMENT_NAME = "upsampling";   % results/ の下の実験名（README の「実験名の一覧」から選ぶ）
+date = "YYYY-MMDD";               % 実行した日（例 "2026-1124"）。書き換えないと resultDir がエラーで止める
+LABEL = "";                       % 実行フォルダの説明（付けないなら ""）
+
+runCond = runConditions( ...      % 冒頭の定数を実験条件にまとめる（runInfo.json に書く）
+    NumImages=NUM_IMAGES, LMask=L_MASK, DThresh=D_THRESH, Manual=struct(thHist=TH_HIST));
+dir = resultDir(proj.RootFolder, EXPERIMENT_NAME, date, runCond, Label=LABEL, ...
+    ScriptName="pkCentroidAndLocalMax_resample_1cycle", Images=filenames_new);   % 図・音声の出力先
 % dir = "C:\Users\owner\Documents\HirokiMiwa\matlab@Miwa\peak detection\data\"+date+"\";
 
 %%
@@ -516,9 +522,6 @@ mvMean_s = AudioData("audio mvMean (s)",amp_mvMean_s,fs);
 mvMean_m = AudioData("audio mvMean (m)",amp_mvMean_m,fs);
 mvMean_l = AudioData("audio mvMean (l)",amp_mvMean_l,fs);
 
-date = "0710";
-dir = mkdirFromDate(proj.RootFolder,date);
-
 fig = createFigure([0 0 6 4]);
 mvMean_s.plotWaveform();
 saveas(fig,dir+mvMean_s.filename+"_amp","fig");saveas(fig,dir+mvMean_s.filename+"_amp","png");close;
@@ -582,9 +585,6 @@ lgd = legend; lgd.ItemHitFcn = @togglevisibility;
 mvMedian_s = AudioData("audio mvMedian (s)",amp_mvMedian_s,fs);
 mvMedian_m = AudioData("audio mvMedian (m)",amp_mvMedian_m,fs);
 mvMedian_l = AudioData("audio mvMedian (l)",amp_mvMedian_l,fs);
-
-date = "0710";
-dir = mkdirFromDate(proj.RootFolder,date);
 
 fig = createFigure([0 0 6 4]);
 mvMedian_s.plotWaveform();

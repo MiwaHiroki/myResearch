@@ -17,7 +17,7 @@
 | planner | `.claude/agents/planner.md` | 計画 | `plan.md` | なし |
 | evaluator（モードA） | `.claude/agents/evaluator.md` | 評価基準 | `criteria.md` | `test/unit/*AcceptanceTest.m`、`scripts/evaluation/<テーマ>/` |
 | implementer | `.claude/agents/implementer.md` | 実装 | `impl-report-<n>.md` | `src/`、`scripts/`、`test/unit/*Test.m`、README |
-| evaluator（モードB） | `.claude/agents/evaluator.md` | 評価 | `eval-report-<n>.md` | `experiments/`（指示されたデータ）、`results/<日付>/`、`temp/` |
+| evaluator（モードB） | `.claude/agents/evaluator.md` | 評価 | `eval-report-<n>.md` | `experiments/`（指示されたデータ）、`results/<実験名>/` の実行フォルダ、`temp/` |
 | summarizer | `.claude/agents/summarizer.md` | 仕上げ | `README.md` の「解決のまとめ」の節 | なし |
 | illustrator | `.claude/agents/illustrator.md` | 計画の承認の後・評価の合否の確認の後（進捗報告の素材を作るissueだけ） | `progress-material.md` の頼まれた素材の項目 | `scripts/progress/` の新しいスクリプト、`results/figures/progress/<テーマ>/` の図 |
 
@@ -102,7 +102,7 @@
 - **時期**：計画で決める（5.2）。使うスクリプトを実装で作るときは、実装のコミットの後、評価の前。
 - **事前に、メインがユーザーに伝えること**
   - 実行するスクリプトと、`temp/` のコピーで変える行（日付、ガイドに使う結果のパスなど）
-  - 使う日付（MMDD）。`experiments/<日付>/`・`results/<日付>/` に同じ名前のファイルが無いことを、メインが先に確かめる
+  - 使う日付（`YYYY-MMDD`）。`experiments/<YYYY-MMDD>/` に同じ名前のファイルが無いことを、メインが先に確かめる（図・音声は `resultDir` が実行フォルダを作るので、同じ名前があっても `_2` の付いた別のフォルダになる）
   - 作業ツリーがきれいなこと（`git status --porcelain` が空。MATLABのエディタに未保存の変更が無い）
   - 実行した後にユーザーが見る図と観点（溝の飛び移りが無いか など）
 - **事後に、メインが確かめて作業履歴に書くこと**
@@ -114,7 +114,7 @@
 
 ### 5.6 評価（evaluator モードB）
 
-- **日付**：評価を実行する日（MMDD）を使う。`experiments/<日付>/`・`results/<日付>/` に同じ名前のファイルが無いことを確かめる。ぶつかる場合は、別の日に評価する。
+- **日付**：評価を実行する日（`YYYY-MMDD`）を使う。`experiments/<YYYY-MMDD>/` に同じ名前のファイルが無いことを確かめる。ぶつかる場合は、別の日に評価する。図・音声は、`resultDir` が評価の実行フォルダ（`results/<実験名>/<YYYY-MMDD>_evaluation/` など）を作って出す。
 - **作業ツリー**：きれいな状態で始め、データを作り終えるまでは追跡される場所にファイルを作らないよう、依頼文に順番を書く。日付などを書き換えたスクリプトのコピーは `temp/` に置く。
 - 判定が「ユーザー確認待ち」なら、ユーザーに見てほしいファイルと観点を伝える。ユーザーの確認の結果は、メインが `eval-report-<n>.md` の先頭に追記する（評価担当の本文は変えない）。
 - 不合格なら、`eval-report-<n>.md` を入力に implementer を `<n+1>` 回目として呼ぶ。

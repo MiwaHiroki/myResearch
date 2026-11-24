@@ -20,10 +20,11 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 
 - **`Research.prj`**: MATLABプロジェクトファイル
 - **`src/`**: クラス定義と共通関数（配線されていない旧コードは `archive/`）
-- **`scripts/`**: 溝底抽出・音声生成の実行スクリプト群（旧版は `archive/`、針再生の評価は `evaluation/`）
+- **`scripts/`**: 溝底抽出・音声生成の実行スクリプト群（旧版は `archive/`、評価は `evaluation/`、図は `paper/<発表名>/`・`slides/<発表名>/`・`progress/`、古い結果のフォルダの移行は `migration/`）
 - **`data/`**: 入力データ（`pictures/` は盤面写真、`stylus playback/` は針再生の音源）
-- **`experiments/`**: 1周分の解析結果の`.mat`（日付ごと。旧版・失敗した試行は `archive/`）
-- **`results/`**: 図・音声の出力先（日付ごと。原稿用の図は `figures/paper/<会議名>/`。図の置き場所と名前の付け方は [`docs/rules/figures.md`](docs/rules/figures.md)）
+- **`experiments/`**: 1周分の解析結果の`.mat`（`YYYY-MMDD` の日付ごと。旧版・失敗した試行は `archive/`）
+- **`results/`**: 図・音声の出力先。実験の出力は実験名と実行した日のフォルダ `results/<実験名>/<YYYY-MMDD>[_<説明>]/`（実行フォルダ）に、完成した図は `results/figures/` に置く（詳細は「結果の置き場所と実行記録」。図の置き場所と名前の付け方は [`docs/rules/figures.md`](docs/rules/figures.md)）
+  - 図のスクリプトは `scripts/<用途>/<発表名>/`（例：`scripts/paper/202609asj/`）に置き、図は `results/figures/<発表名>/<用途>/`（例：`results/figures/202609asj/paper/`）に出る。スクリプトと図とで、用途と発表名の階層の順が逆になる（スクリプトの置き場所は変えず、図だけを発表名ごとにまとめたため。issue #28）。進捗報告用は、どちらも `progress/` の下にある。
 - **`test/`**: テストコード（`unit/` が `runAllTests` の対象。廃止したクラスのテストは `archive/`）
 
 `experiments/` と `results/` は寿命が違うので分けている。`results/` の図・音声は `experiments/` の`.mat`から何度でも作り直せるが、`.mat` 自体は `fitGroove` の手動操作を80セグメント分やり直さないと作れない。**バックアップの対象は `data/` と `experiments/` の2つ**で、`results/` は消してよい。どちらもgit管理外。
@@ -79,15 +80,15 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 - **`saveCycleResult`**: 上記2つをまとめて `experiments/<日付>/cycleResult_<条件>_<日付>.mat` に保存する（詳細は下記「1周分の実験結果の保存」）
 - **`loadCycleResult`**: `saveCycleResult` で保存した結果を読み込む
 - **`cycleResultFileName`**: 結果.matのファイル名の命名規則を返す（保存側・読み込み側で共有）
-- **`cycleResultPath`**: 結果.matのフルパスを返す（読み込み側用。`experiments/<日付>/` を見て、無ければ移行前の `results/<日付>/` も探す）
+- **`cycleResultPath`**: 結果.matのフルパスを返す（読み込み側用。`experiments/<日付>/` を見て、無ければ移行前の置き場所（`results/` の直下の日付のフォルダ）も探す）
 - **`togglevisibility`**: 凡例クリックでプロットの表示/非表示を切り替えるコールバック
 
 ## `scripts/` の主なスクリプト
 
 - **`pkCentroid_resample_1cycle.m`**: リサンプルしたデータに重心法を適用し、1周分の音声を生成する基本スクリプト。末尾で `saveCycleResult` により `cycleResult_rsmplD_<日付>.mat` を保存。
 - **`pkCentroid_interp2_1cycle.m`**: 上記を内挿（`dInterp`）ベースに置き換えた版。1周分の音声を生成し、`cycleResult_intpD_<日付>.mat` を保存。
-- **`grooveTrack_1cycle.m`**: 高解像度化していない画像で、写真1枚につき1回のクリックから溝1本を自動追跡し（`trackGroove`）、写真ごとに多項式デトレンド（`detrendTrackedShape`、9次）をかけて、重心法・局所的最大値法の1周分の音声を作る。`pkCentroid_1cycle.m`の`fitGroove`＋`extractGrooveWaveform`（1周80回の`ginput`）を置き換えたもの（1周8回）。`cycleResult_origD_track_<日付>.mat`を保存する。`PREV_RESULT_PATH`に以前の結果.matを指定すると、保存したクリック位置（または手動選択の`p1`）で`ginput`なしに再現する。`date`は`"MMDD"`のままだとエラーで止まるので、実行日に書き換える。溝底区間の幅の上限`WIDTH_THRESH`は4 pxで、`pkCentroid_1cycle.m`の8 pxより狭い（issue #35）。詳細は「溝の自動追跡（trackGroove）」
-- **`grooveHist_Ncycle.m`**: 写真1枚につき1回のクリックから`NUM_GROOVES`本（既定5）の溝を取り出し（`extractMultiGroove`。1本目は追跡、2本目以降はヒストグラムの山と帯）、重心法・局所的最大値法のN周分の音声を作る。`cycleResult_origD_hist<N>_<日付>.mat`を保存する。図は`grooveHist_img<i>.png`（N本の経路）・`grooveHist_histogram_img<i>.png`（補正後のyのヒストグラム）。`PREV_RESULT_PATH`の扱い、`date`、溝底区間の幅の上限（4 px）は`grooveTrack_1cycle.m`と同じ。詳細は「複数本の溝の抽出（N周分）」
+- **`grooveTrack_1cycle.m`**: 高解像度化していない画像で、写真1枚につき1回のクリックから溝1本を自動追跡し（`trackGroove`）、写真ごとに多項式デトレンド（`detrendTrackedShape`、9次）をかけて、重心法・局所的最大値法の1周分の音声を作る。`pkCentroid_1cycle.m`の`fitGroove`＋`extractGrooveWaveform`（1周80回の`ginput`）を置き換えたもの（1周8回）。`cycleResult_origD_track_<日付>.mat`を保存する。`PREV_RESULT_PATH`に以前の結果.matを指定すると、保存したクリック位置（または手動選択の`p1`）で`ginput`なしに再現する。`date`は`"YYYY-MMDD"`のままだと`resultDir`がエラーで止めるので、実行した日（`"2026-1124"`の形）に書き換える。図・音声は実行フォルダ`results/grooveTracking/<YYYY-MMDD>/`に出る。溝底区間の幅の上限`WIDTH_THRESH`は4 pxで、`pkCentroid_1cycle.m`の8 pxより狭い（issue #35）。詳細は「溝の自動追跡（trackGroove）」
+- **`grooveHist_Ncycle.m`**: 写真1枚につき1回のクリックから`NUM_GROOVES`本（既定5）の溝を取り出し（`extractMultiGroove`。1本目は追跡、2本目以降はヒストグラムの山と帯）、重心法・局所的最大値法のN周分の音声を作る。`cycleResult_origD_hist<N>_<日付>.mat`を保存する。図は`grooveHist_img<i>.png`（N本の経路）・`grooveHist_histogram_img<i>.png`（補正後のyのヒストグラム）。`PREV_RESULT_PATH`の扱い、`date`、溝底区間の幅の上限（4 px）は`grooveTrack_1cycle.m`と同じ。図・音声は実行フォルダ`results/multiGroove/<YYYY-MMDD>/`に出る。詳細は「複数本の溝の抽出（N周分）」
 - **`grooveTrack_Ncycle.m`**: `grooveHist_Ncycle.m`を評価するための正解データを作る。写真ごとにN本をクリックし（8×N回の`ginput`）、それぞれを`trackGroove`→`detrendTrackedShape`で別々に追跡してN周分の音声を作り、`cycleResult_origD_track<N>_<日付>.mat`を保存する。図は`grooveTrackN_img<i>.png`。溝底区間の幅の上限（4 px）は`grooveTrack_1cycle.m`と同じ。詳細は「複数本の溝の抽出（N周分）」
 - **`pkCentroidAndLocalMax_resample_1cycle.m`**: 重心法と局所的最大値法、リサンプルの有無（計4パターン）で1周分の音声を作り比較。移動平均・移動中央値による平滑化や針再生との比較も含む。
 - **`pkCentroid_resample.m`**: 画像1枚（1セグメント）について、リサンプルの有無×2手法の溝底検出結果を比較する検討用スクリプト。
@@ -97,10 +98,10 @@ SPレコードの盤面写真から音溝（溝底）の形状を読み取り、
 - **`bilateral/bilateralOriResample_centroid.m`**: 上記のフィルタ後に暗度の1次元リサンプル（`dResample`）を行ってから重心法を適用する版。
 - **`bilateral/bilateralOriInterp2_centroid.m`**: 上記のフィルタ後に暗度の2次元内挿（`dInterp`、`step=0.125`・spline）を行ってから重心法を適用する版。
 - **`bilateral/bilateral8x_centroid.m`**: Photoshopで8xに高解像度化した画像(`*-8x.png`)の一部にバイラテラルフィルタをかけ、重心法の溝底点を表示する版（画像が大きいため元画像座標で指定した窓を切り出して処理する）。
-- **`bilateral/bilateralOri_centroid_1cycle.m`**: 高解像度化していない画像にバイラテラルフィルタ（カーネル3通り＋フィルタなし）をかけ、条件ごとに1周分の音声を重心法で作成して波形・FFT・スペクトログラムを比較する。溝の選択は過去の`cycleResult`の`grooveSelection`を再利用するので`ginput`は不要。動作確認用のため実験結果`.mat`は保存しない。
+- **`bilateral/bilateralOri_centroid_1cycle.m`**: 高解像度化していない画像にバイラテラルフィルタ（カーネル3通り＋フィルタなし）をかけ、条件ごとに1周分の音声を重心法で作成して波形・FFT・スペクトログラムを比較する。溝の選択は過去の`cycleResult`の`grooveSelection`を再利用するので`ginput`は不要。動作確認用のため実験結果`.mat`は保存しない。図・音声は実行フォルダ`results/bilateralFilter/<YYYY-MMDD>_1cycle/`に出る（1セグメントの4本は、説明が`ori`・`oriRsmpl`・`oriIntp`・`photoshop8x`の実行フォルダに出る）。
 - **`evaluation/stylus/sound_from_stylus.m`**: 針で再生した音源を切り出し・フィルタ処理し、復元音声と比較・評価する。
 - **`migration/migrateResults.m`**: 対応表（CSV）を1行ずつ読み、日付だけの名前の古い形の `results/`・`experiments/` のフォルダとファイルを、新しい形の名前（「結果の置き場所と実行記録」）へ移す関数（issue #28）。既定は試し（`DryRun=true`）で、移す内容を表にして返すだけで、何も動かさない。全部の行を先に確かめ、行き先にすでにあるものがあれば何も動かさずに止める。移し終えた行は飛ばすので、途中で止まっても、もう一度呼べば続きを移せる。`scripts/migration/` は MATLAB プロジェクトのパスに入っていないので、`addpath` してから呼ぶ。
-- **`evaluation/grooveBottomDetection/compareInclBoundToExclBound.m`**: 溝底の判定で境界値を含めない（`exclBound`：`D > D_THRESH`・幅 `< W_TH`。コミット`ad46b44`（2026-08-14）より前のコードで、0731のデータはこれで作った）か、含める（`inclBound`：`D >= D_THRESH`・幅 `<= W_TH`。今の`DarknessMap`・`GrooveExtractor`）かで、写真1枚の溝底点（重心法）がどう変わるかを数え、片方だけにある点の色を変えて写真全体と1区間に重ねた図を`results/<日付>/`に保存する。`exclBound`の判定は今の`src/`に無いので、スクリプトのローカル関数で書き直している。`inclBound`の点が保存済みのcycleResultの点と一致することも確かめる。
+- **`evaluation/grooveBottomDetection/compareInclBoundToExclBound.m`**: 溝底の判定で境界値を含めない（`exclBound`：`D > D_THRESH`・幅 `< W_TH`。コミット`ad46b44`（2026-08-14）より前のコードで、0731のデータはこれで作った）か、含める（`inclBound`：`D >= D_THRESH`・幅 `<= W_TH`。今の`DarknessMap`・`GrooveExtractor`）かで、写真1枚の溝底点（重心法）がどう変わるかを数え、片方だけにある点の色を変えて写真全体と1区間に重ねた図を実行フォルダ`results/grooveBottomDetection/<YYYY-MMDD>_evaluation/`に保存する。`exclBound`の判定は今の`src/`に無いので、スクリプトのローカル関数で書き直している。`inclBound`の点が保存済みのcycleResultの点と一致することも確かめる。
 
 ## 溝の選択（fitGroove）
 
@@ -214,7 +215,7 @@ y_comb_cnt = vertcat(ycoords_cnt{:});                    % N周分（再生順�
 
 - 写真ごとに、左端`CLICK_VIEW_WIDTH`（300px）を拡大した図で`ginput(NUM_GROOVES)`を1回行う。クリックはyの大きい順（外側から）に並べ替えて1本目〜N本目にする（クリックの順によらない）。`trackGroove`の始点の初期化は1列目から20pxの範囲だけを見るので、左端の近くをクリックする。
 - 隣どうしの始点の差が`MIN_SEED_GAP`（13px）より小さいと`grooveTrack_Ncycle:sameGroove`、差の中央値の1.5倍を超えると`grooveTrack_Ncycle:grooveSkipped`の警告を出す。図（`grooveTrackN_img<i>.png`）で、N本とも隣の溝に飛び移っていないかを確かめる。
-- `GUIDE_RESULT_PATH`に以前の結果（例：`experiments/1014/cycleResult_origD_track_1014.mat`）を指定すると、その1本目の始点のyをクリックの図に黄色の三角で示す（1本目を#25と同じ溝にするため）。
+- `GUIDE_RESULT_PATH`に以前の結果（例：`experiments/2026-1014/cycleResult_origD_track_2026-1014.mat`）を指定すると、その1本目の始点のyをクリックの図に黄色の三角で示す（1本目を#25と同じ溝にするため）。
 - `PREV_RESULT_PATH`に以前の正解データを指定すると、保存した`multiGroove.seedsY`で`ginput`なしに再現する。`RECLICK_IMAGES`（例：`[3 7]`）に書いた写真だけ、もう一度クリックする（飛び移りがあった写真だけ直すため。`saveCycleResult`の`Overwrite=false`で`_2`付きの別のファイルになる）。
 - `grooveSelection.seeds`には1本目のクリック`[1, seedsY(:,1)]`を入れるので、`grooveHist_Ncycle.m`・`grooveTrack_1cycle.m`の`PREV_RESULT_PATH`にこのファイルを指定すれば、同じ1本目から再現できる。
 
@@ -222,20 +223,23 @@ y_comb_cnt = vertcat(ycoords_cnt{:});                    % N周分（再生順�
 
 `fitGroove` の手動操作を80セグメント分繰り返す必要がある（`GrooveSelection`による自動選択を使わない場合）ため、1周分の解析は図を作るたびに再実行できない。そこで解析結果を `.mat` に保存し、図の作成スクリプトはそれを読むだけにする。
 
-- 保存先は `experiments/<日付>/`。図・音声の出力先（`results/<日付>/`）とは分ける。
+- 保存先は `experiments/<YYYY-MMDD>/`。図・音声の出力先（実行フォルダ `results/<実験名>/<YYYY-MMDD>[_<説明>]/`。「結果の置き場所と実行記録」）とは分ける。
 - **1ファイル = 1つの高解像度化条件**（`origD` / `rsmplD` / `intpD`）。1ファイルの中に重心法・局所的最大値法の両方の結果を入れる（`allImg` を手法ごとに二重保存しないため）。
 - 保存される変数は `result`（struct）1つだけ。
 
 ```matlab
-% 保存（1周分の解析の最後で実行）
-dir    = mkdirFromDate(rootFolder, date);    % 図・音声の出力先
+% スクリプトの冒頭：実験条件をまとめ、出力先を作る（「結果の置き場所と実行記録」）
+runCond = runConditions(NumImages=NUM_IMAGES, NumSegments=NUM_SEGMENTS, LMask=L_MASK, ...
+    Upsampling="intpD", QueryStep=QUERY_STEP, InterpMethod=INTERP_METHOD, ...
+    Methods=["centroid","localMax"], DThresh=D_THRESH, WidthThresh=WIDTH_THRESH, ...
+    Selection="manual", ReplayFrom=PREV_RESULT_PATH, ...
+    Manual=struct(thHist=TH_HIST, tol=tol, binWidth=binWidth, hPrl=h_prl));
+dir    = resultDir(rootFolder, EXPERIMENT_NAME, date, runCond, Label=LABEL, ...
+    ScriptName="pkCentroid_interp2_1cycle", Images=filenames_new, InputFiles=PREV_RESULT_PATH);   % 図・音声の出力先
 expDir = experimentDir(rootFolder, date);    % 実験結果.matの保存先
 
-cond = cycleConditions( ...
-    Upsampling="intpD", Date=date, SaveDir=dir, ExperimentDir=expDir, ...
-    LMask=L_MASK, ThHist=TH_HIST, DThresh=D_THRESH, WTh=W_TH, ...
-    Tol=tol, BinWidth=binWidth, HPrl=h_prl, ...
-    QueryStep=QUERY_STEP, InterpMethod=INTERP_METHOD, ...
+% 保存（1周分の解析の最後で実行）。実験条件は runCond から写し、実行ごとに変わるものだけを渡す
+cond = cycleConditions(runCond, Date=date, SaveDir=dir, ExperimentDir=expDir, ...
     Filenames=filenames_new, ScriptName="pkCentroid_interp2_1cycle");
 
 res_cnt = cycleMethodResult("centroid", allPts_cnt_intpD, xcoords, ycoords, y_comb, intpAudio);
@@ -243,12 +247,14 @@ res_cnt = cycleMethodResult("centroid", allPts_cnt_intpD, xcoords, ycoords, y_co
 matPath = saveCycleResult(cond, allImg, res_cnt);
 
 % 読み込み（図の作成スクリプト）
-matPath = cycleResultPath(rootFolder, "intpD", "0731");
+matPath = cycleResultPath(rootFolder, "intpD", "2026-0731");
 result  = loadCycleResult(matPath);
 figure; result.centroid.audio.plotSpectrogram(4096);
 ```
 
-`ExperimentDir` を省略すると `SaveDir` に保存される（移行前の動作）。読み込み側の `cycleResultPath` は `experiments/<日付>/` を先に見て、無ければ `results/<日付>/` も探すので、古い場所に残っている結果もそのまま読める。
+`ExperimentDir` を省略すると `SaveDir` に保存される（移行前の動作）。読み込み側の `cycleResultPath` は `experiments/<日付>/` を先に見て、無ければ移行前の置き場所（`results/` の直下の日付のフォルダ）も探すので、古い場所に残っている結果もそのまま読める。
+
+`experiments/` の日付のフォルダとファイル名の日付は、`2026-0731` のように年を付けた `YYYY-MMDD` の形である（issue #28 で改名した。古い名前との対応は「結果の置き場所と実行記録」の「対応表」）。改名の前に保存したファイルの中の `conditions.date` は、`"0731"` のように4桁のまま残っている。
 
 `result` の構成:
 
@@ -477,6 +483,57 @@ cond = cycleConditions(runCond, Date=date, SaveDir=outDir, ExperimentDir=expDir,
 | --- | --- | --- |
 | 1 | 2026-11（issue #28） | 最初の形 |
 
+### 対応表（移す前の置き場所）
+
+issue #28 で、日付だけの名前だった古いフォルダを、上の形の置き場所へ移した。過去の記録（`docs/issues/closed/` など）に書かれた古いパスから、今の場所を引くための表である。
+
+- 表はフォルダの単位で書く。1つのフォルダに複数回の実行の出力が混ざっていたものは、ファイル名の形で実行ごとに分けた。どのパターンをどの実行フォルダへ移したかと、移したファイルの数は、移行の関数 `scripts/migration/migrateResults.m` が読む対応表 `scripts/migration/resultsMapping.csv` にある。
+- 実行フォルダの日付には、移す前のフォルダの日付に年（2026）を足したものを使った。過去の記録のパスから1対1に引けるようにするためである。
+- 中のファイル名と、手書きの記録（`results/1111/README.md`）は変えていない。
+
+`results/` の日付のフォルダ（行き先は `results/` からのパス）：
+
+| 移す前 | 移した後 | 中身（作ったスクリプト） |
+| --- | --- | --- |
+| `results/0710/` | （空なので消した） | — |
+| `results/0721/` | `upsampling/2026-0721/` | 1セグメントの元データ・リサンプル・内挿の比較（`pkCentroid_interp2.m`） |
+| `results/0724/` | `upsampling/2026-0724_intpD/`、`upsampling/2026-0724_rsmplD/` | 内挿・リサンプルの1周分 |
+| `results/0731/` | `upsampling/2026-0731_origD/`、`upsampling/2026-0731_rsmplD/`、`upsampling/2026-0731_intpD/`、`upsampling/2026-0731_intpD_2/` | 高解像度化なし・リサンプル・内挿の1周分（`pkCentroid_1cycle.m` など）。内挿は、失敗した試行（`_intpD`。wav は無い）と、2026-08-20 の再実行（`_intpD_2`） |
+| `results/0802/` | `photoshopUpscaling/2026-0802_localMax/`、`photoshopUpscaling/2026-0802_centroid/` | 従来法の1周分（`photoshop_*_1cycle.m`） |
+| `results/0807/` | `upsampling/2026-0807_rsmplD/` | リサンプルの1周分（`pkCentroid_resample_1cycle.m`） |
+| `results/0817/` | `photoshopUpscaling/2026-0817/` | `progress/showPhotoshopGrooveExtraction.m` |
+| `results/0820/bilateral/ori/`・`oriRsmpl/`・`oriIntp/`・`photoshop8x/` | `bilateralFilter/2026-0820_ori/`・`_oriRsmpl/`・`_oriIntp/`・`_photoshop8x/` | バイラテラルフィルタの1セグメントの検討（`bilateral/` の4本） |
+| `results/0831/digitalNeedle/` | `digitalNeedle/2026-0831/` | DigitalNeedle の再現（マージしていないブランチ `claude/DigitalNeedle-reproduction`） |
+| `results/0924/bilateral1cycle/` | `bilateralFilter/2026-0924_1cycle/` | バイラテラルフィルタの1周分（`bilateral/bilateralOri_centroid_1cycle.m`） |
+| `results/1013/` | `grooveTracking/2026-1013/` | 自動追跡（`grooveTrack_1cycle.m`。#25 の実装の確認） |
+| `results/1014/` | `grooveTracking/2026-1014_manual/`、`grooveTracking/2026-1014_track/`、`grooveTracking/2026-1014_evaluation/` | #25 の評価（手動選択の再現、自動追跡、評価スクリプト） |
+| `results/1022/` | `grooveTracking/2026-1022/` | 自動追跡（`grooveTrack_1cycle.m`） |
+| `results/1026/` | `grooveTracking/2026-1026/` | 自動追跡の始点を1列目に固定した後の確認 |
+| `results/1028/` | `multiGroove/2026-1028_hist5/`、`multiGroove/2026-1028_track5/`、`multiGroove/2026-1028_track/` | #30 の実装の確認（ヒストグラム、N本の追跡、1本の追跡） |
+| `results/1104/` | `multiGroove/2026-1104_track5/`、`multiGroove/2026-1104_hist5/`、`multiGroove/2026-1104_evaluation/` | #30 の正解データ、本実装、評価スクリプト |
+| `results/1110/` | `grooveTracking/2026-1110/` | 自動追跡の途中で止まった実行（写真2枚分の図だけ） |
+| `results/1111/` | `grooveBottomDetection/2026-1111_exclBoundVsInclBound/` | 境界値を含めるかの比較（`compareInclBoundToExclBound.m`） |
+| `results/1118/` | `grooveBottomDetection/2026-1118_track/`、`grooveBottomDetection/2026-1118_hist5/`、`grooveBottomDetection/2026-1118_track5/`、`grooveBottomDetection/2026-1118_evaluation/` | #35 の評価（3つのスクリプトの作り直しと評価スクリプト） |
+
+図のフォルダ：
+
+| 移す前 | 移した後 | 移し方 |
+| --- | --- | --- |
+| `results/figures/paper/202609asj/` | `results/figures/202609asj/paper/` | 移行の関数（git では追跡しない） |
+| `results/figures/slides/202609asj/` | `results/figures/202609asj/slides/` | `git mv`（git で追跡する。移行の関数の対応表には入れない） |
+| `results/figures/progress/` | 変えない | — |
+
+`experiments/`：
+
+| 移す前 | 移した後 |
+| --- | --- |
+| `experiments/<MMDD>/cycleResult_<条件>_<MMDD>.mat`（`0731`・`0802`・`0807`・`1013`・`1014`・`1022`・`1104` の11ファイル） | `experiments/2026-<MMDD>/cycleResult_<条件>_2026-<MMDD>.mat`（例：`experiments/0731/cycleResult_origD_0731.mat` は `experiments/2026-0731/cycleResult_origD_2026-0731.mat`） |
+| `experiments/0831/digitalNeedle/grooveShapeAccuracy_img1_seg1_0831.mat` | `experiments/2026-0831/digitalNeedle/grooveShapeAccuracy_img1_seg1_2026-0831.mat` |
+| `experiments/1026/`・`experiments/1110/`（空） | 消した |
+| `experiments/archive/` | 変えない |
+
+.mat の中身（`conditions.date = "0731"` など）は変えていない。
+
 ## 基本的な使用方法
 
 1. MATLABで **`Research.prj`** を開いてプロジェクトを起動します。
@@ -485,5 +542,5 @@ cond = cycleConditions(runCond, Date=date, SaveDir=outDir, ExperimentDir=expDir,
    proj = currentProject;
    rootFolder = proj.RootFolder;
    ```
-3. `scripts/` 内の目的に合ったスクリプト（例: `pkCentroid_interp2_1cycle.m`）を実行します。処理途中で `fitGroove` により溝中心をマウス（`ginput`）で指定する操作が必要です。
-4. 生成された図・音声は `results/<日付>/` に、1周分の解析結果の`.mat`は `experiments/<日付>/` に保存されます。
+3. `scripts/` 内の目的に合ったスクリプト（例: `pkCentroid_interp2_1cycle.m`）の冒頭で、実行した日 `date` を `"2026-1124"` の形に書き換え、必要なら説明 `LABEL` を書いてから実行します。`date` が `"YYYY-MMDD"` のままだと、`resultDir` がエラーで止めます。処理途中で `fitGroove` により溝中心をマウス（`ginput`）で指定する操作が必要です。
+4. 生成された図・音声と実行記録 `runInfo.json` は実行フォルダ `results/<実験名>/<YYYY-MMDD>[_<説明>]/` に、1周分の解析結果の`.mat`は `experiments/<YYYY-MMDD>/` に保存されます。同じ日に同じ設定でもう一度実行すると、上書きせずに `_2` の付いた実行フォルダに出力します。完成した図は、図のスクリプトが `results/figures/` に保存します（「結果の置き場所と実行記録」）。

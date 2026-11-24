@@ -24,7 +24,8 @@ proj = currentProject();
 rootFolder = proj.RootFolder;
 
 %% パラメータ
-DATE = "1104";        % 読み込む結果の日付（experiments/<DATE>/）
+DATE = "2026-1104";   % 読み込む結果の日付（experiments/<DATE>/）
+DATE_MMDD = extractAfter(DATE, "-");   % 図の名前とタイトルに書くデータの日付（MMDD。docs/rules/figures.md）
 UPSAMPLING = "origD"; % 高解像度化（今は origD の結果だけがある）
 METHOD = "centroid";  % 溝底の抽出法（"centroid" または "localMax"）
 NUM_GROOVES = 5;      % 溝の本数（cycleResult_<UPSAMPLING>_track<N>/_hist<N>_<DATE>.mat の N）
@@ -40,10 +41,7 @@ MARKER_SIZE_ON_IMAGE = 1;  % 写真に重ねる溝底点の大きさ（scatter�
                            % grooveBtmOnImageTrackOutlier.m（切り出し、15）より小さくする
 OVERWRITE = true;          % 進捗報告用の図なので、作り直したときは上書きする
 
-saveDirMulti = fullfile(rootFolder,"results","figures","progress","multiGroove");
-if ~isfolder(saveDirMulti)
-    mkdir(saveDirMulti);
-end
+saveDirMulti = figureDir(rootFolder, "progress", "multiGroove");
 
 % タイトル・凡例の表記（docs/rules/figures.md の語彙表の「表記」の列）
 LABEL = struct("origD","original","centroid","centroid","localMax","local maximum", ...
@@ -79,8 +77,8 @@ for iImg = IMG_INDICES
     imgs = reconstructImage(histRes.conditions,iImg);
     photoImg = ImageData([imgs.img],[iImg;0]); % 高さは同じなので横に連結できる
 
-    partName = "_" + DATE + "_img" + iImg;
-    partTitle = "data " + DATE + ", photo " + iImg;
+    partName = "_" + DATE_MMDD + "_img" + iImg;
+    partTitle = "data " + DATE_MMDD + ", photo " + iImg;
 
     %% 1-1. すべてを自動追跡した溝
     yAbsTrack = [mgTrack.("yAbs" + suffix){iImg,:}];

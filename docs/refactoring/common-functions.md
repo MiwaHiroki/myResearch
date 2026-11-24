@@ -33,7 +33,7 @@
   - **重心法**（`centroid`）は、溝底範囲の暗さの重心を y にする。
   - **局所的最大値法**（`localMax`）は、溝底範囲で暗さが最大の位置を y にする。
 - **点群**：溝底点の集まり。セグメントごとに `GroovePointCloud` クラスが持つ。
-- **従来法**：Photoshop で8倍に拡大した撮影画像から溝底点を求める方法。2026年3月に発表した方法で、比べる相手として使う。`photoshop_*_1cycle.m` が作り、その音声は `experiments/0802/cycleResult_origD_0802.mat` にある。
+- **従来法**：Photoshop で8倍に拡大した撮影画像から溝底点を求める方法。2026年3月に発表した方法で、比べる相手として使う。`photoshop_*_1cycle.m` が作り、その音声は `experiments/2026-0802/cycleResult_origD_2026-0802.mat` にある。
 
 ### 溝の選び方と、音声の作り方
 
@@ -97,7 +97,7 @@
 | D2 | `saveAudioFigures` | 音声の波形・FFT・スペクトログラムの図と wav を保存する | 10本 | 中 | 中 | D1、ユーザーの決定 |
 | E1 | `cycleResultPath` などに `Variant` | 結果ファイルの名前に種類（`track`・`hist5` など）を入れる | 15本 | 小 | 高 | なし |
 | E2 | `loadCycleAudio` | 結果ファイルから音声を取り出し、無ければ止める | 7本 | 小 | 低 | E1 |
-| F1 | `figureDir` | 図の置き場所（`results/figures/...`）を作って返す | 34本 | 小 | 中 | なし |
+| F1 | `figureDir` | 図の置き場所（`results/figures/...`）を作って返す（issue #28 で作った） | 34本 | 小 | 中 | なし |
 | F2 | `showPhoto` | 撮影画像を、表示範囲 [0 255] に固定して描く | 17本 | 中 | 中 | なし |
 | F3 | `pointsInView` | 描く範囲にある点だけを残す | 7本 | 小 | 低 | なし |
 | F4 | `applyFontStyle` | 原稿用・スライド用の文字の大きさをそろえる | 16本 | 中 | 中 | なし |
@@ -166,8 +166,8 @@ Claude の推奨である。順を決めるのはユーザーである。
 
 - MATLAB は全セッションで1つを共有している。worktree のスクリプトを `currentProject()` 付きで動かすには、その worktree の `Research.prj` を開く必要があり、ほかのセッションに影響する（[`docs/git-rules.md`](../git-rules.md)）。実行する前にユーザーに伝える。
 - 次の2つは、保存済みの cycleResult と完全に一致することが、それぞれの issue の評価で確かめられている。直接の比較にも使える。
-  - `grooveTrack_1cycle.m` を `experiments/1014/cycleResult_origD_track_1014.mat` から再現した結果（issue #25 の評価の E5d・E5e）
-  - `grooveHist_Ncycle.m` の結果 `experiments/1104/cycleResult_origD_hist5_1104.mat`（`compareInclBoundToExclBound.m` が、その写真2の溝底点と一致することを確かめている）
+  - `grooveTrack_1cycle.m` を `experiments/2026-1014/cycleResult_origD_track_2026-1014.mat` から再現した結果（issue #25 の評価の E5d・E5e）
+  - `grooveHist_Ncycle.m` の結果 `experiments/2026-1104/cycleResult_origD_hist5_2026-1104.mat`（`compareInclBoundToExclBound.m` が、その写真2の溝底点と一致することを確かめている）
 
 ## 6. 候補の詳細
 
@@ -670,7 +670,7 @@ Claude の推奨である。順を決めるのはユーザーである。
   3. `SaveWav` なら、`audio.saveAudio(outDir)` で wav を書く。同じ名前の wav があり、`Overwrite` が false なら、`saveAudioFigures:fileExists` で止める（今の `audiowrite` は黙って上書きする）。
 - 注意
   - 図の名前をどうするかで、保存の方法が変わる（[9章](#9-ユーザーが決めること) の Q2）。
-    - (a) 今の名前（`audio_(centroid_method)(original)_amp` など）を保つときは、`saveFigure` を使うと名前の確かめで警告が出る。過去の `results/<日付>/` と並べて比べやすい。
+    - (a) 今の名前（`audio_(centroid_method)(original)_amp` など）を保つときは、`saveFigure` を使うと名前の確かめで警告が出る。過去の実行フォルダの図と並べて比べやすい。
     - (b) 語彙表の名前（例：`waveform_origD_centroid_track_<日付>`）にするときは、`saveFigure` で保存でき、決まりに合う。呼び出し側が `BaseName` を組み立てる。
   - スペクトログラムの窓長は、スクリプトごとに 1024 と 8192 がある。引数で渡す。
 - テスト
@@ -726,22 +726,24 @@ Claude の推奨である。順を決めるのはユーザーである。
 
 #### F1 `figureDir`：図の置き場所を作って返す
 
+- 状態：issue #28 で、下の仕様のとおり `src/figureDir.m` を作り、図のスクリプト32本の4行を置き換えた。そのとき、スライド用・原稿用の置き場所を発表名ごとにまとめる形に変えた（最初の案は `results/figures/<用途>/<会議>/` だった）。
 - 目的
-  - `docs/rules/figures.md` は、用途ごとの図の置き場所を決めている（`results/figures/paper/<会議>/` など）。この場所を `fullfile(..., "results","figures","paper","202609asj")` と組み立て、無ければ作る4行が、34本に書き写されている。
-- 仕様
+  - `docs/rules/figures.md` は、用途ごとの図の置き場所を決めている。この場所を `fullfile(..., "results","figures", <用途>, <名前>)` と組み立て、無ければ作る4行が、図のスクリプトに書き写されていた。
+- 仕様（issue #28 で作ったもの）
 
   ```matlab
-  function saveDir = figureDir(rootFolder, purpose, subfolder)
+  function saveDir = figureDir(rootFolder, purpose, name)
       arguments
           rootFolder (1,1) string
-          purpose (1,1) string {mustBeMember(purpose,["paper","slides","progress"])}
-          subfolder (1,1) string = ""   % 会議のフォルダ（"202609asj"）か、進捗報告のテーマ（"grooveTracking"）
+          purpose (1,1) string {mustBeMember(purpose,["progress","slides","paper"])}
+          name (1,1) string   % 進捗報告用はテーマ（"grooveTracking"）、スライド用・原稿用は発表名（"202609asj"）
       end
   ```
 
-  - `fullfile(rootFolder, "results", "figures", purpose, subfolder)` を返し、無ければ作る。
-  - `purpose` が `"paper"` か `"slides"` のときは、`subfolder` が「年月6桁＋会議の略称」（正規表現 `^\d{6}[a-z]+$`）でなければ `figureDir:invalidVenue` で止める（figures.md の決まり）。
-  - 作業用の図（`results/<MMDD>/`）は、今までどおり `mkdirFromDate` を使う。
+  - (a) `purpose` が `"progress"` のときは、`results/figures/progress/<name>` を返す。`name` が camelCase でなければ `figureDir:invalidTheme` で止める。
+  - (b) `"slides"`・`"paper"` のときは、`results/figures/<name>/<purpose>` を返す。`name` が「年月6桁＋略称」（正規表現 `^\d{6}[a-z]+$`）でなければ `figureDir:invalidVenue` で止める（figures.md の決まり）。
+  - フォルダが無ければ作る。戻り値の末尾に区切り文字は付けない（`fullfile(saveDir, ...)` で使う）。
+  - 作業用の図は、実験の実行フォルダ（`resultDir` が作る `results/<実験名>/<YYYY-MMDD>[_<説明>]/`）に出す。
 - テスト
   - 一時フォルダの下にフォルダができ、パスが返ること。会議の名前の形のエラー。
 - 評価：影響は小、重要度は中
@@ -889,6 +891,7 @@ Claude の推奨である。順を決めるのはユーザーである。
 
 #### H1 `requireDateSet`：実行日が書き換えられていなければ止める
 
+- 状態：issue #28 で、出力の日付の確認は `resultDir` が受け持つようになった。スクリプトには `date = "YYYY-MMDD"` と書いておき、書き換えずに実行すると `resultDir` がエラー（`resultDir:dateNotSet`）で止める。自動追跡の3本（`grooveTrack_1cycle.m`・`grooveHist_Ncycle.m`・`grooveTrack_Ncycle.m`）の確認の4行は消した。評価スクリプト2本（`compareTrackingToManual.m`・`compareHistToTracking.m`）には、読み込みの日付が `"YYYY-MMDD"` のままなら止める確認が残っている。この候補は、その2本のためだけになった。
 - 目的
   - 新しいスクリプトは、出力先の日付 `date` が `"MMDD"` のままなら止まるようにしている（過去の出力を上書きしないため）。この4行が5本にある。
 - 仕様
@@ -940,7 +943,7 @@ Claude の推奨である。順を決めるのはユーザーである。
   - (b) 直してから、共通関数に置き換える。
   - (c) そのまま残し、置き換えの対象から外す。
 - Q2 D2 で保存する音声の図の名前をどうするか。
-  - (a) 今の名前（`audio_(centroid_method)(original)_amp` など）を保つ。過去の `results/<日付>/` と並べて比べやすい。
+  - (a) 今の名前（`audio_(centroid_method)(original)_amp` など）を保つ。過去の実行フォルダの図と並べて比べやすい。
   - (b) 語彙表の名前にし、`saveFigure` で保存する（推奨。figures.md の決まりに合う）。
 - Q3 Photoshop で8倍にした画像の溝底の判定（幅の下限 `W_MIN` 付き）を、`GrooveExtractor.findGrooveBottomIntervals` の引数（例：`MinWidth`）として入れるか。
   - (a) 入れる。`photoshop_centroid_1cycle.m` が動くようになり、B1 で置き換えられる。

@@ -39,17 +39,23 @@ POLY_DEGREE = 9;        % detrendTrackedShape の次数（写真ごと。issue #
 AMP_DIV = 1.5;          % 振幅の正規化 [px]（既存の tol/2 = 3/2 と同じ。音量を比べられるように）
 
 % 保存用（実行する人が書き換える場所）
-date = "MMDD";          % 実行日。図・wavは results/<日付>/、結果.matは experiments/<日付>/
+EXPERIMENT_NAME = "grooveTracking";   % results/ の下の実験名（README の「実験名の一覧」から選ぶ）
+date = "YYYY-MMDD";     % 実行した日（例 "2026-1124"）。書き換えないと resultDir がエラーで止める。結果.matは experiments/<日付>/
+LABEL = "";             % 実行フォルダの説明（付けないなら ""）
 % 以前保存したクリック位置で溝を自動選択する場合は、その結果.matのパスを指定する
 % （空文字なら写真ごとに ginput でクリックする。手動選択の結果.matの p1 も使える）
 PREV_RESULT_PATH = "";
-SAVE_TRACK_FIG = true;  % 写真ごとに追跡結果を画像に重ねた図を results/<日付>/ に保存する
+SAVE_TRACK_FIG = true;  % 写真ごとに追跡結果を画像に重ねた図を実行フォルダに保存する
 
-if date == "MMDD"
-    error("grooveTrack_1cycle:dateNotSet", ...
-        "date を実行日（MMDD）にしてください。既存の results/<日付>/ を上書きしないよう、実行前に確かめてください。");
-end
-outDir = mkdirFromDate(proj.RootFolder,date);       % 図・音声の出力先
+runCond = runConditions( ...      % 冒頭の定数を実験条件にまとめる（runInfo.json と cycleConditions の両方に使う）
+    NumImages=NUM_IMAGES, NumSegments=NUM_SEGMENTS, LMask=L_MASK, ...
+    Upsampling="origD", Methods=["centroid","localMax"], DThresh=D_THRESH, WidthThresh=WIDTH_THRESH, ...
+    Selection="tracking", ReplayFrom=PREV_RESULT_PATH, ...
+    Tracking=struct(tolerance=TRACK_TOL, fitLength=FIT_LENGTH, snapRadius=SNAP_RADIUS, ...
+                    initLength=INIT_LENGTH, maxGapLength=MAX_GAP_LENGTH, minFitPoints=MIN_FIT_POINTS), ...
+    PolyDegree=POLY_DEGREE, DetrendScope="photo", Rpm=RPM, AmpDiv=AMP_DIV);
+outDir = resultDir(proj.RootFolder, EXPERIMENT_NAME, date, runCond, Label=LABEL, ...
+    ScriptName="grooveTrack_1cycle", Images=filenames_new, InputFiles=PREV_RESULT_PATH);   % 図・音声の出力先
 expDir = experimentDir(proj.RootFolder,date);       % 実験結果.matの保存先
 
 isReplay = PREV_RESULT_PATH ~= "";
@@ -236,14 +242,10 @@ end
 
 
 %%
-% 追跡で使わない必須の引数（ThHist・BinWidth・HPrl・Tol）には NaN を渡す。
-% 追跡のパラメータは grooveSelection.tracking に入れる
-cond = cycleConditions(...
-    Upsampling="origD",Date=date,SaveDir=outDir,ExperimentDir=expDir,...
-    LMask=L_MASK,ThHist=NaN,DThresh=D_THRESH,WTh=WIDTH_THRESH,...
-    Tol=NaN,BinWidth=NaN,HPrl=NaN,PolyDegree=POLY_DEGREE,Rpm=RPM,...
-    NumImages=NUM_IMAGES,NumSegments=NUM_SEGMENTS,Filenames=filenames_new,...
-    ScriptName="grooveTrack_1cycle",Note="自動追跡（パラメータは grooveSelection.tracking）");
+% runCond に手動選択の条件（manual）が無いので、cycleConditions は追跡で使わない
+% thHist・binWidth・hPrl・tol を NaN にする。追跡のパラメータは grooveSelection.tracking に入れる
+cond = cycleConditions(runCond, Date=date, SaveDir=outDir, ExperimentDir=expDir, ...
+    Filenames=filenames_new, ScriptName="grooveTrack_1cycle", Note="自動追跡（パラメータは grooveSelection.tracking）");
 
 res_cnt = cycleMethodResult("centroid", allPts_cnt, xcoords, ycoords_cnt, y_comb_cnt, trackCntAudio);
 res_max = cycleMethodResult("localMax", allPts_max, xcoords, ycoords_max, y_comb_max, trackMaxAudio);

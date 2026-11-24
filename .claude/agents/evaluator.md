@@ -74,7 +74,7 @@ issueなしで呼ばれた場合（軽い使い方）は、メインが渡す依
 
 | | モードA | モードB |
 |---|---|---|
-| 書いてよい | `criteria.md`、`test/unit/*AcceptanceTest.m`、`scripts/evaluation/<テーマ>/` | `eval-report-<n>.md`、評価に必要なデータ（指示されたものだけ）、`results/<日付>/` の図、`temp/` のコピー |
+| 書いてよい | `criteria.md`、`test/unit/*AcceptanceTest.m`、`scripts/evaluation/<テーマ>/` | `eval-report-<n>.md`、評価に必要なデータ（指示されたものだけ）、`results/<実験名>/` の実行フォルダの図、`temp/` のコピー |
 | 書いてはいけない | `src/`、既存の `scripts/`・`test/unit/*Test.m`（受け入れテスト以外） | 左に加えて、`criteria.md` と受け入れテスト |
 
 - モードBで、受け入れテストや `criteria.md` に誤りを見つけても、自分では直さない。誤りの内容を報告に書き、メインがユーザーに確認する。評価スクリプトの不具合（実行時のエラーなど）は直してよいが、直した内容を `eval-report-<n>.md` に書く。

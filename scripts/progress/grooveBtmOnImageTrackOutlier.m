@@ -16,7 +16,8 @@ proj = currentProject();
 rootFolder = proj.RootFolder;
 
 %% パラメータ
-DATE = "1014";       % 読み込む結果の日付（experiments/<DATE>/）
+DATE = "2026-1014";  % 読み込む結果の日付（experiments/<DATE>/）
+DATE_MMDD = extractAfter(DATE, "-");   % 図の名前とタイトルに書くデータの日付（MMDD。docs/rules/figures.md）
 METHOD = "centroid"; % 溝底の抽出法（追跡のデトレンド前のyは重心法の yAbsCnt を使う）
 T_WINDOW = [0.715 0.716]; % 外れを探す時間[s]
 
@@ -27,10 +28,7 @@ MARKER_SIZE = 15;     % 溝底点の大きさ（scatterのSizeData）
 FIG_SIZE = [14.8 11.1]; % 図の大きさ[cm]（waveformManualVsTrack.mの図と同じ）
 RESOLUTION = 300;       % pngの解像度[dpi]
 
-saveDir = fullfile(rootFolder,"results","figures","progress","grooveTracking");
-if ~isfolder(saveDir)
-    mkdir(saveDir);
-end
+saveDir = figureDir(rootFolder, "progress", "grooveTracking");
 
 %% 読み込み
 manual = loadCycleResult(cycleResultPath(rootFolder,"origD",DATE));
@@ -90,13 +88,13 @@ hold(ax,"off");
 xlabel(ax,"$x$ [px]");
 ylabel(ax,"$y$ [px]");
 title(ax,sprintf("photo %d (%s), segment %d, %s (date:%s)", ...
-    iImg,string(track.conditions.filenames(iImg)),jSegment,METHOD,DATE));
+    iImg,string(track.conditions.filenames(iImg)),jSegment,METHOD,DATE_MMDD));
 
 %% 保存
 % ファイル名：表示したもの（画像と溝底点）・抽出法・高解像度化の有無・データの日付・
 % 写真とセグメント・外れを探した時間
 name = sprintf("grooveBtmOnImage_%s_origD_%s_photo%d_seg%d_%g-%gms", ...
-    METHOD,DATE,iImg,jSegment,round(T_WINDOW(1)*1e3),round(T_WINDOW(2)*1e3));
+    METHOD,DATE_MMDD,iImg,jSegment,round(T_WINDOW(1)*1e3),round(T_WINDOW(2)*1e3));
 exportgraphics(fig,fullfile(saveDir,name + ".png"),Resolution=RESOLUTION);
 savefig(fig,fullfile(saveDir,name + ".fig"));
 fprintf("保存：%s（.png / .fig）\n",fullfile(saveDir,name));

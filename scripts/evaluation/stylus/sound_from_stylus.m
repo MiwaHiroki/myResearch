@@ -28,8 +28,12 @@ StylusPlayback.saveAudio(proj.RootFolder+"\data\stylus_playback\")
 
 %%
 % 「クレムリン宮殿は」の「wa」だけ解析、保存する
-date = "stylus";
-dir = mkdirFromDate(proj.RootFolder,date);
+EXPERIMENT_NAME = "stylus";   % results/ の下の実験名（README の「実験名の一覧」から選ぶ）
+date = "YYYY-MMDD";           % 実行した日（例 "2026-1124"）。書き換えないと resultDir がエラーで止める
+LABEL = "";                   % 実行フォルダの説明（付けないなら ""）
+runCond = runConditions();    % 冒頭に実験条件の定数が無いので、条件は書かない
+dir = resultDir(proj.RootFolder, EXPERIMENT_NAME, date, runCond, Label=LABEL, ...
+    ScriptName="sound_from_stylus");
 
 tlim2 = [16.1,16.9];
 sampleLim = round(tlim2*fs_stylus);
