@@ -43,12 +43,15 @@
 | 2026-11-24 | ユーザー | **決定** criteria.md を承認した。Q-a は (a)（「計画」だけを満たさないときも不合格にし、実装に戻す） | — |
 | 2026-11-24 | main | 決定を criteria.md 7章に書き、状態を「承認済み」にする。受け入れテストを追加したコミット `0e60754` を criteria.md の先頭と 2.2 に書き入れてコミットする | [`criteria.md`](./criteria.md)、`84942d5` |
 
-### 実装 — ユーザー確認待ち（承認A）
+### 実装 — 作業中（前半は承認A 済み）
 
 | 日付 | 担当 | 内容 | 成果物 |
 |---|---|---|---|
 | 2026-11-24 | implementer | 前半（`plan.md` 5.1 の手順1〜11）。`resultDir`・`runConditions`・`figureDir`・`collectMeta`・`gitState` を `src/` に作り、`saveCycleResult` から `collectMeta`・`gitState` を使う形にした。`cycleConditions` に新しい呼び方を足し、`scripts/migration/migrateResults.m` を作った。unit テスト6クラス（46件）を書き、README に「結果の置き場所と実行記録」の節を作った。<br>`runAllTests` は346件すべて通過（受け入れテスト 42/42）。書いた・変えた `.m` 19個の `checkcode` の警告は0件。<br>計画との違いは細部の5つ（`migrateResults` の CSV の確かめ方を厳しくした、識別子 `migrateResults:moveFailed` を足した、README に小節を足したなど）。未決事項 Q1（`kind` に無い高解像度化のパラメータを渡したときの扱い） | [`impl-report-1a.md`](./impl-report-1a.md) |
-| 2026-11-24 | main | 差分を確かめる。変えたファイルは計画の前半の範囲だけで、説明だけを直す5つの `src/` は、コメントの行だけが変わっていた。`runAllTests` を実行し、346件すべての通過を確かめる | — |
+| 2026-11-24 | main | 差分を確かめる。変えたファイルは計画の前半の範囲だけで、説明だけを直す5つの `src/` は、コメントの行だけが変わっていた。`runAllTests` を実行し、346件すべての通過を確かめる。前半を確認待ちでコミットする | `fd98ae0` |
+| 2026-11-25 | ユーザー | **決定** 承認A：README の「`runInfo.json` の項目」の表と「実験名の一覧」を、そのまま承認した。<br>**決定** Q1 は (a)：`runConditions` は、`kind` に無い高解像度化のパラメータも、渡されれば書く。(c)「エラーにする」は、今後の実装の案として残す | — |
+| 2026-11-25 | main | 決定を書き、Q1 の (c) を `follow-ups.md` の案A に下書きする | [`follow-ups.md`](./follow-ups.md) |
+
 ### 評価 — 未着手
 ### 振り返り — 未着手
 ### 続きのissue — 未着手
@@ -62,3 +65,4 @@
 - [`mapping-draft.md`](./mapping-draft.md)：既存のフォルダの対応表の案（計画の付属）
 - [`criteria.md`](./criteria.md)：評価基準
 - [`impl-report-1a.md`](./impl-report-1a.md)：実装の報告（1回目の前半）
+- [`follow-ups.md`](./follow-ups.md)：続きのissueの案（下書き。仕上げで確定する）
