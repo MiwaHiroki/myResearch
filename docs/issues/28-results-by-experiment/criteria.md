@@ -2,7 +2,8 @@
 - 作成者: evaluator（モードA）
 - 作成日: 2026-11-24
 - 入力: issue #28（本文。コメントなし）、[`./plan.md`](./plan.md)（承認済み。8章の決定事項）、[`./mapping-draft.md`](./mapping-draft.md)、[`./README.md`](./README.md)（作業履歴の決定）、main の依頼文、`docs/issues/closed/35-wide-bottom-outliers/criteria.md`
-- 状態: 下書き
+- 状態: 承認済み（2026-11-24、ユーザー。Q-a は (a)。7章の「決定事項」）
+- 受け入れテストを追加したコミット: `0e60754`（この文書の `<受け入れテストを追加したコミット>` と評価スクリプトの `BASE_COMMIT` に使う）
 
 # #28 結果の保存先を results/<実験名>/<YYYY-MMDD_説明>/ にし、実行記録を残す — 評価基準
 
@@ -39,7 +40,7 @@
 
 ### 2.2 言葉
 
-- **基準のコミット**：受け入れテストと評価スクリプトを追加したコミット。この文書では `<受け入れテストを追加したコミット>` と書き、main がコミットするときにハッシュを埋める。差分はこのコミットと評価する時点の `HEAD` の間でとる。
+- **基準のコミット**：受け入れテストと評価スクリプトを追加したコミット。この文書では `<受け入れテストを追加したコミット>` と書く。値は `0e60754` である（main が承認のときに書き入れた）。差分はこのコミットと評価する時点の `HEAD` の間でとる。
 - **移す前の記録**：評価基準の段階（2026-11-24）に、`results/` と `experiments/` のすべてのファイルについて、ルートからのパス・大きさ・SHA-256 を記録した表。`scripts/evaluation/resultsLayout/manifestBeforeMigration.csv`（817行）に置いた。
 - **対応表**：既存のフォルダ・ファイルの、移す前の名前と移した後の名前の表。移行の関数が読む CSV（`scripts/migration/resultsMapping.csv`）を指す。列は `phase,kind,source,destination,note`（`mapping-draft.md` 5章）。
 - **移し先**：移す前の記録の各ファイルに、対応表の行を上から順に当てはめ、最後にスライド用の図の `git mv`（`results/figures/slides/202609asj/` → `results/figures/202609asj/slides/`）を当てはめて求めた、そのファイルがあるはずの場所。`files` の行のパターンは、MATLAB の `dir`（Windows）と同じく `*` だけを使い、大文字・小文字を区別しない。
@@ -232,9 +233,13 @@
 | `results/figures/202609asj/paper/x.png`、`results/figures/202702thesis/paper/fig.pdf`、`results/grooveTracking/2026-1014/x.png`、`results/upsampling/2026-0731_origD/a.wav`、`results/0731/a.wav`、`results/figures/x.png`、`results/figures/202609asj/x.png`、`experiments/2026-1014/x.mat`、`temp/x.m` | 無視される |
 | `results/figures/202609asj/slides/x.png`、`results/figures/202609asj/slides/sub/y.png`、`results/figures/202702thesis/slides/a.png`、`results/figures/progress/grooveTracking/x.png`、`results/figures/progress/x.png` | 追跡される |
 
-## 7. 未決事項
+## 7. 決定事項と未決事項
 
-評価の段階までに決まればよい（止めない）。
+### 決定事項（2026-11-24、ユーザーの回答）
+
+- **Q-a：(a)。** 「計画」の項目だけを満たさず、「品質」の項目をすべて満たすときも不合格にし、実装に戻す。評価レポートでは、計画と違う点と、品質は満たしていることを分けて書く。
+
+以下は、決める前の検討の記録。
 
 **Q-a. 「計画」だけを満たさず、「品質」をすべて満たす場合の判定**
 
