@@ -54,7 +54,9 @@
 | 2026-11-25 | implementer | 後半（`plan.md` 5.2 の手順12〜20）。スクリプト55本（実験23本は `runConditions`・`resultDir`、うち1周分の8本は `cycleConditions(runCond, …)` も、図32本は `figureDir`）、`.gitignore`、文書15ファイル、README の「対応表」の節を直し、`scripts/migration/resultsMapping.csv` を `mapping-draft.md` の今の案どおりに作った。<br>`runAllTests` は346件すべて通過（受け入れテスト 42/42）。`checkcode` の警告は変える前と同じ27件。移行の試しは `results` 57行・658ファイル、`experiments` 22行・12ファイルで、エラー・警告なし。<br>実データの確認で、`results/bilateralFilter/2026-1125_implCheck/`（37ファイル、wav は 0924 と同じ）と `results/grooveTracking/2026-1125_implCheck/`（15ファイル、`ycoords` は 1014 と `isequal`）を作り、残した。<br>計画との違いは細部の8つ。未決事項 Q1（評価スクリプトが自分自身を対象に数える不具合）、Q2（M1〜M5 と説明に関わる CSV の行） | [`impl-report-1b.md`](./impl-report-1b.md) |
 | 2026-11-25 | main | 差分を確かめる。`src/`・`test/`・受け入れテスト・評価スクリプト・`criteria.md`・`plan.md`・`mapping-draft.md`・`follow-ups.md` は変わっていない。`runAllTests` を実行し、346件すべての通過を確かめる。評価スクリプトの不具合（Q1）は、`baseGrepFiles` が基準のコミットの `scripts/` を探すので、自分自身の `mkdirFromDate`・`cycleConditions(` の文字列に当たることを、コードで確かめた。<br>作業ツリーを空にして進捗ログの定期タスクを止めないよう、計画 7.1 の手順2で入れる予定の `.gitignore` も、このコミットに含める（`git mv` は承認の後に行う） | `0e3527e` |
 | 2026-11-25 | ユーザー | **決定** 実装の後半を承認した。<br>**決定** 後半の Q1 は (b)：評価スクリプトは直さない。P1・P2・Q7 で、外れが評価スクリプト自身の1本だけのときは、満たしたとする | — |
-| 2026-11-25 | main | 決定を `criteria.md` 7章に書く | [`criteria.md`](./criteria.md) |
+| 2026-11-25 | main | 決定を `criteria.md` 7章に書く | [`criteria.md`](./criteria.md)、`6dc758a` |
+| 2026-11-25 | main | 計画 7.1 の手順2。`.gitignore` は `0e3527e` で入れてある。`git mv results/figures/slides/202609asj results/figures/202609asj/slides` で52ファイルを移し、差分が移動（R100）52行だけであることを確かめてコミットした。空になった `results/figures/slides/` を消した。`git ls-files results` は144のまま | `3f327ed` |
+| 2026-11-25 | main | 承認B の材料。作業ツリーが空の状態で、`migrateResults` の試しを両方の段階で実行した。`results` は57行（移す45行・658ファイル、空のフォルダを消す12行）、`experiments` は22行（移す12行・12ファイル、消す10行）で、警告は出なかった。`impl-report-1b.md` 4章の表と同じ。M1〜M5、説明の語、implCheck の2つのフォルダを残すかを、ユーザーに確かめる | — |
 
 ### 評価 — 未着手
 ### 振り返り — 未着手
