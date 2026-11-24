@@ -43,7 +43,7 @@
 | 2026-11-24 | ユーザー | **決定** criteria.md を承認した。Q-a は (a)（「計画」だけを満たさないときも不合格にし、実装に戻す） | — |
 | 2026-11-24 | main | 決定を criteria.md 7章に書き、状態を「承認済み」にする。受け入れテストを追加したコミット `0e60754` を criteria.md の先頭と 2.2 に書き入れてコミットする | [`criteria.md`](./criteria.md)、`84942d5` |
 
-### 実装 — ユーザー確認待ち（後半）
+### 実装と移行 — 作業中（実装は承認済み。移行は承認B 待ち）
 
 | 日付 | 担当 | 内容 | 成果物 |
 |---|---|---|---|
@@ -52,7 +52,9 @@
 | 2026-11-25 | ユーザー | **決定** 承認A：README の「`runInfo.json` の項目」の表と「実験名の一覧」を、そのまま承認した。<br>**決定** Q1 は (a)：`runConditions` は、`kind` に無い高解像度化のパラメータも、渡されれば書く。(c)「エラーにする」は、今後の実装の案として残す | — |
 | 2026-11-25 | main | 決定を書き、Q1 の (c) を `follow-ups.md` の案A に下書きする | [`follow-ups.md`](./follow-ups.md)、`2416ee2` |
 | 2026-11-25 | implementer | 後半（`plan.md` 5.2 の手順12〜20）。スクリプト55本（実験23本は `runConditions`・`resultDir`、うち1周分の8本は `cycleConditions(runCond, …)` も、図32本は `figureDir`）、`.gitignore`、文書15ファイル、README の「対応表」の節を直し、`scripts/migration/resultsMapping.csv` を `mapping-draft.md` の今の案どおりに作った。<br>`runAllTests` は346件すべて通過（受け入れテスト 42/42）。`checkcode` の警告は変える前と同じ27件。移行の試しは `results` 57行・658ファイル、`experiments` 22行・12ファイルで、エラー・警告なし。<br>実データの確認で、`results/bilateralFilter/2026-1125_implCheck/`（37ファイル、wav は 0924 と同じ）と `results/grooveTracking/2026-1125_implCheck/`（15ファイル、`ycoords` は 1014 と `isequal`）を作り、残した。<br>計画との違いは細部の8つ。未決事項 Q1（評価スクリプトが自分自身を対象に数える不具合）、Q2（M1〜M5 と説明に関わる CSV の行） | [`impl-report-1b.md`](./impl-report-1b.md) |
-| 2026-11-25 | main | 差分を確かめる。`src/`・`test/`・受け入れテスト・評価スクリプト・`criteria.md`・`plan.md`・`mapping-draft.md`・`follow-ups.md` は変わっていない。`runAllTests` を実行し、346件すべての通過を確かめる。評価スクリプトの不具合（Q1）は、`baseGrepFiles` が基準のコミットの `scripts/` を探すので、自分自身の `mkdirFromDate`・`cycleConditions(` の文字列に当たることを、コードで確かめた。<br>作業ツリーを空にして進捗ログの定期タスクを止めないよう、計画 7.1 の手順2で入れる予定の `.gitignore` も、このコミットに含める（`git mv` は承認の後に行う） | — |
+| 2026-11-25 | main | 差分を確かめる。`src/`・`test/`・受け入れテスト・評価スクリプト・`criteria.md`・`plan.md`・`mapping-draft.md`・`follow-ups.md` は変わっていない。`runAllTests` を実行し、346件すべての通過を確かめる。評価スクリプトの不具合（Q1）は、`baseGrepFiles` が基準のコミットの `scripts/` を探すので、自分自身の `mkdirFromDate`・`cycleConditions(` の文字列に当たることを、コードで確かめた。<br>作業ツリーを空にして進捗ログの定期タスクを止めないよう、計画 7.1 の手順2で入れる予定の `.gitignore` も、このコミットに含める（`git mv` は承認の後に行う） | `0e3527e` |
+| 2026-11-25 | ユーザー | **決定** 実装の後半を承認した。<br>**決定** 後半の Q1 は (b)：評価スクリプトは直さない。P1・P2・Q7 で、外れが評価スクリプト自身の1本だけのときは、満たしたとする | — |
+| 2026-11-25 | main | 決定を `criteria.md` 7章に書く | [`criteria.md`](./criteria.md) |
 
 ### 評価 — 未着手
 ### 振り返り — 未着手
