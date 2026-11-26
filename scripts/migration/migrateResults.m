@@ -51,7 +51,7 @@ function actions = migrateResults(rootFolder, mappingFile, opts)
 %   migrateResults:unmatchedFiles    deleteEmpty のフォルダに、どの行にも当たらないファイルが残る
 %   migrateResults:moveFailed        movefile・rmdir が失敗した（そこで止まる。もう一度呼べば続きから）
 %
-% 関連: docs/issues/28-results-by-experiment/plan.md 4.2.6、README の「対応表」
+% 関連: docs/issues/closed/28-results-by-experiment/plan.md 4.2.6、README の「対応表」
 
     arguments
         rootFolder (1,1) string

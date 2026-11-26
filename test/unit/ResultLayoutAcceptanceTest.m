@@ -1,6 +1,6 @@
 % issue #28（結果の保存先を results/<実験名>/<YYYY-MMDD_説明>/ にし、実行記録を残す）の受け入れテスト
 %
-% docs/issues/28-results-by-experiment/plan.md 4.2 のインターフェースと要求仕様を、関数の外側から
+% docs/issues/closed/28-results-by-experiment/plan.md 4.2 のインターフェースと要求仕様を、関数の外側から
 % 確かめる（resultDir、runConditions、cycleConditions の新しい呼び方、figureDir、collectMeta・
 % gitState、scripts/migration/migrateResults）。内部の手順や途中の変数には依存させない
 % （それは実装担当の unit テストの役目）。評価担当が作成した。実装担当は変更しない

@@ -1,6 +1,6 @@
 % checkResultsLayout.m
 % issue #28（結果の保存先を results/<実験名>/<YYYY-MMDD_説明>/ にし、実行記録を残す）の評価スクリプト。
-% docs/issues/28-results-by-experiment/criteria.md の項目ごとに、次を確かめて表にする。
+% docs/issues/closed/28-results-by-experiment/criteria.md の項目ごとに、次を確かめて表にする。
 %   - 移行（results/ の移動、experiments/ の改名、スライド用の図の git mv）で、移す前の
 %     ファイルがすべて対応表どおりの場所に同じ中身で残っていること（manifestBeforeMigration.csv と照らす）
 %   - 古い形のフォルダ・古い書き方（mkdirFromDate、results/<MMDD>/ など）が残っていないこと
@@ -90,7 +90,7 @@ SRC_COMMENT_ONLY = ["src/mkdirFromDate.m","src/experimentDir.m","src/cycleResult
 PROTECTED_PATHS = ["src/archive","scripts/archive","test/archive","docs/issues/closed","docs/progress", ...
     "slides/progress","src/checkFigureName.m","src/figureVocabulary.m","scripts/evaluation/resultsLayout"];
 % 検索で、古い書き方が残っていてよい場所（criteria.md 5.2 の (a)）
-ALLOWED_RESIDUAL_PREFIXES = ["docs/issues/28-results-by-experiment/","scripts/migration/", ...
+ALLOWED_RESIDUAL_PREFIXES = ["docs/issues/closed/28-results-by-experiment/","scripts/migration/", ...
     "scripts/evaluation/resultsLayout/","test/unit/ResultLayoutAcceptanceTest.m", ...
     "test/unit/MigrateResultsTest.m","src/mkdirFromDate.m","src/cycleResultPath.m"];
 
