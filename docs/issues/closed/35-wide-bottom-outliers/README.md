@@ -272,6 +272,16 @@
 | 2026-11-23 | main | 素材ファイルを見直した。M1〜M10 はすべて「確認済み」で、「依頼」や「作成済み」のまま残った素材は無い。メタデータの状態を「完了」にし、M10 の出典に書いた案の状態（issue を作っていないこと）を消した。<br>振り返り `progress-material-trial.md` を書いた（問題と学び26項目、改善案 T1〜T11。改善案はユーザーが決める） | [`progress-material.md`](./progress-material.md)、[`progress-material-trial.md`](./progress-material-trial.md) |
 | 2026-11-24 | ユーザー | **決定** 振り返りの改善案は、T8 以外（T1〜T7、T9〜T11）を採用する。採用したものは master で反映し、このブランチを push して PR を作る | — |
 | 2026-11-24 | main | 採用した改善案を master で反映した（このブランチには入れていない）。振り返りの5章に決定と、反映したときに案に足したことを書き、状態を「完了」にした | `1497c05`（master）、[`progress-material-trial.md`](./progress-material-trial.md) |
+| 2026-11-26 | ユーザー | **決定** 新しい図のルール（`docs/rules/figures.md` の「線と点」「軸の範囲」、凡例に数だけを書かない）と素材ファイルの新しいひな型（図の表に小さい画像とファイル名、フォルダは本文、数式は LaTeX）を、モックアップを見て確定した（master の `12bd16b`）。それに合わせて、この素材ファイルと図を直す。<br>`closed/` の中身を変えない決まりの例外として、素材ファイル・図・図のスクリプトと、この見出しを直すことを認めた。作業ブランチは `claude/35-progress-material-restyle`（ローカルの master の `12bd16b` から） | — |
+| 2026-11-26 | main | 素材ファイルの図の表8行を新しいひな型に直し、M3 の数式を LaTeX の書き方にした。ルールに合わない M3・M6・M8 の状態を「依頼」に戻し、直しの依頼を書いた | [`progress-material.md`](./progress-material.md) |
+| 2026-11-26 | illustrator | M3・M6・M8 の図3枚を、新しい図のルールで作り直した（上書き）。M3 は重心としきい値の線を 0.5 pt の実線にし、点を塗りつぶし、凡例に何の値かを書いた。M6・M8 の波形は、y が変わった列の丸を塗りつぶし、振幅の軸を 0 を中心に上下対称（±1.1、±1.3）にした。<br>点と線の座標・凡例の値は、前の図と同じことを fig で確かめた。描き方に触れた説明の文も直した | [`progress-material.md`](./progress-material.md)、`scripts/progress/wideBottomOutlier.m`、`scripts/progress/wideBottomOutlierWidthThresh.m`、`results/figures/progress/grooveBottomDetection/`（図3枚） |
+| 2026-11-26 | main | 書いてよい範囲の外が変わっていないことと、図3枚を確かめた | — |
+| 2026-11-26 | ユーザー | **決定** 波形の図どうしで線の太さが違う（M1 は 0.5 pt、M8 は 1.2 pt）ので、線の太さの既定値を決め、当てはまる図をすべて作り直す。既定値はデータの線 1 pt、補助の線 0.5 pt（master の `740beee`） | — |
+| 2026-11-26 | main | master を作業ブランチに取り込み、線の太さが既定値と違う M1・M6・M8・M9 の状態を「依頼」に戻し、直しの依頼を書いた | `66682f1`、[`progress-material.md`](./progress-material.md) |
+| 2026-11-26 | illustrator | M1・M6・M8・M9 の図6枚の線の太さを既定値にそろえて作り直した（上書き）。M1 の波形 0.5 → 1 pt、M6・M8 の直す前の波形 1.2 → 1 pt、M6・M8・M9 の切り出しの経路 0.8 → 1 pt。ほかは前の図と同じことを fig で確かめた | [`progress-material.md`](./progress-material.md)、`scripts/progress/wideBottomOutlierWaveform.m`、`scripts/progress/wideBottomOutlierWidthThresh.m`、`results/figures/progress/grooveBottomDetection/`（図6枚） |
+| 2026-11-26 | main | 書いてよい範囲の外が変わっていないことと、図を確かめた | — |
+| 2026-11-26 | ユーザー | **決定** 作り直した図と素材ファイルは、このままでよい | — |
+| 2026-11-26 | main | M1・M3・M6・M8・M9 を「確認済み」にし、素材ファイルの状態を「完了」にした | [`progress-material.md`](./progress-material.md) |
 ### 振り返り — 完了
 
 | 日付 | 担当 | 内容 | 成果物 |

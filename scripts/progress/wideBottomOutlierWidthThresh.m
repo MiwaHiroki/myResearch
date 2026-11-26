@@ -32,6 +32,12 @@
 % 2026/11/23作成
 % 2026/11/23 ユーザーの決定で、凡例の位置を "best" から右上（"northeast"）にそろえた。OVERWRITE=true で
 %            5枚を作り直した
+% 2026/11/26 ユーザーの決定（docs/rules/figures.md の「線と点」「軸の範囲」「凡例」）で、波形の図の、y が変わった
+%            列の丸を塗りつぶし、写真の境目を細い実線（LINE_WIDTH_AUX）にし、振幅の軸を 0 を中心に上下対称に
+%            した（AMP_LIM_STEP）。OVERWRITE=true で波形の2枚（M6・M8）だけを作り直した（MAKE_FIGS.crop=false）
+% 2026/11/26 ユーザーの決定（docs/rules/figures.md の「線と点」の線の太さの既定値）で、波形の直す前の線を
+%            1.2 pt から 1 pt に、切り出しの直した後の経路を 0.8 pt から 1 pt（LINE_WIDTH_PATH）にした。
+%            OVERWRITE=true で5枚（M6・M8 の切り出しと波形、M9 の切り出し）を作り直した
 
 setDefaultIntrpr();
 proj = currentProject();
@@ -86,8 +92,20 @@ WAVE_MARGIN_MS = 1;     % 波形の、区間の両端から外への時間 [ms]
 MARKER_SIZE = 18;       % 切り出しの図の点の大きさ（すべての種類。評価の図は、すべての溝底点だけ 9）
 FONT_SIZE = 9;          % 目盛りの文字 [pt]。軸ラベル・タイトルはその 1.1 倍、凡例は 0.9 倍（MATLAB の既定）
 LEGEND_LOCATION = "northeast"; % 凡例の位置（描画領域の右上。評価の図は "best"）
+% 評価の図から変えた値（ユーザーの決定、2026-11-26。docs/rules/figures.md の「線と点」「軸の範囲」）
+LINE_WIDTH_BEFORE = 1;  % 波形の、直す前の線の太さ [pt]（データの線の既定値。評価の図は 1.2 pt）
+LINE_WIDTH_AFTER = 1;   % 波形の、直した後の線の太さ [pt]（データの線の既定値。評価の図と同じ）
+LINE_WIDTH_PATH = 1;    % 切り出しの、直した後の経路の太さ [pt]（データの線の既定値。評価の図は 0.8 pt）
+LINE_WIDTH_AUX = 0.5;    % 波形の、写真の境目の線の太さ [pt]（補助の線。データの線より細い実線。評価の図は 1 pt の点線）
+WAVE_MARKER_SIZE = 4;    % 波形の、y が変わった列の丸の大きさ（plot の MarkerSize。塗りつぶす。評価の図は白抜き）
+AMP_LIM_STEP = 0.1;      % 振幅の軸は ±(区間の |振幅| の最大をこの刻みで切り上げた値。1 より小さければ 1)。
+                         % 評価の図は自動の範囲で、0 を中心にしていなかった
+MAKE_FIGS = struct("crop", true, "wave", true); % 作る図（crop は切り出し、wave は波形）。片方だけ作り直すときに使う
 STYLE = struct("figSizeCrop", [16 13], "figSizeWave", [16 8], "markerSize", MARKER_SIZE, ...
     "fontSize", FONT_SIZE, "legendLocation", LEGEND_LOCATION, ...
+    "lineWidthBefore", LINE_WIDTH_BEFORE, "lineWidthAfter", LINE_WIDTH_AFTER, "lineWidthAux", LINE_WIDTH_AUX, ...
+    "lineWidthPath", LINE_WIDTH_PATH, ...
+    "waveMarkerSize", WAVE_MARKER_SIZE, "ampLimStep", AMP_LIM_STEP, ...
     "colorAll", "cyan", "colorBefore", "yellow", "colorAfter", "magenta", ...
     "colorWaveBefore", [0.85 0.33 0.10], "colorWaveAfter", [0 0.45 0.74]);
 OVERWRITE = false;      % 同じ名前の図を上書きするか（作り直すときだけ true にする）
@@ -271,14 +289,16 @@ for iTarget = 1:numel(TARGETS)
     selB = [B.x(k(B.found(k))), B.y(k(B.found(k)))];
     selA = [A.x(k(A.found(k))), A.y(k(A.found(k)))];
     % タイトルは図の幅に収まらないので3行に分ける（書く情報と順は、名前と同じ。評価の図と同じ分け方）
-    fig = plotCrop(photos{i}, xr, yr, DET.before{i}.pks, selB, selA, [A.x(k), A.y(k)], ...
-        STYLE, LABEL, ["Groove on image: " + vsTitle, "(" + condTitle + ",", ...
-        partTitle + sprintf(", %d-%d ms)", msRange)]);
-    saveAndClose(fig, saveDir, "grooveOnImage_" + vsName + "_" + condName + partName + ...
-        sprintf("_%d-%dms", msRange), EXPECTED_NAMES, OVERWRITE);
+    if MAKE_FIGS.crop
+        fig = plotCrop(photos{i}, xr, yr, DET.before{i}.pks, selB, selA, [A.x(k), A.y(k)], ...
+            STYLE, LABEL, ["Groove on image: " + vsTitle, "(" + condTitle + ",", ...
+            partTitle + sprintf(", %d-%d ms)", msRange)]);
+        saveAndClose(fig, saveDir, "grooveOnImage_" + vsName + "_" + condName + partName + ...
+            sprintf("_%d-%dms", msRange), EXPECTED_NAMES, OVERWRITE);
+    end
 
     % 外れ値を含む区間と、LONG_RUN 列以上続く区間の波形
-    if c.numOutliers > 0 || c.numCols >= LONG_RUN
+    if MAKE_FIGS.wave && (c.numOutliers > 0 || c.numCols >= LONG_RUN)
         tr = [floor(c.tStartMs - WAVE_MARGIN_MS), ceil(c.tEndMs + WAVE_MARGIN_MS)];
         fig = plotWave(B, A, tr, EXACT, STYLE, LABEL, ["Waveform: " + vsTitle, ...
             "(" + condTitle + ", " + partTitle + sprintf(", %d-%d ms)", tr)]);
@@ -512,7 +532,7 @@ function fig = plotCrop(photo, xr, yr, pksAll, selB, selA, pathA, style, label, 
     h(1) = scatter(ax, pksAll(:,1), pksAll(:,2), style.markerSize, style.colorAll, "filled");
     h(2) = scatter(ax, selB(:,1), selB(:,2), style.markerSize, style.colorBefore, "filled");
     h(3) = scatter(ax, selA(:,1), selA(:,2), style.markerSize, style.colorAfter, "filled");
-    h(4) = plot(ax, pathA(inX,1), pathA(inX,2), "-", Color=style.colorAfter, LineWidth=0.8);
+    h(4) = plot(ax, pathA(inX,1), pathA(inX,2), "-", Color=style.colorAfter, LineWidth=style.lineWidthPath);
     hold(ax, "off");
     xlabel(ax, "$x$ [px]");
     lgd = legend(ax, h, ["all groove-bottom points", label.before, label.after, ...
@@ -521,7 +541,9 @@ function fig = plotCrop(photo, xr, yr, pksAll, selB, selA, pathA, style, label, 
 end
 
 function fig = plotWave(B, A, tr, exact, style, label, titleLines)
-% 時間 tr [ms] の範囲の、直す前と後の振幅を重ねる。y が変わった列を印で示し、写真の境目に縦の点線を引く
+% 時間 tr [ms] の範囲の、直す前と後の振幅を重ねる。y が変わった列を塗りつぶした丸で示し、写真の境目に
+% 縦の細い実線を引く（補助の線はデータの線より細くする。docs/rules/figures.md「線と点」）。振幅の軸は 0 を中心に
+% 上下対称にする（同「軸の範囲」）
     k = find(B.timeMs >= tr(1) & B.timeMs <= tr(2));
     fig = createFigure([0 0 style.figSizeWave]);
     fig.Visible = "off";
@@ -531,20 +553,21 @@ function fig = plotWave(B, A, tr, exact, style, label, titleLines)
     hold(ax, "on");
     h = gobjects(0,1);
     names = strings(0,1);
-    h(end+1) = plot(ax, B.timeMs(k), B.amp(k), "-", Color=style.colorWaveBefore, LineWidth=1.2);
+    h(end+1) = plot(ax, B.timeMs(k), B.amp(k), "-", Color=style.colorWaveBefore, LineWidth=style.lineWidthBefore);
     names(end+1) = label.before;
-    h(end+1) = plot(ax, A.timeMs(k), A.amp(k), "-", Color=style.colorWaveAfter, LineWidth=1);
+    h(end+1) = plot(ax, A.timeMs(k), A.amp(k), "-", Color=style.colorWaveAfter, LineWidth=style.lineWidthAfter);
     names(end+1) = label.after;
     ch = k(abs(A.y(k) - B.y(k)) > exact);
     if ~isempty(ch)
-        h(end+1) = plot(ax, A.timeMs(ch), A.amp(ch), "o", Color=style.colorWaveAfter, MarkerSize=4);
+        h(end+1) = plot(ax, A.timeMs(ch), A.amp(ch), "o", Color=style.colorWaveAfter, MarkerSize=style.waveMarkerSize, ...
+            MarkerFaceColor=style.colorWaveAfter);
         names(end+1) = "changed columns";
     end
     edges = k(diff([B.photo(k); NaN]) ~= 0 | diff([B.groove(k); NaN]) ~= 0);
     edges = edges(edges < k(end));
     hb = gobjects(0,1);
     for e = edges'
-        hb(end+1) = xline(ax, (B.timeMs(e) + B.timeMs(e+1))/2, "k:", LineWidth=1); %#ok<AGROW>
+        hb(end+1) = xline(ax, (B.timeMs(e) + B.timeMs(e+1))/2, "k-", LineWidth=style.lineWidthAux); %#ok<AGROW>
     end
     if ~isempty(hb)
         h(end+1) = hb(1);
@@ -553,6 +576,8 @@ function fig = plotWave(B, A, tr, exact, style, label, titleLines)
     hold(ax, "off");
     grid(ax, "on");
     xlim(ax, tr);
+    ampLim = max(1, ceil(max(abs([B.amp(k); A.amp(k)])) / style.ampLimStep) * style.ampLimStep);
+    ylim(ax, [-ampLim ampLim]);
     xlabel(ax, "Time [ms]");
     ylabel(ax, "Amplitude");
     title(ax, titleLines);

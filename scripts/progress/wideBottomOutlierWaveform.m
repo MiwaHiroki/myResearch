@@ -13,6 +13,8 @@
 %
 % 前提：Research.prj を開いていること。
 % 2026/11/23作成
+% 2026/11/26 ユーザーの決定（docs/rules/figures.md の「線と点」の線の太さの既定値）で、2本の波形の線を
+%            MATLAB の既定の 0.5 pt から 1 pt（LINE_WIDTH）にした。OVERWRITE=true で作り直した
 
 setDefaultIntrpr();
 proj = currentProject();
@@ -30,6 +32,7 @@ T_WINDOW = [710 720];   % 表示する時間 [ms]（元の図と同じ）
 Y_MARGIN = 0.05;        % 振幅の範囲の余白。範囲は ±(表示する時間の中の |振幅| の最大 + 余白) を 0.1 単位に切り上げる
 FIG_SIZE = [14.8 11.1]; % 図の大きさ [cm]（元の図と同じ）
 LEGEND_LOCATION = "northeast"; % 凡例の位置（元の図と同じ。波形にかぶってもよい）
+LINE_WIDTH = 1;         % 波形の線の太さ [pt]（データの線。docs/rules/figures.md「線と点」。元の図は既定の 0.5 pt）
 OVERWRITE = false;      % 同じ名前の図を上書きするか（作り直すときだけ true にする）
 
 THEME = "grooveBottomDetection";
@@ -79,9 +82,9 @@ yLim = ceil((yAbsMax + Y_MARGIN)*10)/10;
 fig = createFigure([0 0 FIG_SIZE]);
 tl = tiledlayout(fig,1,1,Padding="compact");
 ax = nexttile(tl);
-plot(ax,tMs,audioManual.signal);
+plot(ax,tMs,audioManual.signal,LineWidth=LINE_WIDTH);
 hold(ax,"on");
-plot(ax,tMs,audioTrack.signal);
+plot(ax,tMs,audioTrack.signal,LineWidth=LINE_WIDTH);
 hold(ax,"off");
 xlim(ax,T_WINDOW);
 ylim(ax,[-yLim yLim]);
