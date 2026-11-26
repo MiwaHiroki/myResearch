@@ -1,0 +1,28 @@
+{
+  "worktree": {
+    "baseRef": "head"
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "git branch --show-current | xargs -I{} echo 'Current branch: {}' >&2"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/skills/coordinate-sessions/scripts/lockHook.ps1\"",
+            "timeout": 20
+          }
+        ]
+      }
+    ]
+  }
+}

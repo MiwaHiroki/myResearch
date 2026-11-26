@@ -1,0 +1,21 @@
+# 共有ファイル（ホットスポット）の一覧
+# 複数のセッションが並行して動いているとき、ここに挙げたファイルは、ロックを持つセッションだけが変えられる。
+# 1行に1つ、リポジトリのルートからの相対パスを / 区切りで書く。* は任意の文字列（/ も含む）に一致する。
+# 決め方は docs/parallel-sessions.md の「共有ファイル」を参照。
+CLAUDE.md
+README.md
+Research.prj
+resources/project/*
+docs/rules/*
+docs/git-rules.md
+docs/issue-guide.md
+docs/issues/README.md
+docs/staged-development.md
+docs/parallel-sessions.md
+docs/progress-slides.md
+.claude/settings.json
+.claude/agents/*
+.claude/skills/*
+.githooks/*
+.github/*
+src/*

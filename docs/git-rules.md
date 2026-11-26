@@ -80,7 +80,8 @@ Agent: main
   - 失敗した・手動で`git worktree add`した場合は、worktree内で`sh .githooks/post-checkout`を実行すればやり直せる。別PCでは`git config core.hooksPath .githooks`を一度実行して有効化する。
 - **`results/`は共有しない**: worktreeの`results/`は独立。残したい出力はマージ前にメインへ移す。
 - **ブランチ**: worktreeのブランチもClaude発の作業ブランチとして扱い、下記「プルリクエスト運用」に従う。`master`はメインのチェックアウトが使っているため、worktree内で直接`master`にコミットはできない。worktreeで`master`をチェックアウトしない（進捗ログのタスクが、メインのチェックアウトを`master`に切り替えられなくなる。issue #27）。
-- **MATLAB**: MATLABは1つを全セッションで共有している。テスト（`test/unit/`）は自分のファイル位置から`src/`を足すので、worktreeのテストファイルを絶対パスで`runtests`すればworktree側のコードで走る。`currentProject()`に依存する`scripts/`は開いているプロジェクトのルートを使うため、worktree側で実行する場合はそのworktreeの`Research.prj`を開く必要があり、他のセッションに影響する。同時に複数セッションからスクリプトを走らせない。
+- **MATLAB**: MATLABはセッションごとに別々に起動する（2026-11-26に確かめた）。worktreeのセッションは、そのworktreeの`Research.prj`を開いて`scripts/`を実行してよい。ほかのセッションには影響しない。同じセッションのサブエージェントどうしは、1つのMATLABを共有する。詳しくは[`parallel-sessions.md`](parallel-sessions.md)の「MATLAB」。
+- **衝突を避けるルール**: 台帳への登録、共有ファイルのロック、マージの順番は[`parallel-sessions.md`](parallel-sessions.md)に従う。司令塔の手順はskill `coordinate-sessions`にある。
 - **後片付け**: 作業が終わったworktreeは、ブランチをマージ（またはPR化）してから`git worktree remove`で削除する。削除はユーザーの指示があってから行う。
 
 ## プルリクエスト運用
