@@ -72,17 +72,19 @@
 | 2026-11-26 | ユーザー | **決定** U1〜U3 は問題なし。評価は合格。評価で作った実行フォルダ3つは残す | — |
 | 2026-11-26 | main | ユーザーの確認を `eval-report-1.md` の先頭に追記し、状態を「確定」にする | [`eval-report-1.md`](./eval-report-1.md)、`bb3d703` |
 
-### 振り返り — ユーザー確認待ち（改善案 G1〜G4）
+### 振り返り — 確定
 
 | 日付 | 担当 | 内容 | 成果物 |
 |---|---|---|---|
 | 2026-11-26 | main | `retrospective.md` を書く。書き直し・差し戻しは0回。改善案は G1〜G4 | [`retrospective.md`](./retrospective.md)、`0163ea2` |
+| 2026-11-26 | ユーザー | **決定** 改善案 G1〜G4 をすべて採用した | — |
 
-### 続きのissue — ユーザー確認待ち
+### 続きのissue — 確定
 
 | 日付 | 担当 | 内容 | 成果物 |
 |---|---|---|---|
 | 2026-11-26 | main | `follow-ups.md` に案B（範囲の外に残った古い置き場所と危ない動き）を足す。案は A・B の2つ | [`follow-ups.md`](./follow-ups.md)、`0163ea2` |
+| 2026-11-26 | ユーザー | **決定** 案A・B は、どちらも #28 のマージ後にissueにする | — |
 
 ### 解決のまとめ — 未着手
 ### 仕上げ（closed/ へ移動・PR） — 未着手
@@ -97,4 +99,4 @@
 - [`impl-report-1b.md`](./impl-report-1b.md)：実装の報告（1回目の後半）
 - [`eval-report-1.md`](./eval-report-1.md)：評価レポート（1回目）
 - [`retrospective.md`](./retrospective.md)：振り返り
-- [`follow-ups.md`](./follow-ups.md)：続きのissueの案（下書き。仕上げで確定する）
+- [`follow-ups.md`](./follow-ups.md)：続きのissueの案

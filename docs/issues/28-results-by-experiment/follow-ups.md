@@ -2,7 +2,7 @@
 - 作成者: main
 - 作成日: 2026-11-25
 - 入力: issue #28、[`./impl-report-1a.md`](./impl-report-1a.md)（6章の Q1）、[`./impl-report-1b.md`](./impl-report-1b.md)（6章の「気づいた点」）、[`./retrospective.md`](./retrospective.md)（4章の6）、[`./README.md`](./README.md)（作業履歴の決定）
-- 状態: 下書き
+- 状態: 確定（2026-11-26、ユーザーが案A・B を確かめ、どちらも #28 のマージ後に作ると決めた）
 
 # #28 から続くissueの案
 
