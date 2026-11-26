@@ -2,11 +2,11 @@
 
 複数の Claude Code セッションを git worktree で並行して動かすときのルール。たとえば、あるセッションで issue を解き、別のセッションで文書を整える。目的は、マージのときの衝突を、編集する前に防ぐことである。
 
-手順（割り当て、状況の確認、マージの判断、片付け）は skill [`coordinate-sessions`](../.claude/skills/coordinate-sessions/SKILL.md) に書く。worktree の作り方と初期化は [`git-rules.md`](git-rules.md) の「worktreeでの並行作業」に書く。
+作業セッションを始める手順は skill [`start-work-session`](../.claude/skills/start-work-session/SKILL.md)（`/start-work-session` で呼べる）に、状況の確認・マージの判断・片付けの手順は skill [`coordinate-sessions`](../.claude/skills/coordinate-sessions/SKILL.md) に書く。worktree の作り方と初期化は [`git-rules.md`](git-rules.md) の「worktreeでの並行作業」に書く。
 
 ## 言葉
 
-- **司令塔**：master をチェックアウトしたメインのセッション。skill `coordinate-sessions` で、作業の割り当て、状況の確認、マージの判断をする。
+- **司令塔**：master をチェックアウトしたメインのセッション。skill `start-work-session` で作業セッションを始め、skill `coordinate-sessions` で状況の確認とマージの判断をする。
 - **作業セッション**：worktree の中で1つの作業をするセッション。
 - **台帳**：メインのチェックアウトの `.claude/coordination/ledger.json`。どの作業セッションが、どのブランチ・worktree で、何の作業をし、どのファイルを変える予定かを記録する。git の管理外に置くので、台帳そのものは衝突しない。
 - **共有ファイル**：多くの作業が変えるため、衝突しやすいファイル。一覧は [`hotspots.txt`](../.claude/skills/coordinate-sessions/hotspots.txt) にある。
