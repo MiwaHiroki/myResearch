@@ -68,8 +68,8 @@ description: 複数の Claude Code セッションを git worktree で並行し�
    - (1) `mcp__ccd_session_mgmt__archive_session` で子セッションをアーカイブする。
    - (2) worktree が残っていれば、`git worktree remove <パス>` で消す。`data/`・`experiments/` はリンクが消えるだけで、中身は残る。
    - (3) `coord release -Branch <ブランチ>` で台帳から消す。
-   - (4) ブランチを消すかは、別にユーザーに尋ねる。
-3. アーカイブして worktree を消したことを、ユーザーに報告する。
+   - (4) ブランチが master にマージ済みなら、`git branch -d <ブランチ>` でローカルのブランチも消す。origin にもあれば `git push origin --delete <ブランチ>` で消す。アーカイブすると決めたことが、ブランチを消してよいという指示を兼ねる（2026-11-26、ユーザーの指示）。同じような作業をまたするときは、新しい worktree とブランチを作るためである。マージしていないブランチは消さず、ユーザーに尋ねる（`-d` はマージしていないブランチを消さない。`-D` は使わない）。
+3. アーカイブして worktree とブランチを消したことを、ユーザーに報告する。
 
 引き続き作業する子セッションは、master にマージした後に作業を再開するとき、`coord set-status -Status active` で台帳の状態を戻し、master を merge してから作業する。
 
