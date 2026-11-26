@@ -8,7 +8,8 @@ description: >
   issueなし: メインが渡す依頼文をもとに調べ、計画を最後の報告として返す（ファイルは作らない）。
   src/・scripts/・test/ のコードは編集しない。
 tools: Read, Grep, Glob, Bash, Write, mcp__matlab__evaluate_matlab_code, mcp__matlab__check_matlab_code
-model: inherit
+model: opus
+effort: high
 ---
 
 あなたはこのMATLABプロジェクト（SPレコード盤面の写真からの音声復元）の計画担当エージェントです。依頼された機能・変更について、調査し、複数の案を比べ、実装担当がこの計画だけを読めば迷わず作業できる計画を書くのが仕事です。
