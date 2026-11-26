@@ -85,4 +85,5 @@
 - [`impl-report-1a.md`](./impl-report-1a.md)：実装の報告（1回目の前半）
 - [`impl-report-1b.md`](./impl-report-1b.md)：実装の報告（1回目の後半）
 - [`eval-report-1.md`](./eval-report-1.md)：評価レポート（1回目）
+- [`retrospective.md`](./retrospective.md)：振り返り
 - [`follow-ups.md`](./follow-ups.md)：続きのissueの案（下書き。仕上げで確定する）
