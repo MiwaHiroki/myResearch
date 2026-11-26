@@ -69,6 +69,23 @@ Agent: main
 - ブランチ名は`claude/<内容を表す短い英語スラッグ>`とする（例: `claude/darkness-map-rename`）。既存の`feature/*`・`backup/*`と混在させず、Claude発の作業ブランチだと一目で分かるようにする。
 - ローカルの`master`には、進捗ログの自動更新のコミットが毎日入る。`master`をrebase・resetしない（`git pull --rebase`を含む）。コミットのハッシュが変わり、進捗ログに同じ作業が二重に載ったり、`.state.json`の`seen_tips`のコミットが消えてタスクが止まったりするため（issue #27）。作業ブランチも、進捗ログに載った後のrebaseは避ける（同じ理由）。
 
+## 作業ブランチの取り込み方
+
+作業ブランチを master に取り込む方法は2つある。どちらにするかは、次の線引きで決める（2026-11-26、ユーザー承認）。
+
+- (a) **ローカルの master にマージする**：次の3つをすべて満たすとき。PR にしても CI が文書・スライドだけの変更では動かず（`.github/workflows/matlab-tests.yml` の `paths-ignore`）、手間だけが増えるためである。
+  - `.m` ファイル（`src/`・`scripts/`・`test/` など）を変えていない。文書・設定・スライド・図だけの変更である。
+  - issue を閉じる作業ではない。`docs/issues/<番号>-<slug>/` を `closed/` へ移す作業も含めない。
+  - 並行作業中なら `coord check-merge` が OK で、ユーザーが差分の一覧（`git diff --stat master...<ブランチ>`）を見て了承した。
+- (b) **PR にする**：上のどれかを満たさないとき。とくに、CI のテストが意味を持つコードの変更と、レビューの記録を残したい issue の作業。手順は下の「プルリクエスト運用」に従う。
+
+ローカルの master にマージするときは、次のとおりにする。
+
+1. マージは、ユーザーに指示されたときだけ、master をチェックアウトしたメインのセッションが行う。
+2. `git merge --no-ff <ブランチ>` でマージし、マージコミットを残す。進捗ログに、ブランチ名付きで1行載るようにするためである。マージコミットの本文にも、何のための変更かを1行以上書く（ルール2）。
+3. マージの後、master の push はユーザーに尋ねてから行う。
+4. 並行作業中なら、`coord set-status -Branch <ブランチ> -Status merged` で台帳を更新する。
+
 ## worktreeでの並行作業
 
 複数のClaudeセッションを並行して走らせるときは、セッションごとにgit worktreeを使い、編集が衝突しないようにする。
@@ -79,14 +96,14 @@ Agent: main
   - `.claude/settings.local.json`（許可設定）: メインからコピー（gitignoreされているため）。コピーなので、恒久的に直したい場合はメイン側を編集する。
   - 失敗した・手動で`git worktree add`した場合は、worktree内で`sh .githooks/post-checkout`を実行すればやり直せる。別PCでは`git config core.hooksPath .githooks`を一度実行して有効化する。
 - **`results/`は共有しない**: worktreeの`results/`は独立。残したい出力はマージ前にメインへ移す。
-- **ブランチ**: worktreeのブランチもClaude発の作業ブランチとして扱い、下記「プルリクエスト運用」に従う。`master`はメインのチェックアウトが使っているため、worktree内で直接`master`にコミットはできない。worktreeで`master`をチェックアウトしない（進捗ログのタスクが、メインのチェックアウトを`master`に切り替えられなくなる。issue #27）。
+- **ブランチ**: worktreeのブランチもClaude発の作業ブランチとして扱い、上記「作業ブランチの取り込み方」に従う。`master`はメインのチェックアウトが使っているため、worktree内で直接`master`にコミットはできない。worktreeで`master`をチェックアウトしない（進捗ログのタスクが、メインのチェックアウトを`master`に切り替えられなくなる。issue #27）。
 - **MATLAB**: MATLABはセッションごとに別々に起動する（2026-11-26に確かめた）。worktreeのセッションは、そのworktreeの`Research.prj`を開いて`scripts/`を実行してよい。ほかのセッションには影響しない。同じセッションのサブエージェントどうしは、1つのMATLABを共有する。詳しくは[`parallel-sessions.md`](parallel-sessions.md)の「MATLAB」。
 - **衝突を避けるルール**: 台帳への登録、共有ファイルのロック、マージの順番は[`parallel-sessions.md`](parallel-sessions.md)に従う。司令塔の手順はskill `coordinate-sessions`にある。
 - **後片付け**: 作業が終わったworktreeは、ブランチをマージ（またはPR化）してから`git worktree remove`で削除する。削除はユーザーの指示があってから行う。
 
 ## プルリクエスト運用
 
-- 作業ブランチでの変更が完了したらリモートへpushし、`gh pr create`でPRを作成する。push・PR作成はユーザーへの影響が及ぶ操作なので、実行前に一言確認してから行う（既存のグローバルルールの適用）。
+- 「作業ブランチの取り込み方」で PR にすると決めた作業ブランチは、変更が完了したらリモートへpushし、`gh pr create`でPRを作成する。push・PR作成はユーザーへの影響が及ぶ操作なので、実行前に一言確認してから行う（既存のグローバルルールの適用）。
 - PRのタイトル・本文はコミットメッセージと同じ基準（何を・なぜ）を満たす。本文には目的・背景を必ず書く。
 - PRを作ると、CI（[`.github/workflows/matlab-tests.yml`](../.github/workflows/matlab-tests.yml)）が`test/unit`を自動で実行する。マージ前に結果を確かめ、失敗していたら直す。段階的な開発（[`staged-development.md`](staged-development.md)）で、実装前の受け入れテストが失敗するのは想定どおり。
 - `docs/issues/<番号>-<slug>/` を使ったissueでは、PRの最後のコミットでそのフォルダを `docs/issues/closed/` へ`git mv`し、PR本文に`Closes #<番号>`を書く（[`issues/README.md`](issues/README.md)）。

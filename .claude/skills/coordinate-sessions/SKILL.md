@@ -32,13 +32,14 @@ description: 複数の Claude Code セッションを git worktree で並行し�
 ## 3. マージしてよいかを判断する
 
 1. 作業セッションが `merge-ready` になったら、`coord check-merge -Branch <ブランチ>` を実行する。
-2. PR があれば、`gh pr checks <番号>` で CI が通っていることを確かめる。
-3. 判定に合わせて進める。
-   - (a) すべて OK のときは、ユーザーに「マージしてよい」と伝える。マージはユーザーが行う（[`docs/git-rules.md`](../../../docs/git-rules.md)）。
+2. [`docs/git-rules.md`](../../../docs/git-rules.md) の「作業ブランチの取り込み方」で、PR にするか、ローカルの master にマージするかを決める。`git diff --stat master...<ブランチ>` で `.m` を変えていないかを見る。
+3. PR にするときは、作業セッションに push と PR の作成を頼む（ユーザーの了承を得てから）。PR ができたら、`gh pr checks <番号>` で CI が通っていることを確かめる。
+4. 判定に合わせて進める。
+   - (a) すべて OK のときは、ユーザーに「マージしてよい」と伝え、取り込み方と差分の一覧を見せる。PR のマージはユーザーが行う。ローカルの master にマージするときは、ユーザーの指示を受けてから、司令塔が `git merge --no-ff <ブランチ>` を実行する。
    - (b) master の最新を取り込んでいないときは、作業セッションに、master を merge してテストをやり直すよう伝える（rebase はしない）。
    - (c) ほかのブランチと重なるときは、どちらを先にマージするかを決める。決め方は `docs/parallel-sessions.md` の「マージの順番」に従う。
-4. マージが済んだら、`coord set-status -Branch <ブランチ> -Status merged` を実行する。これで、そのブランチのロックも外れる。
-5. ほかの作業中のセッションに、master を merge するよう `SendMessage` で伝える。とくに、マージしたブランチとファイルが重なっていたセッションには必ず伝える。
+5. マージが済んだら、`coord set-status -Branch <ブランチ> -Status merged` を実行する。これで、そのブランチのロックも外れる。ローカルの master にマージしたときは、master の push をユーザーに尋ねる。
+6. ほかの作業中のセッションに、master を merge するよう `SendMessage` で伝える。とくに、マージしたブランチとファイルが重なっていたセッションには必ず伝える。
 
 ## 4. 片付ける
 
