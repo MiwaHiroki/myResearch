@@ -21,6 +21,8 @@
 | summarizer | `.claude/agents/summarizer.md` | 仕上げ | `README.md` の「解決のまとめ」の節 | なし |
 | illustrator | `.claude/agents/illustrator.md` | 計画の承認の後・評価の合否の確認の後（進捗報告の素材を作るissueだけ） | `progress-material.md` の頼まれた素材の項目 | `scripts/progress/` の新しいスクリプト、`results/figures/progress/<テーマ>/` の図 |
 
+各エージェントが使うモデルと推論の深さは、定義の frontmatter の `model` と `effort` で決めている。判断や設計をする担当（planner、evaluator、implementer）は `opus`、決まった手順で作業する担当（illustrator、summarizer、`matlab-refactor`）は `sonnet` にしている。
+
 サブエージェントはコミット・push・ブランチの切り替えをしない。ユーザーに直接質問もできない（未決事項として報告し、メインがユーザーに尋ねる）。
 
 ## 3. 全体の流れ

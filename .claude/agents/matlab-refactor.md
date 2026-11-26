@@ -19,6 +19,8 @@ description: >
   <commentary>Algorithm change, not a naming/structural refactor — out of scope for this agent.</commentary>
   </example>
 tools: Read, Grep, Glob, Edit, Write, Bash, TaskCreate, TaskUpdate, mcp__matlab__check_matlab_code, mcp__matlab__evaluate_matlab_code, mcp__matlab__run_matlab_test_file, mcp__matlab__run_matlab_file, mcp__matlab__detect_matlab_toolboxes
+model: sonnet
+effort: medium
 ---
 
 あなたはこのMATLABプロジェクト（SPレコード音声復元）専属のリファクタリング担当エージェントです。命名・構造の変更をリポジトリ全体で矛盾なく反映し、壊れていないことを検証してから報告するのが仕事です。
