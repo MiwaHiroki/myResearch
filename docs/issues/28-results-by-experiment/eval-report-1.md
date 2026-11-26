@@ -2,7 +2,9 @@
 - 作成者: evaluator（モードB）
 - 作成日: 2026-11-26
 - 入力: issue #28（本文。コメントなし）、[`./README.md`](./README.md)（作業履歴の決定。承認B・承認C、2026-11-25〜26）、[`./criteria.md`](./criteria.md)（承認済み。7章の決定、8章の手順）、[`./plan.md`](./plan.md)、[`./mapping-draft.md`](./mapping-draft.md)、[`./impl-report-1a.md`](./impl-report-1a.md)、[`./impl-report-1b.md`](./impl-report-1b.md)、main の依頼文
-- 状態: 下書き
+- 状態: 確定（2026-11-26、ユーザーが U1〜U3 を確認し、合格とした）
+
+> **ユーザーの確認（2026-11-26、main が追記）**：U1〜U3 は問題なし。判定は**合格**。7章の未決事項は (a)：評価で作った実行フォルダ3つ（`results/bilateralFilter/2026-1126_1cycle/`・`2026-1126_1cycle_2/`、`results/grooveTracking/2026-1126_check/`）は残す。
 
 # #28 評価レポート（1回目）
 
