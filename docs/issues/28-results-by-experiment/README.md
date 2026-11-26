@@ -63,7 +63,12 @@
 | 2026-11-26 | ユーザー | **決定** 承認C：ユーザーが `data/` と `experiments/` のバックアップを取った（main による確認は不要とした）。`experiments/` の改名を指示した | — |
 | 2026-11-26 | main | 計画 7.1 の手順4。`migrateResults(..., Phase="experiments")` の試し（移す12行・12ファイル、消す10行）→ `DryRun=false` で移す → もう一度試す、の順に行った。最後の試しは22行すべて `done` で、警告は出なかった。`experiments/` の直下は `archive` と `YYYY-MMDD` の9つになり、`.mat` 12個は新しい名前、`archive/` の3つはそのまま。この時点から PR のマージまで、master のスクリプトで `experiments/` を読めない（計画 Q1） | — |
 
-### 評価 — 未着手
+### 評価 — ユーザー確認待ち（U1〜U3）
+
+| 日付 | 担当 | 内容 | 成果物 |
+|---|---|---|---|
+| 2026-11-26 | evaluator（B） | `d1c6c37` を評価した（1回目）。判定は「ユーザー確認待ち」。T・P・Q・D の数値の項目はすべて満たした（`runAllTests` 346件通過、Q1 817/817、D3 15/15、E1〜E5 とも基準どおり）。P1・P2・Q7 の外れは評価スクリプト自身の1本だけで、7章の決定 (b) により満たしたとした。<br>評価で `results/bilateralFilter/2026-1126_1cycle/`・`2026-1126_1cycle_2/`・`results/grooveTracking/2026-1126_check/` を作った。残すかが未決事項 | [`eval-report-1.md`](./eval-report-1.md) |
+| 2026-11-26 | main | 作業ツリーに `eval-report-1.md` のほかの変更が無いことを確かめ、確認待ちでコミットする | — |
 ### 振り返り — 未着手
 ### 続きのissue — 未着手
 ### 解決のまとめ — 未着手
@@ -77,4 +82,5 @@
 - [`criteria.md`](./criteria.md)：評価基準
 - [`impl-report-1a.md`](./impl-report-1a.md)：実装の報告（1回目の前半）
 - [`impl-report-1b.md`](./impl-report-1b.md)：実装の報告（1回目の後半）
+- [`eval-report-1.md`](./eval-report-1.md)：評価レポート（1回目）
 - [`follow-ups.md`](./follow-ups.md)：続きのissueの案（下書き。仕上げで確定する）
