@@ -11,7 +11,7 @@
 % 元画像座標へ戻されるので、リサンプル前の画像にそのまま重ねられる。
 % dResampleは列数を変えない（scaleFactor.colは1のまま）のでxの戻しは不要。
 %
-% 出力（results/0820/bilateral/oriRsmpl/）:
+% 出力（実行フォルダ results/bilateralFilter/<YYYY-MMDD>_oriRsmpl/。実行記録 runInfo.json も書く）:
 %   oriRsmpl_filtered_k<NN>.png  フィルタ後の画像そのもの
 %   oriRsmpl_ptsFull_<cond>.png  セグメント全体に溝底点を重ねた図
 %   oriRsmpl_ptsView_<cond>.png  拡大範囲に溝底点を重ねた図
@@ -44,11 +44,20 @@ VIEW_COLS = 81:180;
 
 MARKER_SIZE = 5;
 
-% 保存先
-saveDir = fullfile(mkdirFromDate(rootFolder,"0820"),"bilateral","oriRsmpl");
-if ~isfolder(saveDir)
-    mkdir(saveDir);
-end
+% 保存先（実行する人が書き換える場所）
+EXPERIMENT_NAME = "bilateralFilter";   % results/ の下の実験名（README の「実験名の一覧」から選ぶ）
+date = "YYYY-MMDD";                    % 実行した日（例 "2026-1124"）。書き換えないと resultDir がエラーで止める
+LABEL = "oriRsmpl";                    % 実行フォルダの説明（付けないなら ""）
+
+runCond = runConditions( ...      % 冒頭の定数を実験条件にまとめる（runInfo.json に書く）
+    Region=struct(imgIndex=IMG_INDEX, jSegment=J_SEGMENT), ...
+    NumSegments=NUM_SEGMENTS, LMask=L_MASK, ...
+    Bilateral=struct(kernelSizes=KERNEL_SIZES, spatialSigmas=SPATIAL_SIGMAS, ...
+                     degreeOfSmoothing=DEGREE_OF_SMOOTHING), ...
+    Upsampling="rsmplD", PRsmpl=P_RSMPL, QRsmpl=Q_RSMPL, ...
+    Methods="centroid", DThresh=D_THRESH, WidthThresh=W_TH);
+saveDir = resultDir(rootFolder, EXPERIMENT_NAME, date, runCond, Label=LABEL, ...
+    ScriptName="bilateralOriResample_centroid", Images="DSC1111-0000"+num2str(IMG_INDEX)+"-ori");
 TAG = "oriRsmpl";
 
 %% 画像の読み込みと分割（img_small）

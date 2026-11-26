@@ -1,0 +1,80 @@
+phase,kind,source,destination,note
+results,deleteEmpty,results/0710,,空のフォルダ（issue #28 で消すと決めた）
+results,dir,results/0721,results/upsampling/2026-0721,pkCentroid_interp2.m（1セグメント）
+results,files,results/0724/audio_(4x_interp)*,results/upsampling/2026-0724_intpD,内挿の1周分（当時の pkCentroid_interp2_1cycle.m）
+results,files,results/0724/audio_(centroid_method)(8x_resampled)*,results/upsampling/2026-0724_rsmplD,リサンプルの1周分（pkCentroid_resample_1cycle.m）
+results,deleteEmpty,results/0724,,
+results,files,results/0731/audio_(8x_interp)_*,results/upsampling/2026-0731_intpD,pkCentroid_interp2_1cycle.m の失敗した試行（wav は無い）
+results,files,results/0731/audio_(*)(original)*,results/upsampling/2026-0731_origD,pkCentroid_1cycle.m（cycleResult_origD_0731.mat と同じ実行）
+results,files,results/0731/audio_(*)(8x_resampled)*,results/upsampling/2026-0731_rsmplD,pkCentroid_resample_1cycle.m（cycleResult_rsmplD_0731.mat と同じ実行）
+results,files,results/0731/audio_(8x_interp)(*,results/upsampling/2026-0731_intpD_2,pkCentroid_interp2_1cycle.m の 2026-08-20 の再実行
+results,deleteEmpty,results/0731,,
+results,files,results/0802/audio_(photoshop-localMax)*,results/photoshopUpscaling/2026-0802_localMax,photoshop_localMax_1cycle.m
+results,files,results/0802/audio_(photoshop-centroid)*,results/photoshopUpscaling/2026-0802_centroid,photoshop_centroid_1cycle.m
+results,deleteEmpty,results/0802,,
+results,dir,results/0807,results/upsampling/2026-0807_rsmplD,pkCentroid_resample_1cycle.m（cycleResult_rsmplD_0807.mat と同じ実行）
+results,dir,results/0817,results/photoshopUpscaling/2026-0817,progress/showPhotoshopGrooveExtraction.m
+results,dir,results/0820/bilateral/ori,results/bilateralFilter/2026-0820_ori,bilateral/bilateralOri_centroid.m
+results,dir,results/0820/bilateral/oriRsmpl,results/bilateralFilter/2026-0820_oriRsmpl,bilateral/bilateralOriResample_centroid.m
+results,dir,results/0820/bilateral/oriIntp,results/bilateralFilter/2026-0820_oriIntp,bilateral/bilateralOriInterp2_centroid.m
+results,dir,results/0820/bilateral/photoshop8x,results/bilateralFilter/2026-0820_photoshop8x,bilateral/bilateral8x_centroid.m
+results,deleteEmpty,results/0820,,空になった bilateral/ ごと消す
+results,dir,results/0831/digitalNeedle,results/digitalNeedle/2026-0831,ブランチ claude/DigitalNeedle-reproduction の scripts/digitalNeedle/compareGrooveShapeAccuracy.m
+results,deleteEmpty,results/0831,,
+results,dir,results/0924/bilateral1cycle,results/bilateralFilter/2026-0924_1cycle,bilateral/bilateralOri_centroid_1cycle.m
+results,deleteEmpty,results/0924,,
+results,dir,results/1013,results/grooveTracking/2026-1013,grooveTrack_1cycle.m（#25 の実装の確認）
+results,files,results/1014/audio_(*)(original).wav,results/grooveTracking/2026-1014_manual,pkCentroid_1cycle.m の手動選択の再現（#25 の評価）
+results,files,results/1014/audio_(*)(original)_*,results/grooveTracking/2026-1014_manual,同上
+results,files,results/1014/audio_(*)(original)(tracking)*,results/grooveTracking/2026-1014_track,grooveTrack_1cycle.m（#25 の評価）
+results,files,results/1014/grooveTrack_img*,results/grooveTracking/2026-1014_track,同上
+results,files,results/1014/evalTrack_*,results/grooveTracking/2026-1014_evaluation,evaluation/grooveTracking/compareTrackingToManual.m
+results,deleteEmpty,results/1014,,
+results,dir,results/1022,results/grooveTracking/2026-1022,grooveTrack_1cycle.m
+results,dir,results/1026,results/grooveTracking/2026-1026,grooveTrack_1cycle.m（始点の x を1列目に固定した後の確認）
+results,files,results/1028/audio_(*)(original)(hist_5_cycles)*,results/multiGroove/2026-1028_hist5,grooveHist_Ncycle.m（#30 の実装の確認）
+results,files,results/1028/grooveHist_*,results/multiGroove/2026-1028_hist5,同上
+results,files,results/1028/audio_(*)(original)(tracking_5_cycles)*,results/multiGroove/2026-1028_track5,grooveTrack_Ncycle.m（#30 の実装の確認）
+results,files,results/1028/grooveTrackN_*,results/multiGroove/2026-1028_track5,同上
+results,files,results/1028/audio_(*)(original)(tracking)*,results/multiGroove/2026-1028_track,grooveTrack_1cycle.m（#30 の回帰の確認）
+results,files,results/1028/grooveTrack_img*,results/multiGroove/2026-1028_track,同上
+results,deleteEmpty,results/1028,,
+results,files,results/1104/audio_(*)(original)(tracking_5_cycles)*,results/multiGroove/2026-1104_track5,grooveTrack_Ncycle.m（#30 の正解データ）
+results,files,results/1104/grooveTrackN_*,results/multiGroove/2026-1104_track5,同上
+results,files,results/1104/audio_(*)(original)(hist_5_cycles)*,results/multiGroove/2026-1104_hist5,grooveHist_Ncycle.m（#30 の評価）
+results,files,results/1104/grooveHist_*,results/multiGroove/2026-1104_hist5,同上
+results,files,results/1104/evalMulti_*,results/multiGroove/2026-1104_evaluation,evaluation/multiGroove/compareHistToTracking.m
+results,deleteEmpty,results/1104,,
+results,dir,results/1110,results/grooveTracking/2026-1110,grooveTrack_1cycle.m の途中で止まった実行（写真2枚分の図だけ）
+results,dir,results/1111,results/grooveBottomDetection/2026-1111_exclBoundVsInclBound,evaluation/grooveBottomDetection/compareInclBoundToExclBound.m（手書きの README.md を含む）
+results,files,results/1118/audio_(*)(original)(tracking)*,results/grooveBottomDetection/2026-1118_track,grooveTrack_1cycle.m（#35 の評価）
+results,files,results/1118/audio_(*)(original)(hist_5_cycles)*,results/grooveBottomDetection/2026-1118_hist5,grooveHist_Ncycle.m（#35 の評価）
+results,files,results/1118/audio_(*)(original)(tracking_5_cycles)*,results/grooveBottomDetection/2026-1118_track5,grooveTrack_Ncycle.m（#35 の評価）
+results,files,results/1118/evalWidthThresh_*,results/grooveBottomDetection/2026-1118_evaluation,evaluation/grooveBottomDetection/compareWidthThresh.m
+results,files,results/1118/grooveOnImage_*,results/grooveBottomDetection/2026-1118_evaluation,同上
+results,files,results/1118/waveform_*,results/grooveBottomDetection/2026-1118_evaluation,同上
+results,deleteEmpty,results/1118,,
+results,dir,results/figures/paper/202609asj,results/figures/202609asj/paper,原稿用の図（スライド用の図は main が git mv で移すのでこの表には入れない）
+results,deleteEmpty,results/figures/paper,,
+experiments,file,experiments/0731/cycleResult_intpD_0731.mat,experiments/2026-0731/cycleResult_intpD_2026-0731.mat,
+experiments,file,experiments/0731/cycleResult_origD_0731.mat,experiments/2026-0731/cycleResult_origD_2026-0731.mat,
+experiments,file,experiments/0731/cycleResult_rsmplD_0731.mat,experiments/2026-0731/cycleResult_rsmplD_2026-0731.mat,
+experiments,deleteEmpty,experiments/0731,,
+experiments,file,experiments/0802/cycleResult_origD_0802.mat,experiments/2026-0802/cycleResult_origD_2026-0802.mat,
+experiments,deleteEmpty,experiments/0802,,
+experiments,file,experiments/0807/cycleResult_rsmplD_0807.mat,experiments/2026-0807/cycleResult_rsmplD_2026-0807.mat,
+experiments,deleteEmpty,experiments/0807,,
+experiments,file,experiments/0831/digitalNeedle/grooveShapeAccuracy_img1_seg1_0831.mat,experiments/2026-0831/digitalNeedle/grooveShapeAccuracy_img1_seg1_2026-0831.mat,ブランチ claude/DigitalNeedle-reproduction のスクリプトが作った
+experiments,deleteEmpty,experiments/0831,,空になった digitalNeedle/ ごと消す
+experiments,file,experiments/1013/cycleResult_origD_track_1013.mat,experiments/2026-1013/cycleResult_origD_track_2026-1013.mat,
+experiments,deleteEmpty,experiments/1013,,
+experiments,file,experiments/1014/cycleResult_origD_1014.mat,experiments/2026-1014/cycleResult_origD_2026-1014.mat,
+experiments,file,experiments/1014/cycleResult_origD_track_1014.mat,experiments/2026-1014/cycleResult_origD_track_2026-1014.mat,
+experiments,deleteEmpty,experiments/1014,,
+experiments,file,experiments/1022/cycleResult_origD_track_1022.mat,experiments/2026-1022/cycleResult_origD_track_2026-1022.mat,
+experiments,deleteEmpty,experiments/1022,,
+experiments,file,experiments/1104/cycleResult_origD_hist5_1104.mat,experiments/2026-1104/cycleResult_origD_hist5_2026-1104.mat,
+experiments,file,experiments/1104/cycleResult_origD_track5_1104.mat,experiments/2026-1104/cycleResult_origD_track5_2026-1104.mat,
+experiments,deleteEmpty,experiments/1104,,
+experiments,deleteEmpty,experiments/1026,,空のフォルダ（保存しなかった実行のときに experimentDir が作った）
+experiments,deleteEmpty,experiments/1110,,空のフォルダ（同上）

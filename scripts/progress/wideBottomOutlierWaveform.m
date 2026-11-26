@@ -19,7 +19,8 @@ proj = currentProject();
 rootFolder = proj.RootFolder;
 
 %% パラメータ
-DATE = "1014";          % 読み込む結果の日付（experiments/<DATE>/）
+DATE = "2026-1014";     % 読み込む結果の日付（experiments/<DATE>/）
+DATE_MMDD = extractAfter(DATE, "-");   % 図の名前とタイトルに書くデータの日付（MMDD。docs/rules/figures.md）
 UPSAMPLING = "origD";   % 高解像度化（自動追跡は origD だけ）
 BOUND = "inclBound";    % 溝底の判定。1014 のデータは2つとも ad46b44 以降のコード（3261e62）で作ったので、
                         % 境界値を含める判定（meta.gitCommit で確かめた）
@@ -32,10 +33,7 @@ LEGEND_LOCATION = "northeast"; % 凡例の位置（元の図と同じ。波形�
 OVERWRITE = false;      % 同じ名前の図を上書きするか（作り直すときだけ true にする）
 
 THEME = "grooveBottomDetection";
-saveDir = fullfile(rootFolder,"results","figures","progress",THEME);
-if ~isfolder(saveDir)
-    mkdir(saveDir);
-end
+saveDir = figureDir(rootFolder, "progress", THEME);
 
 % タイトル・凡例の表記（docs/rules/figures.md の語彙表の「表記」の列）
 LABEL = struct("origD","original","inclBound","inclusive bounds","centroid","centroid", ...
@@ -91,10 +89,10 @@ xlabel(ax,"Time [ms]");
 ylabel(ax,"Amplitude");
 % タイトルは図の幅に収まらないので2行に分ける
 title(ax,["Waveform: " + LABEL.manual + " vs " + LABEL.track, ...
-    "(" + LABEL.(UPSAMPLING) + ", " + LABEL.(BOUND) + ", " + LABEL.(METHOD) + ", data " + DATE + ...
+    "(" + LABEL.(UPSAMPLING) + ", " + LABEL.(BOUND) + ", " + LABEL.(METHOD) + ", data " + DATE_MMDD + ...
     sprintf(", %d-%d ms)",T_WINDOW)]);
 lgd = legend(ax,[LABEL.manual, LABEL.track],Location=LEGEND_LOCATION);
 lgd.ItemHitFcn = @togglevisibility;
-saveFigure(fig,saveDir,"waveform_manualVsTrack_" + UPSAMPLING + "_" + BOUND + "_" + METHOD + "_" + DATE + ...
+saveFigure(fig,saveDir,"waveform_manualVsTrack_" + UPSAMPLING + "_" + BOUND + "_" + METHOD + "_" + DATE_MMDD + ...
     sprintf("_%d-%dms",T_WINDOW),Overwrite=OVERWRITE);
 close(fig);

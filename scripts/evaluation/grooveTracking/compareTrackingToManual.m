@@ -13,7 +13,8 @@
 %   かけ直して比べる。最終出力の差（E4）は、写真ごとのデトレンドのまま比べる。
 % - デトレンドの次数を変えた比較（POLY_DEGREES）も出す（plan.md 8章 Q2 の見直し用）。
 %   保存済みのデトレンド前のy座標にかけ直すので、追跡の再実行は要らない。
-% - ginput は使わない。図・wav は results/<OUT_DATE>/ に evalTrack_ で始まる名前で書く。
+% - ginput は使わない。図・wav は実行フォルダ（results/grooveTracking/<OUT_DATE>_evaluation/）に
+%   evalTrack_ で始まる名前で書く。
 %   experiments/ には何も書かない。
 %
 % 前提：Research.prj を開いていること（撮影画像が MATLAB のパス上にあること。
@@ -25,10 +26,12 @@ proj = currentProject();
 rootFolder = proj.RootFolder;
 
 %% パラメータ
-TRACK_DATE  = "MMDD";   % 追跡の結果 experiments/<日付>/cycleResult_origD_track_<日付>.mat
-MANUAL_DATE = "MMDD";   % 手動選択の再現 experiments/<日付>/cycleResult_origD_<日付>.mat
-GT_DATE     = "0731";   % 正解 cycleResult_origD_<GT_DATE>.mat、始点の入手元 cycleResult_intpD_<GT_DATE>.mat
-OUT_DATE    = "MMDD";   % 図・wavの出力先 results/<OUT_DATE>/
+TRACK_DATE  = "YYYY-MMDD";   % 追跡の結果 experiments/<日付>/cycleResult_origD_track_<日付>.mat
+MANUAL_DATE = "YYYY-MMDD";   % 手動選択の再現 experiments/<日付>/cycleResult_origD_<日付>.mat
+GT_DATE     = "2026-0731";   % 正解 cycleResult_origD_<GT_DATE>.mat、始点の入手元 cycleResult_intpD_<GT_DATE>.mat
+EXPERIMENT_NAME = "grooveTracking";   % results/ の下の実験名（README の「実験名の一覧」から選ぶ）
+OUT_DATE    = "YYYY-MMDD";   % 評価の日（例 "2026-1124"）。書き換えないと resultDir がエラーで止める
+LABEL       = "evaluation";  % 実行フォルダの説明（付けないなら ""）
 
 POLY_DEGREES = [3 5 9 15];   % 写真ごとのデトレンドの次数を変えた比較（Q2の判断材料）
 SAVE_FIGURES = true;         % 重ね描き・溝形状・スペクトログラムの図を保存する
@@ -61,9 +64,9 @@ EXPECTED_MANUAL_VS_GT = struct( ...
 METHODS = ["centroid","localMax"];
 
 %% 読み込み
-if any([TRACK_DATE MANUAL_DATE OUT_DATE] == "MMDD")
+if any([TRACK_DATE MANUAL_DATE] == "YYYY-MMDD")
     error("compareTrackingToManual:dateNotSet", ...
-        "TRACK_DATE・MANUAL_DATE・OUT_DATE を実行日（MMDD）にしてください。");
+        "TRACK_DATE・MANUAL_DATE を、読む結果の日付（YYYY-MMDD）にしてください。");
 end
 trackPath  = fullfile(experimentDir(rootFolder, TRACK_DATE, Create=false), ...
     "cycleResult_origD_track_" + TRACK_DATE + ".mat");
@@ -75,7 +78,18 @@ track  = loadCycleResult(trackPath);
 manual = loadCycleResult(manualPath);
 gt     = loadCycleResult(gtPath);
 intp   = loadCycleResult(intpPath);
-outDir = mkdirFromDate(rootFolder, OUT_DATE);
+
+% 評価の定義を実験条件にまとめ、読んだファイルとともに実行記録（runInfo.json）に書く
+runCond = runConditions(NumSegments=NUM_SEGMENTS, Methods=METHODS, ...
+    Other=struct(polyDegrees=POLY_DEGREES, thP2Tol=TH.P2_TOL, thE1RmseMed=TH.E1_RMSE_MED, ...
+        thE1RmseMaxCentroid=TH.E1_RMSE_MAX.centroid, thE1RmseMaxLocalMax=TH.E1_RMSE_MAX.localMax, ...
+        thE1CorrMin=TH.E1_CORR_MIN, thE1NearExact=TH.E1_NEAR_EXACT, ...
+        thE1GtRmseDiff=TH.E1_GT_RMSE_DIFF, thE1GtCorrDiff=TH.E1_GT_CORR_DIFF, ...
+        thE2Missing=TH.E2_MISSING, thE2MaxGap=TH.E2_MAX_GAP, thE3StepRatio=TH.E3_STEP_RATIO, ...
+        thE4CorrPhoto=TH.E4_CORR_PHOTO, thE4CorrAll=TH.E4_CORR_ALL, thE4RmseAll=TH.E4_RMSE_ALL, ...
+        thE5PDiff=TH.E5_P_DIFF, thE5ExactTol=TH.E5_EXACT_TOL));
+outDir = resultDir(rootFolder, EXPERIMENT_NAME, OUT_DATE, runCond, Label=LABEL, ...
+    ScriptName="compareTrackingToManual", InputFiles=[trackPath manualPath gtPath intpPath]);
 
 fprintf("追跡      : %s（commit %s）\n", trackPath, track.meta.gitCommit);
 fprintf("手動の再現: %s（commit %s）\n", manualPath, manual.meta.gitCommit);

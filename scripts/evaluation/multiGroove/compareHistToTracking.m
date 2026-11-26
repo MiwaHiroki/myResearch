@@ -3,7 +3,7 @@
 % 本実装（grooveHist_Ncycle.m の cycleResult_origD_hist<N>_<日付>.mat）を、N 本を
 % trackGroove で別々に追跡した正解データ（grooveTrack_Ncycle.m の
 % cycleResult_origD_track<N>_<日付>.mat）と比べる。1本目は #25 の1周分
-% （experiments/1014/cycleResult_origD_track_1014.mat）とも比べる。
+% （experiments/2026-1014/cycleResult_origD_track_2026-1014.mat）とも比べる。
 % 評価の項目・しきい値は docs/issues/closed/30-multi-groove/criteria.md（ID は同じ）。
 %
 % - 比べ方は docs/rules/evaluation.md に従う（RMSE[px]・相関係数、写真×溝ごと・溝（周）ごと・
@@ -12,7 +12,8 @@
 %   9次デトレンド（plan.md Q2 の (a)）なので、そのまま比べる。
 % - 判定の表の「区分」：前提（満たさなければ評価の保留）、計画（計画の試行と同じ値になるかの
 %   確認）、品質（手法として十分かの基準）、整合（保存と再現）、参考（判定に使わない）。
-% - ginput は使わない。図・表は results/<OUT_DATE>/ に evalMulti_ で始まる名前で書く。
+% - ginput は使わない。図・表は実行フォルダ（results/multiGroove/<OUT_DATE>_evaluation/）に
+%   evalMulti_ で始まる名前で書く。
 %   experiments/ には何も書かない。
 % - experiments/ の SHA-256、変えてはいけないファイルの git diff、runAllTests、checkcode は
 %   このスクリプトの外で確かめる（criteria.md の E7・T）。
@@ -26,12 +27,14 @@ proj = currentProject();
 rootFolder = proj.RootFolder;
 
 %% パラメータ（実行する人が書き換える場所）
-GT_DATE   = "MMDD";   % 正解データ experiments/<GT_DATE>/cycleResult_origD_track<N>_<GT_DATE>.mat
+GT_DATE   = "YYYY-MMDD";   % 正解データ experiments/<GT_DATE>/cycleResult_origD_track<N>_<GT_DATE>.mat
 GT_FILE   = "";       % 正解データのファイル名。空なら上の既定の名前（RECLICK_IMAGES で作り直した "_2" 付きを使うときに書く）
-HIST_DATE = "MMDD";   % 本実装 experiments/<HIST_DATE>/cycleResult_origD_hist<N>_<HIST_DATE>.mat
+HIST_DATE = "YYYY-MMDD";   % 本実装 experiments/<HIST_DATE>/cycleResult_origD_hist<N>_<HIST_DATE>.mat
 HIST_FILE = "";       % 本実装のファイル名。空なら上の既定の名前
-OUT_DATE  = "MMDD";   % 図・表の出力先 results/<OUT_DATE>/
-REF_PATH  = fullfile(rootFolder, "experiments", "1014", "cycleResult_origD_track_1014.mat");  % #25 の1周分（P3・E7d）
+EXPERIMENT_NAME = "multiGroove";   % results/ の下の実験名（README の「実験名の一覧」から選ぶ）
+OUT_DATE  = "YYYY-MMDD";   % 評価の日（例 "2026-1124"）。書き換えないと resultDir がエラーで止める
+LABEL     = "evaluation";  % 実行フォルダの説明（付けないなら ""）
+REF_PATH  = fullfile(rootFolder, "experiments", "2026-1014", "cycleResult_origD_track_2026-1014.mat");  % #25 の1周分（P3・E7d）
 SAVE_FIGURES = true;  % 重ね描き・差・スペクトログラムの図を保存する
 
 NUM_GROOVES  = 5;     % 評価に使う溝の本数（issue #30 の決定）
@@ -83,9 +86,9 @@ PLAN.INEXACT.centroid(8, 5) = true;   % x=2314 の1列だけ、帯が追跡で�
 PLAN.INEXACT.localMax = false(8, 5);
 
 %% 読み込み
-if any([GT_DATE HIST_DATE OUT_DATE] == "MMDD")
+if any([GT_DATE HIST_DATE] == "YYYY-MMDD")
     error("compareHistToTracking:dateNotSet", ...
-        "GT_DATE・HIST_DATE・OUT_DATE を実行日（MMDD）にしてください。");
+        "GT_DATE・HIST_DATE を、読む結果の日付（YYYY-MMDD）にしてください。");
 end
 if GT_FILE == ""
     GT_FILE = "cycleResult_origD_track" + NUM_GROOVES + "_" + GT_DATE + ".mat";
@@ -99,7 +102,17 @@ histPath = fullfile(experimentDir(rootFolder, HIST_DATE, Create=false), HIST_FIL
 gt  = loadCycleResult(gtPath);
 hs  = loadCycleResult(histPath);
 ref = loadCycleResult(REF_PATH);
-outDir = mkdirFromDate(rootFolder, OUT_DATE);
+
+% 評価の定義を実験条件にまとめ、読んだファイルとともに実行記録（runInfo.json）に書く
+runCond = runConditions(NumSegments=NUM_SEGMENTS, Methods=METHODS, ...
+    Other=struct(numGrooves=NUM_GROOVES, thExact=TH.EXACT, thP2Dev=TH.P2_DEV, ...
+        thP2GapMin=TH.P2_GAP_MIN, thP2GapRatio=TH.P2_GAP_RATIO, ...
+        thE2PlanRmse=TH.E2_PLAN_RMSE, thE2PlanCorr=TH.E2_PLAN_CORR, thE2Rmse=TH.E2_RMSE, ...
+        thE2Corr=TH.E2_CORR, thE3Missing=TH.E3_MISSING, thE3MaxGap=TH.E3_MAX_GAP, ...
+        thE3Lost=TH.E3_LOST, thE4PlanRmse=TH.E4_PLAN_RMSE, thE4PlanCorr=TH.E4_PLAN_CORR, ...
+        thE4Corr=TH.E4_CORR, thE4Rmse=TH.E4_RMSE));
+outDir = resultDir(rootFolder, EXPERIMENT_NAME, OUT_DATE, runCond, Label=LABEL, ...
+    ScriptName="compareHistToTracking", InputFiles=[gtPath histPath REF_PATH]);
 
 for src = ["正解", "本実装"]
     if src == "正解", R = gt; p = gtPath; else, R = hs; p = histPath; end

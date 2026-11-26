@@ -23,7 +23,7 @@
 % 構造化して残す枠がcycleConditionsに無い(Upsamplingは3値に限定、自由記述はNoteのみ)
 % ため、保存するならsaveCycleResult側を直してcycleResultの中身を変えるほうが筋が良い。
 %
-% 出力（results/<日付>/bilateral1cycle/）:
+% 出力（実行フォルダ results/bilateralFilter/<YYYY-MMDD>_1cycle/。実行記録 runInfo.json も書く）:
 %   audio_(centroid)(bilateral_<cond>).wav          条件ごとの音声
 %   audio_(centroid)(bilateral_<cond>)_amp/_fft/_stft.fig/.png
 %   compare_waveform.fig/.png     4条件の波形の重ね合わせ
@@ -61,17 +61,26 @@ DEGREE_OF_SMOOTHING = 0.01*255^2;     % uint8入力に対するimbilatfiltの既
 % 比較図で波形を拡大表示する区間[s]（全体表示だと4条件が重なって読めないため）
 ZOOM_SEC = [0.30 0.32];
 
-% 保存先（図・音声）
-date = "0924";
-saveDir = fullfile(mkdirFromDate(rootFolder,date),"bilateral1cycle");
-if ~isfolder(saveDir)
-    mkdir(saveDir);
-end
-saveDir = saveDir + filesep; % saveas/saveAudioが文字列連結するため末尾に区切りを付ける
+% 保存先（図・音声。実行する人が書き換える場所）
+EXPERIMENT_NAME = "bilateralFilter";   % results/ の下の実験名（README の「実験名の一覧」から選ぶ）
+date = "YYYY-MMDD";                    % 実行した日（例 "2026-1124"）。書き換えないと resultDir がエラーで止める
+LABEL = "1cycle";                      % 実行フォルダの説明（付けないなら ""）
+
+% 溝の選択（p1,p2）を読み込む過去の結果。全条件で同じ溝を見たいので手動選択（ginput）は使わない。
+PREV_RESULT_PATH = fullfile(rootFolder,"experiments","2026-0807","cycleResult_rsmplD_2026-0807.mat");
+
+runCond = runConditions( ...      % 冒頭の定数を実験条件にまとめる（runInfo.json に書く）
+    NumImages=NUM_IMAGES, NumSegments=NUM_SEGMENTS, LMask=L_MASK, ...
+    Bilateral=struct(kernelSizes=KERNEL_SIZES, spatialSigmas=SPATIAL_SIGMAS, ...
+                     degreeOfSmoothing=DEGREE_OF_SMOOTHING), ...
+    Upsampling="origD", Methods="centroid", DThresh=D_THRESH, WidthThresh=WIDTH_THRESH, ...
+    Selection="manual", ReplayFrom=PREV_RESULT_PATH, ...
+    Manual=struct(thHist=TH_HIST, tol=tol, binWidth=binWidth, hPrl=h_prl));
+% 戻り値の末尾には区切り文字が付く（saveas/saveAudioが文字列連結するため）
+saveDir = resultDir(rootFolder, EXPERIMENT_NAME, date, runCond, Label=LABEL, ...
+    ScriptName="bilateralOri_centroid_1cycle", Images=filenames_new, InputFiles=PREV_RESULT_PATH);
 
 %% 溝の選択（p1,p2）を過去の結果から読み込む
-% 全条件で同じ溝を見たいので手動選択（ginput）は使わない。
-PREV_RESULT_PATH = fullfile(rootFolder,"experiments","0807","cycleResult_rsmplD_0807.mat");
 prevResult = loadCycleResult(PREV_RESULT_PATH);
 grooveSelection = prevResult.grooveSelection;
 if ~isequal(size(grooveSelection.p1),[TOTAL_SEGMENTS 2]) || ...

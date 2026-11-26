@@ -8,12 +8,13 @@ Claude（メインセッション・サブエージェントとも）が図を�
 
 | 用途 | スクリプト | 出力先 | git | タイトル | 大きさ・文字 | 保存 |
 |---|---|---|---|---|---|---|
-| 作業用（実験・評価） | `scripts/`、`scripts/evaluation/<テーマ>/` | `results/<MMDD>/`（`mkdirFromDate`、実行した日） | 管理外 | 付ける | 自由 | `saveFigure`（png・fig） |
-| 進捗報告用 | `scripts/progress/` | `results/figures/progress/<テーマ>/` | 管理する | 付ける | [進捗報告用](#進捗報告用) | `saveFigure`（png・fig） |
-| スライド用 | `scripts/slides/<YYYYMM><会議略称>/` | `results/figures/slides/<同じ名前>/` | 管理する | 付けない | [スライド用](#スライド用) | `saveSlideFigure` |
-| 原稿用 | `scripts/paper/<YYYYMM><会議略称>/` | `results/figures/paper/<同じ名前>/` | 管理外 | 付けない | [原稿用](#原稿用) | `savePaperFigure` |
+| 作業用（実験・評価） | `scripts/`、`scripts/evaluation/<テーマ>/` | 実行フォルダ `results/<実験名>/<YYYY-MMDD>[_<説明>]/`（`resultDir`、実行した日） | 管理外 | 付ける | 自由 | `saveFigure`（png・fig） |
+| 進捗報告用 | `scripts/progress/` | `results/figures/progress/<テーマ>/`（`figureDir`） | 管理する | 付ける | [進捗報告用](#進捗報告用) | `saveFigure`（png・fig） |
+| スライド用 | `scripts/slides/<YYYYMM><会議略称>/` | `results/figures/<同じ名前>/slides/`（`figureDir`） | 管理する | 付けない | [スライド用](#スライド用) | `saveSlideFigure` |
+| 原稿用 | `scripts/paper/<YYYYMM><会議略称>/` | `results/figures/<同じ名前>/paper/`（`figureDir`） | 管理外 | 付けない | [原稿用](#原稿用) | `savePaperFigure` |
 
-- 出力先は `currentProject().RootFolder` から組み立てる。スライド用・原稿用は `mkdirFromDate` の日付フォルダを使わない。
+- 出力先は `currentProject().RootFolder` から組み立てる。作業用の図は、実験のスクリプトの冒頭で `resultDir` が作る実行フォルダに出す（README の「結果の置き場所と実行記録」）。進捗報告用・スライド用・原稿用の図は `figureDir(rootFolder, <用途>, <テーマか発表名>)` で置き場所を作る。完成品の置き場所なので、日付で分けず、実行記録も作らない。
+- スライド用・原稿用は、図のスクリプト（`scripts/<用途>/<発表名>/`）と図の置き場所（`results/figures/<発表名>/<用途>/`）とで、用途と発表名の階層の順が逆になる（issue #28。スクリプトの置き場所は変えず、図だけを発表名ごとにまとめた）。
 - 会議のフォルダ名は `202609asj` のように、年月と会議の略称をつなげる。
 - 進捗報告用の `<テーマ>` は、研究の話題を表す英語の camelCase にする（`grooveTracking`、`multiGroove` など）。評価スクリプトのテーマ（`scripts/evaluation/<テーマ>/`）があれば、同じ名前にする。
 - 図は、用途の保存関数（`saveFigure`・`saveSlideFigure`・`savePaperFigure`）で保存する。`exportgraphics`・`saveas` を直接呼ばない。保存関数は、保存の前に名前を確かめる（[名前の確かめ方](#名前の確かめ方)）。
@@ -42,7 +43,7 @@ Claude（メインセッション・サブエージェントとも）が図を�
 | 種類 | 何を描いた図か（`waveform`、`spectrogram` など） | 必須 |
 | 比較 | 2つ以上を重ねたり並べたりした図だけ。違う条件の語を `Vs` でつなぐ（`manualVsTrack`） | 比べた図では必須 |
 | 条件 | 図が依存する条件を、語彙表の順（画像 → 溝底の判定 → 溝底区間の幅 → 抽出法 → 溝の選び方 → 周数）に並べる | 依存するものはすべて |
-| データの日付 | 読み込んだ `experiments/<MMDD>/` の `MMDD` | cycleResult を使う図では必須 |
+| データの日付 | 読み込んだ `experiments/<YYYY-MMDD>/` の `MMDD`（年を除いた4桁） | cycleResult を使う図では必須 |
 | 部分・範囲・表示 | 写真・区間・溝の番号、時間・周波数の範囲、表示の違い。この順に並べる | 任意 |
 
 条件の書き方：
@@ -50,7 +51,8 @@ Claude（メインセッション・サブエージェントとも）が図を�
 - 図が依存する条件は、既定の値でも省略しない（高解像度化しないときも `origD` と書く）。例外は周数と溝底区間の幅である。周数は、1周のときは書かない。溝底区間の幅（`wTh<N>`）は、幅の上限を比べる図にだけ書く。
 - 図が依存しない条件は書かない（写真そのものの図に、抽出法は書かない）。
 - 比較に出した条件は、条件の位置には書かない（`manualVsTrack` と書いたら、溝の選び方は条件に書かない）。
-- データの日付は、図を作った日（`results/<MMDD>/` のフォルダ名）とは別物。cycleResult を使わない図（写真から直接作る図）には書かず、写真を `img<i>` で示す。
+- データの日付は、`experiments/` のフォルダ名が `2026-1014` の形になった後も、年を除いた4桁（`1014`）で書く。スクリプトでは `DATE = "2026-1014"` から `DATE_MMDD = extractAfter(DATE, "-")` を作り、図の名前とタイトルにはそちらを使う。
+- データの日付は、図を作った日（実行フォルダの名前の日付）とは別物。cycleResult を使わない図（写真から直接作る図）には書かず、写真を `img<i>` で示す。
 
 ### 種類と条件は、描いたものに合わせる
 
@@ -245,5 +247,6 @@ Claude（メインセッション・サブエージェントとも）が図を�
 
 ## 既存の図とスクリプト
 
-- 既存の図は改名しない。`results/<MMDD>/` は過去の結果と比べるための記録で、`results/figures/` の図はスライドや進捗の資料から参照されているため。
+- 既存の図は改名しない。実験の実行フォルダは過去の結果と比べるための記録で、`results/figures/` の図はスライドや進捗の資料から参照されているため。
+- 例外の記録：issue #28 で、図のファイル名は変えずに、置き場所だけを移した。日付だけの名前のフォルダ（`results/0731/` など）は実験名の下の実行フォルダへ、スライド用の図は `results/figures/slides/202609asj/` から `results/figures/202609asj/slides/` へ、原稿用の図は `results/figures/paper/202609asj/` から `results/figures/202609asj/paper/` へ移した。古いパスとの対応は README の「結果の置き場所と実行記録」の「対応表」にある。
 - 既存のスクリプトの名前の付け方は、このルールに合わせる作業を頼まれたときに直す（[`coding.md`](coding.md) の「既存の名前は、リファクタリングのタスク以外では改名しない」と同じ扱い）。

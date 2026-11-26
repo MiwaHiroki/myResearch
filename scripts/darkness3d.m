@@ -3,9 +3,6 @@
 setDefaultIntrpr();
 
 proj = currentProject;
-date = "0725";
-mkdirFromDate(proj.RootFolder,date);
-dir = "results/"+date+"/";
 
 %% 画像を読み込み、DarknessMapオブジェクトをセットアップする
 img = imread("DSC1111-00001-ori.png");
@@ -20,6 +17,21 @@ img_small = img_gray(heightIdx,widthIdx);
 imgData = ImageData(img_small,[1,1]);
 
 D_THRESH = 0.6;
+p_rsmpl = 8; q_rsmpl = 1;   % dResample のリサンプルの倍率 p_rsmpl/q_rsmpl
+step = 0.25;                % dInterp の内挿の間隔 [px]
+INTERP_METHOD = "spline"; % method for interpolation
+
+% 保存先（実行する人が書き換える場所）
+EXPERIMENT_NAME = "upsampling";   % results/ の下の実験名（README の「実験名の一覧」から選ぶ）
+date = "YYYY-MMDD";               % 実行した日（例 "2026-1124"）。書き換えないと resultDir がエラーで止める
+LABEL = "";                       % 実行フォルダの説明（付けないなら ""）
+
+runCond = runConditions( ...      % 冒頭の定数を実験条件にまとめる（runInfo.json に書く）
+    Region=struct(heightIdx=heightIdx, widthIdx=widthIdx), ...
+    Upsampling=["origD","rsmplD","intpD"], PRsmpl=p_rsmpl, QRsmpl=q_rsmpl, ...
+    QueryStep=step, InterpMethod=INTERP_METHOD, DThresh=D_THRESH);
+dir = resultDir(proj.RootFolder, EXPERIMENT_NAME, date, runCond, Label=LABEL, ...
+    ScriptName="darkness3d", Images="DSC1111-00001-ori");   % 図の出力先
 
 origD = DarknessMap(imgData);
 origD = origD.setDiffTF(D_THRESH);
@@ -67,7 +79,6 @@ saveas(fig,dir+"3d-darkness(original)_labelxy.png");saveas(fig,dir+"3d-darkness(
 
 %% (rsmplDについて)waterfallを使ってdMatを3次元で表示する
 
-p_rsmpl = 8; q_rsmpl = 1;
 rsmplD = dResample(origD,p_rsmpl,q_rsmpl);
 rsmplD = rsmplD.setDiffTF(D_THRESH);
 rsmpldMat = rsmplD.dMat;
@@ -92,8 +103,6 @@ saveas(fig,dir+"3d-darkness(rsmpl).png");saveas(fig,dir+"3d-darkness(rsmpl).fig"
 
 %% (intpDについて)waterfallを使ってdMatを3次元で表示する
 
-step = 0.25;
-INTERP_METHOD = "spline"; % method for interpolation
 intpD = dInterp(origD,step,INTERP_METHOD);
 intpD = intpD.setDiffTF(D_THRESH);
 intpdMat = intpD.dMat;

@@ -13,7 +13,7 @@
 % 巻き込まないため。imbilatfiltはuint8のまま返すので、後段の
 % ImageData(double化) -> DarknessMap(dMat = 1 - img/255) の流れは変わらない。
 %
-% 出力（results/0820/bilateral/ori/）:
+% 出力（実行フォルダ results/bilateralFilter/<YYYY-MMDD>_ori/。実行記録 runInfo.json も書く）:
 %   ori_filtered_k<NN>.png  フィルタ後の画像そのもの
 %   ori_ptsFull_<cond>.png  セグメント全体に溝底点を重ねた図
 %   ori_ptsView_<cond>.png  拡大範囲に溝底点を重ねた図
@@ -43,11 +43,19 @@ VIEW_COLS = 81:180;
 
 MARKER_SIZE = 5;
 
-% 保存先
-saveDir = fullfile(mkdirFromDate(rootFolder,"0820"),"bilateral","ori");
-if ~isfolder(saveDir)
-    mkdir(saveDir);
-end
+% 保存先（実行する人が書き換える場所）
+EXPERIMENT_NAME = "bilateralFilter";   % results/ の下の実験名（README の「実験名の一覧」から選ぶ）
+date = "YYYY-MMDD";                    % 実行した日（例 "2026-1124"）。書き換えないと resultDir がエラーで止める
+LABEL = "ori";                         % 実行フォルダの説明（付けないなら ""）
+
+runCond = runConditions( ...      % 冒頭の定数を実験条件にまとめる（runInfo.json に書く）
+    Region=struct(imgIndex=IMG_INDEX, jSegment=J_SEGMENT), ...
+    NumSegments=NUM_SEGMENTS, LMask=L_MASK, ...
+    Bilateral=struct(kernelSizes=KERNEL_SIZES, spatialSigmas=SPATIAL_SIGMAS, ...
+                     degreeOfSmoothing=DEGREE_OF_SMOOTHING), ...
+    Upsampling="origD", Methods="centroid", DThresh=D_THRESH, WidthThresh=W_TH);
+saveDir = resultDir(rootFolder, EXPERIMENT_NAME, date, runCond, Label=LABEL, ...
+    ScriptName="bilateralOri_centroid", Images="DSC1111-0000"+num2str(IMG_INDEX)+"-ori");
 TAG = "ori";
 
 %% 画像の読み込みと分割（img_small）

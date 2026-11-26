@@ -35,7 +35,8 @@ proj = currentProject();
 rootFolder = proj.RootFolder;
 
 %% パラメータ
-DATE = "1014";          % 読み込む結果の日付（experiments/<DATE>/）
+DATE = "2026-1014";     % 読み込む結果の日付（experiments/<DATE>/）
+DATE_MMDD = extractAfter(DATE, "-");   % 図の名前とタイトルに書くデータの日付（MMDD。docs/rules/figures.md）
 UPSAMPLING = "origD";   % 高解像度化（自動追跡は origD だけ）
 SELECTION = "track";    % 溝の選び方（自動追跡。grooveTrack_1cycle.m の結果を読む）
 BOUND = "inclBound";    % 溝底の判定。1014 のデータは ad46b44 以降のコード（3261e62）で作ったので、
@@ -74,10 +75,7 @@ MAKE_FIGS = struct("crop",true,"profile",true); % 作る図（crop は M2、prof
 OVERWRITE = false;      % 同じ名前の図を上書きするか（作り直すときだけ true にする）
 
 THEME = "grooveBottomDetection";
-saveDir = fullfile(rootFolder,"results","figures","progress",THEME);
-if ~isfolder(saveDir)
-    mkdir(saveDir);
-end
+saveDir = figureDir(rootFolder, "progress", THEME);
 
 % タイトル・凡例の表記（docs/rules/figures.md の語彙表の「表記」の列）
 LABEL = struct("origD","original","inclBound","inclusive bounds","centroid","centroid","track","tracking");
@@ -164,9 +162,9 @@ labels = ["all groove-bottom points", "groove-bottom range: start", "groove-bott
 if MAKE_FIGS.crop
     % タイトルは図の幅に収まらないので2行に分ける
     fig = plotCrop(photoImg,xRange,yRange,det,pksSel(~isWide,:),pksSel(isWide,:),style,labels, ...
-        ["Groove on image", "(" + condTitle + ", " + LABEL.(SELECTION) + ", data " + DATE + ...
+        ["Groove on image", "(" + condTitle + ", " + LABEL.(SELECTION) + ", data " + DATE_MMDD + ...
         ", photo " + I_IMG + sprintf(", %d-%d ms)",msRange)]);
-    saveFigure(fig,saveDir,"grooveOnImage_" + condName + "_" + SELECTION + "_" + DATE + "_img" + I_IMG + ...
+    saveFigure(fig,saveDir,"grooveOnImage_" + condName + "_" + SELECTION + "_" + DATE_MMDD + "_img" + I_IMG + ...
         sprintf("_%d-%dms",msRange) + "_grooveBtmRange",Overwrite=OVERWRITE);
     close(fig);
 end
@@ -196,8 +194,8 @@ styleProfile = struct("figSize",FIG_SIZE_PROFILE,"dLim",D_LIM,"dTick",D_TICK,"le
     "fontSize",FONT_SIZE);
 if MAKE_FIGS.profile
     fig = plotProfiles(darkness,yProfile,info,cond.dThresh,styleProfile, ...
-        ["Darkness profile", "(" + condTitle + ", data " + DATE + ", photo " + I_IMG + sprintf(", %d-%d ms)",msRange)]);
-    saveFigure(fig,saveDir,"darknessProfile_" + condName + "_" + DATE + "_img" + I_IMG + ...
+        ["Darkness profile", "(" + condTitle + ", data " + DATE_MMDD + ", photo " + I_IMG + sprintf(", %d-%d ms)",msRange)]);
+    saveFigure(fig,saveDir,"darknessProfile_" + condName + "_" + DATE_MMDD + "_img" + I_IMG + ...
         sprintf("_%d-%dms",msRange),Overwrite=OVERWRITE);
     close(fig);
 end

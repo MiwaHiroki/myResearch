@@ -23,16 +23,30 @@ L_MASK = 20; % Maskを取るためのluminanceのthreshold, 0付近に設定す�
 TH_HIST = 150; % threshold of the peak height in the histogram
 
 D_THRESH = 0.6;
+WIDTH_THRESH = 8; % 溝底区間の幅の上限 [px]
+h_prl = 8; % 平行四辺形の底辺（fitGroove で溝を選ぶ平行四辺形の高さ）[px]
+tol = 3; % 溝に含める距離 [px]
+binWidth = 5; % ヒストグラムのビンの幅 [px]
 
-% 保存用
-date = "0731";
-dir = mkdirFromDate(proj.RootFolder,date);          % 図・音声の出力先
-expDir = experimentDir(proj.RootFolder,date);       % 実験結果.matの保存先
+% 保存用（実行する人が書き換える場所）
+EXPERIMENT_NAME = "upsampling";   % results/ の下の実験名（README の「実験名の一覧」から選ぶ）
+date = "YYYY-MMDD";               % 実行した日（例 "2026-1124"）。書き換えないと resultDir がエラーで止める
+LABEL = "";                       % 実行フォルダの説明（付けないなら ""）
 % dir = "C:\Users\owner\Documents\HirokiMiwa\matlab@Miwa\peak detection\data\"+date+"\";
 
 % 以前保存したp1,p2で溝を自動選択する場合は、その結果.matのパスを指定する
 % （空文字なら手動でginputにより選択する。詳細はREADMEの「溝の選択（fitGroove）」）
 PREV_RESULT_PATH = "";
+
+runCond = runConditions( ...      % 冒頭の定数を実験条件にまとめる（runInfo.json と cycleConditions の両方に使う）
+    NumImages=NUM_IMAGES, NumSegments=NUM_SEGMENTS, LMask=L_MASK, ...
+    Upsampling="origD", Methods=["centroid","localMax"], DThresh=D_THRESH, WidthThresh=WIDTH_THRESH, ...
+    Selection="manual", ReplayFrom=PREV_RESULT_PATH, ...
+    Manual=struct(thHist=TH_HIST, tol=tol, binWidth=binWidth, hPrl=h_prl));
+dir = resultDir(proj.RootFolder, EXPERIMENT_NAME, date, runCond, Label=LABEL, ...
+    ScriptName="pkCentroid_1cycle", Images=filenames_new, InputFiles=PREV_RESULT_PATH);   % 図・音声の出力先
+expDir = experimentDir(proj.RootFolder,date);       % 実験結果.matの保存先
+
 if PREV_RESULT_PATH ~= ""
     prevResult = loadCycleResult(PREV_RESULT_PATH);
     grooveSelection = prevResult.grooveSelection;
@@ -84,8 +98,6 @@ for iImg=1:NUM_IMAGES
         pts_cnt = GroovePointCloud(origD);
         pts_max = GroovePointCloud(origD);
 
-        WIDTH_THRESH = 8;
-
         extractor = GrooveExtractor(origD);
         for x=1:origImg.width
             [firstIdx, lastIdx] = extractor.findThresholdIntervals(origD, x);
@@ -104,7 +116,6 @@ for iImg=1:NUM_IMAGES
         pks_max = vertcat(pts_max.peakCells{:});
 
         w_prl = origWidth; % 平行四辺形の高さ
-        h_prl = 8; % 平行四辺形の底辺
 
         % fitGroove()を使って、溝1本分の形状データを抽出する
         % local maximum method, centroid method 共通の溝選択
@@ -126,9 +137,6 @@ for iImg=1:NUM_IMAGES
 
         allP1(kImgSmall,:) = p1;
         allP2(kImgSmall,:) = p2;
-
-        tol = 3;
-        binWidth = 5; % BinWidth
 
         % local maximum method
         points_fit = extractGrooveWaveform(pks_max_cor, p1(2), (1:origD.nCols)', ...
@@ -219,12 +227,8 @@ origCntAudio.saveAudio(dir);
 % REQUIRED = ["Upsampling","Date","SaveDir", ...
         % "LMask","ThHist","DThresh","WTh","Tol","BinWidth","HPrl"];
 
-cond = cycleConditions(...
-    Upsampling="origD",Date=date,SaveDir=dir,ExperimentDir=expDir,...
-    BinWidth=binWidth,DThresh=D_THRESH,...
-    Filenames=filenames_new,HPrl=h_prl,LMask=L_MASK,NumImages=NUM_IMAGES,...
-    NumSegments=NUM_SEGMENTS,Tol=tol,ThHist=TH_HIST,WTh=WIDTH_THRESH,...
-    ScriptName="pkCentroid_1cycle");
+cond = cycleConditions(runCond, Date=date, SaveDir=dir, ExperimentDir=expDir, ...
+    Filenames=filenames_new, ScriptName="pkCentroid_1cycle");
 
 res_max = cycleMethodResult("localMax", allPts_max_origD,xcoords,ycoords_max,y_comb_max,origMaxAudio);
 res_cnt = cycleMethodResult("centroid", allPts_cnt_origD, xcoords, ycoords_cnt, y_comb_cnt, origCntAudio);

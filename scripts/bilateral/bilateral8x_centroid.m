@@ -16,7 +16,7 @@
 % omitMaskはかけない。切り出す窓はセグメント内部でマスク（左右の無効領域）を
 % 含まないため。フィルタがマスクの黒を巻き込まない点は他の2本と同じ。
 %
-% 出力（results/0820/bilateral/photoshop8x/）:
+% 出力（実行フォルダ results/bilateralFilter/<YYYY-MMDD>_photoshop8x/。実行記録 runInfo.json も書く）:
 %   photoshop8x_filtered_k<NN>.png  フィルタ後の画像そのもの
 %   photoshop8x_ptsFull_<cond>.png  切り出した領域全体に溝底点を重ねた図
 %   photoshop8x_ptsView_<cond>.png  さらに拡大した範囲に溝底点を重ねた図
@@ -51,11 +51,22 @@ VIEW_COLS = 1:800;
 
 MARKER_SIZE = 5;
 
-% 保存先
-saveDir = fullfile(mkdirFromDate(rootFolder,"0820"),"bilateral","photoshop8x");
-if ~isfolder(saveDir)
-    mkdir(saveDir);
-end
+% 保存先（実行する人が書き換える場所）
+EXPERIMENT_NAME = "bilateralFilter";   % results/ の下の実験名（README の「実験名の一覧」から選ぶ）
+date = "YYYY-MMDD";                    % 実行した日（例 "2026-1124"）。書き換えないと resultDir がエラーで止める
+LABEL = "photoshop8x";                 % 実行フォルダの説明（付けないなら ""）
+
+% Photoshop で拡大した画像をそのまま使い、暗度は高解像度化しない（origD）。
+% 元画像（*-ori.png）は大きさを読むだけに使う
+runCond = runConditions( ...      % 冒頭の定数を実験条件にまとめる（runInfo.json に書く）
+    Region=struct(imgIndex=IMG_INDEX, jSegment=J_SEGMENT, oriRows=ORI_ROWS, oriCols=ORI_COLS), ...
+    NumSegments=NUM_SEGMENTS, ...
+    Bilateral=struct(kernelSizes=KERNEL_SIZES, spatialSigmas=SPATIAL_SIGMAS, ...
+                     degreeOfSmoothing=DEGREE_OF_SMOOTHING), ...
+    Upsampling="origD", Methods="centroid", DThresh=D_THRESH, WidthThresh=W_TH_8X);
+saveDir = resultDir(rootFolder, EXPERIMENT_NAME, date, runCond, Label=LABEL, ...
+    ScriptName="bilateral8x_centroid", ...
+    Images="DSC1111-0000"+num2str(IMG_INDEX)+["-8x","-ori"]);
 TAG = "photoshop8x";
 
 %% 画像の読み込みと切り出し

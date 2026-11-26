@@ -8,7 +8,7 @@ function files = saveFigure(fig, saveDir, name, opts)
 % 原稿用は savePaperFigure を使う。
 %
 % 使い方:
-%   saveFigure(fig, mkdirFromDate(rootFolder, date), "waveform_origD_centroid_track_1014");
+%   saveFigure(fig, outDir, "waveform_origD_centroid_track_1014");   % outDir は resultDir の戻り値
 %   saveFigure(fig, saveDir, name, SaveFig=false, Resolution=150);
 %
 % 戻り値 files は、保存したファイルのフルパス（string の列ベクトル。png、fig の順）。

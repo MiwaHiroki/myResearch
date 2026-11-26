@@ -29,9 +29,16 @@ TH_HIST = 150; % threshold of the peak height in the histogram
 
 D_THRESH = 0.6;
 
-% 保存用
-date = "0721";
-saveDir = mkdirFromDate(proj.RootFolder,date);
+% 保存用（実行する人が書き換える場所）
+EXPERIMENT_NAME = "upsampling";   % results/ の下の実験名（README の「実験名の一覧」から選ぶ）
+date = "YYYY-MMDD";               % 実行した日（例 "2026-1124"）。書き換えないと resultDir がエラーで止める
+LABEL = "";                       % 実行フォルダの説明（付けないなら ""）
+
+runCond = runConditions( ...      % 冒頭の定数を実験条件にまとめる（runInfo.json に書く）
+    NumImages=NUM_IMAGES, NumSegments=NUM_SEGMENTS, LMask=L_MASK, DThresh=D_THRESH, ...
+    Manual=struct(thHist=TH_HIST));
+saveDir = resultDir(proj.RootFolder, EXPERIMENT_NAME, date, runCond, Label=LABEL, ...
+    ScriptName="pkCentroid_interp2", Images=filenames_new);   % 図の出力先
 % dir = "C:\Users\owner\Documents\HirokiMiwa\matlab@Miwa\peak detection\data\"+date+"\";
 
 iImg=1; % i=1~NUM_IMAGES

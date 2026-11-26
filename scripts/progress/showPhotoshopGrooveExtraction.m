@@ -45,9 +45,19 @@ crop8x = img8x_g(rowRange8x, colRange8x);
 imgDataOri = ImageData(cropOri, [IMG_INDEX;0]);
 imgData8x = ImageData(crop8x, [IMG_INDEX;0]);
 
-% 保存先
-date = "0817";
-dir = mkdirFromDate(rootFolder,date);
+D_THRESH = 0.6;
+WIDTH_THRESH = 80; % 高解像度画像(8x)上での溝底幅の上限[px]
+
+% 保存先（実行する人が書き換える場所）
+EXPERIMENT_NAME = "photoshopUpscaling";   % results/ の下の実験名（README の「実験名の一覧」から選ぶ）
+date = "YYYY-MMDD";                       % 実行した日（例 "2026-1124"）。書き換えないと resultDir がエラーで止める
+LABEL = "";                               % 実行フォルダの説明（付けないなら ""）
+
+runCond = runConditions( ...      % 冒頭の定数を実験条件にまとめる（runInfo.json に書く）
+    Region=struct(imgIndex=IMG_INDEX, rowRange=ROW_RANGE, colRange=COL_RANGE), ...
+    Upsampling="origD", Methods=["centroid","localMax"], DThresh=D_THRESH, WidthThresh=WIDTH_THRESH);
+dir = resultDir(rootFolder, EXPERIMENT_NAME, date, runCond, Label=LABEL, ...
+    ScriptName="showPhotoshopGrooveExtraction", Images="DSC1111-0000"+num2str(IMG_INDEX)+["-8x","-ori"]);
 
 %% 図1: 高解像度化を行った画像の一部分
 % ImageData.showImage()はXAxisLocationを上にするため、title()だとx軸ラベルと
@@ -63,8 +73,7 @@ exportgraphics(fig1, dir+"1_photoshopHighRes_segment.png","Resolution",300,"Back
 % CLAUDE.mdのGrooveExtractor呼び出し方に準拠。
 % Photoshopで既に高解像度化済みの画像なので、DarknessMap側の
 % dResample/dInterpによる再アップサンプリングは行わない（scaleFactorは1のまま）。
-D_THRESH = 0.6;
-WIDTH_THRESH = 80; % 高解像度画像(8x)上での溝底幅の上限[px]
+% 暗さのしきい値 D_THRESH と溝底幅の上限 WIDTH_THRESH は、実行記録に書くため保存先の前で決めている。
 
 map = DarknessMap(imgData8x);
 map = map.setDiffTF(D_THRESH);

@@ -8,13 +8,16 @@
 /data
 
 # outputs
-# results/figures/slides と results/figures/progress のみ他PCと共有するため追跡対象にする
-# （results/figures/paperを含め、それ以外のresults配下は引き続き無視する）
+# 図のうち、スライド用（results/figures/<発表名>/slides）と進捗報告用（results/figures/progress）
+# だけを他PCと共有するため追跡対象にする。原稿用（results/figures/<発表名>/paper）、
+# 実験の実行フォルダ（results/<実験名>/<YYYY-MMDD_説明>）、results/figures の直下のファイルは無視する（issue #28）
 /results/*
 !/results/figures/
 /results/figures/*
-!/results/figures/slides/
-!/results/figures/progress/
+!/results/figures/*/
+/results/figures/*/*
+!/results/figures/*/slides/
+!/results/figures/progress/*
 /audioFiles
 
 # experiment results (.mat)
@@ -30,9 +33,4 @@
 
 # editor
 # VS Code の設定は個人の好み（表示など）なので追跡しない
-/.vscode
-
-
-
-# editor
 /.vscode

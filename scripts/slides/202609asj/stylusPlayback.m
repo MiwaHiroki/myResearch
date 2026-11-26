@@ -8,10 +8,7 @@
 setDefaultIntrpr();
 
 proj = currentProject();
-saveDir = fullfile(proj.RootFolder,"results","figures","slides","202609asj");
-if ~isfolder(saveDir)
-    mkdir(saveDir);
-end
+saveDir = figureDir(proj.RootFolder, "slides", "202609asj");
 
 %% パラメータ
 % 読み込む音声

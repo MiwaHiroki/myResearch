@@ -15,7 +15,8 @@ proj = currentProject();
 rootFolder = proj.RootFolder;
 
 %% パラメータ
-DATE = "1014";      % 読み込む結果の日付（experiments/<DATE>/）
+DATE = "2026-1014"; % 読み込む結果の日付（experiments/<DATE>/）
+DATE_MMDD = extractAfter(DATE, "-");   % 図の名前とタイトルに書くデータの日付（MMDD。docs/rules/figures.md）
 METHOD = "centroid"; % 溝底の抽出法（"centroid" または "localMax"）
 
 Y_VIEW_FULL = [-1 1];              % 全時間の図のAmplitudeの範囲
@@ -24,10 +25,7 @@ T_WINDOWS = [0 0.020; 0.590 0.630; 0.710 0.720]; % 切り出す時間[s]（1行�
 FIG_SIZE = [14.8 11.1]; % 図の大きさ[cm]（以前の図 compare_..._track_and_manual.fig と同じ）
 RESOLUTION = 300;       % pngの解像度[dpi]
 
-saveDir = fullfile(rootFolder,"results","figures","progress","grooveTracking");
-if ~isfolder(saveDir)
-    mkdir(saveDir);
-end
+saveDir = figureDir(rootFolder, "progress", "grooveTracking");
 
 %% 読み込み
 manualPath = cycleResultPath(rootFolder,"origD",DATE);
@@ -48,8 +46,8 @@ tManual = (1:numel(audioManual.signal))' / fs; % AudioData.plotWaveformと同じ
 tTrack = (1:numel(audioTrack.signal))' / fs;
 
 % ファイル名：比べたもの（manualとtrack）・抽出法・高解像度化の有無・データの日付
-baseName = "waveform_manualVsTrack_" + METHOD + "_origD_" + DATE;
-titleStr = "manual vs track (" + METHOD + ", origD, date:" + DATE + ")";
+baseName = "waveform_manualVsTrack_" + METHOD + "_origD_" + DATE_MMDD;
+titleStr = "manual vs track (" + METHOD + ", origD, date:" + DATE_MMDD + ")";
 
 %% 全時間の図
 [fig,ax] = plotManualVsTrack(tManual,audioManual.signal,tTrack,audioTrack.signal,FIG_SIZE,titleStr);

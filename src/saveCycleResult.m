@@ -40,9 +40,9 @@ function [matPath, dValuePath] = saveCycleResult(conditions, allImg, methodResul
 %                        フィールド（溝の自動追跡の method・seeds・tracking、
 %                        複数本の溝の multiGroove（issue #30）など）もそのまま保存される。
 %   SaveDir            - 保存先フォルダ。既定は conditions.experimentDir
-%                        （experiments/<日付>/）。conditions に
-%                        ExperimentDir を渡していない場合は conditions.saveDir
-%                        （results/<日付>/）に保存する
+%                        （experiments/<日付>/。日付は "2026-0731" の形）。
+%                        conditions に ExperimentDir を渡していない場合は
+%                        conditions.saveDir（図・音声の出力先）に保存する
 %   FileName           - ファイル名（既定: cycleResultFileName による自動生成）
 %   Overwrite          - true なら既存ファイルを上書きする。false（既定）なら
 %                        "..._2.mat" のように連番を付けて別名で保存する。
@@ -56,6 +56,7 @@ function [matPath, dValuePath] = saveCycleResult(conditions, allImg, methodResul
 % 保存される result の構成:
 %   result.conditions  実験条件（cycleConditions の出力）
 %   result.meta        実行日時・スクリプト名・MATLAB版・gitコミットなど
+%                      （collectMeta の出力。gitBranch は含めない）
 %   result.allImg      (N x 1) ImageData（.imgは保存しない。imgIDは残るので
 %                      必要ならreconstructImageで元の撮影画像から作り直せる）
 %   result.centroid    重心法の結果。.pts (N x 1 GroovePointCloud),
@@ -71,7 +72,7 @@ function [matPath, dValuePath] = saveCycleResult(conditions, allImg, methodResul
 % 読み込みは loadCycleResult を使う。
 %
 % 関連: cycleConditions, cycleMethodResult, cycleResultFileName, loadCycleResult,
-%       reconstructImage
+%       reconstructImage, collectMeta
 
     arguments
         conditions (1,1) struct
@@ -252,48 +253,6 @@ function [fullPath, base] = uniquePath(saveDir, fileName, overwrite)
         base + ext, newBase, ext);
     base = newBase;
     fullPath = fullfile(saveDir, base + ext);
-end
-
-
-function meta = collectMeta(scriptName)
-% 実行環境のメタ情報を集める。どのコードで作った結果かを後から特定するため。
-
-    meta = struct();
-    meta.savedAt        = datetime("now");
-    meta.scriptName     = scriptName;
-    meta.matlabRelease  = string(version("-release"));
-    meta.matlabVersion  = string(version);
-    meta.computerName   = string(getenv("COMPUTERNAME"));
-
-    try
-        rootFolder = string(currentProject().RootFolder);
-    catch
-        rootFolder = string(pwd);
-    end
-    meta.rootFolder = rootFolder;
-
-    [meta.gitCommit, meta.gitDirty] = gitState(rootFolder);
-end
-
-
-function [commit, isDirty] = gitState(rootFolder)
-% gitのコミットハッシュと作業ツリーが変更済みかを返す。
-% gitが無い環境でも保存自体は成功させたいので、失敗しても空文字を返す。
-
-    commit  = "";
-    isDirty = false;
-    try
-        [status, out] = system(sprintf('git -C "%s" rev-parse --short HEAD', rootFolder));
-        if status == 0
-            commit = string(strtrim(out));
-        end
-        [status, out] = system(sprintf('git -C "%s" status --porcelain', rootFolder));
-        if status == 0
-            isDirty = ~isempty(strtrim(out));
-        end
-    catch
-        % gitの情報は無くても構わない
-    end
 end
 
 

@@ -9,14 +9,11 @@
 setDefaultIntrpr();
 
 proj = currentProject();
-saveDir = fullfile(proj.RootFolder,"results","figures","slides","202609asj");
-if ~isfolder(saveDir)
-    mkdir(saveDir);
-end
+saveDir = figureDir(proj.RootFolder, "slides", "202609asj");
 
 %% パラメータ
 % 読み込む結果.mat（experiments/<日付>/cycleResult_<条件>_<日付>.mat）
-DATE = "0731";
+DATE = "2026-0731";
 UPSAMPLING = "origD";
 
 WIN_SIZE = 1024;   % stftの窓長

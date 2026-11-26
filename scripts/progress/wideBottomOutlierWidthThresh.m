@@ -3,7 +3,7 @@
 % 溝底区間の幅の上限を 8（直す前）と 4（直した後）にして、保存したクリック位置から溝の選択をやり直し、
 % 直す前と後に選んだ溝底点を写真に重ねた切り出しの図と、音声の波形の図を作って、
 % results/figures/progress/grooveBottomDetection/ に保存する。作るのは、評価スクリプト
-% scripts/evaluation/grooveBottomDetection/compareWidthThresh.m が 2026-11-18 に results/1118/ に出した
+% scripts/evaluation/grooveBottomDetection/compareWidthThresh.m が 2026-11-18 に results/grooveBottomDetection/2026-1118_evaluation/ に出した
 % ユーザー確認用の図のうち、次の5枚と同じ名前・同じ中身の図である。
 %   M6：1014、写真8、715-716 ms の切り出しと、714-717 ms の波形（外れ値が消えた所）
 %   M8：1104 の本実装、4本目・写真5、2718-2719 ms の切り出しと、2717-2720 ms の波形
@@ -39,8 +39,9 @@ rootFolder = proj.RootFolder;
 
 %% パラメータ（評価スクリプトと同じ値）
 DATA_KEYS  = ["t1014", "h1104"];
-DATA_DATES = ["1014", "1104"];
-DATA_FILES = ["cycleResult_origD_track_1014.mat", "cycleResult_origD_hist5_1104.mat"];
+DATA_DATES = ["2026-1014", "2026-1104"];
+DATA_MMDD = extractAfter(DATA_DATES, "-");   % 図の名前とタイトルに書くデータの日付（MMDD。docs/rules/figures.md）
+DATA_FILES = ["cycleResult_origD_track_2026-1014.mat", "cycleResult_origD_hist5_2026-1104.mat"];
 DATA_KIND  = ["track", "hist"];  % 溝の選び方（図の名前の語にもなる）
 UPSAMPLING = "origD";   % 高解像度化（自動追跡は origD だけ）
 BOUND = "inclBound";    % 溝底の判定。2つのデータは ad46b44 以降のコードで作った
@@ -68,7 +69,7 @@ EXPECTED_NAMES = ["grooveOnImage_wTh8VsWTh4_origD_inclBound_centroid_track_1014_
     "grooveOnImage_wTh8VsWTh4_origD_inclBound_centroid_track_1014_img8_671-672ms"];
 
 % 評価の結果（直す前・直した後）。eval-report-1.md 2.3 の P1〜P3 と、
-% results/1118/evalWidthThresh_wideRuns.csv の maxAbsAmpBefore・maxAbsAmpAfter
+% results/grooveBottomDetection/2026-1118_evaluation/evalWidthThresh_wideRuns.csv の maxAbsAmpBefore・maxAbsAmpAfter
 EXPECT.outliers = struct("t1014", [1 0], "h1104", [26 0]);
 EXPECT.amp08    = struct("t1014", [2 1], "h1104", [56 9]);
 EXPECT.amp1     = struct("t1014", [1 0], "h1104", [32 0]);
@@ -97,10 +98,7 @@ LABEL = struct("origD", "original", "inclBound", "inclusive bounds", "centroid",
     "before", "width threshold " + W_BEFORE + " px", "after", "width threshold " + W_AFTER + " px");
 
 THEME = "grooveBottomDetection";
-saveDir = fullfile(rootFolder, "results", "figures", "progress", THEME);
-if ~isfolder(saveDir)
-    mkdir(saveDir);
-end
+saveDir = figureDir(rootFolder, "progress", THEME);
 
 %% 読み込み
 if METHOD ~= "centroid"   % 溝底点の検出（detectPhoto）は重心法だけを求める
@@ -244,9 +242,9 @@ for iTarget = 1:numel(TARGETS)
         cycName = ""; cycTitle = "";
         partName = "_img" + i; partTitle = "photo " + i;
     end
-    condName = UPSAMPLING + "_" + BOUND + "_" + METHOD + "_" + DATA_KIND(d) + cycName + "_" + DATA_DATES(d);
+    condName = UPSAMPLING + "_" + BOUND + "_" + METHOD + "_" + DATA_KIND(d) + cycName + "_" + DATA_MMDD(d);
     condTitle = LABEL.(UPSAMPLING) + ", " + LABEL.(BOUND) + ", " + LABEL.(METHOD) + ", " + ...
-        LABEL.(DATA_KIND(d)) + cycTitle + ", data " + DATA_DATES(d);
+        LABEL.(DATA_KIND(d)) + cycTitle + ", data " + DATA_MMDD(d);
 
     % 切り出す場所：直す前の幅の広い点が続く区間（評価スクリプトと同じ決め方）
     k = find(B.groove == j & B.photo == i);

@@ -6,10 +6,10 @@
 % 評価の項目・しきい値は docs/issues/closed/35-wide-bottom-outliers/criteria.md（ID は同じ）。
 %
 % 比べるデータ（どれも読むだけ。experiments/ には何も書かない）
-%   t1014：experiments/1014/cycleResult_origD_track_1014.mat（grooveTrack_1cycle.m、1周）
-%   h1104：experiments/1104/cycleResult_origD_hist5_1104.mat（grooveHist_Ncycle.m、5周。本実装）
-%   t1104：experiments/1104/cycleResult_origD_track5_1104.mat（grooveTrack_Ncycle.m、5周。正解データ）
-%   m1014：experiments/1014/cycleResult_origD_1014.mat（pkCentroid_1cycle.m の従来法。参考の比較だけ）
+%   t1014：experiments/2026-1014/cycleResult_origD_track_2026-1014.mat（grooveTrack_1cycle.m、1周）
+%   h1104：experiments/2026-1104/cycleResult_origD_hist5_2026-1104.mat（grooveHist_Ncycle.m、5周。本実装）
+%   t1104：experiments/2026-1104/cycleResult_origD_track5_2026-1104.mat（grooveTrack_Ncycle.m、5周。正解データ）
+%   m1014：experiments/2026-1014/cycleResult_origD_2026-1014.mat（pkCentroid_1cycle.m の従来法。参考の比較だけ）
 % 手順
 %   1. 写真を reconstructImage で読み直し、3つのスクリプトの検出のループと同じ処理（ローカル関数
 %      detectPhoto）で、幅の上限 8 と 4 のそれぞれで溝底点（重心法・局所的最大値法）と点ごとの幅を
@@ -19,7 +19,8 @@
 %      保存した yAbs・found・audio.signal と一致することを確かめる（R3・R4）。
 %   3. 外れ値（局所的なずれ > 1 px）、|振幅| > 0.8・1、幅5以上の選んだ点、変わった列などを数え、
 %      判定の表と一覧の表を表示する。
-%   4. SAVE_OUTPUTS が true なら、表を CSV で、図（criteria.md の U1〜U4）を results/<OUT_DATE>/ に保存する。
+%   4. SAVE_OUTPUTS が true なら、表を CSV で、図（criteria.md の U1〜U4）を実行フォルダ
+%      （results/grooveBottomDetection/<OUT_DATE>_evaluation/）に保存する。
 % 局所的なずれ：選んだ点のデトレンド前の y から、前後10列（合わせて21列）で点を採れた列の y の
 % 中央値を引いた値（plan-2.md 2.1）。点を採れずに補間した列では求めない。
 % 前提：Research.prj を開いていること（撮影画像が MATLAB のパス上にあること）。
@@ -31,8 +32,10 @@ proj = currentProject();
 rootFolder = proj.RootFolder;
 
 %% パラメータ（実行する人が書き換える場所）
-OUT_DATE = "MMDD";        % 評価の日。図・表は results/<OUT_DATE>/
-SAVE_OUTPUTS = true;      % 図（U1〜U4）と表（CSV）を results/<OUT_DATE>/ に保存する
+EXPERIMENT_NAME = "grooveBottomDetection";   % results/ の下の実験名（README の「実験名の一覧」から選ぶ）
+OUT_DATE = "YYYY-MMDD";   % 評価の日（例 "2026-1124"）。書き換えないと resultDir がエラーで止める
+RUN_LABEL = "evaluation"; % 実行フォルダの説明（付けないなら ""）。LABEL は下で図の表記に使うので別の名前にする
+SAVE_OUTPUTS = true;      % 図（U1〜U4）と表（CSV）を実行フォルダに保存する
 % 直したスクリプトを temp/ のコピーで実行した結果（ワークスペースの y_comb_cnt・y_comb_max・cond を
 % save した .mat のパス）。t1014 は grooveTrack_1cycle.m、h1104 は grooveHist_Ncycle.m、t1104 は
 % grooveTrack_Ncycle.m。空文字のデータは R5 を確かめない（criteria.md 8章の手順4）
@@ -40,12 +43,13 @@ SCRIPT_CHECK_PATHS = struct("t1014", "", "h1104", "", "t1104", "");
 
 %% パラメータ（評価の定義。変えるときは criteria.md の承認を取り直す）
 DATA_KEYS  = ["t1014", "h1104", "t1104"];
-DATA_DATES = ["1014", "1104", "1104"];
-DATA_FILES = ["cycleResult_origD_track_1014.mat", "cycleResult_origD_hist5_1104.mat", ...
-    "cycleResult_origD_track5_1104.mat"];
+DATA_DATES = ["2026-1014", "2026-1104", "2026-1104"];
+DATA_MMDD = extractAfter(DATA_DATES, "-");   % 図の名前とタイトルに書くデータの日付（MMDD。docs/rules/figures.md）
+DATA_FILES = ["cycleResult_origD_track_2026-1014.mat", "cycleResult_origD_hist5_2026-1104.mat", ...
+    "cycleResult_origD_track5_2026-1104.mat"];
 DATA_KIND  = ["track", "hist", "track"];  % 溝の選び方（図の名前の語にもなる）
-MANUAL_DATE = "1014";                     % 従来法（参考の比較 S1）
-MANUAL_FILE = "cycleResult_origD_1014.mat";
+MANUAL_DATE = "2026-1014";                % 従来法（参考の比較 S1）
+MANUAL_FILE = "cycleResult_origD_2026-1014.mat";
 
 W_BEFORE = 8;           % 直す前の溝底区間の幅の上限 [px]（3つのスクリプトの今の値）
 W_AFTER = 4;            % 直した後の値（issue #35）
@@ -103,12 +107,18 @@ LABEL = struct("origD", "original", "inclBound", "inclusive bounds", "centroid",
     "before", "width threshold " + W_BEFORE + " px", "after", "width threshold " + W_AFTER + " px");
 
 %% 読み込み
-if OUT_DATE == "MMDD"
-    error("compareWidthThresh:dateNotSet", ...
-        "OUT_DATE を評価の日（MMDD）にしてください。results/<日付>/ に同じ名前の図が無いことを確かめてください。");
-end
 if SAVE_OUTPUTS
-    outDir = mkdirFromDate(rootFolder, OUT_DATE);
+    % 評価の定義を実験条件にまとめ、読むファイルとともに実行記録（runInfo.json）に書く
+    runCond = runConditions( ...
+        NumSegments=NUM_SEGMENTS, Upsampling="origD", Methods=METHODS, ...
+        Other=struct(wBefore=W_BEFORE, wAfter=W_AFTER, wideMin=WIDE_MIN, devWindow=DEV_WINDOW, ...
+            devTh=DEV_TH, ampTh=AMP_TH, runJoinGap=RUN_JOIN_GAP, exact=EXACT, bound=BOUND, ...
+            thMaxGapPx=TH.MAX_GAP_PX, thShapeRmse=TH.SHAPE_RMSE, thShapeCorr=TH.SHAPE_CORR, ...
+            thShapeCorrAll=TH.SHAPE_CORR_ALL, thLmSeMult=TH.LM_SE_MULT, planTol=PLAN_TOL));
+    outDir = resultDir(rootFolder, EXPERIMENT_NAME, OUT_DATE, runCond, Label=RUN_LABEL, ...
+        ScriptName="compareWidthThresh", ...
+        InputFiles=[fullfile(rootFolder, "experiments", [DATA_DATES MANUAL_DATE], [DATA_FILES MANUAL_FILE]), ...
+                    string(struct2cell(SCRIPT_CHECK_PATHS))']);
 end
 
 R = struct();
@@ -523,9 +533,9 @@ for d = 1:numel(DATA_KEYS)
     else
         cycName = ""; cycTitle = "";
     end
-    condName = "origD_" + BOUND + "_centroid_" + DATA_KIND(d) + cycName + "_" + DATA_DATES(d);
+    condName = "origD_" + BOUND + "_centroid_" + DATA_KIND(d) + cycName + "_" + DATA_MMDD(d);
     condTitle = LABEL.origD + ", " + LABEL.(BOUND) + ", " + LABEL.centroid + ", " + ...
-        LABEL.(DATA_KIND(d)) + cycTitle + ", data " + DATA_DATES(d);
+        LABEL.(DATA_KIND(d)) + cycTitle + ", data " + DATA_MMDD(d);
     B = T.(key).before.centroid;
     A = T.(key).after.centroid;
 
