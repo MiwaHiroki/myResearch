@@ -274,6 +274,8 @@
 | 2026-11-24 | main | 採用した改善案を master で反映した（このブランチには入れていない）。振り返りの5章に決定と、反映したときに案に足したことを書き、状態を「完了」にした | `1497c05`（master）、[`progress-material-trial.md`](./progress-material-trial.md) |
 | 2026-11-26 | ユーザー | **決定** 新しい図のルール（`docs/rules/figures.md` の「線と点」「軸の範囲」、凡例に数だけを書かない）と素材ファイルの新しいひな型（図の表に小さい画像とファイル名、フォルダは本文、数式は LaTeX）を、モックアップを見て確定した（master の `12bd16b`）。それに合わせて、この素材ファイルと図を直す。<br>`closed/` の中身を変えない決まりの例外として、素材ファイル・図・図のスクリプトと、この見出しを直すことを認めた。作業ブランチは `claude/35-progress-material-restyle`（ローカルの master の `12bd16b` から） | — |
 | 2026-11-26 | main | 素材ファイルの図の表8行を新しいひな型に直し、M3 の数式を LaTeX の書き方にした。ルールに合わない M3・M6・M8 の状態を「依頼」に戻し、直しの依頼を書いた | [`progress-material.md`](./progress-material.md) |
+| 2026-11-26 | illustrator | M3・M6・M8 の図3枚を、新しい図のルールで作り直した（上書き）。M3 は重心としきい値の線を 0.5 pt の実線にし、点を塗りつぶし、凡例に何の値かを書いた。M6・M8 の波形は、y が変わった列の丸を塗りつぶし、振幅の軸を 0 を中心に上下対称（±1.1、±1.3）にした。<br>点と線の座標・凡例の値は、前の図と同じことを fig で確かめた。描き方に触れた説明の文も直した | [`progress-material.md`](./progress-material.md)、`scripts/progress/wideBottomOutlier.m`、`scripts/progress/wideBottomOutlierWidthThresh.m`、`results/figures/progress/grooveBottomDetection/`（図3枚） |
+| 2026-11-26 | main | 書いてよい範囲の外が変わっていないことと、図3枚を確かめた | — |
 ### 振り返り — 完了
 
 | 日付 | 担当 | 内容 | 成果物 |

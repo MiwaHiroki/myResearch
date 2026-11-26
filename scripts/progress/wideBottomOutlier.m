@@ -29,6 +29,9 @@
 % 2026/11/23 ユーザーの決定で、M3 の凡例を右上（2列）にし、暗さの軸を 0.35〜1.0（目盛りの間隔 0.05。
 %            D_TICK）にした。凡例が重心の破線の上の部分にかかるのは、ユーザーが受け入れた。OVERWRITE=true で
 %            M3 だけを作り直した（MAKE_FIGS.crop=false）
+% 2026/11/26 ユーザーの決定（docs/rules/figures.md の「線と点」「凡例」）で、M3 の重心の破線としきい値の点線を
+%            細い実線（LINE_WIDTH_AUX）にし、暗さの点を塗りつぶし、凡例に何の値かを書いた（centroid $y$ = …、
+%            $y$ range …, width … px）。OVERWRITE=true で M3 だけを作り直した（MAKE_FIGS.crop=false）
 
 setDefaultIntrpr();
 proj = currentProject();
@@ -61,9 +64,12 @@ D_LIM = [0.35 1.0];           % 暗さの軸の範囲。上限は、右上の凡
                               % 0.8 から上げた（ユーザーの決定、2026-11-23）
 D_TICK = 0.05;                % 暗さの軸の目盛りの間隔
 FIG_SIZE_PROFILE = [16 10];   % 図の大きさ [cm]
-LEGEND_LOCATION_PROFILE = "northeast"; % 凡例の位置（右上、2列。同じ色の折れ線と重心の破線が同じ行に並ぶ）。
-                                       % 凡例が重心の破線3本の上の部分にかかるのは、ユーザーが受け入れた
+LEGEND_LOCATION_PROFILE = "northeast"; % 凡例の位置（右上、2列。同じ色の折れ線と重心の線が同じ行に並ぶ）。
+                                       % 凡例が重心の線3本の上の部分にかかるのは、ユーザーが受け入れた
                                        % （ユーザーの決定、2026-11-23）
+LINE_WIDTH_DATA = 1;    % 暗さの折れ線の太さ [pt]（docs/rules/figures.md「線と点」のデータの線）
+LINE_WIDTH_AUX = 0.5;   % しきい値と重心の線の太さ [pt]（補助の線。データの線より細い実線）
+PROFILE_MARKER_SIZE = 4; % 暗さの点の大きさ（plot の MarkerSize。塗りつぶす）
 
 % 色（docs/groove-on-image.md と同じ。幅の広い選んだ点の色だけ、このスクリプトで決めた）
 COLOR_ALL = "cyan";                                  % すべての溝底点
@@ -191,7 +197,8 @@ disp(array2table([yProfile, darkness(yProfile,PROFILE_X)],'VariableNames',["y", 
 
 msRange = msRangeOf(PROFILE_X);
 styleProfile = struct("figSize",FIG_SIZE_PROFILE,"dLim",D_LIM,"dTick",D_TICK,"legendLocation",LEGEND_LOCATION_PROFILE, ...
-    "fontSize",FONT_SIZE);
+    "fontSize",FONT_SIZE,"lineWidthData",LINE_WIDTH_DATA,"lineWidthAux",LINE_WIDTH_AUX, ...
+    "markerSize",PROFILE_MARKER_SIZE);
 if MAKE_FIGS.profile
     fig = plotProfiles(darkness,yProfile,info,cond.dThresh,styleProfile, ...
         ["Darkness profile", "(" + condTitle + ", data " + DATE_MMDD + ", photo " + I_IMG + sprintf(", %d-%d ms)",msRange)]);
@@ -283,8 +290,9 @@ function fig = plotCrop(photoImg,xRange,yRange,det,pksNarrow,pksWide,style,label
 end
 
 function fig = plotProfiles(darkness,yProfile,info,dThresh,style,titleLines)
-% info の列ごとに、yProfile の行の暗さを折れ線で描き、選んだ溝底点（重心）の y に、同じ色の破線を引く。
-% しきい値 dThresh に点線を引く。凡例は、左の列に暗さの分布（溝底区間と幅）としきい値、右の列に重心を並べる
+% info の列ごとに、yProfile の行の暗さを折れ線（点は塗りつぶす）で描き、選んだ溝底点（重心）の y に、同じ色の
+% 細い実線を引く。しきい値 dThresh に黒の細い実線を引く（補助の線はデータの線より細くする。docs/rules/figures.md
+% 「線と点」）。凡例は、左の列に暗さの分布（溝底区間と幅）としきい値、右の列に重心を並べる
     fig = createFigure([0 0 style.figSize]);
     tl = tiledlayout(fig,1,1,Padding="compact");
     ax = nexttile(tl);
@@ -296,10 +304,11 @@ function fig = plotProfiles(darkness,yProfile,info,dThresh,style,titleLines)
     hold(ax,"on");
     for k = 1:numCols
         c = colors(k,:);
-        hLine(k) = plot(ax,yProfile,darkness(yProfile,info.x(k)),"-o",Color=c,LineWidth=1,MarkerSize=4);
-        hCentroid(k) = xline(ax,info.centroid(k),"--",Color=c,LineWidth=1);
+        hLine(k) = plot(ax,yProfile,darkness(yProfile,info.x(k)),"-o",Color=c,LineWidth=style.lineWidthData, ...
+            MarkerSize=style.markerSize,MarkerFaceColor=c);
+        hCentroid(k) = xline(ax,info.centroid(k),"-",Color=c,LineWidth=style.lineWidthAux);
     end
-    hThresh = yline(ax,dThresh,"k:",LineWidth=1);
+    hThresh = yline(ax,dThresh,"k-",LineWidth=style.lineWidthAux);
     hold(ax,"off");
     grid(ax,"on");
     xlim(ax,yProfile([1 end]));
@@ -309,8 +318,8 @@ function fig = plotProfiles(darkness,yProfile,info,dThresh,style,titleLines)
     xlabel(ax,"$y$ [px]");
     ylabel(ax,"Darkness $D$");
     title(ax,titleLines);
-    lineNames = compose("$x$ = %d (range %d-%d, width %d)",info.x,info.rangeStart,info.rangeEnd,info.width);
-    centroidNames = compose("centroid %.2f",info.centroid);
+    lineNames = compose("$x$ = %d ($y$ range %d-%d, width %d px)",info.x,info.rangeStart,info.rangeEnd,info.width);
+    centroidNames = compose("centroid $y$ = %.2f",info.centroid);
     lgd = legend(ax,[hLine; hThresh; hCentroid], ...
         [lineNames; "$D_\mathrm{th}$ = " + dThresh; centroidNames], ...
         Location=style.legendLocation,NumColumns=2,FontSize=style.fontSize*0.9);
