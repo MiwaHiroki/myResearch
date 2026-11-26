@@ -11,7 +11,8 @@
 | `bug` | [bug.md](../.github/ISSUE_TEMPLATE/bug.md) | エラー、誤った出力、想定外の挙動 |
 | `refactor` | [refactor.md](../.github/ISSUE_TEMPLATE/refactor.md) | 動作を変えずに構造・命名・責務を整理する |
 | `feature` | [feature.md](../.github/ISSUE_TEMPLATE/feature.md) | 関数・クラス・処理・スクリプトの追加 |
-| `dataset` | [dataset.md](../.github/ISSUE_TEMPLATE/dataset.md) | 実験データ（cycleResult など）の生成と保存 |
+| `exploratory` | [exploratory.md](../.github/ISSUE_TEMPLATE/exploratory.md) | うまくいくか分からない手法を試し、採用するかを決める（採用したら組み込みは `feature` で別に立てる） |
+| `dataset` | [dataset.md](../.github/ISSUE_TEMPLATE/dataset.md) | 正解データ・実験データ（cycleResult など）の生成と保存。作り方が決まっているもの |
 | `figure` | [figure.md](../.github/ISSUE_TEMPLATE/figure.md) | 論文・スライド用の図表 |
 | `documentation` | [documentation.md](../.github/ISSUE_TEMPLATE/documentation.md) | README・docs・ヘルプの追加や修正 |
 | `good first issue` | [good-first-issue.md](../.github/ISSUE_TEMPLATE/good-first-issue.md) | 範囲が小さく手順が決まったタスク（Claude・gemma4に丸ごと任せる候補） |
