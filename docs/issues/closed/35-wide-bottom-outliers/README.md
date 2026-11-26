@@ -236,7 +236,7 @@
 | 2026-11-18 | main | 報告と図を確かめ、U1〜U4 の代表の図4枚と観点をユーザーに送る | — |
 | 2026-11-20 | ユーザー | **決定** U1〜U4 の図を見て、評価を合格とした。気になる点の指摘は無かった（2717〜2720 ms に残る持ち上がりを含む） | — |
 | 2026-11-20 | main | 確認の結果を eval-report-1.md の先頭に書き（評価担当の本文は変えない）、評価の報告をコミットする | [`eval-report-1.md`](./eval-report-1.md)、`5b03692` |
-### 進捗報告の素材 — 作業中
+### 進捗報告の素材 — 完了
 
 | 日付 | 担当 | 内容 | 成果物 |
 |---|---|---|---|
@@ -280,6 +280,8 @@
 | 2026-11-26 | main | master を作業ブランチに取り込み、線の太さが既定値と違う M1・M6・M8・M9 の状態を「依頼」に戻し、直しの依頼を書いた | `66682f1`、[`progress-material.md`](./progress-material.md) |
 | 2026-11-26 | illustrator | M1・M6・M8・M9 の図6枚の線の太さを既定値にそろえて作り直した（上書き）。M1 の波形 0.5 → 1 pt、M6・M8 の直す前の波形 1.2 → 1 pt、M6・M8・M9 の切り出しの経路 0.8 → 1 pt。ほかは前の図と同じことを fig で確かめた | [`progress-material.md`](./progress-material.md)、`scripts/progress/wideBottomOutlierWaveform.m`、`scripts/progress/wideBottomOutlierWidthThresh.m`、`results/figures/progress/grooveBottomDetection/`（図6枚） |
 | 2026-11-26 | main | 書いてよい範囲の外が変わっていないことと、図を確かめた | — |
+| 2026-11-26 | ユーザー | **決定** 作り直した図と素材ファイルは、このままでよい | — |
+| 2026-11-26 | main | M1・M3・M6・M8・M9 を「確認済み」にし、素材ファイルの状態を「完了」にした | [`progress-material.md`](./progress-material.md) |
 ### 振り返り — 完了
 
 | 日付 | 担当 | 内容 | 成果物 |
