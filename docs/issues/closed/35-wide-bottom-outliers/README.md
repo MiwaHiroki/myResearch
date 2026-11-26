@@ -276,6 +276,8 @@
 | 2026-11-26 | main | 素材ファイルの図の表8行を新しいひな型に直し、M3 の数式を LaTeX の書き方にした。ルールに合わない M3・M6・M8 の状態を「依頼」に戻し、直しの依頼を書いた | [`progress-material.md`](./progress-material.md) |
 | 2026-11-26 | illustrator | M3・M6・M8 の図3枚を、新しい図のルールで作り直した（上書き）。M3 は重心としきい値の線を 0.5 pt の実線にし、点を塗りつぶし、凡例に何の値かを書いた。M6・M8 の波形は、y が変わった列の丸を塗りつぶし、振幅の軸を 0 を中心に上下対称（±1.1、±1.3）にした。<br>点と線の座標・凡例の値は、前の図と同じことを fig で確かめた。描き方に触れた説明の文も直した | [`progress-material.md`](./progress-material.md)、`scripts/progress/wideBottomOutlier.m`、`scripts/progress/wideBottomOutlierWidthThresh.m`、`results/figures/progress/grooveBottomDetection/`（図3枚） |
 | 2026-11-26 | main | 書いてよい範囲の外が変わっていないことと、図3枚を確かめた | — |
+| 2026-11-26 | ユーザー | **決定** 波形の図どうしで線の太さが違う（M1 は 0.5 pt、M8 は 1.2 pt）ので、線の太さの既定値を決め、当てはまる図をすべて作り直す。既定値はデータの線 1 pt、補助の線 0.5 pt（master の `740beee`） | — |
+| 2026-11-26 | main | master を作業ブランチに取り込み、線の太さが既定値と違う M1・M6・M8・M9 の状態を「依頼」に戻し、直しの依頼を書いた | `66682f1`、[`progress-material.md`](./progress-material.md) |
 ### 振り返り — 完了
 
 | 日付 | 担当 | 内容 | 成果物 |
