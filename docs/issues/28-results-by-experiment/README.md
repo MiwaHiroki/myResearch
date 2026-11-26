@@ -59,7 +59,9 @@
 | 2026-11-25 | main | 承認B の材料。作業ツリーが空の状態で、`migrateResults` の試しを両方の段階で実行した。`results` は57行（移す45行・658ファイル、空のフォルダを消す12行）、`experiments` は22行（移す12行・12ファイル、消す10行）で、警告は出なかった。`impl-report-1b.md` 4章の表と同じ。M1〜M5、説明の語、implCheck の2つのフォルダを残すかを、ユーザーに確かめる | `dbad295` |
 | 2026-11-26 | ユーザー | **決定** 承認B：移行の試しの表を承認した。M1〜M5 と説明の語は、すべて推奨の (a)（日付は今のフォルダの日付に年を足す。空の `experiments/1026/`・`1110/` は消す。`0831/digitalNeedle/` はほかと同じ規則で移し、ファイル名の日付も変える。`results/1111/README.md` はそのまま移す。`results/1110/` は移して残す。説明は `mapping-draft.md` の表のとおり）。<br>**決定** 実装担当の確認で作った `results/bilateralFilter/2026-1125_implCheck/` と `results/grooveTracking/2026-1125_implCheck/` は残す。新しい形の名前なので、移さずに残す古い形のフォルダ（評価スクリプトの `APPROVED_LEFTOVERS`）には当たらない。承認B で残す・消すと決めた古い形のものは無いので、`APPROVED_LEFTOVERS`・`APPROVED_DELETIONS` は空のまま | — |
 | 2026-11-26 | main | 決定を `mapping-draft.md` の未決事項の節に書く | [`mapping-draft.md`](./mapping-draft.md)、`831e64d` |
-| 2026-11-26 | main | 計画 7.1 の手順3。作業ツリーが空の状態で、`migrateResults(..., Phase="results")` の試し（移す45行・658ファイル、消す12行。承認B の表と同じ）→ `DryRun=false` で移す → もう一度試す、の順に行った。最後の試しは57行すべて `done` で、警告は出なかった。<br>`results/` の直下は実験名7つ（`stylus` はまだ無い）と `figures` だけになった。移したファイルの数は、実験名ごとに合計603（implCheck の52を除く）と原稿用の55で、計画と同じ。`git status` は空のままで、`git ls-files results` は144 | — |
+| 2026-11-26 | main | 計画 7.1 の手順3。作業ツリーが空の状態で、`migrateResults(..., Phase="results")` の試し（移す45行・658ファイル、消す12行。承認B の表と同じ）→ `DryRun=false` で移す → もう一度試す、の順に行った。最後の試しは57行すべて `done` で、警告は出なかった。<br>`results/` の直下は実験名7つ（`stylus` はまだ無い）と `figures` だけになった。移したファイルの数は、実験名ごとに合計603（implCheck の52を除く）と原稿用の55で、計画と同じ。`git status` は空のままで、`git ls-files results` は144 | `c2ce382` |
+| 2026-11-26 | ユーザー | **決定** 承認C：ユーザーが `data/` と `experiments/` のバックアップを取った（main による確認は不要とした）。`experiments/` の改名を指示した | — |
+| 2026-11-26 | main | 計画 7.1 の手順4。`migrateResults(..., Phase="experiments")` の試し（移す12行・12ファイル、消す10行）→ `DryRun=false` で移す → もう一度試す、の順に行った。最後の試しは22行すべて `done` で、警告は出なかった。`experiments/` の直下は `archive` と `YYYY-MMDD` の9つになり、`.mat` 12個は新しい名前、`archive/` の3つはそのまま。この時点から PR のマージまで、master のスクリプトで `experiments/` を読めない（計画 Q1） | — |
 
 ### 評価 — 未着手
 ### 振り返り — 未着手
