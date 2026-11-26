@@ -35,6 +35,9 @@
 % 2026/11/26 ユーザーの決定（docs/rules/figures.md の「線と点」「軸の範囲」「凡例」）で、波形の図の、y が変わった
 %            列の丸を塗りつぶし、写真の境目を細い実線（LINE_WIDTH_AUX）にし、振幅の軸を 0 を中心に上下対称に
 %            した（AMP_LIM_STEP）。OVERWRITE=true で波形の2枚（M6・M8）だけを作り直した（MAKE_FIGS.crop=false）
+% 2026/11/26 ユーザーの決定（docs/rules/figures.md の「線と点」の線の太さの既定値）で、波形の直す前の線を
+%            1.2 pt から 1 pt に、切り出しの直した後の経路を 0.8 pt から 1 pt（LINE_WIDTH_PATH）にした。
+%            OVERWRITE=true で5枚（M6・M8 の切り出しと波形、M9 の切り出し）を作り直した
 
 setDefaultIntrpr();
 proj = currentProject();
@@ -90,8 +93,9 @@ MARKER_SIZE = 18;       % 切り出しの図の点の大きさ（すべての種
 FONT_SIZE = 9;          % 目盛りの文字 [pt]。軸ラベル・タイトルはその 1.1 倍、凡例は 0.9 倍（MATLAB の既定）
 LEGEND_LOCATION = "northeast"; % 凡例の位置（描画領域の右上。評価の図は "best"）
 % 評価の図から変えた値（ユーザーの決定、2026-11-26。docs/rules/figures.md の「線と点」「軸の範囲」）
-LINE_WIDTH_BEFORE = 1.2; % 波形の、直す前の線の太さ [pt]（データの線。評価の図と同じ）
-LINE_WIDTH_AFTER = 1;    % 波形の、直した後の線の太さ [pt]（データの線。評価の図と同じ）
+LINE_WIDTH_BEFORE = 1;  % 波形の、直す前の線の太さ [pt]（データの線の既定値。評価の図は 1.2 pt）
+LINE_WIDTH_AFTER = 1;   % 波形の、直した後の線の太さ [pt]（データの線の既定値。評価の図と同じ）
+LINE_WIDTH_PATH = 1;    % 切り出しの、直した後の経路の太さ [pt]（データの線の既定値。評価の図は 0.8 pt）
 LINE_WIDTH_AUX = 0.5;    % 波形の、写真の境目の線の太さ [pt]（補助の線。データの線より細い実線。評価の図は 1 pt の点線）
 WAVE_MARKER_SIZE = 4;    % 波形の、y が変わった列の丸の大きさ（plot の MarkerSize。塗りつぶす。評価の図は白抜き）
 AMP_LIM_STEP = 0.1;      % 振幅の軸は ±(区間の |振幅| の最大をこの刻みで切り上げた値。1 より小さければ 1)。
@@ -100,6 +104,7 @@ MAKE_FIGS = struct("crop", true, "wave", true); % 作る図（crop は切り出�
 STYLE = struct("figSizeCrop", [16 13], "figSizeWave", [16 8], "markerSize", MARKER_SIZE, ...
     "fontSize", FONT_SIZE, "legendLocation", LEGEND_LOCATION, ...
     "lineWidthBefore", LINE_WIDTH_BEFORE, "lineWidthAfter", LINE_WIDTH_AFTER, "lineWidthAux", LINE_WIDTH_AUX, ...
+    "lineWidthPath", LINE_WIDTH_PATH, ...
     "waveMarkerSize", WAVE_MARKER_SIZE, "ampLimStep", AMP_LIM_STEP, ...
     "colorAll", "cyan", "colorBefore", "yellow", "colorAfter", "magenta", ...
     "colorWaveBefore", [0.85 0.33 0.10], "colorWaveAfter", [0 0.45 0.74]);
@@ -527,7 +532,7 @@ function fig = plotCrop(photo, xr, yr, pksAll, selB, selA, pathA, style, label, 
     h(1) = scatter(ax, pksAll(:,1), pksAll(:,2), style.markerSize, style.colorAll, "filled");
     h(2) = scatter(ax, selB(:,1), selB(:,2), style.markerSize, style.colorBefore, "filled");
     h(3) = scatter(ax, selA(:,1), selA(:,2), style.markerSize, style.colorAfter, "filled");
-    h(4) = plot(ax, pathA(inX,1), pathA(inX,2), "-", Color=style.colorAfter, LineWidth=0.8);
+    h(4) = plot(ax, pathA(inX,1), pathA(inX,2), "-", Color=style.colorAfter, LineWidth=style.lineWidthPath);
     hold(ax, "off");
     xlabel(ax, "$x$ [px]");
     lgd = legend(ax, h, ["all groove-bottom points", label.before, label.after, ...

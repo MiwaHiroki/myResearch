@@ -278,6 +278,8 @@
 | 2026-11-26 | main | 書いてよい範囲の外が変わっていないことと、図3枚を確かめた | — |
 | 2026-11-26 | ユーザー | **決定** 波形の図どうしで線の太さが違う（M1 は 0.5 pt、M8 は 1.2 pt）ので、線の太さの既定値を決め、当てはまる図をすべて作り直す。既定値はデータの線 1 pt、補助の線 0.5 pt（master の `740beee`） | — |
 | 2026-11-26 | main | master を作業ブランチに取り込み、線の太さが既定値と違う M1・M6・M8・M9 の状態を「依頼」に戻し、直しの依頼を書いた | `66682f1`、[`progress-material.md`](./progress-material.md) |
+| 2026-11-26 | illustrator | M1・M6・M8・M9 の図6枚の線の太さを既定値にそろえて作り直した（上書き）。M1 の波形 0.5 → 1 pt、M6・M8 の直す前の波形 1.2 → 1 pt、M6・M8・M9 の切り出しの経路 0.8 → 1 pt。ほかは前の図と同じことを fig で確かめた | [`progress-material.md`](./progress-material.md)、`scripts/progress/wideBottomOutlierWaveform.m`、`scripts/progress/wideBottomOutlierWidthThresh.m`、`results/figures/progress/grooveBottomDetection/`（図6枚） |
+| 2026-11-26 | main | 書いてよい範囲の外が変わっていないことと、図を確かめた | — |
 ### 振り返り — 完了
 
 | 日付 | 担当 | 内容 | 成果物 |
