@@ -2,7 +2,7 @@
 - 作成者: main・illustrator
 - 作成日: 2026-11-23
 - 入力: issue #35、[`plan-2.md`](./plan-2.md)（計画。承認済み）、[`plan.md`](./plan.md)（計画の1回目。数値の出典）、[`eval-report-1.md`](./eval-report-1.md)（評価。合格）
-- 状態: 完了（2026-11-23。M1〜M10 をユーザーが確かめた）
+- 状態: 作業中（2026-11-26。新しい図のルールで M3・M6・M8 を作り直している。M1〜M10 は 2026-11-23 にユーザーが確かめた）
 
 # #35 正規化した振幅が1付近の外れ値が、溝の選び方によらず出る（溝底区間の幅が広い溝底点） — 進捗報告の素材
 
@@ -23,9 +23,11 @@
 
 1周分のデータ（1014、直す前の幅の上限 8）で、従来法（区間ごとにクリックで溝を選ぶ方法）と自動追跡（写真ごとに溝を自動で追跡する方法）で作った音声（重心法）の波形を、710〜720 ms で重ねた。自動追跡の音声だけに、715.3〜715.4 ms で鋭い跳びがあり、715.33・715.35 ms で 0.795・0.771、715.40 ms で 1.035 と1を超える。この3サンプルは、写真8の x=1862・1863・1865 の列（M2・M3 の幅の広い溝底点）にあたる。同じサンプルで、従来法の音声は 0.107・0.286・0.441 で、710〜720 ms の振幅の最大は 0.466 である。ただし、従来法が外れ値を除いたのではない。この時刻の溝底点が、従来法で溝を取り出す帯（ヒストグラムの山の中心 ±3 px）のたまたま外にあり、点を採らずに前後の列から補間していたためである。5周分のデータ（1104）では、同じ種類の外れ値が、自動追跡した溝にもヒストグラムの帯で取り出した溝にも出ており、溝の選び方によらない（issue #35 の「確かめたこと」1・2）。
 
+図は `results/figures/progress/grooveBottomDetection/` にある。
+
 | 図 | 作り方 |
 |---|---|
-| `results/figures/progress/grooveBottomDetection/waveform_manualVsTrack_origD_inclBound_centroid_1014_710-720ms.png` | `scripts/progress/wideBottomOutlierWaveform.m` を 2026-11-23 に実行した。読んだデータは `experiments/1014/cycleResult_origD_1014.mat`（従来法）と `experiments/1014/cycleResult_origD_track_1014.mat`（自動追跡）の重心法の音声で、どちらも幅の上限 8 で作ったもの（コミット `3261e62`）。`scripts/progress/waveformManualVsTrack.m` が 2026-11-09 に作った図（`results/figures/progress/grooveTracking/waveform_manualVsTrack_centroid_origD_1014_710-720ms.png`）と同じ中身を、今の図のルールの名前・タイトル・凡例で作り直した。元の図との違いは、時間の軸を ms にしたことと、振幅の範囲を ±1.1 にして、1を超えるピークが上端で見切れないようにしたこと（元の図は ±1.035 で、ピークが上端に接していた）である |
+| <img src="/results/figures/progress/grooveBottomDetection/waveform_manualVsTrack_origD_inclBound_centroid_1014_710-720ms.png" width="200"><br>`waveform_manualVsTrack_origD_inclBound_centroid_1014_710-720ms.png` | `scripts/progress/wideBottomOutlierWaveform.m` を 2026-11-23 に実行した。読んだデータは `experiments/1014/cycleResult_origD_1014.mat`（従来法）と `experiments/1014/cycleResult_origD_track_1014.mat`（自動追跡）の重心法の音声で、どちらも幅の上限 8 で作ったもの（コミット `3261e62`）。`scripts/progress/waveformManualVsTrack.m` が 2026-11-09 に作った図（`results/figures/progress/grooveTracking/waveform_manualVsTrack_centroid_origD_1014_710-720ms.png`）と同じ中身を、今の図のルールの名前・タイトル・凡例で作り直した。元の図との違いは、時間の軸を ms にしたことと、振幅の範囲を ±1.1 にして、1を超えるピークが上端で見切れないようにしたこと（元の図は ±1.035 で、ピークが上端に接していた）である |
 
 - スライドでの使い方
   - 図の上の説明の案は「従来法(manual)と自動追跡(tracking)で作った音声の波形(1014、直す前、710~720 ms)」である。
@@ -36,9 +38,11 @@
 
 直す前（幅の上限 8）の1周分の自動追跡で、音声の 715 ms に振幅 1.03 の外れ値が出た所（1014、写真8、x=1862〜1865）の写真の切り出しである。上の段は写真だけで、下の段は写真に、溝底点、溝底区間の始めと終わり、自動追跡で選んだ溝底点（溝ごとに、列ごとに1つ選んだ点）を重ねた。選んだ溝底点のうち、幅が5以上の3点（x=1862・1863 は幅6、x=1865 は幅5。緑の点）だけが、溝底の暗い線の下の端にあり、隣の列の点より下にある（x=1862 は x=1861 より約 1.4 px、x=1865 は両隣より約 0.95 px）。この3列では、溝底区間の終わり（黄の点）が y=291 まで下がり、線の下の薄暗い所まで区間がつながっている。ユーザーは、この薄暗い所を溝の斜面と考えられる所と判断した（`plan-2.md` 2.2）。
 
+図は `results/figures/progress/grooveBottomDetection/` にある。
+
 | 図 | 作り方 |
 |---|---|
-| `results/figures/progress/grooveBottomDetection/grooveOnImage_origD_inclBound_centroid_track_1014_img8_715-716ms_grooveBtmRange.png` | `scripts/progress/wideBottomOutlier.m` を 2026-11-23 に実行した。読んだデータは `experiments/1014/cycleResult_origD_track_1014.mat`（幅の上限 8 で作った、直す前の結果）。選んだ溝底点は、保存した追跡の結果のうち、点を採れた列だけを描いた。溝底点と溝底区間は保存されていないので、写真を読み直し、保存した条件（幅の上限 8、暗さのしきい値 0.6）で求め直した。求め直した溝底点は、保存した溝底点と一致した（写真8の 68,846点、差 0）。同じ日に、ユーザーの決定でこの試行の図の体裁をそろえ、スクリプトを直して作り直した（上書き）。文字は目盛り 9 pt、軸ラベルとタイトル 9.9 pt、凡例 8.1 pt（前は 8.5・11・8 pt）、点はすべての種類を 18（前は 15）にした。さらに同じ日に、凡例の位置を下の段の上の中央（north）から右上（northeast）に直して作り直した（上書き）。凡例は y≈274〜282 の写真の上にかかり、点には重ならない。点・範囲・色・凡例の語は変えていない |
+| <img src="/results/figures/progress/grooveBottomDetection/grooveOnImage_origD_inclBound_centroid_track_1014_img8_715-716ms_grooveBtmRange.png" width="200"><br>`grooveOnImage_origD_inclBound_centroid_track_1014_img8_715-716ms_grooveBtmRange.png` | `scripts/progress/wideBottomOutlier.m` を 2026-11-23 に実行した。読んだデータは `experiments/1014/cycleResult_origD_track_1014.mat`（幅の上限 8 で作った、直す前の結果）。選んだ溝底点は、保存した追跡の結果のうち、点を採れた列だけを描いた。溝底点と溝底区間は保存されていないので、写真を読み直し、保存した条件（幅の上限 8、暗さのしきい値 0.6）で求め直した。求め直した溝底点は、保存した溝底点と一致した（写真8の 68,846点、差 0）。同じ日に、ユーザーの決定でこの試行の図の体裁をそろえ、スクリプトを直して作り直した（上書き）。文字は目盛り 9 pt、軸ラベルとタイトル 9.9 pt、凡例 8.1 pt（前は 8.5・11・8 pt）、点はすべての種類を 18（前は 15）にした。さらに同じ日に、凡例の位置を下の段の上の中央（north）から右上（northeast）に直して作り直した（上書き）。凡例は y≈274〜282 の写真の上にかかり、点には重ならない。点・範囲・色・凡例の語は変えていない |
 
 - スライドでの使い方
   - 図の上の説明の案は「外れ値の付近の写真（上）と、溝底区間の始め(赤)・終わり(黄)と自動追跡で選んだ溝底点を重ねたもの（下）。緑：幅5以上の溝底区間から求めた点」である。直す前（幅の上限 8）の図であることを、タイトルか本文に書く。
@@ -50,7 +54,9 @@
     - y=291 の黄の点のうち、x=1856・1861・1864 の3つは、しきい値をわずかに上回った1行だけの、別の溝底区間（幅0）である。
     - 右端（x≈1893〜1899）の選んだ点も y≈288.4 にあるが、そこは溝底の暗い線そのものが下がっている（溝底区間の始めも y=287 に下がる）。ずれは、同じ y かどうかではなく、隣の列の点と暗い線に対して見る。
 
-### M3 しきい値すれすれの行による溝底区間の広がり — 確認済み
+### M3 しきい値すれすれの行による溝底区間の広がり — 依頼
+
+直しの依頼（2026-11-26、ユーザーの決定）：`docs/rules/figures.md` の「線と点」「凡例」（`12bd16b`）に合わせて作り直す。破線・点線は実線にし、補助の線はデータの線より細くする（データ 1 pt、補助 0.5 pt）。点は塗りつぶす。凡例には、数が何の値かを書く。凡例は、モックアップ（`temp/figure-style-mockup/`）のとおり `centroid $y$ = 286.53`、`$x$ = 1861 ($y$ range 285-288, width 3 px)` の形にする。作り直したら、この行を消す。
 
 M2 と同じ所の3列について、y=280〜295 の暗さの分布に、しきい値 0.6 の線と、各列の溝底点（重心）の線を重ねた。3列とも、溝底の暗い線は y=286〜287（暗さ 0.68〜0.74）にあり、その下の y=289〜291 に、暗さがしきい値すれすれ（0.59〜0.62）の行が続く。この行がしきい値をわずかに上回った列では、溝底区間が y=291 まで下へ広がり、重心が下にずれる。
 
@@ -60,12 +66,14 @@ M2 と同じ所の3列について、y=280〜295 の暗さの分布に、しき�
 
 重心は暗さで重み付けした平均なので、しきい値すれすれの行も、溝底の行（約 0.73）とほぼ同じ重みで効く。そのため、区間が片側に1行広がるごとに、重心はその側へ約 0.45 px ずれる（`plan.md` 2.2 の2）。
 
+図は `results/figures/progress/grooveBottomDetection/` にある。
+
 | 図 | 作り方 |
 |---|---|
-| `results/figures/progress/grooveBottomDetection/darknessProfile_origD_inclBound_centroid_1014_img8_715-716ms.png` | M2 と同じく、`scripts/progress/wideBottomOutlier.m` を 2026-11-23 に実行した。読んだデータは `experiments/1014/cycleResult_origD_track_1014.mat`。暗さは、読み直した写真の画素値から 1 − 画素値/255 で求めた。溝底区間と重心は、各列で自動追跡が選んだ溝底点の区間のものである。同じ日に、M2 と一緒に体裁をそろえて作り直した（上書き）。凡例の文字を 8 pt から 8.1 pt にした（目盛り 9 pt、軸ラベルとタイトル 9.9 pt は前と同じ）。<br>さらに同じ日に、ユーザーの決定で、凡例を右下（southeast）から右上（northeast）の2列に移し、暗さの軸を 0.35〜0.8 から 0.35〜1.0（目盛りの間隔 0.05 のまま）にして作り直した（上書き）。2列にしたのは、同じ色の折れ線と重心の破線が同じ行に並び、色と列の x 座標の対応が分かりやすいためである。凡例の下端は暗さ約 0.85 で、折れ線（最大 0.741）・点・しきい値の点線にはかからない。凡例が重心の破線3本の上の部分（暗さ約 0.85〜0.98）にかかるのは、ユーザーが受け入れた。線・横軸・色・凡例の語は変えていない |
+| <img src="/results/figures/progress/grooveBottomDetection/darknessProfile_origD_inclBound_centroid_1014_img8_715-716ms.png" width="200"><br>`darknessProfile_origD_inclBound_centroid_1014_img8_715-716ms.png` | M2 と同じく、`scripts/progress/wideBottomOutlier.m` を 2026-11-23 に実行した。読んだデータは `experiments/1014/cycleResult_origD_track_1014.mat`。暗さは、読み直した写真の画素値から 1 − 画素値/255 で求めた。溝底区間と重心は、各列で自動追跡が選んだ溝底点の区間のものである。同じ日に、M2 と一緒に体裁をそろえて作り直した（上書き）。凡例の文字を 8 pt から 8.1 pt にした（目盛り 9 pt、軸ラベルとタイトル 9.9 pt は前と同じ）。<br>さらに同じ日に、ユーザーの決定で、凡例を右下（southeast）から右上（northeast）の2列に移し、暗さの軸を 0.35〜0.8 から 0.35〜1.0（目盛りの間隔 0.05 のまま）にして作り直した（上書き）。2列にしたのは、同じ色の折れ線と重心の破線が同じ行に並び、色と列の x 座標の対応が分かりやすいためである。凡例の下端は暗さ約 0.85 で、折れ線（最大 0.741）・点・しきい値の点線にはかからない。凡例が重心の破線3本の上の部分（暗さ約 0.85〜0.98）にかかるのは、ユーザーが受け入れた。線・横軸・色・凡例の語は変えていない |
 
 - スライドでの使い方
-  - 図の上の説明の案は「外れ値の付近の3列の暗さの分布。点線：しきい値 $D_"th"$ = 0.6、破線：各列の重心(= 溝底点)」である。
+  - 図の上の説明の案は「外れ値の付近の3列の暗さの分布。点線：しきい値 $D_\mathrm{th}$ = 0.6、破線：各列の重心(= 溝底点)」である。
   - 強調したい所
     - しきい値の点線のすぐ上と下にある、y=289〜291 の点。図の横の右寄り（目盛り 289〜291 の上）、縦の下から4割ほどの所（暗さ 0.59〜0.62）にある。x=1861（青）だけが、y=289・290 で点線の下にある。
     - 3本の破線（重心）が、286.53 → 287.92 → 288.39 と右（y の大きい側）へずれる所。図の横の中ほど（目盛り 286.5〜288.4）にある。
@@ -113,14 +121,18 @@ M2 と同じ所の3列について、y=280〜295 の暗さの分布に、しき�
 
 ## 2. 結果
 
-### M6 幅の上限を4にした前後の、715 ms の溝底点と波形 — 確認済み
+### M6 幅の上限を4にした前後の、715 ms の溝底点と波形 — 依頼
+
+直しの依頼（2026-11-26、ユーザーの決定）：`docs/rules/figures.md` の「線と点」「凡例」（`12bd16b`）に合わせて作り直す。破線・点線は実線にし、補助の線はデータの線より細くする（データ 1 pt、補助 0.5 pt）。点は塗りつぶす。凡例には、数が何の値かを書く。作り直したら、この行を消す。
 
 M1〜M3 と同じ所（1014、写真8、x=1862〜1865）で、保存したクリック位置から、幅の上限を 8（直す前）と 4（直した後）にして溝の選択をやり直した結果である。切り出しの図の下の段では、直す前に選んだ幅の広い3点（黄の点、y≈288）が、直した後には選ばれず、経路（マゼンタの線）が前後の列から補間されて溝底の暗い線の上を通る。波形の図では、直す前（赤橙）の 715.3〜715.4 ms の振幅 1.03 の外れが、直した後（青）には消える。y が変わった列（青の丸）の外では、2本の線が重なる。
 
+図は `results/figures/progress/grooveBottomDetection/` にある。
+
 | 図 | 作り方 |
 |---|---|
-| `results/figures/progress/grooveBottomDetection/grooveOnImage_wTh8VsWTh4_origD_inclBound_centroid_track_1014_img8_715-716ms.png` | `scripts/progress/wideBottomOutlierWidthThresh.m` を 2026-11-23 に実行した。読んだデータは `experiments/1014/cycleResult_origD_track_1014.mat` と `experiments/1104/cycleResult_origD_hist5_1104.mat`（M8 と同じ実行）。<br>評価スクリプト `scripts/evaluation/grooveBottomDetection/compareWidthThresh.m` が 2026-11-18 に `results/1118/` に出した同じ名前の図（評価したコード `d34563c`、`eval-report-1.md` 1.3）と同じ中身を、評価スクリプトの計算を写した進捗報告用のスクリプトで作り直した。直す前と後は、保存したクリック位置から計算した。直す前の溝底点・溝の選択・振幅は、保存した結果と一致した（差 0）。外れ値と \|振幅\| の数も `eval-report-1.md` の値と同じだった。<br>元の図との違いは、点と文字の大きさと、凡例の位置だけである。すべての溝底点（水色）の点を 9 から 18 にし（ほかの点は元から 18）、文字を目盛り 9 pt（元は 8.5）、タイトル 9.9 pt（元は 13）、凡例 8.1 pt（元は 7）にした。凡例は、元の図では自動（best）で選んでいたが、右上（northeast）に決めた。凡例は y≈274〜283 の写真の上にかかり、点・経路には重ならない。切り出しの範囲・点と線の座標・色・凡例の語・図の大きさが元の図と同じことは、fig を開いて確かめた。<br>同じ日に、文字と点の大きさをそろえて作り、続けて凡例の位置を直して作り直した（上書き） |
-| `results/figures/progress/grooveBottomDetection/waveform_wTh8VsWTh4_origD_inclBound_centroid_track_1014_img8_714-717ms.png` | 同上。元の図との違いは、凡例の文字を 8 pt から 8.1 pt にしたことと、凡例の位置を右上（northeast）と決めたことである（元の図でも、自動で右上に置かれていた）。目盛り 9 pt、軸ラベルとタイトル 9.9 pt は元の図と同じ。凡例は 716.1〜717 ms・振幅 0.75〜1.1 の所にかかり、波形の線には重ならない |
+| <img src="/results/figures/progress/grooveBottomDetection/grooveOnImage_wTh8VsWTh4_origD_inclBound_centroid_track_1014_img8_715-716ms.png" width="200"><br>`grooveOnImage_wTh8VsWTh4_origD_inclBound_centroid_track_1014_img8_715-716ms.png` | `scripts/progress/wideBottomOutlierWidthThresh.m` を 2026-11-23 に実行した。読んだデータは `experiments/1014/cycleResult_origD_track_1014.mat` と `experiments/1104/cycleResult_origD_hist5_1104.mat`（M8 と同じ実行）。<br>評価スクリプト `scripts/evaluation/grooveBottomDetection/compareWidthThresh.m` が 2026-11-18 に `results/1118/` に出した同じ名前の図（評価したコード `d34563c`、`eval-report-1.md` 1.3）と同じ中身を、評価スクリプトの計算を写した進捗報告用のスクリプトで作り直した。直す前と後は、保存したクリック位置から計算した。直す前の溝底点・溝の選択・振幅は、保存した結果と一致した（差 0）。外れ値と \|振幅\| の数も `eval-report-1.md` の値と同じだった。<br>元の図との違いは、点と文字の大きさと、凡例の位置だけである。すべての溝底点（水色）の点を 9 から 18 にし（ほかの点は元から 18）、文字を目盛り 9 pt（元は 8.5）、タイトル 9.9 pt（元は 13）、凡例 8.1 pt（元は 7）にした。凡例は、元の図では自動（best）で選んでいたが、右上（northeast）に決めた。凡例は y≈274〜283 の写真の上にかかり、点・経路には重ならない。切り出しの範囲・点と線の座標・色・凡例の語・図の大きさが元の図と同じことは、fig を開いて確かめた。<br>同じ日に、文字と点の大きさをそろえて作り、続けて凡例の位置を直して作り直した（上書き） |
+| <img src="/results/figures/progress/grooveBottomDetection/waveform_wTh8VsWTh4_origD_inclBound_centroid_track_1014_img8_714-717ms.png" width="200"><br>`waveform_wTh8VsWTh4_origD_inclBound_centroid_track_1014_img8_714-717ms.png` | 同上。元の図との違いは、凡例の文字を 8 pt から 8.1 pt にしたことと、凡例の位置を右上（northeast）と決めたことである（元の図でも、自動で右上に置かれていた）。目盛り 9 pt、軸ラベルとタイトル 9.9 pt は元の図と同じ。凡例は 716.1〜717 ms・振幅 0.75〜1.1 の所にかかり、波形の線には重ならない |
 
 - 図の見方（`eval-report-1.md` 4章）
   - 切り出しの図：上の段は写真だけ、下の段は写真と点である。水色はすべての溝底点（幅の上限 8）、黄は直す前に選んだ点、マゼンタの点は直した後に選んだ点、マゼンタの線は直した後の経路（補間した列を含む）。黄の点が見える所が、直したことで除いた点である。y=291 の水色の3点は、しきい値をわずかに上回った1行だけの区間（M2 の注意）である。
@@ -150,14 +162,18 @@ M1〜M3 と同じ所（1014、写真8、x=1862〜1865）で、保存したクリ
 
 ## 3. 結果の考察
 
-### M8 直した後も残る、溝底の線そのものの下がり — 確認済み
+### M8 直した後も残る、溝底の線そのものの下がり — 依頼
+
+直しの依頼（2026-11-26、ユーザーの決定）：`docs/rules/figures.md` の「線と点」「凡例」（`12bd16b`）に合わせて作り直す。破線・点線は実線にし、補助の線はデータの線より細くする（データ 1 pt、補助 0.5 pt）。点は塗りつぶす。凡例には、数が何の値かを書く。作り直したら、この行を消す。
 
 5周分の本実装（1104）の4本目・写真5の x=1141〜1159（19列）では、幅の広い点（幅5）が17列続いていた。続いているので、前後21列の中央値も一緒に動き、外れ値の定義では1点も数えられない。直した後は、この17列が前後の列から補間され（切り出しの図の黄の点が消え、マゼンタの線になる）、振幅の絶対値の最大は 1.228 → 0.777 になった。ただし、写真では、溝底の暗い線そのものが x=1138〜1160 で約 1 px 下がっている（上の段の横の中ほど、y=217〜220 の暗い所）。この下がりは直した後も残り、波形では、直した後も振幅が 0.7〜0.8 に持ち上がった所が残る（`eval-report-1.md` 4章の U3）。ユーザーは、この所を、レコード針が溝の斜面の一部を削って溝底が部分的に広くなったものの影と考えており、溝の本当の形とは見ていない（`plan-2.md` 2.2）。写真の暗さだけからこの下がりを見分ける方法は、見つけていない。
 
+図は `results/figures/progress/grooveBottomDetection/` にある。
+
 | 図 | 作り方 |
 |---|---|
-| `results/figures/progress/grooveBottomDetection/grooveOnImage_wTh8VsWTh4_origD_inclBound_centroid_hist_5cyc_1104_img5_groove4_2718-2719ms.png` | M6 と同じく、`scripts/progress/wideBottomOutlierWidthThresh.m` を 2026-11-23 に実行して作った（M6 と同じ実行）。`results/1118/` の同じ名前の図と同じ中身で、違いは M6 の切り出しと同じく、点と文字の大きさと、凡例の位置（右上、northeast）だけである。凡例は y≈204〜208 の写真の上にかかり、点・経路には重ならない。この区間の \|振幅\| の最大は 1.2284 → 0.7770 で、評価の値（`results/1118/evalWidthThresh_wideRuns.csv`）と同じだった |
-| `results/figures/progress/grooveBottomDetection/waveform_wTh8VsWTh4_origD_inclBound_centroid_hist_5cyc_1104_img5_groove4_2717-2720ms.png` | 同上。元の図との違いは、凡例の文字を 8 pt から 8.1 pt にしたことと、凡例の位置を右上（northeast）と決めたことである（元の図でも、自動で右上に置かれていた）。凡例は 2719.1〜2720 ms・振幅 1.0〜1.35 の所にかかり、波形の線には重ならない |
+| <img src="/results/figures/progress/grooveBottomDetection/grooveOnImage_wTh8VsWTh4_origD_inclBound_centroid_hist_5cyc_1104_img5_groove4_2718-2719ms.png" width="200"><br>`grooveOnImage_wTh8VsWTh4_origD_inclBound_centroid_hist_5cyc_1104_img5_groove4_2718-2719ms.png` | M6 と同じく、`scripts/progress/wideBottomOutlierWidthThresh.m` を 2026-11-23 に実行して作った（M6 と同じ実行）。`results/1118/` の同じ名前の図と同じ中身で、違いは M6 の切り出しと同じく、点と文字の大きさと、凡例の位置（右上、northeast）だけである。凡例は y≈204〜208 の写真の上にかかり、点・経路には重ならない。この区間の \|振幅\| の最大は 1.2284 → 0.7770 で、評価の値（`results/1118/evalWidthThresh_wideRuns.csv`）と同じだった |
+| <img src="/results/figures/progress/grooveBottomDetection/waveform_wTh8VsWTh4_origD_inclBound_centroid_hist_5cyc_1104_img5_groove4_2717-2720ms.png" width="200"><br>`waveform_wTh8VsWTh4_origD_inclBound_centroid_hist_5cyc_1104_img5_groove4_2717-2720ms.png` | 同上。元の図との違いは、凡例の文字を 8 pt から 8.1 pt にしたことと、凡例の位置を右上（northeast）と決めたことである（元の図でも、自動で右上に置かれていた）。凡例は 2719.1〜2720 ms・振幅 1.0〜1.35 の所にかかり、波形の線には重ならない |
 
 - スライドでの使い方
   - 図の上の説明の案は、切り出しが「直す前(黄)と直した後(マゼンタ)に選んだ溝底点(1104、4本目、写真5、2718 ms付近)」、波形が「直す前(赤橙)と直した後(青)の音声の波形(2717~2720 ms)」である。
@@ -168,9 +184,11 @@ M1〜M3 と同じ所（1014、写真8、x=1862〜1865）で、保存したクリ
 
 1周分（1014）の写真8の x=33〜36 では、溝底区間が上下の両側に1行ずつ広がって幅5になっていた。両側に同じだけ広がったので、重心はずれておらず、選んだ点（黄）は溝底の暗い線の上にあった。それでも、幅の上限を4にすると、この4列の点は溝底点にならず、前後の列からの補間（マゼンタの線）に置き換わる。直したことで失ったものの例である。1104 では、外れ値でなかった幅の広い点78点が補間に置き換わり、y の変化は中央値 0.4504 px、最大 1.2393 px だった（`eval-report-1.md` 2.3 の P10）。ユーザーは、暗さのしきい値で溝底を決めるこの方法では避けられないとして受け入れ、欠点として README に書いた。
 
+図は `results/figures/progress/grooveBottomDetection/` にある。
+
 | 図 | 作り方 |
 |---|---|
-| `results/figures/progress/grooveBottomDetection/grooveOnImage_wTh8VsWTh4_origD_inclBound_centroid_track_1014_img8_671-672ms.png` | M6 と同じく、`scripts/progress/wideBottomOutlierWidthThresh.m` を 2026-11-23 に実行して作った（M6 と同じ実行）。`results/1118/` の同じ名前の図と同じ中身で、違いは M6 の切り出しと同じく、点と文字の大きさと、凡例の位置（右上、northeast）だけである。凡例は y≈235〜245 の写真の上にかかり、点・経路（y≈248〜249）には重ならない |
+| <img src="/results/figures/progress/grooveBottomDetection/grooveOnImage_wTh8VsWTh4_origD_inclBound_centroid_track_1014_img8_671-672ms.png" width="200"><br>`grooveOnImage_wTh8VsWTh4_origD_inclBound_centroid_track_1014_img8_671-672ms.png` | M6 と同じく、`scripts/progress/wideBottomOutlierWidthThresh.m` を 2026-11-23 に実行して作った（M6 と同じ実行）。`results/1118/` の同じ名前の図と同じ中身で、違いは M6 の切り出しと同じく、点と文字の大きさと、凡例の位置（右上、northeast）だけである。凡例は y≈235〜245 の写真の上にかかり、点・経路（y≈248〜249）には重ならない |
 
 - スライドでの使い方
   - 図の上の説明の案は「直す前(黄)と直した後(マゼンタ)に選んだ溝底点(1014、写真8、671 ms付近)」である。
